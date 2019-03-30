@@ -12,55 +12,46 @@ import java.util.Set;
 
 public abstract class CommandBase implements TwirkListener {
     public enum CommandType {
-        PREFIX_COMMAND, CONTENT_COMMAND, ALL_COMMANDS
+        PREFIX_COMMAND, CONTENT_COMMAND
     }
 
     private Set<String> commandPattern;
     private CommandType commandType;
     private USER_TYPE minPrivilege;
 
-    protected CommandBase(CommandType commandType) {
+    CommandBase(CommandType commandType) {
         this.commandType = commandType;
-        commandPattern = complileCommandPattern();
+        commandPattern = compileCommandPattern();
         minPrivilege = getMinUserPrivilege();
     }
 
     @Override
     public void onPrivMsg(TwitchUser sender, TwitchMessage message) {
         String content = message.getContent().toLowerCase(Locale.ENGLISH).trim();
-        String[] split = content.split("\\s");
+        String[] split = content.split("\\s", 2);
         String command = split[0];
-        HashSet<String> allWords = new HashSet<>();
-        Collections.addAll(allWords, split);
 
-        if(sender.getUserType().value >= minPrivilege.value) {
-            switch (commandType) {
-                case PREFIX_COMMAND:
-                    for (String pattern : commandPattern) {
-                        if (command.startsWith(pattern)) {
-                            performCommand(pattern, sender, message);
-                        }
+        if( sender.getUserType().value >= minPrivilege.value ) {
+            if( commandType == CommandType.PREFIX_COMMAND ){
+                for( String pattern : commandPattern ){
+                    if( command.startsWith(pattern) ){
+                        performCommand(pattern, sender, message);
+                        break;	//We don't want to fire twice for the same message
                     }
-                    break;
-
-                case CONTENT_COMMAND:
-                default:
-                    for (String pattern : commandPattern) {
-                        if (content.contains(pattern)) {
-                            performCommand(pattern, sender, message);
-                            break;
-                        }
+                }
+            }
+            else {
+                for( String pattern : commandPattern ) {
+                    if( content.contains(pattern) ){
+                        performCommand(pattern, sender, message);
+                        break; //We don't want to fire twice for the same message
                     }
-                    break;
-                case ALL_COMMANDS:
-                    if (allWords.containsAll(commandPattern)) {
-                        performCommand(content, sender, message);
-                    }
+                }
             }
         }
     }
 
-    private Set<String> complileCommandPattern() {
+    private Set<String> compileCommandPattern() {
         String[] patterns = getCommandWords().toLowerCase(Locale.ENGLISH).split("\\|");
         HashSet<String> out = new HashSet<>();
         Collections.addAll(out, patterns);

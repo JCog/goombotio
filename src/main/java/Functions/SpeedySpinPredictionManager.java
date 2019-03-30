@@ -19,10 +19,12 @@ public class SpeedySpinPredictionManager {
 
     private HashMap<TwitchUser, ArrayList<Badge>> predictionList;
     private boolean enabled;
+    private boolean waitingForAnswer;
 
     public SpeedySpinPredictionManager(Twirk twirk) {
         this.twirk = twirk;
         enabled = false;
+        waitingForAnswer = false;
         predictionList = new HashMap<>();
     }
 
@@ -44,36 +46,46 @@ public class SpeedySpinPredictionManager {
                 "BadSpin3 or SpoodlySpun to guess the badge shop!");
     }
 
-    public void stop(Badge one, Badge two, Badge three) {
+    public void stop() {
+        waitingForAnswer = true;
+        twirk.channelMessage("/me Predictions are up! Let's see how everyone did...");
+    }
+
+    public void submitPredictions(Badge one, Badge two, Badge three) {
         enabled = false;
+        waitingForAnswer = false;
         twirk.removeIrcListener(sspListener);
 
         ArrayList<String> winners = getWinners(one, two, three);
         String message;
         if (winners.size() == 0) {
-            message = "Nobody guessed it though. pepeHands";
+            message = "Nobody guessed it though. BibleThump";
         }
         else if (winners.size() == 1) {
-            message = String.format("Congrats to %s on guessing correctly! PogChamp", winners.get(0));
+            message = String.format("Congrats to @%s on guessing correctly! PogChamp", winners.get(0));
         }
         else if (winners.size() == 2) {
-            message = String.format("Congrats to %s and %s on guessing correctly! PogChamp",winners.get(0), winners.get(1));
+            message = String.format("Congrats to @%s and @%s on guessing correctly! PogChamp",winners.get(0), winners.get(1));
         }
         else {
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < winners.size() - 1; i++) {
-                builder.append(winners.get(i) + ", ");
+                builder.append("@").append(winners.get(i)).append(", ");
             }
-            builder.append("and " + winners.get(winners.size() - 1));
+            builder.append("and @").append(winners.get(winners.size() - 1));
             message = builder.toString();
         }
 
-        twirk.channelMessage(String.format("/me Predictions are up! The correct answer was %s %s %s . %s",
+        twirk.channelMessage(String.format("/me The correct answer was %s %s %s - %s",
                 badgeToString(one), badgeToString(two), badgeToString(three), message));
     }
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public boolean isWaitingForAnswer() {
+        return waitingForAnswer;
     }
 
 

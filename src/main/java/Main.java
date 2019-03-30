@@ -18,7 +18,7 @@ public class Main {
         final String NICK = args[1];
         final String OAUTH = args[2];
         final boolean VERBOSE_MODE = true;
-        Twirk twirk;
+        final Twirk twirk;
 
         Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
@@ -35,7 +35,7 @@ public class Main {
 
         String line;
 
-        out.println("Starting Goombotio...");
+        out.println("Goombotio is ready.");
         //primary loop
         while( !(line = scanner.nextLine()).matches(".quit") ) {
             twirk.channelMessage(line);

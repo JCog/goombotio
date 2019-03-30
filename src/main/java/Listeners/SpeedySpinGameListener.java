@@ -34,14 +34,20 @@ public class SpeedySpinGameListener extends CommandBase {
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         if (game.isEnabled()) {
-            String[] content = message.getContent().split("\\s");
-            if (content.length > 0 && content[1].matches("[1-4]{3}")) {
+            if (game.isWaitingForAnswer()) {
+                String[] content = message.getContent().split("\\s");
+                if (content.length > 1 && content[1].matches("[1-4]{3}")) {
+                    out.println("Submitting predictions...");
+                    game.submitPredictions(
+                            Badge.values()[Character.getNumericValue(content[1].charAt(0)) - 1],
+                            Badge.values()[Character.getNumericValue(content[1].charAt(1)) - 1],
+                            Badge.values()[Character.getNumericValue(content[1].charAt(2)) - 1]
+                    );
+                }
+            }
+            else {
                 out.println("Ending the prediction game...");
-                game.stop(
-                        Badge.values()[content[1].charAt(0)],
-                        Badge.values()[content[1].charAt(1)],
-                        Badge.values()[content[1].charAt(2)]
-                );
+                game.stop();
             }
         }
         else {
