@@ -48,13 +48,13 @@ public class SpeedySpinPredictionManager {
 
     public void stop() {
         waitingForAnswer = true;
+        twirk.removeIrcListener(sspListener);
         twirk.channelMessage("/me Predictions are up! Let's see how everyone did...");
     }
 
     public void submitPredictions(Badge one, Badge two, Badge three) {
         enabled = false;
         waitingForAnswer = false;
-        twirk.removeIrcListener(sspListener);
 
         ArrayList<String> winners = getWinners(one, two, three);
         String message;
