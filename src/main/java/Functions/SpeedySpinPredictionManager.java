@@ -1,6 +1,7 @@
 package Functions;
 
 import Listeners.SpeedySpinPredictionListener;
+import Util.Database.SpeedySpinLeaderboard;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.types.users.TwitchUser;
 
@@ -10,6 +11,7 @@ public class SpeedySpinPredictionManager {
 
     private final Twirk twirk;
     private SpeedySpinPredictionListener sspListener;
+    private SpeedySpinLeaderboard leaderboard;
     public enum Badge {
         BAD_SPIN1,
         BAD_SPIN2,
@@ -26,6 +28,7 @@ public class SpeedySpinPredictionManager {
         enabled = false;
         waitingForAnswer = false;
         predictionList = new HashMap<>();
+        leaderboard = new SpeedySpinLeaderboard();
     }
 
     public void makePrediction(TwitchUser user, Badge first, Badge second, Badge third) {
@@ -95,6 +98,7 @@ public class SpeedySpinPredictionManager {
         for (Map.Entry<TwitchUser, ArrayList<Badge>> pred : predictionList.entrySet()) {
             if (pred.getValue().get(0) == one && pred.getValue().get(1) == two && pred.getValue().get(2) == three) {
                 winners.add(pred.getKey().getDisplayName());
+                leaderboard.addPointsAndWins(pred.getKey(), 10, 1);
             }
         }
         return winners;

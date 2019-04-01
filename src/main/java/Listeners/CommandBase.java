@@ -58,7 +58,7 @@ public abstract class CommandBase implements TwirkListener {
         return out;
     }
 
-    protected  abstract String getCommandWords();
+    protected abstract String getCommandWords();
 
     protected abstract USER_TYPE getMinUserPrivilege();
 
