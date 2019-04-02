@@ -1,6 +1,5 @@
 package Listeners;
 
-import Functions.SpeedySpinPredictionManager;
 import Util.Database.SpeedySpinLeaderboard;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.enums.USER_TYPE;
@@ -11,7 +10,7 @@ import java.util.ArrayList;
 
 public class SpeedySpinLeaderboardListener extends CommandBase {
     private static final String patternLeaderboard = "!leaderboard";
-    private static final String patternRules = "!badgeshop";
+    private static final String patternBadgeShop = "!badgeshop";
     private static final String patternPoints = "!points";
     private final Twirk twirk;
     private SpeedySpinLeaderboard leaderboard;
@@ -24,7 +23,7 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
 
     @Override
     protected String getCommandWords() {
-        return patternLeaderboard + "|" + patternRules + "|" + patternPoints;
+        return patternLeaderboard + "|" + patternBadgeShop + "|" + patternPoints;
     }
 
     @Override
@@ -62,7 +61,7 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
                 chatMessage = String.format("@%s you have %d points.", username, points);
                 break;
 
-            case patternRules:
+            case patternBadgeShop:
                 chatMessage = "/me Guess the badge shop! Get 1 point for one badge, 5 for two badges, and 20 if you " +
                         "get all three correct! Use !leaderboard to see the top scores and !points to see how many " +
                         "points you have.";
