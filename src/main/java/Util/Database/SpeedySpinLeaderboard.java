@@ -1,8 +1,13 @@
 package Util.Database;
 
 import com.gikk.twirk.types.users.TwitchUser;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Sorts;
 import org.bson.Document;
+
+import java.util.ArrayList;
 
 import static com.mongodb.client.model.Filters.*;
 
@@ -67,7 +72,15 @@ public class SpeedySpinLeaderboard extends CollectionBase{
 
         Document result = find(eq("_id", id)).first();
         if (result != null) {
-            return (int)result.get("wins");
+            return (int)result.get("points");
+        }
+        return 0;
+    }
+
+    public int getPoints(long id) {
+        Document result = find(eq("_id", id)).first();
+        if (result != null) {
+            return (int)result.get("points");
         }
         return 0;
     }
@@ -77,8 +90,32 @@ public class SpeedySpinLeaderboard extends CollectionBase{
 
         Document result = find(eq("_id", id)).first();
         if (result != null) {
-            return (int)result.get("points");
+            return (int)result.get("wins");
         }
         return 0;
+    }
+
+    public String getUsername(long id) {
+        Document result = find(eq("_id", id)).first();
+        if (result != null) {
+            return (String)result.get("name");
+        }
+        return "N/A";
+    }
+
+    //returns id's of top 3 scorers. if there are less than 3, returns -1 for those slots
+    public ArrayList<Long> getTopScorers() {
+        ArrayList<Long> topScorers = new ArrayList<>();
+
+        MongoCursor<Document> result = find().sort(Sorts.descending("points")).iterator();
+        while (result.hasNext() && topScorers.size() < 3) {
+            topScorers.add((long)result.next().get("_id"));
+        }
+
+        while (topScorers.size() < 3) {
+            topScorers.add(-1L);
+        }
+
+        return topScorers;
     }
 }

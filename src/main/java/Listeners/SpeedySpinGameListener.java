@@ -32,6 +32,11 @@ public class SpeedySpinGameListener extends CommandBase {
     }
 
     @Override
+    protected int getCooldownLength() {
+        return 0;
+    }
+
+    @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         if (game.isEnabled()) {
             if (game.isWaitingForAnswer()) {

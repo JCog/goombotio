@@ -51,7 +51,7 @@ public class SpeedySpinPredictionManager {
         enabled = true;
         twirk.addIrcListener(sspListener = new SpeedySpinPredictionListener(this));
         twirk.channelMessage("/me Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 " +
-                "BadSpin3 or SpoodlySpun to guess the badge shop! Type !preds to learn more.");
+                "BadSpin3 or SpoodlySpun to guess the badge shop! Type !badgeshop to learn more.");
     }
 
     public void stop() {

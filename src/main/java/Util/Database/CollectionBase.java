@@ -6,10 +6,10 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 public abstract class CollectionBase {
-    protected GoombotioDb goombotioDb;
-    protected MongoCollection<Document> collection;
+    GoombotioDb goombotioDb;
+    private MongoCollection<Document> collection;
 
-    public CollectionBase() {
+    CollectionBase() {
         goombotioDb = GoombotioDb.getInstance();
         collection = setCollection();
     }
@@ -17,15 +17,19 @@ public abstract class CollectionBase {
     // I feel like there's a better way to do this but idk
     protected abstract MongoCollection<Document> setCollection();
 
-    protected void insertOne(Document document) {
+    void insertOne(Document document) {
         collection.insertOne(document);
     }
 
-    protected void updateOne(Bson filter, Bson update) {
+    void updateOne(Bson filter, Bson update) {
         collection.updateOne(filter, update);
     }
 
-    protected FindIterable<Document> find(Bson filter) {
+    FindIterable<Document> find(Bson filter) {
         return collection.find(filter);
+    }
+
+    FindIterable<Document> find() {
+        return collection.find();
     }
 }
