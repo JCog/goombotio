@@ -1,14 +1,10 @@
 package Util.Database;
 
 import com.gikk.twirk.types.users.TwitchUser;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import javafx.util.Pair;
 import org.bson.Document;
 
 import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Updates.combine;
-import static com.mongodb.client.model.Updates.set;
 
 public class SpeedySpinLeaderboard extends CollectionBase{
 
@@ -24,6 +20,11 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     }
 
     public void addPointsAndWins(TwitchUser user, int points, int wins) {
+        addPoints(user, points);
+        addWins(user, wins);
+    }
+
+    public  void addPoints(TwitchUser user, int points) {
         long id = user.getUserID();
         String name = user.getDisplayName();
 
@@ -33,26 +34,51 @@ public class SpeedySpinLeaderboard extends CollectionBase{
             Document document = new Document("_id", id)
                     .append("name", name)
                     .append("points", points)
+                    .append("wins", 0);
+            insertOne(document);
+        }
+        else {
+            int newPoints = (int)result.get("points") + points;
+            updateOne(eq("_id", id), new Document("$set", new Document("points", newPoints)));
+        }
+    }
+
+    public void addWins(TwitchUser user, int wins) {
+        long id = user.getUserID();
+        String name = user.getDisplayName();
+
+        Document result = find(eq("_id", id)).first();
+
+        if (result == null) {
+            Document document = new Document("_id", id)
+                    .append("name", name)
+                    .append("points", 0)
                     .append("wins", wins);
             insertOne(document);
         }
         else {
-            //TODO: figure out how to actually increment instead of replacing the whole document
-            updateOne(eq("_id", id),
-                    combine(set("name", name),
-                            set("points", points + (int)result.get("points")),
-                            set("wins", wins + (int)result.get("wins"))));
+            int newWins = (int)result.get("wins") + wins;
+            updateOne(eq("_id", id), new Document("$set", new Document("wins", newWins)));
         }
     }
 
-    public Pair<Integer, Integer> getPointsAndWins(TwitchUser user) {
+    public int getPoints(TwitchUser user) {
         long id = user.getUserID();
 
         Document result = find(eq("_id", id)).first();
         if (result != null) {
-            return new Pair<>((int)result.get("points"), (int)result.get("wins"));
+            return (int)result.get("wins");
         }
+        return 0;
+    }
 
-        return null;
+    public int getWins(TwitchUser user) {
+        long id = user.getUserID();
+
+        Document result = find(eq("_id", id)).first();
+        if (result != null) {
+            return (int)result.get("points");
+        }
+        return 0;
     }
 }

@@ -5,8 +5,6 @@ import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import static com.mongodb.client.model.Filters.*;
-
 public abstract class CollectionBase {
     protected GoombotioDb goombotioDb;
     protected MongoCollection<Document> collection;

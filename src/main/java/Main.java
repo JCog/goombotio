@@ -17,7 +17,7 @@ public class Main {
         final String CHANNEL = '#' + args[0];
         final String NICK = args[1];
         final String OAUTH = args[2];
-        final boolean VERBOSE_MODE = true;
+        final boolean VERBOSE_MODE = false;
         final Twirk twirk;
 
         Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));

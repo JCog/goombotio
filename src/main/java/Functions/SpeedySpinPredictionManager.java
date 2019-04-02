@@ -7,8 +7,13 @@ import com.gikk.twirk.types.users.TwitchUser;
 
 import java.util.*;
 
+import static java.lang.System.out;
+
 public class SpeedySpinPredictionManager {
 
+    private final int POINTS_3 = 20;
+    private final int POINTS_2 = 5;
+    private final int POINTS_1 = 1;
     private final Twirk twirk;
     private SpeedySpinPredictionListener sspListener;
     private SpeedySpinLeaderboard leaderboard;
@@ -46,7 +51,7 @@ public class SpeedySpinPredictionManager {
         enabled = true;
         twirk.addIrcListener(sspListener = new SpeedySpinPredictionListener(this));
         twirk.channelMessage("/me Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 " +
-                "BadSpin3 or SpoodlySpun to guess the badge shop!");
+                "BadSpin3 or SpoodlySpun to guess the badge shop! Type !preds to learn more.");
     }
 
     public void stop() {
@@ -62,20 +67,22 @@ public class SpeedySpinPredictionManager {
         ArrayList<String> winners = getWinners(one, two, three);
         String message;
         if (winners.size() == 0) {
-            message = "Nobody guessed it though. BibleThump";
+            message = "Nobody guessed it. BibleThump Hopefully you got some points, though!";
         }
         else if (winners.size() == 1) {
             message = String.format("Congrats to @%s on guessing correctly! PogChamp", winners.get(0));
         }
         else if (winners.size() == 2) {
-            message = String.format("Congrats to @%s and @%s on guessing correctly! PogChamp",winners.get(0), winners.get(1));
+            message = String.format("Congrats to @%s and @%s on guessing correctly! PogChamp", winners.get(0), winners.get(1));
         }
         else {
             StringBuilder builder = new StringBuilder();
+            builder.append("Congrats to ");
             for (int i = 0; i < winners.size() - 1; i++) {
                 builder.append("@").append(winners.get(i)).append(", ");
             }
             builder.append("and @").append(winners.get(winners.size() - 1));
+            builder.append(" on guessing correctly! PogChamp");
             message = builder.toString();
         }
 
@@ -93,12 +100,28 @@ public class SpeedySpinPredictionManager {
 
 
 
-    private ArrayList<String> getWinners(Badge one, Badge two, Badge three) {
+    private ArrayList<String> getWinners(Badge leftAnswer, Badge middleAnswer, Badge rightAnswer) {
         ArrayList<String> winners = new ArrayList<>();
         for (Map.Entry<TwitchUser, ArrayList<Badge>> pred : predictionList.entrySet()) {
-            if (pred.getValue().get(0) == one && pred.getValue().get(1) == two && pred.getValue().get(2) == three) {
+            TwitchUser user = pred.getKey();
+            Badge leftGuess = pred.getValue().get(0);
+            Badge middleGuess = pred.getValue().get(1);
+            Badge rightGuess = pred.getValue().get(2);
+
+            if (leftGuess == leftAnswer && middleGuess == middleAnswer && rightGuess == rightAnswer) {
                 winners.add(pred.getKey().getDisplayName());
-                leaderboard.addPointsAndWins(pred.getKey(), 10, 1);
+                leaderboard.addPointsAndWins(user, POINTS_3, 1);
+                out.println(String.format("%s guessed 3 correctly. Adding %d points and a win.", user.getDisplayName(), POINTS_3));
+            }
+            else if ((leftGuess == leftAnswer && middleGuess == middleAnswer) ||
+                    (leftGuess == leftAnswer && rightGuess == rightAnswer) ||
+                    (middleGuess == middleAnswer && rightGuess == rightAnswer)) {
+                leaderboard.addPoints(user, POINTS_2);
+                out.println(String.format("%s guessed 2 correctly. Adding %d points.", user.getDisplayName(), POINTS_2));
+            }
+            else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == middleAnswer) {
+                leaderboard.addPoints(user, POINTS_1);
+                out.println(String.format("%s guessed 1 correctly. Adding %d point.", user.getDisplayName(), POINTS_1));
             }
         }
         return winners;
