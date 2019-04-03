@@ -33,7 +33,7 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
 
     @Override
     protected int getCooldownLength() {
-        return 5000;
+        return 500;
     }
 
     @Override
