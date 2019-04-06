@@ -42,6 +42,17 @@ public class SpeedySpinPredictionManager {
             prediction.add(first);
             prediction.add(second);
             prediction.add(third);
+
+            //apparently every user object is unique even if it's the same user, so you can't assume a 2nd prediction
+            //from the same user will overwrite the first one. I should probably use the id as a key, but then I don't
+            //have easy access to the user object. TODO: fix this
+            Iterator<Map.Entry<TwitchUser, ArrayList<Badge>>> it = predictionList.entrySet().iterator();
+            while(it.hasNext()) {
+                if (it.next().getKey().getUserID() == user.getUserID()) {
+                    it.remove();
+                    break;
+                }
+            }
             predictionList.put(user, prediction);
         }
     }
@@ -58,6 +69,7 @@ public class SpeedySpinPredictionManager {
         waitingForAnswer = true;
         twirk.removeIrcListener(sspListener);
         twirk.channelMessage("/me Predictions are up! Let's see how everyone did...");
+        twirk.whisper("jcog", "1. First Strike || 2. D-Down Pound || 3. Multibounce");
     }
 
     public void submitPredictions(Badge one, Badge two, Badge three) {
@@ -111,17 +123,28 @@ public class SpeedySpinPredictionManager {
             if (leftGuess == leftAnswer && middleGuess == middleAnswer && rightGuess == rightAnswer) {
                 winners.add(pred.getKey().getDisplayName());
                 leaderboard.addPointsAndWins(user, POINTS_3, 1);
+                twirk.whisper(user, String.format("You got all three badges! PogChamp That's +%d points! You now have %d total points.",
+                        POINTS_3, leaderboard.getPoints(user)));
                 out.println(String.format("%s guessed 3 correctly. Adding %d points and a win.", user.getDisplayName(), POINTS_3));
             }
             else if ((leftGuess == leftAnswer && middleGuess == middleAnswer) ||
                     (leftGuess == leftAnswer && rightGuess == rightAnswer) ||
                     (middleGuess == middleAnswer && rightGuess == rightAnswer)) {
                 leaderboard.addPoints(user, POINTS_2);
+                twirk.whisper(user, String.format("You got two badges correct! PogChamp That's +%d points! You now have %d total points.",
+                        POINTS_2, leaderboard.getPoints(user)));
                 out.println(String.format("%s guessed 2 correctly. Adding %d points.", user.getDisplayName(), POINTS_2));
             }
             else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == middleAnswer) {
                 leaderboard.addPoints(user, POINTS_1);
+                twirk.whisper(user, String.format("You got one badge correct! PogChamp That's +%d point! You now have %d total points.",
+                        POINTS_1, leaderboard.getPoints(user)));
                 out.println(String.format("%s guessed 1 correctly. Adding %d point.", user.getDisplayName(), POINTS_1));
+            }
+            else {
+                twirk.whisper(user, String.format("You didn't get any badges correct. BibleThump You currently have %d total points.",
+                        leaderboard.getPoints(user)));
+                out.println(String.format("%s guessed 0 correctly.", user.getDisplayName()));
             }
         }
         return winners;
