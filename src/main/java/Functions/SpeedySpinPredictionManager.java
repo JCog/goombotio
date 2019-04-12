@@ -123,27 +123,27 @@ public class SpeedySpinPredictionManager {
             if (leftGuess == leftAnswer && middleGuess == middleAnswer && rightGuess == rightAnswer) {
                 winners.add(pred.getKey().getDisplayName());
                 leaderboard.addPointsAndWins(user, POINTS_3, 1);
-                twirk.whisper(user, String.format("You got all three badges! PogChamp That's +%d points! You now have %d total points.",
-                        POINTS_3, leaderboard.getPoints(user)));
+//                twirk.whisper(user, String.format("You got all three badges! PogChamp That's +%d points! You now have %d total points.",
+//                        POINTS_3, leaderboard.getPoints(user)));
                 out.println(String.format("%s guessed 3 correctly. Adding %d points and a win.", user.getDisplayName(), POINTS_3));
             }
             else if ((leftGuess == leftAnswer && middleGuess == middleAnswer) ||
                     (leftGuess == leftAnswer && rightGuess == rightAnswer) ||
                     (middleGuess == middleAnswer && rightGuess == rightAnswer)) {
                 leaderboard.addPoints(user, POINTS_2);
-                twirk.whisper(user, String.format("You got two badges correct! PogChamp That's +%d points! You now have %d total points.",
-                        POINTS_2, leaderboard.getPoints(user)));
+//                twirk.whisper(user, String.format("You got two badges correct! PogChamp That's +%d points! You now have %d total points.",
+//                        POINTS_2, leaderboard.getPoints(user)));
                 out.println(String.format("%s guessed 2 correctly. Adding %d points.", user.getDisplayName(), POINTS_2));
             }
-            else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == middleAnswer) {
+            else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == rightAnswer) {
                 leaderboard.addPoints(user, POINTS_1);
-                twirk.whisper(user, String.format("You got one badge correct! PogChamp That's +%d point! You now have %d total points.",
-                        POINTS_1, leaderboard.getPoints(user)));
+//                twirk.whisper(user, String.format("You got one badge correct! PogChamp That's +%d point! You now have %d total points.",
+//                        POINTS_1, leaderboard.getPoints(user)));
                 out.println(String.format("%s guessed 1 correctly. Adding %d point.", user.getDisplayName(), POINTS_1));
             }
             else {
-                twirk.whisper(user, String.format("You didn't get any badges correct. BibleThump You currently have %d total points.",
-                        leaderboard.getPoints(user)));
+//                twirk.whisper(user, String.format("You didn't get any badges correct. BibleThump You currently have %d total points.",
+//                        leaderboard.getPoints(user)));
                 out.println(String.format("%s guessed 0 correctly.", user.getDisplayName()));
             }
         }
