@@ -33,7 +33,7 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
 
     @Override
     protected int getCooldownLength() {
-        return 500;
+        return 100;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
             case patternPoints:
                 String username = sender.getDisplayName();
                 int points = leaderboard.getPoints(sender);
-                chatMessage = String.format("@%s you have %d points.", username, points);
+                chatMessage = String.format("@%s you have %d point%s.", username, points, points == 1 ? "" : "s");
                 break;
 
             case patternBadgeShop:
