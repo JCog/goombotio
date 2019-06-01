@@ -42,29 +42,48 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
 
         switch (command) {
             case patternLeaderboard:
-                ArrayList<Long> topScorers = leaderboard.getTopScorers();
-                ArrayList<Integer> topPoints = new ArrayList<>();
-                ArrayList<String> topNames = new ArrayList<>();
-                for (Long topScorer : topScorers) {
-                    topPoints.add(leaderboard.getPoints(topScorer));
-                    topNames.add(leaderboard.getUsername(topScorer));
+//                ArrayList<Long> topScorers = leaderboard.getTopScorers();
+//                ArrayList<Integer> topPoints = new ArrayList<>();
+//                ArrayList<String> topNames = new ArrayList<>();
+                ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
+                ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
+                ArrayList<String> topMonthlyNames = new ArrayList<>();
+//                for (Long topScorer : topScorers) {
+//                    topPoints.add(leaderboard.getPoints(topScorer));
+//                    topNames.add(leaderboard.getUsername(topScorer));
+//                }
+                for (Long topMonthlyScorer : topMonthlyScorers) {
+                    topMonthlyPoints.add(leaderboard.getMonthlyPoints(topMonthlyScorer));
+                    topMonthlyNames.add(leaderboard.getUsername(topMonthlyScorer));
                 }
-                chatMessage = String.format("Leaderboard: 1. %s - %d, 2. %s - %d, 3. %s - %d",
-                        topNames.get(0), topPoints.get(0),
-                        topNames.get(1), topPoints.get(1),
-                        topNames.get(2), topPoints.get(2));
+
+                StringBuilder builder = new StringBuilder();
+                builder.append("Monthly Leaderboard: ");
+                for (int i = 0; i < topMonthlyNames.size(); i++) {
+                    int index = i + 1;
+                    String name = topMonthlyNames.get(i);
+                    int monthlyPoints = topMonthlyPoints.get(i);
+
+                    builder.append(String.format("%d. %s - %d", index, name, monthlyPoints));
+
+                    if (i + 1 < topMonthlyNames.size()) {
+                        builder.append(", ");
+                    }
+                }
+
+                chatMessage = builder.toString();
                 break;
 
             case patternPoints:
                 String username = sender.getDisplayName();
-                int points = leaderboard.getPoints(sender);
-                chatMessage = String.format("@%s you have %d point%s.", username, points, points == 1 ? "" : "s");
+                int points = leaderboard.getMonthlyPoints(sender);
+                chatMessage = String.format("@%s you have %d point%s this month.", username, points, points == 1 ? "" : "s");
                 break;
 
             case patternBadgeShop:
                 chatMessage = "/me Guess the badge locations in the badge shop! Get 1 point for one badge, 5 for two badges, and 20 if you " +
-                        "get all three correct! Use !leaderboard to see the top scores and !points to see how many " +
-                        "points you have.";
+                        "get all three correct! Use !leaderboard to see the top scores this month and !points to see how many " +
+                        "points you have. At the end of every month, JCog will be gifting subs to the top three scorers, so get guessing!";
                 break;
 
             default:

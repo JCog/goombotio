@@ -7,7 +7,10 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Sorts;
 import org.bson.Document;
 
+import javax.print.Doc;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import static com.mongodb.client.model.Filters.*;
 
@@ -30,6 +33,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     }
 
     public  void addPoints(TwitchUser user, int points) {
+        String monthlyPointsKey = getMonthlyPointsKey();
         long id = user.getUserID();
         String name = user.getDisplayName();
 
@@ -39,16 +43,28 @@ public class SpeedySpinLeaderboard extends CollectionBase{
             Document document = new Document("_id", id)
                     .append("name", name)
                     .append("points", points)
+                    .append(monthlyPointsKey, points)
                     .append("wins", 0);
             insertOne(document);
         }
         else {
             int newPoints = (int)result.get("points") + points;
+            int newMonthlyPoints;
+            if (result.get(monthlyPointsKey) == null) {
+                newMonthlyPoints = 0;
+            }
+            else {
+                newMonthlyPoints = (int)result.get(monthlyPointsKey);
+            }
+            newMonthlyPoints += points;
+
             updateOne(eq("_id", id), new Document("$set", new Document("points", newPoints)));
+            updateOne(eq("_id", id), new Document("$set", new Document(monthlyPointsKey, newMonthlyPoints)));
         }
     }
 
     public void addWins(TwitchUser user, int wins) {
+        String monthlyPoints = getMonthlyPointsKey();
         long id = user.getUserID();
         String name = user.getDisplayName();
 
@@ -58,6 +74,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
             Document document = new Document("_id", id)
                     .append("name", name)
                     .append("points", 0)
+                    .append(monthlyPoints, 0)
                     .append("wins", wins);
             insertOne(document);
         }
@@ -85,6 +102,30 @@ public class SpeedySpinLeaderboard extends CollectionBase{
         return 0;
     }
 
+    public int getMonthlyPoints(TwitchUser user) {
+        long id = user.getUserID();
+
+        Document result = find(eq("_id", id)).first();
+        if (result != null) {
+            Object monthlyPoints = result.get(getMonthlyPointsKey());
+            if (monthlyPoints != null) {
+                return (int)monthlyPoints;
+            }
+        }
+        return 0;
+    }
+
+    public int getMonthlyPoints(long id) {
+        Document result = find(eq("_id", id)).first();
+        if (result != null) {
+            Object monthlyPoints = result.get(getMonthlyPointsKey());
+            if (monthlyPoints != null) {
+                return (int)monthlyPoints;
+            }
+        }
+        return 0;
+    }
+
     public int getWins(TwitchUser user) {
         long id = user.getUserID();
 
@@ -103,19 +144,28 @@ public class SpeedySpinLeaderboard extends CollectionBase{
         return "N/A";
     }
 
-    //returns id's of top 3 scorers. if there are less than 3, returns -1 for those slots
-    public ArrayList<Long> getTopScorers() {
-        ArrayList<Long> topScorers = new ArrayList<>();
+    //returns id's of top 3 monthly scorers. if there are less than 3, returns -1 for those slots
+    public ArrayList<Long> getTopMonthlyScorers() {
+        ArrayList<Long> topMonthlyScorers = new ArrayList<>();
 
-        MongoCursor<Document> result = find().sort(Sorts.descending("points")).iterator();
-        while (result.hasNext() && topScorers.size() < 3) {
-            topScorers.add((long)result.next().get("_id"));
+        MongoCursor<Document> result = find().sort(Sorts.descending(getMonthlyPointsKey())).iterator();
+        while (result.hasNext() && topMonthlyScorers.size() < 3) {
+            Document next = result.next();
+            if (next.get(getMonthlyPointsKey()) == null) {
+                break;
+            }
+            else {
+                topMonthlyScorers.add((long)next.get("_id"));
+            }
         }
 
-        while (topScorers.size() < 3) {
-            topScorers.add(-1L);
-        }
+        return topMonthlyScorers;
+    }
 
-        return topScorers;
+    private String getMonthlyPointsKey() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        return String.format("points%d%d", year, month);
     }
 }
