@@ -9,10 +9,10 @@ import java.util.*;
 
 public class SpeedySpinPredictionListener implements TwirkListener {
     private static final Set<String> badgeChoices = new HashSet<>(Arrays.asList(
-            "BadSpin1",
-            "BadSpin2",
-            "BadSpin3",
-            "SpoodlySpun"
+            "badspin1",
+            "badspin2",
+            "badspin3",
+            "spoodlyspun"
     ));
 
     private final SpeedySpinPredictionManager manager;
@@ -29,8 +29,8 @@ public class SpeedySpinPredictionListener implements TwirkListener {
 
         if (split.length == 3) {
             for (String word : split) {
-                if (badgeChoices.contains(word) && !badgeGuess.contains(word)) {
-                    badgeGuess.add(word);
+                if (badgeChoices.contains(word.toLowerCase()) && !badgeGuess.contains(word.toLowerCase())) {
+                    badgeGuess.add(word.toLowerCase());
                 }
             }
         }

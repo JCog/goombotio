@@ -164,14 +164,14 @@ public class SpeedySpinPredictionManager {
     }
 
     public static Badge stringToBadge(String badge) {
-        switch (badge) {
-            case "BadSpin1":
+        switch (badge.toLowerCase()) {
+            case "badspin1":
                 return Badge.BAD_SPIN1;
-            case "BadSpin2":
+            case "badspin2":
                 return Badge.BAD_SPIN2;
-            case "BadSpin3":
+            case "badspin3":
                 return Badge.BAD_SPIN3;
-            case "SpoodlySpun":
+            case "spoodlyspun":
                 return Badge.SPOODLY_SPUN;
             default:
                 return null;
