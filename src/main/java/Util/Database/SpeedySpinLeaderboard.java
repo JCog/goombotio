@@ -1,16 +1,13 @@
 package Util.Database;
 
 import com.gikk.twirk.types.users.TwitchUser;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Sorts;
 import org.bson.Document;
 
-import javax.print.Doc;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 import static com.mongodb.client.model.Filters.*;
 
