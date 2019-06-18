@@ -15,7 +15,7 @@ import java.util.HashSet;
 
 public abstract class CommandBase implements TwirkListener {
     public enum CommandType {
-        PREFIX_COMMAND, CONTENT_COMMAND
+        PREFIX_COMMAND, CONTENT_COMMAND, EXACT_MATCH_COMMAND
     }
 
     private Set<String> commandPattern;
@@ -34,11 +34,13 @@ public abstract class CommandBase implements TwirkListener {
 
     @Override
     public void onPrivMsg(TwitchUser sender, TwitchMessage message) {
+        String exactContent = message.getContent().trim();
         String content = message.getContent().toLowerCase(Locale.ENGLISH).trim();
         String[] split = content.split("\\s", 2);
         String command = split[0];
 
         if( !coolingDown && sender.getUserType().value >= minPrivilege.value ) {
+            //TODO: make this a switch statement
             if( commandType == CommandType.PREFIX_COMMAND ){
                 for( String pattern : commandPattern ){
                     if( command.startsWith(pattern) ){
@@ -48,7 +50,7 @@ public abstract class CommandBase implements TwirkListener {
                     }
                 }
             }
-            else {
+            else if (commandType == CommandType.CONTENT_COMMAND){
                 for( String pattern : commandPattern ) {
                     if( content.contains(pattern) ){
                         performCommand(pattern, sender, message);
@@ -57,11 +59,19 @@ public abstract class CommandBase implements TwirkListener {
                     }
                 }
             }
+            else if (commandType == CommandType.EXACT_MATCH_COMMAND) {
+                for (String pattern : commandPattern)
+                    if( exactContent.equals(pattern)) {
+                        performCommand(pattern, sender, message);
+                        startCooldown();
+                        break;
+                    }
+            }
         }
     }
 
     private Set<String> compileCommandPattern() {
-        String[] patterns = getCommandWords().toLowerCase(Locale.ENGLISH).split("\\|");
+        String[] patterns = getCommandWords().split("\\|");
         HashSet<String> out = new HashSet<>();
         Collections.addAll(out, patterns);
         return out;

@@ -1,4 +1,5 @@
 import Functions.ViewerTracker;
+import Listeners.ModListener;
 import Listeners.SpeedySpinGameListener;
 import Listeners.SpeedySpinLeaderboardListener;
 import com.gikk.twirk.Twirk;
@@ -29,6 +30,7 @@ public class Main {
         twirk.addIrcListener(getOnDisconnectListener(twirk));
         twirk.addIrcListener(new SpeedySpinGameListener(twirk));
         twirk.addIrcListener(new SpeedySpinLeaderboardListener(twirk));
+        twirk.addIrcListener(new ModListener(twirk));
         twirk.connect();
 
 
