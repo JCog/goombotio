@@ -2,6 +2,7 @@ import Functions.ViewerTracker;
 import Listeners.ModListener;
 import Listeners.SpeedySpinGameListener;
 import Listeners.SpeedySpinLeaderboardListener;
+import Util.Database.SpeedySpinLeaderboard;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.TwirkBuilder;
 import com.gikk.twirk.events.TwirkListener;
@@ -42,7 +43,13 @@ public class Main {
         out.println("Goombotio is ready.");
         //primary loop
         while( !(line = scanner.nextLine()).matches(".quit") ) {
-            twirk.channelMessage(line);
+            if(line.equals(".lb")) { //TODO: this is pretty hacky, should improve
+                SpeedySpinLeaderboard lb = new SpeedySpinLeaderboard();
+                lb.logPreviousTopMonthlyScorers();
+            }
+            else {
+                twirk.channelMessage(line);
+            }
         }
 
         viewerTracker.stop();

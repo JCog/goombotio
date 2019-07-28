@@ -8,8 +8,10 @@ import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 import static com.mongodb.client.model.Filters.*;
+import static java.lang.System.out;
 
 public class SpeedySpinLeaderboard extends CollectionBase{
 
@@ -91,6 +93,16 @@ public class SpeedySpinLeaderboard extends CollectionBase{
         return 0;
     }
 
+    public int getPrevMonthlyPoints(Document user) {
+        Object monthlyPoints = user.get(getPrevMonthlyPointsKey());
+        if (monthlyPoints != null) {
+            return (int)monthlyPoints;
+        }
+        else {
+            return 0;
+        }
+    }
+
     public int getPoints(long id) {
         Document result = find(eq("_id", id)).first();
         if (result != null) {
@@ -141,6 +153,10 @@ public class SpeedySpinLeaderboard extends CollectionBase{
         return "N/A";
     }
 
+    public String getUsername(Document user) {
+        return (String)user.get("name");
+    }
+
     //returns id's of top 3 monthly scorers. if there are less than 3, returns -1 for those slots
     public ArrayList<Long> getTopMonthlyScorers() {
         ArrayList<Long> topMonthlyScorers = new ArrayList<>();
@@ -159,8 +175,35 @@ public class SpeedySpinLeaderboard extends CollectionBase{
         return topMonthlyScorers;
     }
 
+    public void logPreviousTopMonthlyScorers() {
+        MongoCursor<Document> result = find().sort(Sorts.descending(getPrevMonthlyPointsKey())).iterator();
+        int index = 1;
+        out.println("Last Month's Top Scorers:");
+        while (result.hasNext() && index < 21) {
+            Document next = result.next();
+            if (next.get(getPrevMonthlyPointsKey()) == null) {
+                break;
+            }
+            else {
+                String name = getUsername(next);
+                int points = getPrevMonthlyPoints(next);
+                out.println(String.format("%d. %s - %d", index, name, points));
+                index++;
+            }
+        }
+    }
+
     private String getMonthlyPointsKey() {
         Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        return String.format("points%d%d", year, month);
+    }
+
+    private String getPrevMonthlyPointsKey() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.MONTH, -1);
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         return String.format("points%d%d", year, month);
