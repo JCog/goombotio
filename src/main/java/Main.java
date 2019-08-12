@@ -1,3 +1,4 @@
+import Functions.SocialScheduler;
 import Functions.ViewerTracker;
 import Listeners.ModListener;
 import Listeners.SpeedySpinGameListener;
@@ -38,6 +39,9 @@ public class Main {
         ViewerTracker viewerTracker = new ViewerTracker(twirk, 60*1000);
         viewerTracker.start();
 
+        SocialScheduler socialScheduler = new SocialScheduler(twirk);
+        socialScheduler.start();
+
         String line;
 
         out.println("Goombotio is ready.");
@@ -54,6 +58,7 @@ public class Main {
 
         viewerTracker.stop();
         viewerTracker.printViewersByViewTime();
+        socialScheduler.stop();
         scanner.close();
         twirk.close();
         exit(0);
