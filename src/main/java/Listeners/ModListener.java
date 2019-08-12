@@ -1,13 +1,9 @@
 package Listeners;
 
-import Functions.SpeedySpinPredictionManager;
-import Functions.SpeedySpinPredictionManager.Badge;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.enums.USER_TYPE;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
-
-import static java.lang.System.out;
 
 public class ModListener extends CommandBase {
 
@@ -36,7 +32,6 @@ public class ModListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        twirk.channelMessage(String.format("/timeout %s 60", sender.getUserName()));
         twirk.channelMessage("Don't be toxic WhatsHisFace");
     }
 }

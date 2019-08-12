@@ -69,7 +69,6 @@ public class SpeedySpinPredictionManager {
         waitingForAnswer = true;
         twirk.removeIrcListener(sspListener);
         twirk.channelMessage("/me Predictions are up! Let's see how everyone did...");
-        twirk.whisper("jcog", "1. First Strike || 2. D-Down Pound || 3. Multibounce");
     }
 
     public void submitPredictions(Badge one, Badge two, Badge three) {
