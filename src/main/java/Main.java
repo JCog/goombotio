@@ -39,8 +39,8 @@ public class Main {
         ViewerTracker viewerTracker = new ViewerTracker(twirk, 60*1000);
         viewerTracker.start();
 
-        SocialScheduler socialScheduler = new SocialScheduler(twirk);
-        socialScheduler.start();
+        //SocialScheduler socialScheduler = new SocialScheduler(twirk);
+        //socialScheduler.start();
 
         String line;
 
@@ -58,7 +58,7 @@ public class Main {
 
         viewerTracker.stop();
         viewerTracker.printViewersByViewTime();
-        socialScheduler.stop();
+        //socialScheduler.stop();
         scanner.close();
         twirk.close();
         exit(0);
