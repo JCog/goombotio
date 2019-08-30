@@ -16,6 +16,10 @@ import static java.lang.System.out;
 public class SpeedySpinLeaderboard extends CollectionBase{
 
     private final String COLLECTION_NAME = "speedyspin";
+    private final String ID_KEY = "_id";
+    private final String NAME_KEY = "name";
+    private final String POINTS_KEY = "points";
+    private final String WINS_KEY = "wins";
 
     public SpeedySpinLeaderboard() {
         super();
@@ -36,18 +40,18 @@ public class SpeedySpinLeaderboard extends CollectionBase{
         long id = user.getUserID();
         String name = user.getDisplayName();
 
-        Document result = find(eq("_id", id)).first();
+        Document result = find(eq(ID_KEY, id)).first();
 
         if (result == null) {
-            Document document = new Document("_id", id)
-                    .append("name", name)
-                    .append("points", points)
+            Document document = new Document(ID_KEY, id)
+                    .append(NAME_KEY, name)
+                    .append(POINTS_KEY, points)
                     .append(monthlyPointsKey, points)
-                    .append("wins", 0);
+                    .append(WINS_KEY, 0);
             insertOne(document);
         }
         else {
-            int newPoints = (int)result.get("points") + points;
+            int newPoints = (int)result.get(POINTS_KEY) + points;
             int newMonthlyPoints;
             if (result.get(monthlyPointsKey) == null) {
                 newMonthlyPoints = 0;
@@ -57,8 +61,8 @@ public class SpeedySpinLeaderboard extends CollectionBase{
             }
             newMonthlyPoints += points;
 
-            updateOne(eq("_id", id), new Document("$set", new Document("points", newPoints)));
-            updateOne(eq("_id", id), new Document("$set", new Document(monthlyPointsKey, newMonthlyPoints)));
+            updateOne(eq(ID_KEY, id), new Document("$set", new Document(POINTS_KEY, newPoints)));
+            updateOne(eq(ID_KEY, id), new Document("$set", new Document(monthlyPointsKey, newMonthlyPoints)));
         }
     }
 
@@ -67,28 +71,28 @@ public class SpeedySpinLeaderboard extends CollectionBase{
         long id = user.getUserID();
         String name = user.getDisplayName();
 
-        Document result = find(eq("_id", id)).first();
+        Document result = find(eq(ID_KEY, id)).first();
 
         if (result == null) {
-            Document document = new Document("_id", id)
-                    .append("name", name)
-                    .append("points", 0)
+            Document document = new Document(ID_KEY, id)
+                    .append(NAME_KEY, name)
+                    .append(POINTS_KEY, 0)
                     .append(monthlyPoints, 0)
-                    .append("wins", wins);
+                    .append(WINS_KEY, wins);
             insertOne(document);
         }
         else {
-            int newWins = (int)result.get("wins") + wins;
-            updateOne(eq("_id", id), new Document("$set", new Document("wins", newWins)));
+            int newWins = (int)result.get(WINS_KEY) + wins;
+            updateOne(eq(ID_KEY, id), new Document("$set", new Document(WINS_KEY, newWins)));
         }
     }
 
     public int getPoints(TwitchUser user) {
         long id = user.getUserID();
 
-        Document result = find(eq("_id", id)).first();
+        Document result = find(eq(ID_KEY, id)).first();
         if (result != null) {
-            return (int)result.get("points");
+            return (int)result.get(POINTS_KEY);
         }
         return 0;
     }
@@ -104,9 +108,9 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     }
 
     public int getPoints(long id) {
-        Document result = find(eq("_id", id)).first();
+        Document result = find(eq(ID_KEY, id)).first();
         if (result != null) {
-            return (int)result.get("points");
+            return (int)result.get(POINTS_KEY);
         }
         return 0;
     }
@@ -114,7 +118,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     public int getMonthlyPoints(TwitchUser user) {
         long id = user.getUserID();
 
-        Document result = find(eq("_id", id)).first();
+        Document result = find(eq(ID_KEY, id)).first();
         if (result != null) {
             Object monthlyPoints = result.get(getMonthlyPointsKey());
             if (monthlyPoints != null) {
@@ -125,7 +129,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     }
 
     public int getMonthlyPoints(long id) {
-        Document result = find(eq("_id", id)).first();
+        Document result = find(eq(ID_KEY, id)).first();
         if (result != null) {
             Object monthlyPoints = result.get(getMonthlyPointsKey());
             if (monthlyPoints != null) {
@@ -138,23 +142,23 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     public int getWins(TwitchUser user) {
         long id = user.getUserID();
 
-        Document result = find(eq("_id", id)).first();
+        Document result = find(eq(ID_KEY, id)).first();
         if (result != null) {
-            return (int)result.get("wins");
+            return (int)result.get(WINS_KEY);
         }
         return 0;
     }
 
     public String getUsername(long id) {
-        Document result = find(eq("_id", id)).first();
+        Document result = find(eq(ID_KEY, id)).first();
         if (result != null) {
-            return (String)result.get("name");
+            return (String)result.get(NAME_KEY);
         }
         return "N/A";
     }
 
     public String getUsername(Document user) {
-        return (String)user.get("name");
+        return (String)user.get(NAME_KEY);
     }
 
     //returns id's of top 3 monthly scorers. if there are less than 3, returns -1 for those slots
@@ -168,7 +172,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
                 break;
             }
             else {
-                topMonthlyScorers.add((long)next.get("_id"));
+                topMonthlyScorers.add((long)next.get(ID_KEY));
             }
         }
 
