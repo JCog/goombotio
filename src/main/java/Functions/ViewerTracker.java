@@ -57,7 +57,9 @@ public class ViewerTracker {
             long id = usersIds.get(name);
             int minutes = entry.getValue() / (60 * 1000);
 
-            watchTimeDb.addMinutes(id, name, minutes);
+            if ( !blacklist.contains(entry.getKey()) ) {
+                watchTimeDb.addMinutes(id, name, minutes);
+            }
         }
     }
 
