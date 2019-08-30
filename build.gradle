@@ -6,6 +6,7 @@ allprojects {
     repositories {
         jcenter()
         maven { url "https://jitpack.io" }
+        maven { url "https://oss.jfrog.org/artifactory/libs-release"}
     }
 }
 
@@ -21,4 +22,5 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     implementation "com.github.gikkman:Java-Twirk:0.5"
     implementation "org.mongodb:mongodb-driver:3.10.1"
+    compile group: 'com.github.twitch4j', name: 'twitch4j', version: '1.0.0-alpha.13'
 }

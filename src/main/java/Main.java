@@ -1,4 +1,3 @@
-import Functions.SocialScheduler;
 import Functions.ViewerTracker;
 import Listeners.ModListener;
 import Listeners.SpeedySpinGameListener;
@@ -7,6 +6,8 @@ import Util.Database.SpeedySpinLeaderboard;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.TwirkBuilder;
 import com.gikk.twirk.events.TwirkListener;
+import com.github.twitch4j.TwitchClient;
+import com.github.twitch4j.TwitchClientBuilder;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,6 +24,9 @@ public class Main {
         final String OAUTH = args[2];
         final boolean VERBOSE_MODE = false;
         final Twirk twirk;
+        final TwitchClient twitchClient;
+
+        twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
 
         Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
@@ -36,7 +40,7 @@ public class Main {
         twirk.connect();
 
 
-        ViewerTracker viewerTracker = new ViewerTracker(twirk, 60*1000);
+        ViewerTracker viewerTracker = new ViewerTracker(twirk, twitchClient, 60*1000);
         viewerTracker.start();
 
         //SocialScheduler socialScheduler = new SocialScheduler(twirk);
@@ -58,6 +62,7 @@ public class Main {
 
         viewerTracker.stop();
         viewerTracker.printViewersByViewTime();
+        viewerTracker.storeAllMinutes();
         //socialScheduler.stop();
         scanner.close();
         twirk.close();

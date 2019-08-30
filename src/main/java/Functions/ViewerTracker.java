@@ -1,6 +1,9 @@
 package Functions;
 
+import Util.Database.WatchTimeDb;
 import com.gikk.twirk.Twirk;
+import com.github.twitch4j.TwitchClient;
+import com.github.twitch4j.helix.domain.UserList;
 
 import java.io.File;
 import java.util.*;
@@ -11,17 +14,21 @@ public class ViewerTracker {
     private final static String BLACKLIST_FILENAME = "src/main/resources/blacklist.txt";
 
     private Twirk twirk;
+    private TwitchClient twitchClient;
     private int interval;
     private Timer timer;
     private HashMap<String, Integer> usersMap;
     private ArrayList<String> blacklist;
+    private WatchTimeDb watchTimeDb;
 
-    public ViewerTracker(Twirk twirk, int interval) {
+    public ViewerTracker(Twirk twirk, TwitchClient twitchClient, int interval) {
         this.twirk = twirk;
+        this.twitchClient = twitchClient;
         this.interval = interval;
         timer = new Timer();
         usersMap = new HashMap<>();
         blacklist = blacklistInit(BLACKLIST_FILENAME);
+        watchTimeDb = new WatchTimeDb();
     }
 
     public void start() {
@@ -39,6 +46,19 @@ public class ViewerTracker {
 
     public void stop() {
         timer.cancel();
+    }
+
+    public void storeAllMinutes() {
+        Iterator<Map.Entry<String, Integer>> usersMapIt = usersMap.entrySet().iterator();
+        HashMap<String, Long> usersIds = getUsersIds();
+        while (usersMapIt.hasNext()) {
+            Map.Entry<String, Integer> entry = usersMapIt.next();
+            String name = entry.getKey();
+            long id = usersIds.get(name);
+            int minutes = entry.getValue() / (60 * 1000);
+
+            watchTimeDb.addMinutes(id, name, minutes);
+        }
     }
 
     public void printViewersByViewTime() {
@@ -69,6 +89,21 @@ public class ViewerTracker {
         }
 
         return blacklist;
+    }
+
+    private HashMap<String, Long> getUsersIds() {
+        HashMap<String, Long> userIds = new HashMap<>();
+        Iterator<Map.Entry<String, Integer>> usersMapIt = usersMap.entrySet().iterator();
+        List<String> usersHundred = new ArrayList<>();
+        while (usersMapIt.hasNext()) {
+            while (usersHundred.size() < 100 && usersMapIt.hasNext()) {
+                usersHundred.add(usersMapIt.next().getKey());
+            }
+            UserList resultList = twitchClient.getHelix().getUsers(null, null, usersHundred).execute();
+            resultList.getUsers().forEach(user -> userIds.put(user.getLogin(), user.getId()));
+            usersHundred.clear();
+        }
+        return userIds;
     }
 
     private class SortByViewTime implements Comparator<Map.Entry<String, Integer>> {
