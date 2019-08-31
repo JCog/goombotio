@@ -1,3 +1,4 @@
+import Functions.StreamInfo;
 import Functions.ViewerTracker;
 import Listeners.ModListener;
 import Listeners.SpeedySpinGameListener;
@@ -19,6 +20,7 @@ import static java.lang.System.out;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException{
+        final String STREAM = args[0];
         final String CHANNEL = '#' + args[0];
         final String NICK = args[1];
         final String OAUTH = args[2];
@@ -39,8 +41,10 @@ public class Main {
         twirk.addIrcListener(new ModListener(twirk));
         twirk.connect();
 
+        StreamInfo streamInfo = new StreamInfo(STREAM, twitchClient);
+        streamInfo.startTracker();
 
-        ViewerTracker viewerTracker = new ViewerTracker(twirk, twitchClient, 60*1000);
+        ViewerTracker viewerTracker = new ViewerTracker(twirk, twitchClient, streamInfo, 60*1000);
         viewerTracker.start();
 
         //SocialScheduler socialScheduler = new SocialScheduler(twirk);
@@ -60,6 +64,7 @@ public class Main {
             }
         }
 
+        streamInfo.stopTracker();
         viewerTracker.stop();
         viewerTracker.printViewersByViewTime();
         viewerTracker.storeAllMinutes();

@@ -15,15 +15,17 @@ public class ViewerTracker {
 
     private Twirk twirk;
     private TwitchClient twitchClient;
+    private StreamInfo streamInfo;
     private int interval;
     private Timer timer;
     private HashMap<String, Integer> usersMap;
     private ArrayList<String> blacklist;
     private WatchTimeDb watchTimeDb;
 
-    public ViewerTracker(Twirk twirk, TwitchClient twitchClient, int interval) {
+    public ViewerTracker(Twirk twirk, TwitchClient twitchClient, StreamInfo streamInfo, int interval) {
         this.twirk = twirk;
         this.twitchClient = twitchClient;
+        this.streamInfo = streamInfo;
         this.interval = interval;
         timer = new Timer();
         usersMap = new HashMap<>();
@@ -36,9 +38,11 @@ public class ViewerTracker {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                for (String user : twirk.getUsersOnline()) {
-                    usersMap.putIfAbsent(user, 0);
-                    usersMap.put(user, usersMap.get(user) + interval);
+                if (streamInfo.isLive()) {
+                    for (String user : twirk.getUsersOnline()) {
+                        usersMap.putIfAbsent(user, 0);
+                        usersMap.put(user, usersMap.get(user) + interval);
+                    }
                 }
             }
         }, 0, interval);
