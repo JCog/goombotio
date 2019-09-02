@@ -17,12 +17,14 @@ public class StreamInfo {
     private Timer timer;
     private int timerInterval;
     private Stream streamStats;
+    private boolean isLive;
 
     public StreamInfo(String streamer, TwitchClient twitchClient) {
         this.streamer = streamer;
         this.twitchClient = twitchClient;
         timer = new Timer();
         timerInterval = 60*1000;
+        isLive = false;
     }
 
     public void startTracker() {
@@ -40,7 +42,7 @@ public class StreamInfo {
     }
 
     public boolean isLive() {
-        return streamStats != null;
+        return isLive;
     }
 
     public String getTitle() {
@@ -56,11 +58,25 @@ public class StreamInfo {
                 Collections.singletonList(streamer)).execute();
         if (resultList.getStreams().isEmpty()) {
             streamStats = null;
-            out.println("stream is not live");
+            updateLiveStatus(false);
         }
         else {
             streamStats = resultList.getStreams().get(0);
-            out.println("stream is live");
+            updateLiveStatus(true);
+        }
+    }
+
+    private void updateLiveStatus(boolean isLive) {
+        if (isLive != this.isLive) {
+            this.isLive = isLive;
+            out.println("---------------------");
+            if (isLive) {
+                out.println(streamer + "is now live.");
+            }
+            else {
+                out.println(streamer + "has gone offline.");
+            }
+            out.println("---------------------");
         }
     }
 }
