@@ -16,6 +16,7 @@ public class SpeedrunApi {
     private static final String USERS = "users/";
 
     private static final String GAME_PAPER_MARIO = "pmario/";
+    private static final String GAME_PAPER_MARIO_MEMES = "pmariomemes/";
 
     private static final String CAT_PAPE_ANY_PERCENT = "any";
     private static final String CAT_PAPE_ANY_NO_PW = "any_no_pw";
@@ -24,12 +25,19 @@ public class SpeedrunApi {
     private static final String CAT_PAPE_GLITCHLESS = "glitchless";
     private static final String CAT_PAPE_100 = "100";
 
+    private static final String CAT_PAPE_MEMES_PIGGIES = "5_golden_lil_oinks";
+    private static final String CAT_PAPE_MEMES_ALL_BLOOPS = "all_bloops";
+    private static final String CAT_PAPE_MEMES_ANY_NO_RNG = "any_no_rng";
+    private static final String CAT_PAPE_MEMES_BEAT_CHAPTER_1 = "beat_chapter_1";
+    private static final String CAT_PAPE_MEMES_SOAP_CAKE = "soapcake";
+
     private static final String PLATFORM_PAPE_PLATFORM_N64 = "n64";
     private static final String PLATFORM_PAPE_PLATFORM_WII = "wiivc";
     private static final String PLATFORM_PAPE_PLATFORM_WII_U = "wiiuvc";
 
     public enum Game {
-        PAPER_MARIO
+        PAPER_MARIO,
+        PAPER_MARIO_MEMES
     }
 
     public enum PapeCategory {
@@ -38,7 +46,12 @@ public class SpeedrunApi {
         ALL_CARDS,
         ALL_BOSSES,
         GLITCHLESS,
-        HUNDO
+        HUNDO,
+        PIGGIES,
+        ALL_BLOOPS,
+        ANY_NO_RNG,
+        BEAT_CHAPTER_1,
+        SOAP_CAKE
     }
 
     public enum PapePlatform {
@@ -53,36 +66,34 @@ public class SpeedrunApi {
         Gson gson = new Gson();
         String gameString = getGameUrlString(game);
         String categoryString = getPapeCategoryUrlString(category);
-        String n64 = getPapePlatformUrlString(PapePlatform.N64);
 
 
         Leaderboard allLeaderboard = gson.fromJson(getWrJson(gameString, categoryString), Leaderboard.class);
         String allPlayerId = allLeaderboard.getData().getRuns().get(0).getRun().getPlayers().get(0).getId();
 
         long allSeconds = allLeaderboard.getData().getRuns().get(0).getRun().getTimes().getPrimaryT();
-        long allHours = TimeUnit.SECONDS.toHours(allSeconds);
-        allSeconds -= TimeUnit.HOURS.toSeconds(allHours);
-        long allMinutes = TimeUnit.SECONDS.toMinutes(allSeconds);
-        allSeconds -= TimeUnit.MINUTES.toSeconds(allMinutes);
-        String allTime = String.format("%d:%d:%d", allHours, allMinutes, allSeconds);
+        String allTime = getTimeString(allSeconds);
 
         String allName = getUsernameFromId(allPlayerId);
 
 
-        Leaderboard n64Leaderboard = gson.fromJson(getWrJson(gameString, categoryString, n64), Leaderboard.class);
-        String n64PlayerId = n64Leaderboard.getData().getRuns().get(0).getRun().getPlayers().get(0).getId();
+        if (game.equals(Game.PAPER_MARIO)) {
+            String n64 = getPapePlatformUrlString(PapePlatform.N64);
 
-        long n64Seconds = n64Leaderboard.getData().getRuns().get(0).getRun().getTimes().getPrimaryT();
-        long n64Hours = TimeUnit.SECONDS.toHours(n64Seconds);
-        n64Seconds -= TimeUnit.HOURS.toSeconds(n64Hours);
-        long n64Minutes = TimeUnit.SECONDS.toMinutes(n64Seconds);
-        n64Seconds -= TimeUnit.MINUTES.toSeconds(n64Minutes);
-        String n64Time = String.format("%d:%d:%d", n64Hours, n64Minutes, n64Seconds);
+            Leaderboard n64Leaderboard = gson.fromJson(getWrJson(gameString, categoryString, n64), Leaderboard.class);
+            String n64PlayerId = n64Leaderboard.getData().getRuns().get(0).getRun().getPlayers().get(0).getId();
 
-        String n64Name = getUsernameFromId(n64PlayerId);
+            long n64Seconds = n64Leaderboard.getData().getRuns().get(0).getRun().getTimes().getPrimaryT();
+            String n64Time = getTimeString(n64Seconds);
+
+            String n64Name = getUsernameFromId(n64PlayerId);
 
 
-        return String.format("The Paper Mario %s WRs are %s by %s overall and %s by %s on N64.", getPapeCategoryString(category), allTime, allName, n64Time, n64Name);
+            return String.format("The Paper Mario %s WRs are %s by %s overall and %s by %s on N64.", getPapeCategoryString(category), allTime, allName, n64Time, n64Name);
+        }
+        else {
+            return String.format("The Paper Mario %s WR is %s by %s", getPapeCategoryString(category), allTime, allName);
+        }
     }
 
     private static String getUsernameFromId(String id) {
@@ -91,6 +102,19 @@ public class SpeedrunApi {
 
         User user = gson.fromJson(userJson, User.class);
         return user.getData().getNames().getInternational();
+    }
+
+    private static String getTimeString(long seconds) {
+        long hours = TimeUnit.SECONDS.toHours(seconds);
+        seconds -= TimeUnit.HOURS.toSeconds(hours);
+        long minutes = TimeUnit.SECONDS.toMinutes(seconds);
+        seconds -= TimeUnit.MINUTES.toSeconds(minutes);
+        if (hours > 0) {
+            return String.format("%d:%d:%d", hours, minutes, seconds);
+        }
+        else {
+            return String.format("%d:%d", minutes, seconds);
+        }
     }
 
     private static String getPapeCategoryString(PapeCategory category) {
@@ -107,6 +131,16 @@ public class SpeedrunApi {
                 return "Glitchless";
             case HUNDO:
                 return "100%";
+            case PIGGIES:
+                return "5 Golden Lil' Oinks";
+            case ALL_BLOOPS:
+                return "All Bloops";
+            case ANY_NO_RNG:
+                return "Any% No RNG";
+            case BEAT_CHAPTER_1:
+                return "Beat Chapter 1";
+            case SOAP_CAKE:
+                return "Soap Cake";
             default:
                 return "Any%";
         }
@@ -114,6 +148,10 @@ public class SpeedrunApi {
 
     private static String getGameUrlString(Game game) {
         switch (game) {
+            case PAPER_MARIO:
+                return GAME_PAPER_MARIO;
+            case PAPER_MARIO_MEMES:
+                return GAME_PAPER_MARIO_MEMES;
             default:
                 return GAME_PAPER_MARIO;
         }
@@ -133,6 +171,16 @@ public class SpeedrunApi {
                 return CAT_PAPE_GLITCHLESS;
             case HUNDO:
                 return CAT_PAPE_100;
+            case PIGGIES:
+                return CAT_PAPE_MEMES_PIGGIES;
+            case ALL_BLOOPS:
+                return CAT_PAPE_MEMES_ALL_BLOOPS;
+            case ANY_NO_RNG:
+                return CAT_PAPE_MEMES_ANY_NO_RNG;
+            case BEAT_CHAPTER_1:
+                return CAT_PAPE_MEMES_BEAT_CHAPTER_1;
+            case SOAP_CAKE:
+                return CAT_PAPE_MEMES_SOAP_CAKE;
             default:
                 return CAT_PAPE_ANY_PERCENT;
         }

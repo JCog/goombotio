@@ -1,6 +1,5 @@
 package Listeners;
 
-import APIs.SpeedrunApi;
 import Functions.StreamInfo;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.enums.USER_TYPE;
@@ -45,7 +44,7 @@ public class WrListener extends CommandBase {
             if (title.contains("any%")) {
                 twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getPapeWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT)));
             }
-            else if (title.contains("any% (no peach warp)")) {
+            else if (title.contains("any% (no peach warp)") || title.contains("any% (no pw)")) {
                 twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getPapeWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT_NO_PW)));
             }
             else if (title.contains("all cards")) {
@@ -59,6 +58,24 @@ public class WrListener extends CommandBase {
             }
             else if (title.contains("100%")) {
                 twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getPapeWr(Game.PAPER_MARIO, PapeCategory.HUNDO)));
+            }
+            else if (title.contains("pig") || title.contains("\uD83D\uDC37") || title.contains("oink")) {
+                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getPapeWr(Game.PAPER_MARIO_MEMES, PapeCategory.PIGGIES)));
+            }
+            else if (title.contains("all bloops")) {
+                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getPapeWr(Game.PAPER_MARIO_MEMES, PapeCategory.ALL_BLOOPS)));
+            }
+            else if (title.contains("any% no rng") || title.contains("any% (no rng)")) {
+                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getPapeWr(Game.PAPER_MARIO_MEMES, PapeCategory.ANY_NO_RNG)));
+            }
+            else if (title.contains("chapter 1")) {
+                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getPapeWr(Game.PAPER_MARIO_MEMES, PapeCategory.BEAT_CHAPTER_1)));
+            }
+            else if (title.contains("soapcake") || title.contains("soap cake")) {
+                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getPapeWr(Game.PAPER_MARIO_MEMES, PapeCategory.SOAP_CAKE)));
+            }
+            else {
+                twirk.channelMessage(String.format("@%s Unknown WR", sender.getDisplayName()));
             }
         }
     }
