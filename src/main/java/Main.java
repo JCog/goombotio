@@ -3,6 +3,7 @@ import Functions.ViewerTracker;
 import Listeners.ModListener;
 import Listeners.SpeedySpinGameListener;
 import Listeners.SpeedySpinLeaderboardListener;
+import Listeners.WrListener;
 import Util.Database.SpeedySpinLeaderboard;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.TwirkBuilder;
@@ -30,6 +31,9 @@ public class Main {
 
         twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
 
+        StreamInfo streamInfo = new StreamInfo(STREAM, twitchClient);
+        streamInfo.startTracker();
+
         Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
         twirk = new TwirkBuilder(CHANNEL,NICK, OAUTH)
@@ -39,10 +43,8 @@ public class Main {
         twirk.addIrcListener(new SpeedySpinGameListener(twirk));
         twirk.addIrcListener(new SpeedySpinLeaderboardListener(twirk));
         twirk.addIrcListener(new ModListener(twirk));
+        twirk.addIrcListener(new WrListener(twirk, streamInfo));
         twirk.connect();
-
-        StreamInfo streamInfo = new StreamInfo(STREAM, twitchClient);
-        streamInfo.startTracker();
 
         ViewerTracker viewerTracker = new ViewerTracker(twirk, twitchClient, streamInfo, 60*1000);
         viewerTracker.start();

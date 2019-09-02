@@ -11,23 +11,22 @@ import java.util.concurrent.TimeUnit;
 
 public class SpeedrunApi {
 
-    private final String BASE_URL = "http://www.speedrun.com/api/v1/";
-    private final String LEADEROARDS = "leaderboards/";
-    private final String USERS = "users/";
+    private static final String BASE_URL = "http://www.speedrun.com/api/v1/";
+    private static final String LEADEROARDS = "leaderboards/";
+    private static final String USERS = "users/";
 
-    private final String GAME_PAPER_MARIO = "pmario/";
+    private static final String GAME_PAPER_MARIO = "pmario/";
 
-    private final String CAT_PAPE_ANY_PERCENT = "any";
-    private final String CAT_PAPE_ANY_NO_PW = "any_no_pw";
-    private final String CAT_PAPE_ALL_CARDS = "all_cards";
-    private final String CAT_PAPE_ALL_BOSSES = "all_bosses";
-    private final String CAT_PAPE_GLITCHLESS = "glitchless";
-    private final String CAT_PAPE_100 = "100";
+    private static final String CAT_PAPE_ANY_PERCENT = "any";
+    private static final String CAT_PAPE_ANY_NO_PW = "any_no_pw";
+    private static final String CAT_PAPE_ALL_CARDS = "all_cards";
+    private static final String CAT_PAPE_ALL_BOSSES = "all_bosses";
+    private static final String CAT_PAPE_GLITCHLESS = "glitchless";
+    private static final String CAT_PAPE_100 = "100";
 
-    private final String PLATFORM_PAPE_PLATFORM_ALL = "all";
-    private final String PLATFORM_PAPE_PLATFORM_N64 = "n64";
-    private final String PLATFORM_PAPE_PLATFORM_WII = "wiivc";
-    private final String PLATFORM_PAPE_PLATFORM_WII_U = "wiiuvc";
+    private static final String PLATFORM_PAPE_PLATFORM_N64 = "n64";
+    private static final String PLATFORM_PAPE_PLATFORM_WII = "wiivc";
+    private static final String PLATFORM_PAPE_PLATFORM_WII_U = "wiiuvc";
 
     public enum Game {
         PAPER_MARIO
@@ -48,13 +47,9 @@ public class SpeedrunApi {
         WIIU
     }
 
-    private OkHttpClient client = new OkHttpClient();
+    private static OkHttpClient client = new OkHttpClient();
 
-    public SpeedrunApi () {
-
-    }
-
-    public String getPapeWr(Game game, PapeCategory category) {
+    public static String getPapeWr(Game game, PapeCategory category) {
         Gson gson = new Gson();
         String gameString = getGameUrlString(game);
         String categoryString = getPapeCategoryUrlString(category);
@@ -90,7 +85,7 @@ public class SpeedrunApi {
         return String.format("The Paper Mario %s WRs are %s by %s overall and %s by %s on N64.", getPapeCategoryString(category), allTime, allName, n64Time, n64Name);
     }
 
-    private String getUsernameFromId(String id) {
+    private static String getUsernameFromId(String id) {
         Gson gson = new Gson();
         String userJson = submitRequest(buildUserUrl(id));
 
@@ -98,7 +93,7 @@ public class SpeedrunApi {
         return user.getData().getNames().getInternational();
     }
 
-    private String getPapeCategoryString(PapeCategory category) {
+    private static String getPapeCategoryString(PapeCategory category) {
         switch (category) {
             case ANY_PERCENT:
                 return "Any%";
@@ -117,14 +112,14 @@ public class SpeedrunApi {
         }
     }
 
-    private String getGameUrlString(Game game) {
+    private static String getGameUrlString(Game game) {
         switch (game) {
             default:
                 return GAME_PAPER_MARIO;
         }
     }
 
-    private String getPapeCategoryUrlString(PapeCategory category) {
+    private static String getPapeCategoryUrlString(PapeCategory category) {
         switch (category) {
             case ANY_PERCENT:
                 return CAT_PAPE_ANY_PERCENT;
@@ -143,7 +138,7 @@ public class SpeedrunApi {
         }
     }
 
-    private String getPapePlatformUrlString(PapePlatform platform) {
+    private static String getPapePlatformUrlString(PapePlatform platform) {
         switch (platform) {
             case N64:
                 return PLATFORM_PAPE_PLATFORM_N64;
@@ -156,16 +151,16 @@ public class SpeedrunApi {
         }
     }
 
-    private String getWrJson(String game, String category, String platform) {
+    private static String getWrJson(String game, String category, String platform) {
         String url = buildWrUrl(game, category,platform);
         return submitRequest(url);
     }
-    private String getWrJson(String game, String category) {
+    private static String getWrJson(String game, String category) {
         String url = buildWrUrl(game, category);
         return submitRequest(url);
     }
 
-    private String submitRequest(String url) {
+    private static String submitRequest(String url) {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -178,18 +173,17 @@ public class SpeedrunApi {
         }
     }
 
-    private String buildUserUrl(String id) {
+    private static String buildUserUrl(String id) {
         return BASE_URL + USERS + id;
     }
 
-    private String buildWrUrl(String game, String category, String platform) {
+    private static String buildWrUrl(String game, String category, String platform) {
         return BASE_URL + LEADEROARDS + game + "category/" + category + "?top=1&platform=" + platform;
     }
 
-    private String buildWrUrl(String game, String category) {
+    private static String buildWrUrl(String game, String category) {
         return BASE_URL + LEADEROARDS + game + "category/" + category + "?top=1";
     }
 
 
 }
-//https://www.speedrun.com/api/v1/leaderboards/pmario/category/glitchless?top=1

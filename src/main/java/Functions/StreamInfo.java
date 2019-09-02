@@ -1,6 +1,7 @@
 package Functions;
 
 import com.github.twitch4j.TwitchClient;
+import com.github.twitch4j.helix.domain.GameList;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.StreamList;
 
@@ -52,6 +53,15 @@ public class StreamInfo {
         return "";
     }
 
+    public String getGame() {
+        if (isLive()) {
+            String gameId = streamStats.getGameId().toString();
+            GameList gameList = twitchClient.getHelix().getGames(Collections.singletonList(gameId), null).execute();
+            return gameList.getGames().get(0).getName();
+        }
+        return "";
+    }
+
     private void updateStreamStats() {
         StreamList resultList = twitchClient.getHelix().getStreams("", "", "", 1,
                 null, null, null, null,
@@ -71,10 +81,10 @@ public class StreamInfo {
             this.isLive = isLive;
             out.println("---------------------");
             if (isLive) {
-                out.println(streamer + "is now live.");
+                out.println(streamer + " is now live.");
             }
             else {
-                out.println(streamer + "has gone offline.");
+                out.println(streamer + " has gone offline.");
             }
             out.println("---------------------");
         }
