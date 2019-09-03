@@ -6,9 +6,11 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Sorts;
 import org.bson.Document;
 
+import java.util.Calendar;
 import java.util.Vector;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.exists;
 
 public class WatchTimeDb extends CollectionBase {
 
@@ -29,16 +31,28 @@ public class WatchTimeDb extends CollectionBase {
 
     public void addMinutes(long id, String name, int minutes) {
         Document result = find(eq(ID_KEY, id)).first();
+        String monthlyMinutesKey = getMonthlyMinutesKey();
 
         if (result == null) {
             Document document = new Document(ID_KEY, id)
                     .append(NAME_KEY, name)
-                    .append(MINUTES_KEY, minutes);
+                    .append(MINUTES_KEY, minutes)
+                    .append(monthlyMinutesKey, minutes);
             insertOne(document);
         }
         else {
-            int newMinutes = (int)result.get(MINUTES_KEY) + minutes;
+            int newMinutes = result.getInteger(MINUTES_KEY) + minutes;
+            int newMonthlyMinutes;
+            if (result.get(monthlyMinutesKey) == null) {
+                newMonthlyMinutes = 0;
+            }
+            else {
+                newMonthlyMinutes = result.getInteger(monthlyMinutesKey);
+            }
+            newMonthlyMinutes += minutes;
+
             updateOne(eq(ID_KEY, id), new Document("$set", new Document(MINUTES_KEY, newMinutes)));
+            updateOne(eq(ID_KEY, id), new Document("$set", new Document(monthlyMinutesKey, newMonthlyMinutes)));
         }
     }
 
@@ -47,7 +61,7 @@ public class WatchTimeDb extends CollectionBase {
 
         Document result = find(eq(ID_KEY, id)).first();
         if (result != null) {
-            return (int)result.get(MINUTES_KEY);
+            return result.getInteger(MINUTES_KEY);
         }
         return 0;
     }
@@ -57,8 +71,37 @@ public class WatchTimeDb extends CollectionBase {
         Vector<String> topUsers = new Vector<>();
 
         while (result.hasNext()) {
-            topUsers.add((String)result.next().get(NAME_KEY));
+            topUsers.add(result.next().getString(NAME_KEY));
         }
         return topUsers;
+    }
+
+    public Vector<String> getTopMonthlyUsers() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        return getTopMonthlyUsers(year, month);
+    }
+
+    public Vector<String> getTopMonthlyUsers(int year, int month) {
+        String monthlyMinutesKey = getMonthlyMinutesKey(year, month);
+        MongoCursor<Document> result = find(exists(monthlyMinutesKey)).sort(Sorts.descending(monthlyMinutesKey)).iterator();
+        Vector<String> topUsers = new Vector<>();
+
+        while (result.hasNext()) {
+            topUsers.add(result.next().getString(NAME_KEY));
+        }
+        return topUsers;
+    }
+
+    private String getMonthlyMinutesKey() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        return String.format("points%d%d", year, month);
+    }
+
+    public String getMonthlyMinutesKey(int year, int month) {
+        return String.format("points%d%d", year, month);
     }
 }

@@ -1,5 +1,5 @@
 import Functions.StreamInfo;
-import Functions.ViewerTracker;
+import Functions.StatsTracker;
 import Listeners.ModListener;
 import Listeners.SpeedySpinGameListener;
 import Listeners.SpeedySpinLeaderboardListener;
@@ -46,8 +46,8 @@ public class Main {
         twirk.addIrcListener(new WrListener(twirk, streamInfo));
         twirk.connect();
 
-        ViewerTracker viewerTracker = new ViewerTracker(twirk, twitchClient, streamInfo, 60*1000);
-        viewerTracker.start();
+        StatsTracker statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, 60*1000);
+        statsTracker.start();
 
         //SocialScheduler socialScheduler = new SocialScheduler(twirk);
         //socialScheduler.start();
@@ -67,9 +67,9 @@ public class Main {
         }
 
         streamInfo.stopTracker();
-        viewerTracker.stop();
-        viewerTracker.printViewersByViewTime();
-        viewerTracker.storeAllMinutes();
+        statsTracker.stop();
+        statsTracker.printViewersByViewTime();
+        statsTracker.storeAllMinutes();
         //socialScheduler.stop();
         scanner.close();
         twirk.close();

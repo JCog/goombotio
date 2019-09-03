@@ -10,7 +10,7 @@ import java.util.*;
 
 import static java.lang.System.out;
 
-public class ViewerTracker {
+public class StatsTracker {
     private final static String BLACKLIST_FILENAME = "src/main/resources/blacklist.txt";
 
     private Twirk twirk;
@@ -22,7 +22,7 @@ public class ViewerTracker {
     private ArrayList<String> blacklist;
     private WatchTimeDb watchTimeDb;
 
-    public ViewerTracker(Twirk twirk, TwitchClient twitchClient, StreamInfo streamInfo, int interval) {
+    public StatsTracker(Twirk twirk, TwitchClient twitchClient, StreamInfo streamInfo, int interval) {
         this.twirk = twirk;
         this.twitchClient = twitchClient;
         this.streamInfo = streamInfo;
@@ -65,6 +65,14 @@ public class ViewerTracker {
                 watchTimeDb.addMinutes(id, name, minutes);
             }
         }
+    }
+
+    public Set<String> getNewViewers() {
+        Set<String> streamViewers = usersMap.keySet();
+        Set<String> allViewers = new HashSet<String>(watchTimeDb.getTopUsers());
+        Set<String> newViewers = new HashSet<String>(streamViewers);
+        newViewers.retainAll(allViewers);
+        return newViewers;
     }
 
     public void printViewersByViewTime() {
