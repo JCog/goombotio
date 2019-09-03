@@ -17,6 +17,8 @@ public class WatchTimeDb extends CollectionBase {
     private final String ID_KEY = "_id";
     private final String MINUTES_KEY = "minutes";
     private final String NAME_KEY = "name";
+    private final String FIRST_SEEN_KEY = "first_seen";
+    private final String LAST_SEEN_KEY = "last_seen";
 
 
     public WatchTimeDb() {
@@ -36,7 +38,9 @@ public class WatchTimeDb extends CollectionBase {
             Document document = new Document(ID_KEY, id)
                     .append(NAME_KEY, name)
                     .append(MINUTES_KEY, minutes)
-                    .append(monthlyMinutesKey, minutes);
+                    .append(monthlyMinutesKey, minutes)
+                    .append(FIRST_SEEN_KEY, getDate())
+                    .append(LAST_SEEN_KEY, getDate());
             insertOne(document);
         }
         else {
@@ -52,6 +56,7 @@ public class WatchTimeDb extends CollectionBase {
 
             updateOne(eq(ID_KEY, id), new Document("$set", new Document(MINUTES_KEY, newMinutes)));
             updateOne(eq(ID_KEY, id), new Document("$set", new Document(monthlyMinutesKey, newMonthlyMinutes)));
+            updateOne(eq(ID_KEY, id), new Document("$set", new Document("last_seen", getDate())));
         }
     }
 
@@ -105,5 +110,14 @@ public class WatchTimeDb extends CollectionBase {
 
     private String getMonthlyMinutesKey(int year, int month) {
         return String.format("points%d%d", year, month);
+    }
+
+    private static Date getDate() {
+        Calendar date = new GregorianCalendar();
+        date.set(Calendar.HOUR_OF_DAY, 12);
+        date.set(Calendar.MINUTE, 0);
+        date.set(Calendar.SECOND, 0);
+        date.set(Calendar.MILLISECOND, 0);
+        return date.getTime();
     }
 }
