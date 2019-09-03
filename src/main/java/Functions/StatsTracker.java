@@ -1,17 +1,21 @@
 package Functions;
 
 import Util.Database.WatchTimeDb;
+import Util.FileWriter;
 import com.gikk.twirk.Twirk;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.UserList;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static java.lang.System.out;
 
 public class StatsTracker {
     private final static String BLACKLIST_FILENAME = "src/main/resources/blacklist.txt";
+    private final static String REPORT_LOCATION = "streamreports/";
 
     private Twirk twirk;
     private TwitchClient twitchClient;
@@ -40,8 +44,10 @@ public class StatsTracker {
             public void run() {
                 if (streamInfo.isLive()) {
                     for (String user : twirk.getUsersOnline()) {
-                        usersMap.putIfAbsent(user, 0);
-                        usersMap.put(user, usersMap.get(user) + interval);
+                        if (!blacklist.contains(user)) {
+                            usersMap.putIfAbsent(user, 0);
+                            usersMap.put(user, usersMap.get(user) + interval);
+                        }
                     }
                 }
             }
@@ -67,27 +73,93 @@ public class StatsTracker {
         }
     }
 
-    public Set<String> getNewViewers() {
-        Set<String> streamViewers = usersMap.keySet();
-        Set<String> allViewers = new HashSet<String>(watchTimeDb.getTopUsers());
-        Set<String> newViewers = new HashSet<String>(streamViewers);
-        newViewers.retainAll(allViewers);
-        return newViewers;
+    private ArrayList<Map.Entry<String, Integer>> getNewViewers() {
+        Set<Map.Entry<String, Integer>> currentViewers = usersMap.entrySet();
+        ArrayList<Map.Entry<String, Integer>> allTimeViewers = new ArrayList<>(watchTimeDb.getTopUsers());
+        HashMap<String, Integer> newViewersMap = new HashMap<>(usersMap);
+        for (Map.Entry<String, Integer> viewer : allTimeViewers) {
+            newViewersMap.remove(viewer.getKey());
+        }
+        ArrayList<Map.Entry<String, Integer>> newViewersArray = new ArrayList<>(newViewersMap.entrySet());
+        newViewersArray.sort(new SortByViewTime());
+        return newViewersArray;
     }
 
-    public void printViewersByViewTime() {
-        Set<Map.Entry<String, Integer>> usersSet = usersMap.entrySet();
-        ArrayList<Map.Entry<String, Integer>> orderedUsers = new ArrayList<>(usersSet);
-        orderedUsers.sort(new SortByViewTime());
-
-        out.println("Top Viewers (Minutes)\n---------------------\n");
-        for (Map.Entry<String, Integer> entry : orderedUsers) {
-            if ( !blacklist.contains(entry.getKey()) ) {
-                int minutes = entry.getValue() / (60 * 1000);
-                out.println(entry.getKey() + ": " + minutes);
+    private ArrayList<Map.Entry<String, Integer>> getReturningViewers() {
+        Set<Map.Entry<String, Integer>> currentViewers = usersMap.entrySet();
+        HashMap<String, Integer> allTimeViewers = arrayListToHashMap(watchTimeDb.getTopUsers());
+        ArrayList<Map.Entry<String, Integer>> returningViewers = new ArrayList<>();
+        for (Map.Entry<String, Integer> currentViewer : currentViewers) {
+            if (allTimeViewers.containsKey(currentViewer.getKey())) {
+                returningViewers.add(currentViewer);
             }
         }
+        returningViewers.sort(new SortByViewTime());
+        return returningViewers;
     }
+
+    public void generateReport() {
+        StringBuilder report = new StringBuilder();
+        StringBuilder allViewersReport = new StringBuilder();
+        StringBuilder newViewersReport = new StringBuilder();
+        StringBuilder returningViewersReport = new StringBuilder();
+
+        //      All Viewers Report
+        int allWatchTime = 0;
+        allViewersReport.append("------ All Viewers ------\n");
+        for (Integer value : usersMap.values()) {
+            allWatchTime += value / (60 * 1000);
+        }
+        int averageAllMinutes = allWatchTime / usersMap.size();
+        allViewersReport.append(String.format("Total Viewers: %d viewers\n", usersMap.size()));
+        allViewersReport.append(String.format("Average Watchtime: %d minutes\n", averageAllMinutes));
+
+        //      New Viewers Report
+        ArrayList<Map.Entry<String, Integer>> newViewersSet = getNewViewers();
+        int newWatchTime = 0;
+        newViewersReport.append("------ New Viewers ------\n");
+        for (Map.Entry<String, Integer> viewer : newViewersSet) {
+            int minutes = viewer.getValue() / (60 * 1000);
+            newWatchTime += minutes;
+            newViewersReport.append(String.format("%s: %d\n", viewer.getKey(), minutes));
+        }
+        newViewersReport.append("\n");
+
+        int averageNewMinutes = newWatchTime / newViewersSet.size();
+        newViewersReport.append(String.format("Total New Viewers: %d viewers\n", newViewersSet.size()));
+        newViewersReport.append(String.format("Average Watchtime: %d minutes\n", averageNewMinutes));
+
+        //      Returning Viewers Report
+        ArrayList<Map.Entry<String, Integer>> returningViewersList = getReturningViewers();
+        int returningWatchTime = 0;
+        returningViewersReport.append("------ Returning Viewers ------\n");
+        for (Map.Entry<String, Integer> viewer : returningViewersList) {
+            int minutes = viewer.getValue() / (60 * 1000);
+            returningWatchTime += minutes;
+            returningViewersReport.append(String.format("%s: %d\n", viewer.getKey(), minutes));
+        }
+        returningViewersReport.append("\n");
+
+        int averageReturningMinutes = returningWatchTime / returningViewersList.size();
+        returningViewersReport.append(String.format("Total Returning Viewers: %d viewers\n", returningViewersList.size()));
+        returningViewersReport.append(String.format("Average Watchtime: %d minutes\n", averageReturningMinutes));
+
+        //      Put it all together
+        report.append("REPORT\n\n");
+        report.append(allViewersReport);
+        report.append("\n\n");
+        report.append(newViewersReport);
+        report.append("\n\n");
+        report.append(returningViewersReport);
+
+        LocalDateTime date = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
+        String filename = "StreamReport" + formatter.format(date) + ".txt";
+
+        FileWriter.writeToFile(REPORT_LOCATION, filename, report.toString());
+    }
+
+
 
     private ArrayList<String> blacklistInit(String filename) {
         ArrayList<String> blacklist = new ArrayList<>();
@@ -120,11 +192,19 @@ public class StatsTracker {
         return userIds;
     }
 
-    private class SortByViewTime implements Comparator<Map.Entry<String, Integer>> {
+    private static class SortByViewTime implements Comparator<Map.Entry<String, Integer>> {
 
         @Override
         public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
             return o2.getValue() - o1.getValue();
         }
+    }
+
+    private static HashMap<String, Integer> arrayListToHashMap(ArrayList<Map.Entry<String, Integer>> arrayList) {
+        HashMap<String, Integer> hashMap = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : arrayList) {
+            hashMap.put(entry.getKey(), entry.getValue());
+        }
+        return hashMap;
     }
 }

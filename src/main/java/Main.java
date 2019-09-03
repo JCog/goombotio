@@ -68,9 +68,9 @@ public class Main {
 
         streamInfo.stopTracker();
         statsTracker.stop();
-        statsTracker.printViewersByViewTime();
         statsTracker.storeAllMinutes();
         //socialScheduler.stop();
+        statsTracker.generateReport();
         scanner.close();
         twirk.close();
         exit(0);

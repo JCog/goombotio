@@ -6,8 +6,7 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Sorts;
 import org.bson.Document;
 
-import java.util.Calendar;
-import java.util.Vector;
+import java.util.*;
 
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;
@@ -66,12 +65,15 @@ public class WatchTimeDb extends CollectionBase {
         return 0;
     }
 
-    public Vector<String> getTopUsers() {
+    public ArrayList<Map.Entry<String, Integer>> getTopUsers() {
         MongoCursor<Document> result = find().sort(Sorts.descending(MINUTES_KEY)).iterator();
-        Vector<String> topUsers = new Vector<>();
+        ArrayList<Map.Entry<String, Integer>> topUsers = new ArrayList<>();
 
         while (result.hasNext()) {
-            topUsers.add(result.next().getString(NAME_KEY));
+            Document doc = result.next();
+            String name = doc.getString(NAME_KEY);
+            int minutes = doc.getInteger(MINUTES_KEY);
+            topUsers.add(new AbstractMap.SimpleEntry<String, Integer>(name, minutes));
         }
         return topUsers;
     }
@@ -101,7 +103,7 @@ public class WatchTimeDb extends CollectionBase {
         return String.format("points%d%d", year, month);
     }
 
-    public String getMonthlyMinutesKey(int year, int month) {
+    private String getMonthlyMinutesKey(int year, int month) {
         return String.format("points%d%d", year, month);
     }
 }
