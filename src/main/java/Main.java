@@ -20,18 +20,26 @@ import static java.lang.System.exit;
 import static java.lang.System.out;
 
 public class Main {
+    /**
+     * @param args 0 - stream
+     *             1 - bot username
+     *             2 - bot authToken
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws IOException, InterruptedException{
         final String STREAM = args[0];
-        final String CHANNEL = '#' + args[0];
+        final String AUTH_TOKEN = args[2];
+        final String CHANNEL = '#' + STREAM;
         final String NICK = args[1];
-        final String OAUTH = args[2];
+        final String OAUTH = "oauth:" + AUTH_TOKEN;
         final boolean VERBOSE_MODE = false;
         final Twirk twirk;
         final TwitchClient twitchClient;
 
         twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
 
-        StreamInfo streamInfo = new StreamInfo(STREAM, twitchClient);
+        StreamInfo streamInfo = new StreamInfo(STREAM, twitchClient, AUTH_TOKEN);
         streamInfo.startTracker();
 
         Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));
@@ -46,7 +54,7 @@ public class Main {
         twirk.addIrcListener(new WrListener(twirk, streamInfo));
         twirk.connect();
 
-        StatsTracker statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, 60*1000);
+        StatsTracker statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, STREAM, AUTH_TOKEN, 60*1000);
         statsTracker.start();
 
         //SocialScheduler socialScheduler = new SocialScheduler(twirk);

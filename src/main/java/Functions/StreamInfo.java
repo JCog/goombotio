@@ -19,10 +19,12 @@ public class StreamInfo {
     private int timerInterval;
     private Stream streamStats;
     private boolean isLive;
+    private String authToken;
 
-    public StreamInfo(String streamer, TwitchClient twitchClient) {
+    public StreamInfo(String streamer, TwitchClient twitchClient, String authToken) {
         this.streamer = streamer;
         this.twitchClient = twitchClient;
+        this.authToken = authToken;
         timer = new Timer();
         timerInterval = 60*1000;
         isLive = false;
@@ -56,14 +58,14 @@ public class StreamInfo {
     public String getGame() {
         if (isLive()) {
             String gameId = streamStats.getGameId().toString();
-            GameList gameList = twitchClient.getHelix().getGames(Collections.singletonList(gameId), null).execute();
+            GameList gameList = twitchClient.getHelix().getGames(authToken, Collections.singletonList(gameId), null).execute();
             return gameList.getGames().get(0).getName();
         }
         return "";
     }
 
     private void updateStreamStats() {
-        StreamList resultList = twitchClient.getHelix().getStreams("", "", "", 1,
+        StreamList resultList = twitchClient.getHelix().getStreams(authToken, "", "", 1,
                 null, null, null, null,
                 Collections.singletonList(streamer)).execute();
         if (resultList.getStreams().isEmpty()) {

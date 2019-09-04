@@ -4,6 +4,8 @@ import Util.Database.WatchTimeDb;
 import Util.FileWriter;
 import com.gikk.twirk.Twirk;
 import com.github.twitch4j.TwitchClient;
+import com.github.twitch4j.helix.domain.Follow;
+import com.github.twitch4j.helix.domain.FollowList;
 import com.github.twitch4j.helix.domain.UserList;
 
 import java.io.File;
@@ -20,21 +22,31 @@ public class StatsTracker {
     private Twirk twirk;
     private TwitchClient twitchClient;
     private StreamInfo streamInfo;
+    private String stream;
+    private String authToken;
     private int interval;
     private Timer timer;
     private HashMap<String, Integer> usersMap;
     private ArrayList<String> blacklist;
     private WatchTimeDb watchTimeDb;
+    private Set<String> followers;
+    private long streamId;
+    private HashMap<String, Long> userIdMap;
 
-    public StatsTracker(Twirk twirk, TwitchClient twitchClient, StreamInfo streamInfo, int interval) {
+    public StatsTracker(Twirk twirk, TwitchClient twitchClient, StreamInfo streamInfo, String stream, String authToken, int interval) {
         this.twirk = twirk;
         this.twitchClient = twitchClient;
         this.streamInfo = streamInfo;
+        this.stream = stream;
+        this.authToken = authToken;
         this.interval = interval;
         timer = new Timer();
         usersMap = new HashMap<>();
         blacklist = blacklistInit(BLACKLIST_FILENAME);
         watchTimeDb = new WatchTimeDb();
+        streamId = getUserId();
+        followers = getFollowers();
+        userIdMap = new HashMap<>();
     }
 
     public void start() {
@@ -81,7 +93,7 @@ public class StatsTracker {
             newViewersMap.remove(viewer.getKey());
         }
         ArrayList<Map.Entry<String, Integer>> newViewersArray = new ArrayList<>(newViewersMap.entrySet());
-        newViewersArray.sort(new SortByViewTime());
+        newViewersArray.sort(new SortMapDescending());
         return newViewersArray;
     }
 
@@ -94,7 +106,7 @@ public class StatsTracker {
                 returningViewers.add(currentViewer);
             }
         }
-        returningViewers.sort(new SortByViewTime());
+        returningViewers.sort(new SortMapDescending());
         return returningViewers;
     }
 
@@ -107,6 +119,14 @@ public class StatsTracker {
         //      All Viewers Report
         int allWatchTime = 0;
         allViewersReport.append("------ All Viewers ------\n");
+        ArrayList<Map.Entry<String, Integer>> biggestViewers = getTopFollowerCounts();
+        allViewersReport.append("Biggest Viewers:\n");
+        for (int i = 0; i < 10 && i < biggestViewers.size(); i++) {
+            String name = biggestViewers.get(i).getKey();
+            int followers = biggestViewers.get(i).getValue();
+            allViewersReport.append(String.format("%d. %s: %d followers\n", i + 1, name, followers));
+        }
+        allViewersReport.append("\n");
         for (Integer value : usersMap.values()) {
             allWatchTime += value / (60 * 1000);
         }
@@ -124,10 +144,20 @@ public class StatsTracker {
             newViewersReport.append(String.format("%s: %d\n", viewer.getKey(), minutes));
         }
         newViewersReport.append("\n");
+        //New Followers
+        Set<String> newFollowers = getFollowers();
+        newFollowers.removeAll(followers);
+        newViewersReport.append("New Followers:\n");
+        for (String follower : newFollowers) {
+            newViewersReport.append(String.format("%s\n", follower));
+        }
+        newViewersReport.append("\n");
 
         int averageNewMinutes = newWatchTime / newViewersSet.size();
+        int percentWhoFollowed = newFollowers.size() / newViewersSet.size();
         newViewersReport.append(String.format("Total New Viewers: %d viewers\n", newViewersSet.size()));
         newViewersReport.append(String.format("Average Watchtime: %d minutes\n", averageNewMinutes));
+        newViewersReport.append(String.format("Percent of New Viewers who followed: %d%%", percentWhoFollowed));
 
         //      Returning Viewers Report
         ArrayList<Map.Entry<String, Integer>> returningViewersList = getReturningViewers();
@@ -159,7 +189,23 @@ public class StatsTracker {
         FileWriter.writeToFile(REPORT_LOCATION, filename, report.toString());
     }
 
-
+    private Set<String> getFollowers() {
+        try {
+            FollowList list = twitchClient.getHelix().getFollowers(authToken, null, streamId, null, 100).execute();
+            Set<String> followers = new HashSet<>();
+            while (list.getFollows().size() > 0) {
+                for (Follow follower : list.getFollows()) {
+                    followers.add(follower.getFromName());
+                }
+                list = twitchClient.getHelix().getFollowers(authToken, null, streamId, list.getPagination().getCursor(), 100).execute();
+            }
+            return followers;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return new HashSet<>();
+        }
+    }
 
     private ArrayList<String> blacklistInit(String filename) {
         ArrayList<String> blacklist = new ArrayList<>();
@@ -177,22 +223,47 @@ public class StatsTracker {
         return blacklist;
     }
 
-    private HashMap<String, Long> getUsersIds() {
-        HashMap<String, Long> userIds = new HashMap<>();
-        Iterator<Map.Entry<String, Integer>> usersMapIt = usersMap.entrySet().iterator();
-        List<String> usersHundred = new ArrayList<>();
-        while (usersMapIt.hasNext()) {
-            while (usersHundred.size() < 100 && usersMapIt.hasNext()) {
-                usersHundred.add(usersMapIt.next().getKey());
-            }
-            UserList resultList = twitchClient.getHelix().getUsers(null, null, usersHundred).execute();
-            resultList.getUsers().forEach(user -> userIds.put(user.getLogin(), user.getId()));
-            usersHundred.clear();
+    private ArrayList<Map.Entry<String, Integer>> getTopFollowerCounts() {
+        ArrayList<Map.Entry<String, Integer>> followerCounts = new ArrayList<>();
+        Set<Map.Entry<String, Long>> userIds = getUsersIds().entrySet();
+
+        for(Map.Entry<String, Long> entry : userIds) {
+            FollowList userFollows = twitchClient.getHelix().getFollowers(authToken, null, entry.getValue(), null, 1).execute();
+            String name = entry.getKey();
+            int followCount = userFollows.getTotal();
+            followerCounts.add(new AbstractMap.SimpleEntry<>(name, followCount));
         }
-        return userIds;
+        Collections.sort(followerCounts, new SortMapDescending());
+        return followerCounts;
     }
 
-    private static class SortByViewTime implements Comparator<Map.Entry<String, Integer>> {
+    private HashMap<String, Long> getUsersIds() {
+        if (userIdMap.size() != usersMap.size()) {
+            HashMap<String, Long> userIds = new HashMap<>();
+            Iterator<Map.Entry<String, Integer>> usersMapIt = usersMap.entrySet().iterator();
+            List<String> usersHundred = new ArrayList<>();
+            while (usersMapIt.hasNext()) {
+                while (usersHundred.size() < 100 && usersMapIt.hasNext()) {
+                    usersHundred.add(usersMapIt.next().getKey());
+                }
+                UserList resultList = twitchClient.getHelix().getUsers(authToken, null, usersHundred).execute();
+                resultList.getUsers().forEach(user -> userIds.put(user.getLogin(), user.getId()));
+                usersHundred.clear();
+            }
+            userIdMap = userIds;
+            return userIds;
+        }
+        else {
+            return userIdMap;
+        }
+    }
+
+    private long getUserId() {
+        UserList resultList = twitchClient.getHelix().getUsers(authToken, null, Collections.singletonList(stream)).execute();
+        return resultList.getUsers().get(0).getId();
+    }
+
+    private static class SortMapDescending implements Comparator<Map.Entry<String, Integer>> {
 
         @Override
         public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
