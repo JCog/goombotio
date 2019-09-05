@@ -32,6 +32,7 @@ public class StatsTracker {
     private Set<String> followers;
     private long streamId;
     private HashMap<String, Long> userIdMap;
+    private ArrayList<Map.Entry<String, Integer>> allTimeViewers;
 
     public StatsTracker(Twirk twirk, TwitchClient twitchClient, StreamInfo streamInfo, String stream, String authToken, int interval) {
         this.twirk = twirk;
@@ -47,6 +48,7 @@ public class StatsTracker {
         streamId = getUserId();
         followers = getFollowers();
         userIdMap = new HashMap<>();
+        allTimeViewers = watchTimeDb.getTopUsers();
     }
 
     public void start() {
@@ -87,9 +89,9 @@ public class StatsTracker {
 
     private ArrayList<Map.Entry<String, Integer>> getNewViewers() {
         Set<Map.Entry<String, Integer>> currentViewers = usersMap.entrySet();
-        ArrayList<Map.Entry<String, Integer>> allTimeViewers = new ArrayList<>(watchTimeDb.getTopUsers());
+        ArrayList<Map.Entry<String, Integer>> allTimeViewersCopy = new ArrayList<>(allTimeViewers);
         HashMap<String, Integer> newViewersMap = new HashMap<>(usersMap);
-        for (Map.Entry<String, Integer> viewer : allTimeViewers) {
+        for (Map.Entry<String, Integer> viewer : allTimeViewersCopy) {
             newViewersMap.remove(viewer.getKey());
         }
         ArrayList<Map.Entry<String, Integer>> newViewersArray = new ArrayList<>(newViewersMap.entrySet());
@@ -99,10 +101,10 @@ public class StatsTracker {
 
     private ArrayList<Map.Entry<String, Integer>> getReturningViewers() {
         Set<Map.Entry<String, Integer>> currentViewers = usersMap.entrySet();
-        HashMap<String, Integer> allTimeViewers = arrayListToHashMap(watchTimeDb.getTopUsers());
+        HashMap<String, Integer> allTimeViewersCopy = arrayListToHashMap(allTimeViewers);
         ArrayList<Map.Entry<String, Integer>> returningViewers = new ArrayList<>();
         for (Map.Entry<String, Integer> currentViewer : currentViewers) {
-            if (allTimeViewers.containsKey(currentViewer.getKey())) {
+            if (allTimeViewersCopy.containsKey(currentViewer.getKey())) {
                 returningViewers.add(currentViewer);
             }
         }

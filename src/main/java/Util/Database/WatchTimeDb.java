@@ -105,11 +105,11 @@ public class WatchTimeDb extends CollectionBase {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
-        return String.format("points%d%d", year, month);
+        return String.format("minutes%d%d", year, month);
     }
 
     private String getMonthlyMinutesKey(int year, int month) {
-        return String.format("points%d%d", year, month);
+        return String.format("minutes%d%d", year, month);
     }
 
     private static Date getDate() {

@@ -74,6 +74,7 @@ public class Main {
             }
         }
 
+        out.println("Stopping...");
         streamInfo.stopTracker();
         statsTracker.stop();
         statsTracker.storeAllMinutes();
