@@ -78,7 +78,14 @@ public class StatsTracker {
         while (usersMapIt.hasNext()) {
             Map.Entry<String, Integer> entry = usersMapIt.next();
             String name = entry.getKey();
-            long id = usersIds.get(name);
+            long id;
+            try {
+                id = usersIds.get(name);
+            }
+            catch (NullPointerException npe) {
+                npe.printStackTrace();
+                continue;
+            }
             int minutes = entry.getValue() / (60 * 1000);
 
             if ( !blacklist.contains(entry.getKey()) ) {
@@ -99,6 +106,10 @@ public class StatsTracker {
         return newViewersArray;
     }
 
+    private int getViewerMinutes(String viewer) {
+        return usersMap.get(viewer) / (60 * 1000);
+    }
+
     private ArrayList<Map.Entry<String, Integer>> getReturningViewers() {
         Set<Map.Entry<String, Integer>> currentViewers = usersMap.entrySet();
         HashMap<String, Integer> allTimeViewersCopy = arrayListToHashMap(allTimeViewers);
@@ -114,9 +125,19 @@ public class StatsTracker {
 
     public void generateReport() {
         StringBuilder report = new StringBuilder();
+        StringBuilder streamStatsReport = new StringBuilder();
         StringBuilder allViewersReport = new StringBuilder();
         StringBuilder newViewersReport = new StringBuilder();
         StringBuilder returningViewersReport = new StringBuilder();
+
+        //      Stream Stats Report
+        streamStatsReport.append("------ Stream Stats ------\n");
+        int averageViewers = streamInfo.getAverageViewers();
+        int medianViewers = streamInfo.getMedianViewers();
+        int maxViewers = streamInfo.getMaxViewers();
+        streamStatsReport.append(String.format("Average Viewer Count: %d\n", averageViewers));
+        streamStatsReport.append(String.format("Median Viewer Count:  %d\n", medianViewers));
+        streamStatsReport.append(String.format("Max Viewer Count:     %d\n", maxViewers));
 
         //      All Viewers Report
         int allWatchTime = 0;
@@ -126,7 +147,8 @@ public class StatsTracker {
         for (int i = 0; i < 10 && i < biggestViewers.size(); i++) {
             String name = biggestViewers.get(i).getKey();
             int followers = biggestViewers.get(i).getValue();
-            allViewersReport.append(String.format("%d. %s: %d followers\n", i + 1, name, followers));
+            int minutes = getViewerMinutes(name);
+            allViewersReport.append(String.format("%d. %s: %d followers, %d minutes\n", i + 1, name, followers, minutes));
         }
         allViewersReport.append("\n");
         for (Integer value : usersMap.values()) {
@@ -156,10 +178,10 @@ public class StatsTracker {
         newViewersReport.append("\n");
 
         int averageNewMinutes = newWatchTime / newViewersSet.size();
-        int percentWhoFollowed = newFollowers.size() / newViewersSet.size();
+        //int percentWhoFollowed = newFollowers.size() / newViewersSet.size();
         newViewersReport.append(String.format("Total New Viewers: %d viewers\n", newViewersSet.size()));
         newViewersReport.append(String.format("Average Watchtime: %d minutes\n", averageNewMinutes));
-        newViewersReport.append(String.format("Percent of New Viewers who followed: %d%%", percentWhoFollowed));
+        //newViewersReport.append(String.format("Percent of New Viewers who followed: %d%%", percentWhoFollowed));
 
         //      Returning Viewers Report
         ArrayList<Map.Entry<String, Integer>> returningViewersList = getReturningViewers();
@@ -178,6 +200,8 @@ public class StatsTracker {
 
         //      Put it all together
         report.append("REPORT\n\n");
+        report.append(streamStatsReport);
+        report.append("\n\n");
         report.append(allViewersReport);
         report.append("\n\n");
         report.append(newViewersReport);
