@@ -5,6 +5,7 @@ import Listeners.SpeedySpinGameListener;
 import Listeners.SpeedySpinLeaderboardListener;
 import Listeners.WrListener;
 import Util.Database.SpeedySpinLeaderboard;
+import Util.ReportBuilder;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.TwirkBuilder;
 import com.gikk.twirk.events.TwirkListener;
@@ -79,7 +80,7 @@ public class Main {
         statsTracker.stop();
         statsTracker.storeAllMinutes();
         //socialScheduler.stop();
-        statsTracker.generateReport();
+        ReportBuilder.generateReport(streamInfo, statsTracker);
         scanner.close();
         twirk.close();
         exit(0);
