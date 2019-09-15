@@ -1,4 +1,4 @@
-package Listeners;
+package Listeners.Commands;
 
 import Functions.SpeedySpinPredictionManager;
 import com.gikk.twirk.events.TwirkListener;

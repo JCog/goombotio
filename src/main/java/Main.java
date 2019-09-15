@@ -1,9 +1,10 @@
 import Functions.StreamInfo;
 import Functions.StatsTracker;
-import Listeners.ModListener;
-import Listeners.SpeedySpinGameListener;
-import Listeners.SpeedySpinLeaderboardListener;
-import Listeners.WrListener;
+import Listeners.Commands.ModListener;
+import Listeners.Commands.SpeedySpinGameListener;
+import Listeners.Commands.SpeedySpinLeaderboardListener;
+import Listeners.Commands.WrListener;
+import Listeners.Events.SubListener;
 import Util.Database.SpeedySpinLeaderboard;
 import Util.ReportBuilder;
 import com.gikk.twirk.Twirk;
@@ -53,6 +54,7 @@ public class Main {
         twirk.addIrcListener(new SpeedySpinLeaderboardListener(twirk));
         twirk.addIrcListener(new ModListener(twirk));
         twirk.addIrcListener(new WrListener(twirk, streamInfo));
+        twirk.addIrcListener(new SubListener(twirk));
         twirk.connect();
 
         StatsTracker statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, STREAM, AUTH_TOKEN, 60*1000);

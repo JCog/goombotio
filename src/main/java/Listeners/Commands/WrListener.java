@@ -1,4 +1,4 @@
-package Listeners;
+package Listeners.Commands;
 
 import Functions.StreamInfo;
 import com.gikk.twirk.Twirk;

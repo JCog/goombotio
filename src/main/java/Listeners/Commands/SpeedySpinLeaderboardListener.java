@@ -1,4 +1,4 @@
-package Listeners;
+package Listeners.Commands;
 
 import Util.Database.SpeedySpinLeaderboard;
 import com.gikk.twirk.Twirk;

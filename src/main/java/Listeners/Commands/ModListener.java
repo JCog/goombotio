@@ -1,4 +1,4 @@
-package Listeners;
+package Listeners.Commands;
 
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.enums.USER_TYPE;

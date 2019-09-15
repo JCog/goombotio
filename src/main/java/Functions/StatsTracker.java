@@ -14,22 +14,22 @@ import static java.lang.System.out;
 
 public class StatsTracker {
     private final static String BLACKLIST_FILENAME = "src/main/resources/blacklist.txt";
-
+    
     private Twirk twirk;
     private TwitchClient twitchClient;
     private StreamInfo streamInfo;
     private String stream;
     private String authToken;
     private int interval;
-    private Timer timer = new Timer();
-    private HashMap<String, Integer> usersMap = new HashMap<>();
-    private ArrayList<String> blacklist = blacklistInit(BLACKLIST_FILENAME);
-    private WatchTimeDb watchTimeDb = new WatchTimeDb();;
-    private Set<String> followers = getFollowers();
-    private long streamId = getUserId();
-    private HashMap<String, Long> userIdMap = new HashMap<>();;
-    private ArrayList<Map.Entry<String, Integer>> allTimeViewers = watchTimeDb.getTopUsers();;
-
+    private Timer timer;
+    private HashMap<String, Integer> usersMap;
+    private ArrayList<String> blacklist;
+    private WatchTimeDb watchTimeDb;
+    private Set<String> followers;
+    private long streamId;
+    private HashMap<String, Long> userIdMap;
+    private ArrayList<Map.Entry<String, Integer>> allTimeViewers;
+    
     public StatsTracker(Twirk twirk, TwitchClient twitchClient, StreamInfo streamInfo, String stream, String authToken, int interval) {
         this.twirk = twirk;
         this.twitchClient = twitchClient;
@@ -37,6 +37,14 @@ public class StatsTracker {
         this.stream = stream;
         this.authToken = authToken;
         this.interval = interval;
+        timer = new Timer();
+        usersMap = new HashMap<>();
+        blacklist = blacklistInit(BLACKLIST_FILENAME);
+        watchTimeDb = new WatchTimeDb();
+        streamId = getUserId();
+        followers = getFollowers();
+        userIdMap = new HashMap<>();
+        allTimeViewers = watchTimeDb.getTopUsers();
     }
 
     public void start() {
