@@ -156,6 +156,14 @@ public class SpeedySpinLeaderboard extends CollectionBase{
         }
         return 0;
     }
+    
+    public int getWins(long id) {
+        Document result = find(eq(ID_KEY, id)).first();
+        if (result != null) {
+            return (int)result.get(WINS_KEY);
+        }
+        return 0;
+    }
 
     public String getUsername(long id) {
         Document result = find(eq(ID_KEY, id)).first();
@@ -199,6 +207,21 @@ public class SpeedySpinLeaderboard extends CollectionBase{
             }
             else {
                 topScorers.add((long)next.get(ID_KEY));
+            }
+        }
+        
+        return topScorers;
+    }
+    
+    //returns id's of top winners
+    public ArrayList<Long> getTopWinners() {
+        ArrayList<Long> topScorers = new ArrayList<>();
+    
+        for (Document next : find().sort(Sorts.descending(WINS_KEY))) {
+            if (next.get(WINS_KEY) == null) {
+                break;
+            } else {
+                topScorers.add((long) next.get(ID_KEY));
             }
         }
         
