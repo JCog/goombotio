@@ -61,7 +61,14 @@ public class SpeedrunApi {
     }
 
     private static OkHttpClient client = new OkHttpClient();
-
+    
+    /**
+     * Retrieves the current N64 and overall world records for the category specified. Game (main/extension) and
+     * category must match.
+     * @param game main or extension leaderboard
+     * @param category speedrunning category
+     * @return formatted string containing WR(s)
+     */
     public static String getPapeWr(Game game, PapeCategory category) {
         Gson gson = new Gson();
         String gameString = getGameUrlString(game);

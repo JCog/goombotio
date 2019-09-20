@@ -17,6 +17,7 @@ public class SpeedySpinPredictionManager {
     private final Twirk twirk;
     private SpeedySpinPredictionListener sspListener;
     private SpeedySpinLeaderboard leaderboard;
+    
     public enum Badge {
         BAD_SPIN1,
         BAD_SPIN2,
@@ -27,7 +28,11 @@ public class SpeedySpinPredictionManager {
     private HashMap<TwitchUser, ArrayList<Badge>> predictionList;
     private boolean enabled;
     private boolean waitingForAnswer;
-
+    
+    /**
+     * Manages the !preds Twitch chat game.
+     * @param twirk
+     */
     public SpeedySpinPredictionManager(Twirk twirk) {
         this.twirk = twirk;
         enabled = false;
@@ -35,7 +40,15 @@ public class SpeedySpinPredictionManager {
         predictionList = new HashMap<>();
         leaderboard = new SpeedySpinLeaderboard();
     }
-
+    
+    /**
+     * Submits a prediction for the badge order of the badge shop. All three badges should be unique. If the user has
+     * already has a recorded prediction, the old one is removed and replaced with the current one.
+     * @param user user making the prediction
+     * @param first left badge
+     * @param second middle badge
+     * @param third right badge
+     */
     public void makePrediction(TwitchUser user, Badge first, Badge second, Badge third) {
         if (enabled) {
             ArrayList<Badge> prediction = new ArrayList<>();
@@ -56,21 +69,36 @@ public class SpeedySpinPredictionManager {
             predictionList.put(user, prediction);
         }
     }
-
-
+    
+    
+    /**
+     * Starts the listener for the game, sets the game to an enabled state, and sends a message to the chat to tell
+     * users to begin submitting predictions.
+     */
     public void start() {
         enabled = true;
         twirk.addIrcListener(sspListener = new SpeedySpinPredictionListener(this));
         twirk.channelMessage("/me Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 " +
                 "BadSpin3 or SpoodlySpun to guess the badge shop! Type !badgeshop to learn more.");
     }
-
+    
+    /**
+     * Removes the listener for the game, sets the game to a state where it's waiting for the correct answer, and sends
+     * a message to the chat to let them know to stop submitting predictions.
+     */
     public void stop() {
         waitingForAnswer = true;
         twirk.removeIrcListener(sspListener);
         twirk.channelMessage("/me Predictions are up! Let's see how everyone did...");
     }
-
+    
+    /**
+     * Given the three correct badges, sets the game to an ended state, determines and records points won, and sends a
+     * message to the chat to let them know who, if anyone, got all three correct.
+     * @param one left badge
+     * @param two middle badge
+     * @param three right badge
+     */
     public void submitPredictions(Badge one, Badge two, Badge three) {
         enabled = false;
         waitingForAnswer = false;
@@ -100,11 +128,19 @@ public class SpeedySpinPredictionManager {
         twirk.channelMessage(String.format("/me The correct answer was %s %s %s - %s",
                 badgeToString(one), badgeToString(two), badgeToString(three), message));
     }
-
+    
+    /**
+     * Returns true if there is an active !preds game
+     * @return enabled state
+     */
     public boolean isEnabled() {
         return enabled;
     }
-
+    
+    /**
+     * Returns true if the game is waiting on the correct answer
+     * @return waiting for answer state
+     */
     public boolean isWaitingForAnswer() {
         return waitingForAnswer;
     }
@@ -148,7 +184,12 @@ public class SpeedySpinPredictionManager {
         }
         return winners;
     }
-
+    
+    /**
+     * Converts a {@link Badge} to a {@link String}
+      * @param badge badge to convert to String
+     * @return String for Badge
+     */
     public static String badgeToString(Badge badge) {
         switch (badge) {
             case BAD_SPIN1:
@@ -161,7 +202,12 @@ public class SpeedySpinPredictionManager {
                 return "SpoodlySpun";
         }
     }
-
+    
+    /**
+     * Converts a {@link String} to a {@link Badge}. Returns null if no match exists
+     * @param badge badge in String form to convert
+     * @return Badge or null
+     */
     public static Badge stringToBadge(String badge) {
         switch (badge.toLowerCase()) {
             case "badspin1":
