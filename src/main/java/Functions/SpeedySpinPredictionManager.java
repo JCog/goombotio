@@ -79,7 +79,8 @@ public class SpeedySpinPredictionManager {
         enabled = true;
         twirk.addIrcListener(sspListener = new SpeedySpinPredictionListener(this));
         twirk.channelMessage("/me Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 " +
-                "BadSpin3 or SpoodlySpun to guess the badge shop! Type !badgeshop to learn more.");
+                "BadSpin3 or SpoodlySpun to guess the order the badges will show up in the badgeshop! Type !badgeshop" +
+                " to learn more or !ffz if you can't see emotes in this message.");
     }
     
     /**
@@ -94,7 +95,8 @@ public class SpeedySpinPredictionManager {
     
     /**
      * Given the three correct badges, sets the game to an ended state, determines and records points won, and sends a
-     * message to the chat to let them know who, if anyone, got all three correct.
+     * message to the chat to let them know who, if anyone, got all three correct, as well as the current monthly
+     * leaderboard.
      * @param one left badge
      * @param two middle badge
      * @param three right badge
@@ -104,29 +106,29 @@ public class SpeedySpinPredictionManager {
         waitingForAnswer = false;
 
         ArrayList<String> winners = getWinners(one, two, three);
-        String message;
+        StringBuilder message = new StringBuilder();
         if (winners.size() == 0) {
-            message = "Nobody guessed it. BibleThump Hopefully you got some points, though!";
+            message.append("Nobody guessed it. BibleThump Hopefully you got some points, though!");
         }
         else if (winners.size() == 1) {
-            message = String.format("Congrats to @%s on guessing correctly! PogChamp", winners.get(0));
+            message.append(String.format("Congrats to @%s on guessing correctly! jcogChamp", winners.get(0)));
         }
         else if (winners.size() == 2) {
-            message = String.format("Congrats to @%s and @%s on guessing correctly! PogChamp", winners.get(0), winners.get(1));
+            message.append(String.format("Congrats to @%s and @%s on guessing correctly! jcogChamp", winners.get(0), winners.get(1)));
         }
         else {
-            StringBuilder builder = new StringBuilder();
-            builder.append("Congrats to ");
+            message.append("Congrats to ");
             for (int i = 0; i < winners.size() - 1; i++) {
-                builder.append("@").append(winners.get(i)).append(", ");
+                message.append("@").append(winners.get(i)).append(", ");
             }
-            builder.append("and @").append(winners.get(winners.size() - 1));
-            builder.append(" on guessing correctly! PogChamp");
-            message = builder.toString();
+            message.append("and @").append(winners.get(winners.size() - 1));
+            message.append(" on guessing correctly! jcogChamp");
         }
+        message.append(" • ");
+        message.append(buildMonthlyLeaderboardString());
 
         twirk.channelMessage(String.format("/me The correct answer was %s %s %s - %s",
-                badgeToString(one), badgeToString(two), badgeToString(three), message));
+                badgeToString(one), badgeToString(two), badgeToString(three), message.toString()));
     }
     
     /**
@@ -144,8 +146,33 @@ public class SpeedySpinPredictionManager {
     public boolean isWaitingForAnswer() {
         return waitingForAnswer;
     }
-
-
+    
+    private String buildMonthlyLeaderboardString() {
+        ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
+        ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
+        ArrayList<String> topMonthlyNames = new ArrayList<>();
+        
+        for (Long topMonthlyScorer : topMonthlyScorers) {
+            topMonthlyPoints.add(leaderboard.getMonthlyPoints(topMonthlyScorer));
+            topMonthlyNames.add(leaderboard.getUsername(topMonthlyScorer));
+        }
+        
+        StringBuilder builder = new StringBuilder();
+        builder.append("Monthly Leaderboard: ");
+        for (int i = 0; i < topMonthlyNames.size(); i++) {
+            int index = i + 1;
+            String name = topMonthlyNames.get(i);
+            int monthlyPoints = topMonthlyPoints.get(i);
+            
+            builder.append(String.format("%d. %s - %d", index, name, monthlyPoints));
+            
+            if (i + 1 < topMonthlyNames.size()) {
+                builder.append(", ");
+            }
+        }
+        
+        return builder.toString();
+    }
 
     private ArrayList<String> getWinners(Badge leftAnswer, Badge middleAnswer, Badge rightAnswer) {
         ArrayList<String> winners = new ArrayList<>();
@@ -158,27 +185,19 @@ public class SpeedySpinPredictionManager {
             if (leftGuess == leftAnswer && middleGuess == middleAnswer && rightGuess == rightAnswer) {
                 winners.add(pred.getKey().getDisplayName());
                 leaderboard.addPointsAndWins(user, POINTS_3, 1);
-//                twirk.whisper(user, String.format("You got all three badges! PogChamp That's +%d points! You now have %d total points.",
-//                        POINTS_3, leaderboard.getPoints(user)));
                 out.println(String.format("%s guessed 3 correctly. Adding %d points and a win.", user.getDisplayName(), POINTS_3));
             }
             else if ((leftGuess == leftAnswer && middleGuess == middleAnswer) ||
                     (leftGuess == leftAnswer && rightGuess == rightAnswer) ||
                     (middleGuess == middleAnswer && rightGuess == rightAnswer)) {
                 leaderboard.addPoints(user, POINTS_2);
-//                twirk.whisper(user, String.format("You got two badges correct! PogChamp That's +%d points! You now have %d total points.",
-//                        POINTS_2, leaderboard.getPoints(user)));
                 out.println(String.format("%s guessed 2 correctly. Adding %d points.", user.getDisplayName(), POINTS_2));
             }
             else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == rightAnswer) {
                 leaderboard.addPoints(user, POINTS_1);
-//                twirk.whisper(user, String.format("You got one badge correct! PogChamp That's +%d point! You now have %d total points.",
-//                        POINTS_1, leaderboard.getPoints(user)));
                 out.println(String.format("%s guessed 1 correctly. Adding %d point.", user.getDisplayName(), POINTS_1));
             }
             else {
-//                twirk.whisper(user, String.format("You didn't get any badges correct. BibleThump You currently have %d total points.",
-//                        leaderboard.getPoints(user)));
                 out.println(String.format("%s guessed 0 correctly.", user.getDisplayName()));
             }
         }

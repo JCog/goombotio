@@ -5,6 +5,7 @@ import Listeners.Commands.SpeedySpinGameListener;
 import Listeners.Commands.SpeedySpinLeaderboardListener;
 import Listeners.Commands.WrListener;
 import Listeners.Events.SubListener;
+import Util.Database.GoombotioDb;
 import Util.Database.SpeedySpinLeaderboard;
 import Util.ReportBuilder;
 import com.gikk.twirk.Twirk;
@@ -67,6 +68,7 @@ public class MainBotController {
         statsTracker.stop();
         statsTracker.storeAllMinutes();
         ReportBuilder.generateReport(streamInfo, statsTracker);
+        GoombotioDb.getInstance().close();
         twirk.close();
     }
     
