@@ -30,6 +30,14 @@ public class StatsTracker {
     private HashMap<String, Long> userIdMap;
     private ArrayList<Map.Entry<String, Integer>> allTimeViewers;
     
+    /**Creates an object to track stats about the stream such as viewer watch time and new followers
+     * @param twirk Twirk object to communicate with Twitch chat
+     * @param twitchClient Twitch API interface
+     * @param streamInfo object to collect basic info about the stream
+     * @param stream stream name to collect data for
+     * @param authToken bot's auth token
+     * @param interval how often to collect data in milliseconds
+     */
     public StatsTracker(Twirk twirk, TwitchClient twitchClient, StreamInfo streamInfo, String stream, String authToken, int interval) {
         this.twirk = twirk;
         this.twitchClient = twitchClient;
@@ -46,7 +54,10 @@ public class StatsTracker {
         userIdMap = new HashMap<>();
         allTimeViewers = watchTimeDb.getTopUsers();
     }
-
+    
+    /**
+     * Starts the stat tracking until stop() is run
+     */
     public void start() {
 
         timer.schedule(new TimerTask() {
@@ -63,11 +74,18 @@ public class StatsTracker {
             }
         }, 0, interval);
     }
-
+    
+    /**
+     * Stops the stat tracking
+     */
     public void stop() {
         timer.cancel();
     }
-
+    
+    /**
+     * Stores all collected data on watch time for the current session. Be sure to never run more than once or else the
+     * data will be inaccurate.
+     */
     public void storeAllMinutes() {
         Iterator<Map.Entry<String, Integer>> usersMapIt = usersMap.entrySet().iterator();
         HashMap<String, Long> usersIds = getUsersIds();
@@ -89,7 +107,11 @@ public class StatsTracker {
             }
         }
     }
-
+    
+    /**
+     * Retrieves the viewers that have joined chat for the first time ordered by watch time
+     * @return ordered list of <Users, Minutes>
+     */
     public ArrayList<Map.Entry<String, Integer>> getNewViewers() {
         ArrayList<Map.Entry<String, Integer>> allTimeViewersCopy = new ArrayList<>(allTimeViewers);
         HashMap<String, Integer> newViewersMap = new HashMap<>(usersMap);
@@ -100,11 +122,21 @@ public class StatsTracker {
         newViewersArray.sort(new SortMapDescending());
         return newViewersArray;
     }
-
+    
+    /**
+     * Retrieves the total minutes a user has been in chat for the current session
+     * @param viewer username of the user to get minutes for
+     * @return total minutes the user has been in chat
+     */
     public int getViewerMinutes(String viewer) {
         return usersMap.get(viewer) / (60 * 1000);
     }
-
+    
+    /**
+     * Retrieves the viewers that have joined chat during the current session, as well as at least once previously
+     * ordered by watch time
+     * @return ordered list of <Users, Minutes>
+     */
     public ArrayList<Map.Entry<String, Integer>> getReturningViewers() {
         Set<Map.Entry<String, Integer>> currentViewers = usersMap.entrySet();
         HashMap<String, Integer> allTimeViewersCopy = arrayListToHashMap(allTimeViewers);
@@ -117,7 +149,11 @@ public class StatsTracker {
         returningViewers.sort(new SortMapDescending());
         return returningViewers;
     }
-
+    
+    /**
+     * Retrieves a list of all followers for the tracked stream
+     * @return Set of usernames
+     */
     public Set<String> getFollowers() {
         try {
             FollowList list = twitchClient.getHelix().getFollowers(authToken, null, streamId, null, 100).execute();
@@ -136,14 +172,27 @@ public class StatsTracker {
         }
     }
     
+    /**
+     * Retrieves a list of followers the tracked stream had at the beginning of the session
+     * @return Set of usernames
+     */
     public Set<String> getStartingFollowers() {
         return new HashSet<>(followers);
     }
     
+    /**
+     * Retrieves a copy of usersMap, which contains the watch time of all viewers during the current session
+     * @return HashMap of <Users, Milliseconds>
+     */
     public HashMap<String, Integer> getUsersMapCopy() {
         return new HashMap<>(usersMap);
     }
-
+    
+    /**
+     * Retrieves a list of all viewers that joined chat during the current session and orders them by how many followers
+     * they have
+     * @return ArrayList of <username, followers>
+     */
     public ArrayList<Map.Entry<String, Integer>> getTopFollowerCounts() {
         ArrayList<Map.Entry<String, Integer>> followerCounts = new ArrayList<>();
         Set<Map.Entry<String, Long>> userIds = getUsersIds().entrySet();
