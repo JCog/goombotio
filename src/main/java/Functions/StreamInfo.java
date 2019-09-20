@@ -68,6 +68,9 @@ public class StreamInfo {
         for (Integer count : viewerCounts) {
             sum += count;
         }
+        if (viewerCounts.size() == 0) {
+            return 0;
+        }
         return sum / viewerCounts.size();
     }
 

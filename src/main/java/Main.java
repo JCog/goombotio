@@ -1,3 +1,4 @@
+import Functions.MainBotLoop;
 import Functions.StreamInfo;
 import Functions.StatsTracker;
 import Listeners.Commands.ModListener;
@@ -66,16 +67,9 @@ public class Main {
         String line;
 
         out.println("Goombotio is ready.");
+        
         //primary loop
-        while( !(line = scanner.nextLine()).matches(".quit") ) {
-            if(line.equals(".lb")) { //TODO: this is pretty hacky, should improve
-                SpeedySpinLeaderboard lb = new SpeedySpinLeaderboard();
-                lb.logPreviousTopMonthlyScorers();
-            }
-            else {
-                twirk.channelMessage(line);
-            }
-        }
+        MainBotLoop.getInstance(twirk).run();
 
         out.println("Stopping...");
         streamInfo.stopTracker();
