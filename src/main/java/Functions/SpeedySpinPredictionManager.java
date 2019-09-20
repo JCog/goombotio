@@ -31,14 +31,14 @@ public class SpeedySpinPredictionManager {
     
     /**
      * Manages the !preds Twitch chat game.
-     * @param twirk
+     * @param twirk twirk for chat
      */
     public SpeedySpinPredictionManager(Twirk twirk) {
         this.twirk = twirk;
         enabled = false;
         waitingForAnswer = false;
         predictionList = new HashMap<>();
-        leaderboard = new SpeedySpinLeaderboard();
+        leaderboard = SpeedySpinLeaderboard.getInstance();
     }
     
     /**

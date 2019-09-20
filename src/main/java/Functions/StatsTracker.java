@@ -48,7 +48,7 @@ public class StatsTracker {
         timer = new Timer();
         usersMap = new HashMap<>();
         blacklist = blacklistInit(BLACKLIST_FILENAME);
-        watchTimeDb = new WatchTimeDb();
+        watchTimeDb = WatchTimeDb.getInstance();
         streamId = getUserId();
         followers = getFollowers();
         userIdMap = new HashMap<>();

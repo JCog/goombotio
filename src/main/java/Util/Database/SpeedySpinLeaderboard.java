@@ -14,15 +14,23 @@ import static com.mongodb.client.model.Filters.*;
 import static java.lang.System.out;
 
 public class SpeedySpinLeaderboard extends CollectionBase{
+    private static SpeedySpinLeaderboard instance = null;
 
     private final String COLLECTION_NAME = "speedyspin";
     private final String ID_KEY = "_id";
     private final String NAME_KEY = "name";
     private final String POINTS_KEY = "points";
     private final String WINS_KEY = "wins";
-
-    public SpeedySpinLeaderboard() {
+    
+    private SpeedySpinLeaderboard() {
         super();
+    }
+    
+    public static SpeedySpinLeaderboard getInstance() {
+        if (instance == null) {
+            instance = new SpeedySpinLeaderboard();
+        }
+        return instance;
     }
 
     @Override

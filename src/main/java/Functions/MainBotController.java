@@ -52,7 +52,7 @@ public class MainBotController {
         Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));
         while( !(line = scanner.nextLine()).matches(".quit") ) {
             if(line.equals(".lb")) { //TODO: this is pretty hacky, should improve
-                SpeedySpinLeaderboard lb = new SpeedySpinLeaderboard();
+                SpeedySpinLeaderboard lb = SpeedySpinLeaderboard.getInstance();
                 lb.logPreviousTopMonthlyScorers();
             }
             else {

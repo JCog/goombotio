@@ -20,7 +20,7 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
     public SpeedySpinLeaderboardListener(Twirk twirk) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
-        leaderboard = new SpeedySpinLeaderboard();
+        leaderboard = SpeedySpinLeaderboard.getInstance();
     }
 
     @Override

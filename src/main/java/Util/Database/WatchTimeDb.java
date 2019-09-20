@@ -12,7 +12,8 @@ import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;
 
 public class WatchTimeDb extends CollectionBase {
-
+    private static WatchTimeDb instance = null;
+    
     private final String COLLECTION_NAME = "watchtime";
     private final String ID_KEY = "_id";
     private final String MINUTES_KEY = "minutes";
@@ -21,8 +22,15 @@ public class WatchTimeDb extends CollectionBase {
     private final String LAST_SEEN_KEY = "last_seen";
 
 
-    public WatchTimeDb() {
+    private WatchTimeDb() {
         super();
+    }
+    
+    public static WatchTimeDb getInstance() {
+        if (instance == null) {
+            instance = new WatchTimeDb();
+        }
+        return instance;
     }
 
     @Override
@@ -78,7 +86,7 @@ public class WatchTimeDb extends CollectionBase {
             Document doc = result.next();
             String name = doc.getString(NAME_KEY);
             int minutes = doc.getInteger(MINUTES_KEY);
-            topUsers.add(new AbstractMap.SimpleEntry<String, Integer>(name, minutes));
+            topUsers.add(new AbstractMap.SimpleEntry<>(name, minutes));
         }
         return topUsers;
     }
