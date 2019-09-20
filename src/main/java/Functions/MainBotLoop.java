@@ -34,5 +34,6 @@ public class MainBotLoop {
                 twirk.channelMessage(line);
             }
         }
+        scanner.close();
     }
 }

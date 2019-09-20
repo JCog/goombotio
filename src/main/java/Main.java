@@ -45,8 +45,6 @@ public class Main {
         StreamInfo streamInfo = new StreamInfo(STREAM, twitchClient, AUTH_TOKEN);
         streamInfo.startTracker();
 
-        Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-
         twirk = new TwirkBuilder(CHANNEL,NICK, OAUTH)
                 .setVerboseMode(VERBOSE_MODE)
                 .build();
@@ -61,11 +59,6 @@ public class Main {
         StatsTracker statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, STREAM, AUTH_TOKEN, 60*1000);
         statsTracker.start();
 
-        //SocialScheduler socialScheduler = new SocialScheduler(twirk);
-        //socialScheduler.start();
-
-        String line;
-
         out.println("Goombotio is ready.");
         
         //primary loop
@@ -75,9 +68,7 @@ public class Main {
         streamInfo.stopTracker();
         statsTracker.stop();
         statsTracker.storeAllMinutes();
-        //socialScheduler.stop();
         ReportBuilder.generateReport(streamInfo, statsTracker);
-        scanner.close();
         twirk.close();
         exit(0);
     }
