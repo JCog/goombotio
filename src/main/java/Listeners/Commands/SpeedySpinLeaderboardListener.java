@@ -12,6 +12,8 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
     private static final String patternLeaderboard = "!leaderboard";
     private static final String patternBadgeShop = "!badgeshop";
     private static final String patternPoints = "!points";
+    private static final String patternLeaderboardAll = "!leaderboardall";
+    private static final String patternPointsAll = "!pointsall";
     private final Twirk twirk;
     private SpeedySpinLeaderboard leaderboard;
 
@@ -23,7 +25,7 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
 
     @Override
     protected String getCommandWords() {
-        return patternLeaderboard + "|" + patternBadgeShop + "|" + patternPoints;
+        return String.join("|", patternLeaderboard, patternBadgeShop, patternPoints, patternLeaderboardAll, patternPointsAll);
     }
 
     @Override
@@ -42,42 +44,11 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
 
         switch (command) {
             case patternLeaderboard:
-//                ArrayList<Long> topScorers = leaderboard.getTopScorers();
-//                ArrayList<Integer> topPoints = new ArrayList<>();
-//                ArrayList<String> topNames = new ArrayList<>();
-                ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
-                ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
-                ArrayList<String> topMonthlyNames = new ArrayList<>();
-//                for (Long topScorer : topScorers) {
-//                    topPoints.add(leaderboard.getPoints(topScorer));
-//                    topNames.add(leaderboard.getUsername(topScorer));
-//                }
-                for (Long topMonthlyScorer : topMonthlyScorers) {
-                    topMonthlyPoints.add(leaderboard.getMonthlyPoints(topMonthlyScorer));
-                    topMonthlyNames.add(leaderboard.getUsername(topMonthlyScorer));
-                }
-
-                StringBuilder builder = new StringBuilder();
-                builder.append("Monthly Leaderboard: ");
-                for (int i = 0; i < topMonthlyNames.size(); i++) {
-                    int index = i + 1;
-                    String name = topMonthlyNames.get(i);
-                    int monthlyPoints = topMonthlyPoints.get(i);
-
-                    builder.append(String.format("%d. %s - %d", index, name, monthlyPoints));
-
-                    if (i + 1 < topMonthlyNames.size()) {
-                        builder.append(", ");
-                    }
-                }
-
-                chatMessage = builder.toString();
+                chatMessage = buildMonthlyLeaderboardString();
                 break;
 
             case patternPoints:
-                String username = sender.getDisplayName();
-                int points = leaderboard.getMonthlyPoints(sender);
-                chatMessage = String.format("@%s you have %d point%s this month.", username, points, points == 1 ? "" : "s");
+                chatMessage = buildMonthlyPointsString(sender);
                 break;
 
             case patternBadgeShop:
@@ -85,11 +56,86 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
                         "get all three correct! Use !leaderboard to see the top scores this month and !points to see how many " +
                         "points you have. At the end of every month, JCog will be gifting subs to the top three scorers, so get guessing!";
                 break;
+                
+            case patternLeaderboardAll:
+                chatMessage = buildAllTimeLeaderboardString();
+                break;
+                
+            case patternPointsAll:
+                chatMessage = buildPointsString(sender);
+                
+                break;
 
             default:
                 //should never get here
                 chatMessage = "";
         }
         twirk.channelMessage(chatMessage);
+    }
+    
+    private String buildMonthlyPointsString(TwitchUser user) {
+        String username = user.getDisplayName();
+        int points = leaderboard.getMonthlyPoints(user);
+        return String.format("@%s you have %d point%s this month.", username, points, points == 1 ? "" : "s");
+    }
+    
+    private String buildPointsString(TwitchUser user) {
+        String username = user.getDisplayName();
+        int points = leaderboard.getPoints(user);
+        return String.format("@%s you have %d total point%s.", username, points, points == 1 ? "" : "s");
+    }
+    
+    private String buildMonthlyLeaderboardString() {
+        ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
+        ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
+        ArrayList<String> topMonthlyNames = new ArrayList<>();
+        
+        for (Long topMonthlyScorer : topMonthlyScorers) {
+            topMonthlyPoints.add(leaderboard.getMonthlyPoints(topMonthlyScorer));
+            topMonthlyNames.add(leaderboard.getUsername(topMonthlyScorer));
+        }
+    
+        StringBuilder builder = new StringBuilder();
+        builder.append("Monthly Leaderboard: ");
+        for (int i = 0; i < topMonthlyNames.size(); i++) {
+            int index = i + 1;
+            String name = topMonthlyNames.get(i);
+            int monthlyPoints = topMonthlyPoints.get(i);
+        
+            builder.append(String.format("%d. %s - %d", index, name, monthlyPoints));
+        
+            if (i + 1 < topMonthlyNames.size()) {
+                builder.append(", ");
+            }
+        }
+    
+        return builder.toString();
+    }
+    
+    private String buildAllTimeLeaderboardString() {
+        ArrayList<Long> topScorers = leaderboard.getTopScorers();
+        ArrayList<Integer> topPoints = new ArrayList<>();
+        ArrayList<String> topNames = new ArrayList<>();
+        for (Long topScorer : topScorers) {
+            topPoints.add(leaderboard.getPoints(topScorer));
+            topNames.add(leaderboard.getUsername(topScorer));
+        }
+    
+        StringBuilder builder = new StringBuilder();
+        builder.append("All-Time Leaderboard: ");
+        for (int i = 0; i < topNames.size(); i++) {
+            int index = i + 1;
+            String name = topNames.get(i);
+            int points = topPoints.get(i);
+        
+            builder.append(String.format("%d. %s - %d", index, name, points));
+        
+            if (i + 1 < topNames.size()) {
+                builder.append(", ");
+            }
+        }
+    
+        return builder.toString();
+        
     }
 }

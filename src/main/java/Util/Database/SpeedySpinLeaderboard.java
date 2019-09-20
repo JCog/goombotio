@@ -160,11 +160,11 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     public String getUsername(Document user) {
         return (String)user.get(NAME_KEY);
     }
-
+    
     //returns id's of top 3 monthly scorers. if there are less than 3, returns -1 for those slots
     public ArrayList<Long> getTopMonthlyScorers() {
         ArrayList<Long> topMonthlyScorers = new ArrayList<>();
-
+        
         MongoCursor<Document> result = find().sort(Sorts.descending(getMonthlyPointsKey())).iterator();
         while (result.hasNext() && topMonthlyScorers.size() < 3) {
             Document next = result.next();
@@ -175,8 +175,26 @@ public class SpeedySpinLeaderboard extends CollectionBase{
                 topMonthlyScorers.add((long)next.get(ID_KEY));
             }
         }
-
+        
         return topMonthlyScorers;
+    }
+    
+    //returns id's of top 3 all-time scorers. if there are less than 3, returns -1 for those slots
+    public ArrayList<Long> getTopScorers() {
+        ArrayList<Long> topScorers = new ArrayList<>();
+        
+        MongoCursor<Document> result = find().sort(Sorts.descending(POINTS_KEY)).iterator();
+        while (result.hasNext() && topScorers.size() < 3) {
+            Document next = result.next();
+            if (next.get(POINTS_KEY) == null) {
+                break;
+            }
+            else {
+                topScorers.add((long)next.get(ID_KEY));
+            }
+        }
+        
+        return topScorers;
     }
 
     public void logPreviousTopMonthlyScorers() {
