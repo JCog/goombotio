@@ -1,23 +1,6 @@
-import Functions.MainBotLoop;
-import Functions.StreamInfo;
-import Functions.StatsTracker;
-import Listeners.Commands.ModListener;
-import Listeners.Commands.SpeedySpinGameListener;
-import Listeners.Commands.SpeedySpinLeaderboardListener;
-import Listeners.Commands.WrListener;
-import Listeners.Events.SubListener;
-import Util.Database.SpeedySpinLeaderboard;
-import Util.ReportBuilder;
-import com.gikk.twirk.Twirk;
-import com.gikk.twirk.TwirkBuilder;
-import com.gikk.twirk.events.TwirkListener;
-import com.github.twitch4j.TwitchClient;
-import com.github.twitch4j.TwitchClientBuilder;
+import Functions.MainBotController;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
 
 import static java.lang.System.exit;
 import static java.lang.System.out;
@@ -36,59 +19,16 @@ public class Main {
         final String CHANNEL = '#' + STREAM;
         final String NICK = args[1];
         final String OAUTH = "oauth:" + AUTH_TOKEN;
-        final boolean VERBOSE_MODE = false;
-        final Twirk twirk;
-        final TwitchClient twitchClient;
-
-        twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
-
-        StreamInfo streamInfo = new StreamInfo(STREAM, twitchClient, AUTH_TOKEN);
-        streamInfo.startTracker();
-
-        twirk = new TwirkBuilder(CHANNEL,NICK, OAUTH)
-                .setVerboseMode(VERBOSE_MODE)
-                .build();
-        twirk.addIrcListener(getOnDisconnectListener(twirk));
-        twirk.addIrcListener(new SpeedySpinGameListener(twirk));
-        twirk.addIrcListener(new SpeedySpinLeaderboardListener(twirk));
-        twirk.addIrcListener(new ModListener(twirk));
-        twirk.addIrcListener(new WrListener(twirk, streamInfo));
-        twirk.addIrcListener(new SubListener(twirk));
-        twirk.connect();
-
-        StatsTracker statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, STREAM, AUTH_TOKEN, 60*1000);
-        statsTracker.start();
-
+        
+        MainBotController mainBotController = MainBotController.getInstance(STREAM, AUTH_TOKEN, CHANNEL, NICK, OAUTH);
+        
         out.println("Goombotio is ready.");
         
         //primary loop
-        MainBotLoop.getInstance(twirk).run();
-
+        mainBotController.run();
+        
         out.println("Stopping...");
-        streamInfo.stopTracker();
-        statsTracker.stop();
-        statsTracker.storeAllMinutes();
-        ReportBuilder.generateReport(streamInfo, statsTracker);
-        twirk.close();
+        mainBotController.closeAll();
         exit(0);
-    }
-
-    private static TwirkListener getOnDisconnectListener(final Twirk twirk) {
-        return new TwirkListener() {
-            @Override
-            public void onDisconnect() {
-                try {
-                    if(!twirk.connect()) {
-                        twirk.close();
-                    }
-                }
-                catch (IOException e) {
-                    twirk.close();
-                }
-                catch (InterruptedException e) {
-                    //continue
-                }
-            }
-        };
     }
 }

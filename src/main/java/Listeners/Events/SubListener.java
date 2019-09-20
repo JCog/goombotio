@@ -9,7 +9,7 @@ import com.gikk.twirk.types.users.TwitchUser;
 import static java.lang.System.out;
 
 public class SubListener implements TwirkListener {
-    Twirk twirk;
+    private Twirk twirk;
     public SubListener(Twirk twirk){
         this.twirk = twirk;
     }
