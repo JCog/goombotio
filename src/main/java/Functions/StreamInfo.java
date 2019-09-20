@@ -21,14 +21,23 @@ public class StreamInfo {
     private boolean isLive = false;
     private Date startTime = null;
     private ArrayList<Integer> viewerCounts = new ArrayList<>();
-
-
+    
+    
+    /**
+     * Provides an interface to get basic information about a Twitch stream
+     * @param streamer username of the streamer
+     * @param twitchClient twitchClient object to query the Twitch API (must have Helix enabled)
+     * @param authToken bot's auth token
+     */
     public StreamInfo(String streamer, TwitchClient twitchClient, String authToken) {
         this.streamer = streamer;
         this.twitchClient = twitchClient;
         this.authToken = authToken;
     }
-
+    
+    /**
+     * Starts the thread to get updated info on the stream every minute
+     */
     public void startTracker() {
 
         timer.schedule(new TimerTask() {
@@ -38,22 +47,38 @@ public class StreamInfo {
             }
         }, 0, timerInterval);
     }
-
+    
+    /**
+     * Stops the collection of data on the stream
+     */
     public void stopTracker() {
         timer.cancel();
     }
-
+    
+    /**
+     * Returns true if the stream is live, false otherwise. Note that this may be a few minutes out of date.
+     * @return live status of the stream
+     */
     public boolean isLive() {
         return isLive;
     }
-
+    
+    /**
+     * Retrieves the title of the stream. Returns an empty string if the channel isn't live.
+     * @return stream title
+     */
     public String getTitle() {
         if (isLive()) {
             return streamStats.getTitle();
         }
         return "";
     }
-
+    
+    /**
+     * Retrieves the name of the game/category the streamer is streaming to. Returns an empty string if the
+     * channel isn't live.
+     * @return game/category name
+     */
     public String getGame() {
         if (isLive()) {
             String gameId = streamStats.getGameId().toString();
@@ -62,7 +87,11 @@ public class StreamInfo {
         }
         return "";
     }
-
+    
+    /**
+     * Returns the average concurrent viewers watching the stream during the current session.
+     * @return average viewer count
+     */
     public int getAverageViewers() {
         int sum = 0;
         for (Integer count : viewerCounts) {
@@ -73,7 +102,11 @@ public class StreamInfo {
         }
         return sum / viewerCounts.size();
     }
-
+    
+    /**
+     * Returns the median concurrent viewers watching the stream during the current session.
+     * @return median viewer count
+     */
     public int getMedianViewers() {
         ArrayList<Integer> viewersCounts = new ArrayList<>(viewerCounts);
         Collections.sort(viewersCounts);
@@ -92,7 +125,11 @@ public class StreamInfo {
             return viewersCounts.get(middleIndex);
         }
     }
-
+    
+    /**
+     * Returns the maximum concurrent viewers watching the stream during the current session.
+     * @return average viewer count
+     */
     public int getMaxViewers() {
         int max = 0;
         for (Integer count : viewerCounts) {
