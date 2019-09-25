@@ -43,7 +43,7 @@ public abstract class CommandBase implements TwirkListener {
             //TODO: make this a switch statement
             if( commandType == CommandType.PREFIX_COMMAND ){
                 for( String pattern : commandPattern ){
-                    if( command.startsWith(pattern) ){
+                    if( command.equals(pattern) ){
                         performCommand(pattern, sender, message);
                         startCooldown();
                         break;	//We don't want to fire twice for the same message
