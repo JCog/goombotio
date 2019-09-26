@@ -25,7 +25,10 @@ public class MainBotController {
     private TwitchClient twitchClient;
     private StreamInfo streamInfo;
     private StatsTracker statsTracker;
-    private final boolean VERBOSE_MODE = false;
+    private SocialScheduler socialScheduler;
+    
+    private static final boolean VERBOSE_MODE = false;
+    private static final int SOCIAL_INTERVAL_LENGTH = 20;
     
     private MainBotController(String stream, String authToken, String channel, String nick, String oauth) throws IOException {
         this.twirk = new TwirkBuilder(channel, nick, oauth)
@@ -34,6 +37,7 @@ public class MainBotController {
         this.twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
         streamInfo = new StreamInfo(stream, twitchClient, authToken);
         statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, stream, authToken, 60*1000);
+        socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH, nick);
     }
     
     public static MainBotController getInstance(String stream, String authToken, String channel, String nick, String oauth) throws IOException {
@@ -46,6 +50,7 @@ public class MainBotController {
     public void run() throws IOException, InterruptedException {
         streamInfo.startTracker();
         statsTracker.start();
+        socialScheduler.start();
         addAllListeners();
         twirk.connect();
     
@@ -67,6 +72,7 @@ public class MainBotController {
         streamInfo.stopTracker();
         statsTracker.stop();
         statsTracker.storeAllMinutes();
+        socialScheduler.stop();
         ReportBuilder.generateReport(streamInfo, statsTracker);
         GoombotioDb.getInstance().close();
         twirk.close();
