@@ -6,6 +6,7 @@ import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.StreamList;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
 
@@ -20,6 +21,7 @@ public class StreamInfo {
     private int timerInterval = 60*1000;
     private boolean isLive = false;
     private Date startTime = null;
+    private Date endTime = null;
     private ArrayList<Integer> viewerCounts = new ArrayList<>();
     
     
@@ -137,6 +139,20 @@ public class StreamInfo {
         }
         return max;
     }
+    
+    /**
+     * Returns the time since the start of the stream in minutes
+     * @return stream length in minutes
+     */
+    public int getStreamLength() {
+        if (startTime == null) {
+            return 0;
+        }
+        
+        Date endTemp = (endTime == null ? new Date() : endTime);
+        long duration  = endTemp.getTime() - startTime.getTime();
+        return Math.toIntExact(TimeUnit.MILLISECONDS.toMinutes(duration));
+    }
 
     private void updateStreamStats() {
         StreamList resultList = twitchClient.getHelix().getStreams(authToken, "", "", 1,
@@ -162,6 +178,7 @@ public class StreamInfo {
                 out.println(streamer + " is now live.");
             }
             else {
+                setEndTime();
                 out.println(streamer + " has gone offline.");
             }
             out.println("---------------------");
@@ -172,6 +189,10 @@ public class StreamInfo {
         if (startTime == null) {
             startTime = new Date();
         }
+    }
+    
+    private void setEndTime() {
+        endTime = new Date();
     }
 
     private void updateViewerCounts() {
