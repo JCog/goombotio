@@ -84,11 +84,11 @@ public class ReportBuilder {
         if (usersMap.size() != 0) {
             averageAllMinutes = allWatchTime / usersMap.size();
         }
-        int averageWatchPercent = averageAllMinutes / streamInfo.getStreamLength();
+        int averageWatchPercent = (int)((float)averageAllMinutes / streamInfo.getStreamLength() * 100);
         
         allViewersReport.append(String.format("Total Viewers:     %d viewers\n", usersMap.size()));
         allViewersReport.append(String.format("Average Watchtime: %d minutes\n", averageAllMinutes));
-        allViewersReport.append(String.format("Average Watch%%:   %d%%\n", averageWatchPercent));
+        allViewersReport.append(String.format("Average Watch%%:    %d%%\n", averageWatchPercent));
         
         return allViewersReport.toString();
     }
@@ -158,11 +158,11 @@ public class ReportBuilder {
             averageNewMinutes = newWatchTime / newViewersList.size();
         }
         
-        int averageWatchPercent = averageNewMinutes / streamInfo.getStreamLength();
+        int averageWatchPercent = (int)((float)averageNewMinutes / streamInfo.getStreamLength() * 100);
         
         newViewersReport.append(String.format("Total New Viewers: %d viewers\n", newViewersList.size()));
         newViewersReport.append(String.format("Average Watchtime: %d minutes\n", averageNewMinutes));
-        newViewersReport.append(String.format("Average Watch%%:   %d%%\n", averageWatchPercent));
+        newViewersReport.append(String.format("Average Watch%%:    %d%%\n", averageWatchPercent));
     
         return newViewersReport.toString();
     }
@@ -192,11 +192,11 @@ public class ReportBuilder {
             averageReturningMinutes = returningWatchTime / returningViewersList.size();
         }
         
-        int averageWatchPercent = averageReturningMinutes / streamInfo.getStreamLength();
+        int averageWatchPercent = (int)((float)averageReturningMinutes / streamInfo.getStreamLength() * 100);
         
         returningViewersReport.append(String.format("Total Returning Viewers: %d viewers\n", returningViewersList.size()));
         returningViewersReport.append(String.format("Average Watchtime:       %d minutes\n", averageReturningMinutes));
-        returningViewersReport.append(String.format("Average Watch%%:         %d%%\n", averageWatchPercent));
+        returningViewersReport.append(String.format("Average Watch%%:          %d%%\n", averageWatchPercent));
         
         return returningViewersReport.toString();
     }
