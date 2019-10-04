@@ -68,7 +68,8 @@ public class SpeedySpinLeaderboard extends CollectionBase{
                 newMonthlyPoints = (int)result.get(monthlyPointsKey);
             }
             newMonthlyPoints += points;
-
+    
+            updateOne(eq(ID_KEY, id), new Document("$set", new Document(NAME_KEY, name)));
             updateOne(eq(ID_KEY, id), new Document("$set", new Document(POINTS_KEY, newPoints)));
             updateOne(eq(ID_KEY, id), new Document("$set", new Document(monthlyPointsKey, newMonthlyPoints)));
         }

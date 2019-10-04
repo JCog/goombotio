@@ -61,10 +61,11 @@ public class WatchTimeDb extends CollectionBase {
                 newMonthlyMinutes = result.getInteger(monthlyMinutesKey);
             }
             newMonthlyMinutes += minutes;
-
+    
+            updateOne(eq(ID_KEY, id), new Document("$set", new Document(NAME_KEY, name)));
             updateOne(eq(ID_KEY, id), new Document("$set", new Document(MINUTES_KEY, newMinutes)));
             updateOne(eq(ID_KEY, id), new Document("$set", new Document(monthlyMinutesKey, newMonthlyMinutes)));
-            updateOne(eq(ID_KEY, id), new Document("$set", new Document("last_seen", getDate())));
+            updateOne(eq(ID_KEY, id), new Document("$set", new Document(LAST_SEEN_KEY, getDate())));
         }
     }
 
