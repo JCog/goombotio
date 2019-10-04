@@ -2,10 +2,12 @@ package Util;
 
 import Functions.StatsTracker;
 import Functions.StreamInfo;
+import Util.Database.WatchTimeDb;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class ReportBuilder {
     
@@ -47,6 +49,7 @@ public class ReportBuilder {
     }
     
     private static String generateReportAllViewers(StatsTracker statsTracker, StreamInfo streamInfo, HashMap<String, Integer> usersMap) {
+        WatchTimeDb watchTimeDb = WatchTimeDb.getInstance();
         StringBuilder allViewersReport = new StringBuilder();
         
         int allWatchTime = 0;
@@ -86,9 +89,27 @@ public class ReportBuilder {
         }
         int averageWatchPercent = (int)((float)averageAllMinutes / streamInfo.getStreamLength() * 100);
         
-        allViewersReport.append(String.format("Total Viewers:     %d viewers\n", usersMap.size()));
-        allViewersReport.append(String.format("Average Watchtime: %d minutes\n", averageAllMinutes));
-        allViewersReport.append(String.format("Average Watch%%:    %d%%\n", averageWatchPercent));
+        int totalAge = 0;
+        int weightedAgeNumer = 0;
+        int weightedAgeDenom = 0;
+        for(Map.Entry<String, Integer> entry : usersMap.entrySet()) {
+            String name = entry.getKey();
+            int minutes = entry.getValue();
+            Date firstSeen = watchTimeDb.getFirstSeen(name);
+            int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(getDate().getTime() - firstSeen.getTime(), TimeUnit.MILLISECONDS));
+            
+            totalAge += ageDays;
+            weightedAgeNumer += ageDays * minutes;
+            weightedAgeDenom += minutes;
+        }
+        int averageAge = totalAge / usersMap.size();
+        int weightedAge = weightedAgeNumer / weightedAgeDenom;
+        
+        allViewersReport.append(String.format("Total Viewers:       %d viewers\n", usersMap.size()));
+        allViewersReport.append(String.format("Average Watchtime:   %d minutes\n", averageAllMinutes));
+        allViewersReport.append(String.format("Average Watch%%:      %d%%\n", averageWatchPercent));
+        allViewersReport.append(String.format("Average Viewer Age:  %d days\n", averageAge));
+        allViewersReport.append(String.format("Weighted Viewer Age: %d days\n", weightedAge));
         
         return allViewersReport.toString();
     }
@@ -222,5 +243,14 @@ public class ReportBuilder {
         LocalDateTime date = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
         return  "StreamReport" + formatter.format(date) + ".txt";
+    }
+    
+    private static Date getDate() {
+        Calendar date = new GregorianCalendar();
+        date.set(Calendar.HOUR_OF_DAY, 12);
+        date.set(Calendar.MINUTE, 0);
+        date.set(Calendar.SECOND, 0);
+        date.set(Calendar.MILLISECOND, 0);
+        return date.getTime();
     }
 }

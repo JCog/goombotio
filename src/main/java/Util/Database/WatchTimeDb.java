@@ -77,6 +77,16 @@ public class WatchTimeDb extends CollectionBase {
         }
         return 0;
     }
+    
+    public Date getFirstSeen(String username) {
+        String userLower = username.toLowerCase();
+        
+        Document result = find(eq(NAME_KEY, userLower)).first();
+        if (result != null) {
+            return result.getDate(FIRST_SEEN_KEY);
+        }
+        return getDate();
+    }
 
     public ArrayList<Map.Entry<String, Integer>> getTopUsers() {
         MongoCursor<Document> result = find().sort(Sorts.descending(MINUTES_KEY)).iterator();
