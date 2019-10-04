@@ -7,6 +7,7 @@ import com.gikk.twirk.types.usernotice.subtype.Subscription;
 import com.gikk.twirk.types.users.TwitchUser;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
 
@@ -39,17 +40,29 @@ public class SubListener implements TwirkListener {
                         
                         @Override
                         public void run() {
+                            int subCount = giftedSubs.get(gifterName).size();
+                            try {
+                                TimeUnit.MILLISECONDS.sleep(500);
+                                int updatedSubCount = giftedSubs.get(gifterName).size();
+                                while (subCount != updatedSubCount) {
+                                    subCount = updatedSubCount;
+                                    TimeUnit.MILLISECONDS.sleep(500);
+                                    updatedSubCount = giftedSubs.get(gifterName).size();
+                                }
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                             if (giftedSubs.get(gifterName).size() == 1) {
                                 twirk.channelMessage(String.format("blobDance @%s Thank you for gifting a sub to @%s! blobDance", gifterName, recipientName));
                             }
                             else {
-                                twirk.channelMessage(String.format("blobDance @%s Thank you for the %d gift subs! blobDance", gifterName, giftedSubs.get(gifterName).size()));
+                                twirk.channelMessage(String.format("blobDance @%s Thank you for the %d gift subs! blobDance", gifterName, subCount));
                             }
                             
                             giftedSubs.remove(gifterName);
                             subTimersActive.put(gifterName, false);
                         }
-                    }, 500);
+                    }, 0);
                 }
             }
             else {
