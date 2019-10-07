@@ -94,7 +94,7 @@ public class ReportBuilder {
         int weightedAgeDenom = 0;
         for(Map.Entry<String, Integer> entry : usersMap.entrySet()) {
             String name = entry.getKey();
-            int minutes = entry.getValue();
+            int minutes = entry.getValue() / 1000;
             Date firstSeen = watchTimeDb.getFirstSeen(name);
             int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(getDate().getTime() - firstSeen.getTime(), TimeUnit.MILLISECONDS));
             

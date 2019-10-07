@@ -68,11 +68,19 @@ public class WatchTimeDb extends CollectionBase {
             updateOne(eq(ID_KEY, id), new Document("$set", new Document(LAST_SEEN_KEY, getDate())));
         }
     }
-
+    
     public int getMinutes(TwitchUser user) {
         long id = user.getUserID();
-
+        
         Document result = find(eq(ID_KEY, id)).first();
+        if (result != null) {
+            return result.getInteger(MINUTES_KEY);
+        }
+        return 0;
+    }
+    
+    public int getMinutes(String username) {
+        Document result = find(eq(NAME_KEY, username.toLowerCase())).first();
         if (result != null) {
             return result.getInteger(MINUTES_KEY);
         }
@@ -85,6 +93,16 @@ public class WatchTimeDb extends CollectionBase {
         Document result = find(eq(NAME_KEY, userLower)).first();
         if (result != null) {
             return result.getDate(FIRST_SEEN_KEY);
+        }
+        return getDate();
+    }
+    
+    public Date getLastSeen(String username) {
+        String userLower = username.toLowerCase();
+        
+        Document result = find(eq(NAME_KEY, userLower)).first();
+        if (result != null) {
+            return result.getDate(LAST_SEEN_KEY);
         }
         return getDate();
     }
