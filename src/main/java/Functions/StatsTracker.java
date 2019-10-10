@@ -97,6 +97,7 @@ public class StatsTracker {
                 id = usersIds.get(name);
             }
             catch (NullPointerException npe) {
+                out.println(String.format("Unable to get ID for %s", name));
                 npe.printStackTrace();
                 continue;
             }
