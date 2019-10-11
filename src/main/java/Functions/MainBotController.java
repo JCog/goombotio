@@ -8,6 +8,7 @@ import Listeners.Events.SubListener;
 import Util.Database.GoombotioDb;
 import Util.Database.SpeedySpinLeaderboard;
 import Util.ReportBuilder;
+import Util.StreamStatsInterface;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.TwirkBuilder;
 import com.gikk.twirk.events.TwirkListener;
@@ -73,6 +74,7 @@ public class MainBotController {
         statsTracker.stop();
         statsTracker.storeAllMinutes();
         socialScheduler.stop();
+        StreamStatsInterface.saveStreamStats(streamInfo, statsTracker);
         ReportBuilder.generateReport(streamInfo, statsTracker);
         GoombotioDb.getInstance().close();
         twirk.close();

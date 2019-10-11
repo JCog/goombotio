@@ -22,13 +22,13 @@ public class StreamStatsInterface {
      * @param streamInfo
      * @param statsTracker
      */
-    public void saveStreamStats(StreamInfo streamInfo, StatsTracker statsTracker) {
+    public static void saveStreamStats(StreamInfo streamInfo, StatsTracker statsTracker) {
         Date startTime = streamInfo.getStartTime();
         Date endTime = streamInfo.getEndTime();
         List<Integer> viewerCounts = streamInfo.getViewerCounts();
         HashMap<String, Integer> userMinutesMap = statsTracker.getUsersMapCopy();
         
-        streamStatsDb.addStream(startTime, endTime, viewerCounts, userMinutesMap);
+        StreamStatsDb.getInstance().addStream(startTime, endTime, viewerCounts, userMinutesMap);
     }
     
     /**
