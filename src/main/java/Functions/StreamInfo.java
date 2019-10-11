@@ -140,6 +140,18 @@ public class StreamInfo {
         return max;
     }
     
+    public Date getStartTime() {
+        return startTime;
+    }
+    
+    public Date getEndTime() {
+        return endTime;
+    }
+    
+    public List<Integer> getViewerCounts() {
+        return viewerCounts;
+    }
+    
     /**
      * Returns the time since the start of the stream in minutes
      * @return stream length in minutes
