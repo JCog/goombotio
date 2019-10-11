@@ -121,21 +121,6 @@ public class StreamStatsDb extends CollectionBase {
     }
     
     /**
-     * Returns the length of the last stream in minutes
-     * @return minutes
-     */
-    public int getStreamLength() {
-        String streamKey = getNewestStreamKey();
-        Document result = find(eq(ID_KEY, streamKey)).first();
-        if (result == null) {
-            return 0;
-        }
-        Date startTime = result.getDate(START_KEY);
-        Date endTime = result.getDate(END_KEY);
-        return Math.toIntExact(endTime.getTime() - startTime.getTime()) / 1000 / 60;
-    }
-    
-    /**
      * Returns a map of the watchtime for each user from the last stream
      * @return user watch time map
      */
