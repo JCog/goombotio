@@ -72,9 +72,9 @@ public class MainBotController {
     public void closeAll() {
         streamInfo.stopTracker();
         statsTracker.stop();
-        statsTracker.storeAllMinutes();
         socialScheduler.stop();
-        StreamStatsInterface.saveStreamStats(streamInfo, statsTracker);
+        StreamStatsInterface.saveStreamStats(streamInfo, statsTracker); //run before storing minutes for accurate new viewers
+        statsTracker.storeAllMinutes();
         ReportBuilder.generateReport(streamInfo, statsTracker);
         GoombotioDb.getInstance().close();
         twirk.close();

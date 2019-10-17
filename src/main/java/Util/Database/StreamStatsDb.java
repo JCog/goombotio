@@ -63,7 +63,7 @@ public class StreamStatsDb extends CollectionBase {
         List<Document> userList = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : userMinutesMap.entrySet()) {
             String username = entry.getKey();
-            int minutes = entry.getValue();
+            int minutes = entry.getValue() / (60 * 1000);
             boolean newUser = watchTimeDb.getMinutes(username) == 0;
             userList.add(new Document(USERNAME_KEY, username)
                     .append(MINUTES_KEY, minutes)
