@@ -7,11 +7,11 @@ import com.gikk.twirk.types.users.TwitchUser;
 
 public class ModListener extends CommandBase {
 
-    private final static String pattern = "RESET";
+    private final static String pattern = "crashes paper mario";
     private final Twirk twirk;
 
     public ModListener(Twirk twirk) {
-        super(CommandType.EXACT_MATCH_COMMAND);
+        super(CommandType.CONTENT_COMMAND);
         this.twirk = twirk;
     }
 
@@ -32,6 +32,6 @@ public class ModListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        twirk.channelMessage("Don't be toxic WhatsHisFace");
+        twirk.channelMessage(String.format("/timeout %s 1", sender.getUserName()));
     }
 }
