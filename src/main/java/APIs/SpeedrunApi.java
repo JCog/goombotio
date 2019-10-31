@@ -12,11 +12,12 @@ import java.util.concurrent.TimeUnit;
 public class SpeedrunApi {
 
     private static final String BASE_URL = "http://www.speedrun.com/api/v1/";
-    private static final String LEADEROARDS = "leaderboards/";
+    private static final String LEADERBOARDS = "leaderboards/";
     private static final String USERS = "users/";
 
     private static final String GAME_PAPER_MARIO = "pmario/";
     private static final String GAME_PAPER_MARIO_MEMES = "pmariomemes/";
+    private static final String GAME_TTYD = "ttyd/";
 
     private static final String CAT_PAPE_ANY_PERCENT = "any";
     private static final String CAT_PAPE_ANY_NO_PW = "any_no_pw";
@@ -30,6 +31,14 @@ public class SpeedrunApi {
     private static final String CAT_PAPE_MEMES_ANY_NO_RNG = "any_no_rng";
     private static final String CAT_PAPE_MEMES_BEAT_CHAPTER_1 = "beat_chapter_1";
     private static final String CAT_PAPE_MEMES_SOAP_CAKE = "soapcake";
+    private static final String CAT_PAPE_MEMES_REVERSE_ALL_CARDS = "reverse_all_cards";
+    
+    private static final String CAT_TTYD_ANY_PERCENT = "any";
+    private static final String CAT_TTYD_ALL_CRYSTAL_STARS = "all_crystal_stars";
+    private static final String CAT_TTYD_100 = "100";
+    private static final String CAT_TTYD_GLITCHLESS = "glitchless";
+    private static final String CAT_TTYD_ALL_COLLECTIBLES = "all_collectibles";
+    private static final String CAT_TTYD_MAX_UPGRADES = "max_upgrades";
 
     private static final String PLATFORM_PAPE_PLATFORM_N64 = "n64";
     private static final String PLATFORM_PAPE_PLATFORM_WII = "wiivc";
@@ -37,7 +46,8 @@ public class SpeedrunApi {
 
     public enum Game {
         PAPER_MARIO,
-        PAPER_MARIO_MEMES
+        PAPER_MARIO_MEMES,
+        TTYD
     }
 
     public enum PapeCategory {
@@ -51,7 +61,18 @@ public class SpeedrunApi {
         ALL_BLOOPS,
         ANY_NO_RNG,
         BEAT_CHAPTER_1,
-        SOAP_CAKE
+        SOAP_CAKE,
+        REVERSE_ALL_CARDS
+    }
+    
+    public enum TtydCategory {
+        ANY_PERCENT_JP,
+        ANY_PERCENT_US_PAL,
+        ALL_CRYSTAL_STARS,
+        HUNDO,
+        GLITCHLESS,
+        ALL_COLLECTIBLES,
+        MAX_UPGRADES
     }
 
     public enum PapePlatform {
@@ -63,16 +84,39 @@ public class SpeedrunApi {
     private static OkHttpClient client = new OkHttpClient();
     
     /**
+     * Retrieves the current world records for the category specified. Game and
+     * category must match.
+     * @param game main or extension leaderboard
+     * @param category speedrunning category
+     * @return formatted string containing WR(s)
+     */
+    public static String getWr(Game game, TtydCategory category) {
+        Gson gson = new Gson();
+        String gameString = getGameUrlString(game);
+        String categoryString = getCategoryUrlString(category);
+    
+    
+        Leaderboard leaderboard = gson.fromJson(getWrJson(gameString, categoryString), Leaderboard.class);
+        String playerId = leaderboard.getData().getRuns().get(0).getRun().getPlayers().get(0).getId();
+    
+        long seconds = leaderboard.getData().getRuns().get(0).getRun().getTimes().getPrimaryT();
+        String time = getTimeString(seconds);
+    
+        String name = getUsernameFromId(playerId);
+        return String.format("The TTYD %s WR is %s by %s", getCategoryString(category), time, name);
+    }
+    
+    /**
      * Retrieves the current N64 and overall world records for the category specified. Game (main/extension) and
      * category must match.
      * @param game main or extension leaderboard
      * @param category speedrunning category
      * @return formatted string containing WR(s)
      */
-    public static String getPapeWr(Game game, PapeCategory category) {
+    public static String getWr(Game game, PapeCategory category) {
         Gson gson = new Gson();
         String gameString = getGameUrlString(game);
-        String categoryString = getPapeCategoryUrlString(category);
+        String categoryString = getCategoryUrlString(category);
 
 
         Leaderboard allLeaderboard = gson.fromJson(getWrJson(gameString, categoryString), Leaderboard.class);
@@ -96,10 +140,10 @@ public class SpeedrunApi {
             String n64Name = getUsernameFromId(n64PlayerId);
 
 
-            return String.format("The Paper Mario %s WRs are %s by %s overall and %s by %s on N64.", getPapeCategoryString(category), allTime, allName, n64Time, n64Name);
+            return String.format("The Paper Mario %s WRs are %s by %s overall and %s by %s on N64.", getCategoryString(category), allTime, allName, n64Time, n64Name);
         }
         else {
-            return String.format("The Paper Mario %s WR is %s by %s", getPapeCategoryString(category), allTime, allName);
+            return String.format("The Paper Mario %s WR is %s by %s", getCategoryString(category), allTime, allName);
         }
     }
 
@@ -124,7 +168,7 @@ public class SpeedrunApi {
         }
     }
 
-    private static String getPapeCategoryString(PapeCategory category) {
+    private static String getCategoryString(PapeCategory category) {
         switch (category) {
             case ANY_PERCENT:
                 return "Any%";
@@ -148,8 +192,29 @@ public class SpeedrunApi {
                 return "Beat Chapter 1";
             case SOAP_CAKE:
                 return "Soap Cake";
+            case REVERSE_ALL_CARDS:
+                return "Reverse All Cards";
             default:
                 return "Any%";
+        }
+    }
+    
+    private static String getCategoryString(TtydCategory category) {
+        switch (category) {
+            case ANY_PERCENT_JP:
+                return "Any% Japanese";
+            case ALL_CRYSTAL_STARS:
+                return "All Crystal Stars";
+            case HUNDO:
+                return "100%";
+            case GLITCHLESS:
+                return "Glitchless";
+            case ALL_COLLECTIBLES:
+                return "All Collectibles";
+            case MAX_UPGRADES:
+                return "Max Upgrades";
+            default:
+                return "Any% Japanese";
         }
     }
 
@@ -159,12 +224,14 @@ public class SpeedrunApi {
                 return GAME_PAPER_MARIO;
             case PAPER_MARIO_MEMES:
                 return GAME_PAPER_MARIO_MEMES;
+            case TTYD:
+                return GAME_TTYD;
             default:
                 return GAME_PAPER_MARIO;
         }
     }
-
-    private static String getPapeCategoryUrlString(PapeCategory category) {
+    
+    private static String getCategoryUrlString(PapeCategory category) {
         switch (category) {
             case ANY_PERCENT:
                 return CAT_PAPE_ANY_PERCENT;
@@ -188,8 +255,29 @@ public class SpeedrunApi {
                 return CAT_PAPE_MEMES_BEAT_CHAPTER_1;
             case SOAP_CAKE:
                 return CAT_PAPE_MEMES_SOAP_CAKE;
+            case REVERSE_ALL_CARDS:
+                return CAT_PAPE_MEMES_REVERSE_ALL_CARDS;
             default:
                 return CAT_PAPE_ANY_PERCENT;
+        }
+    }
+    
+    private static String getCategoryUrlString(TtydCategory category) {
+        switch (category) {
+            case ANY_PERCENT_JP:
+                return CAT_TTYD_ANY_PERCENT;
+            case ALL_CRYSTAL_STARS:
+                return CAT_TTYD_ALL_CRYSTAL_STARS;
+            case HUNDO:
+                return CAT_TTYD_100;
+            case GLITCHLESS:
+                return CAT_TTYD_GLITCHLESS;
+            case ALL_COLLECTIBLES:
+                return CAT_TTYD_ALL_COLLECTIBLES;
+            case MAX_UPGRADES:
+                return CAT_TTYD_MAX_UPGRADES;
+            default:
+                return CAT_TTYD_ANY_PERCENT;
         }
     }
 
@@ -233,11 +321,11 @@ public class SpeedrunApi {
     }
 
     private static String buildWrUrl(String game, String category, String platform) {
-        return BASE_URL + LEADEROARDS + game + "category/" + category + "?top=1&platform=" + platform;
+        return BASE_URL + LEADERBOARDS + game + "category/" + category + "?top=1&platform=" + platform;
     }
 
     private static String buildWrUrl(String game, String category) {
-        return BASE_URL + LEADEROARDS + game + "category/" + category + "?top=1";
+        return BASE_URL + LEADERBOARDS + game + "category/" + category + "?top=1";
     }
 
 
