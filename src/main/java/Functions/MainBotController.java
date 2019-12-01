@@ -84,7 +84,7 @@ public class MainBotController {
         addTwirkListener(getOnDisconnectListener(twirk));
         addTwirkListener(new SpeedySpinGameListener(twirk));
         addTwirkListener(new SpeedySpinLeaderboardListener(twirk));
-        addTwirkListener(new ModListener(twirk));
+        //addTwirkListener(new ModListener(twirk));
         addTwirkListener(new WrListener(twirk, streamInfo));
         addTwirkListener(new SubListener(twirk));
     }

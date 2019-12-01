@@ -15,7 +15,7 @@ public class SpeedrunApi {
     private static final String LEADERBOARDS = "leaderboards/";
     private static final String USERS = "users/";
 
-    private static final String GAME_PAPER_MARIO = "pmario/";
+    private static final String GAME_PAPER_MARIO = "pm64/";
     private static final String GAME_PAPER_MARIO_MEMES = "pmariomemes/";
     private static final String GAME_TTYD = "ttyd/";
 
