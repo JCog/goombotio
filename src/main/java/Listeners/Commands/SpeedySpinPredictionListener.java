@@ -45,5 +45,7 @@ public class SpeedySpinPredictionListener implements TwirkListener {
             System.out.println(String.format("%s has predicted %s %s %s",
                     sender.getUserName(), badgeGuess.get(0), badgeGuess.get(1), badgeGuess.get(2)));
         }
+        
+        //TODO: accept guesses using just numbers
     }
 }

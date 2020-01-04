@@ -137,6 +137,37 @@ public class WatchTimeDb extends CollectionBase {
         }
         return topUsers;
     }
+    
+    public int getTotalMonthlyWatchtime() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        return getTotalMonthlyWatchtime(year, month);
+}
+    
+    public int getTotalMonthlyWatchtime(int year, int month) {
+        int minutes = 0;
+        String monthlyMinutesKey = getMonthlyMinutesKey(year, month);
+        MongoCursor<Document> result = find(exists(monthlyMinutesKey)).iterator();
+        
+        while (result.hasNext()) {
+            minutes += result.next().getInteger(monthlyMinutesKey);
+        }
+        return minutes;
+    }
+    
+    public Vector<String> getMatchingUsers(String search) {
+        Vector<String> result = new Vector<>();
+        
+        MongoCursor<Document> iterator = find().iterator();
+        while (iterator.hasNext()) {
+            String name = iterator.next().getString(NAME_KEY);
+            if (name.contains(search)) {
+                result.add(name);
+            }
+        }
+        return result;
+    }
 
     private String getMonthlyMinutesKey() {
         Calendar calendar = Calendar.getInstance();

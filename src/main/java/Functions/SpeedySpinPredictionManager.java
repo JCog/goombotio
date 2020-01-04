@@ -14,6 +14,7 @@ public class SpeedySpinPredictionManager {
     private final int POINTS_3 = 20;
     private final int POINTS_2 = 5;
     private final int POINTS_1 = 1;
+    private final int POINTS_WRONG_ORDER = 1;
     private final Twirk twirk;
     private SpeedySpinPredictionListener sspListener;
     private SpeedySpinLeaderboard leaderboard;
@@ -175,17 +176,27 @@ public class SpeedySpinPredictionManager {
     }
 
     private ArrayList<String> getWinners(Badge leftAnswer, Badge middleAnswer, Badge rightAnswer) {
+        Set<Badge> answerSet = new HashSet<>();
+        answerSet.add(leftAnswer);
+        answerSet.add(middleAnswer);
+        answerSet.add(rightAnswer);
+        
         ArrayList<String> winners = new ArrayList<>();
         for (Map.Entry<TwitchUser, ArrayList<Badge>> pred : predictionList.entrySet()) {
             TwitchUser user = pred.getKey();
             Badge leftGuess = pred.getValue().get(0);
             Badge middleGuess = pred.getValue().get(1);
             Badge rightGuess = pred.getValue().get(2);
+            Set<Badge> guessSet = new HashSet<>();
+            guessSet.add(leftGuess);
+            guessSet.add(middleGuess);
+            guessSet.add(rightGuess);
 
             if (leftGuess == leftAnswer && middleGuess == middleAnswer && rightGuess == rightAnswer) {
                 winners.add(pred.getKey().getDisplayName());
                 leaderboard.addPointsAndWins(user, POINTS_3, 1);
-                out.println(String.format("%s guessed 3 correctly. Adding %d points and a win.", user.getDisplayName(), POINTS_3));
+                out.println(String.format("%s guessed 3 correctly. Adding %d points and a win.", user.getDisplayName(),
+                        POINTS_3));
             }
             else if ((leftGuess == leftAnswer && middleGuess == middleAnswer) ||
                     (leftGuess == leftAnswer && rightGuess == rightAnswer) ||
@@ -196,6 +207,11 @@ public class SpeedySpinPredictionManager {
             else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == rightAnswer) {
                 leaderboard.addPoints(user, POINTS_1);
                 out.println(String.format("%s guessed 1 correctly. Adding %d point.", user.getDisplayName(), POINTS_1));
+            }
+            else if (answerSet.equals(guessSet)) {
+                leaderboard.addPoints(user, POINTS_WRONG_ORDER);
+                out.println(String.format("%s guessed 0 correctly, but got all 3 badges. Adding %d point.",
+                        user.getDisplayName(), POINTS_WRONG_ORDER));
             }
             else {
                 out.println(String.format("%s guessed 0 correctly.", user.getDisplayName()));

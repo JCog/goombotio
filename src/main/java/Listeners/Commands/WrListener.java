@@ -42,11 +42,11 @@ public class WrListener extends CommandBase {
         String title = streamInfo.getTitle().toLowerCase();
         String game = streamInfo.getGame();
         if (game.equals(GAME_PAPER_MARIO)) {
-            if (title.contains("any%")) {
-                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT)));
-            }
-            else if (title.contains("any% (no peach warp)") || title.contains("any% (no pw)")) {
+            if (title.contains("any% (no peach warp)") || title.contains("any% (no pw)")) {
                 twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT_NO_PW)));
+            }
+            else if (title.contains("any%")) {
+                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT)));
             }
             else if (title.contains("all cards") && !title.contains("reverse")) {
                 twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.PAPER_MARIO, PapeCategory.ALL_CARDS)));
