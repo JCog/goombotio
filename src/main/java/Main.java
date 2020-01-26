@@ -16,7 +16,7 @@ public class Main {
      * @throws IOException
      * @throws InterruptedException
      */
-    public static void main(String[] args) throws IOException, InterruptedException, LoginException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         final String STREAM = args[0];
         final String AUTH_TOKEN = args[2];
         final String DISCORD_TOKEN = args[3];
