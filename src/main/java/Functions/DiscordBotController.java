@@ -28,6 +28,5 @@ public class DiscordBotController {
     public void sendMessage(String channelName, String message) throws InterruptedException {
         TextChannel channel =  jda.getTextChannelsByName(channelName, true).get(0);
         channel.sendMessage(message).queue();
-        wait(1000);
     }
 }
