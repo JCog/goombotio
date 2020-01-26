@@ -233,12 +233,12 @@ public class SpeedySpinPredictionManager {
         ArrayList<Integer> topPoints = new ArrayList<>();
         ArrayList<String> topNames = new ArrayList<>();
         for (Long topScorer : topScorers) {
-            topPoints.add(leaderboard.getPoints(topScorer));
+            topPoints.add(leaderboard.getMonthlyPoints(topScorer));
             topNames.add(leaderboard.getUsername(topScorer));
         }
         
         StringBuilder message = new StringBuilder();
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy");
         message.append(sdf.format(new Date()));
         message.append("\n```");
         
