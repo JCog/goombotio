@@ -5,12 +5,17 @@ import Util.Database.SpeedySpinLeaderboard;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.types.users.TwitchUser;
 
+import java.text.SimpleDateFormat;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static java.lang.System.out;
 
 public class SpeedySpinPredictionManager {
 
+    private final int DISCORD_MAX_CHARS = 2000;
+    private final String DISCORD_CHANNEL_MONTHLY = "preds-monthly";
     private final int POINTS_3 = 20;
     private final int POINTS_2 = 5;
     private final int POINTS_1 = 1;
@@ -18,6 +23,7 @@ public class SpeedySpinPredictionManager {
     private final Twirk twirk;
     private SpeedySpinPredictionListener sspListener;
     private SpeedySpinLeaderboard leaderboard;
+    private DiscordBotController dbc;
     
     public enum Badge {
         BAD_SPIN1,
@@ -40,6 +46,7 @@ public class SpeedySpinPredictionManager {
         waitingForAnswer = false;
         predictionList = new HashMap<>();
         leaderboard = SpeedySpinLeaderboard.getInstance();
+        dbc = DiscordBotController.getInstance();
     }
     
     /**
@@ -130,6 +137,7 @@ public class SpeedySpinPredictionManager {
 
         twirk.channelMessage(String.format("/me The correct answer was %s %s %s - %s",
                 badgeToString(one), badgeToString(two), badgeToString(three), message.toString()));
+        updateDiscordMonthlyPoints();
     }
     
     /**
@@ -218,6 +226,51 @@ public class SpeedySpinPredictionManager {
             }
         }
         return winners;
+    }
+    
+    private void updateDiscordMonthlyPoints() {
+        ArrayList<Long> topScorers = leaderboard.getTopMonthlyScorers();
+        ArrayList<Integer> topPoints = new ArrayList<>();
+        ArrayList<String> topNames = new ArrayList<>();
+        for (Long topScorer : topScorers) {
+            topPoints.add(leaderboard.getPoints(topScorer));
+            topNames.add(leaderboard.getUsername(topScorer));
+        }
+        
+        StringBuilder message = new StringBuilder();
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM yyyy");
+        message.append(sdf.format(new Date()));
+        message.append("\n```");
+        
+        //add entries until discord character limit is reached
+        int prevPoints = -1;
+        int prevRank = -1;
+        for (int i = 0; i < topNames.size(); i++) {
+            if (topPoints.get(i) != prevPoints) {
+                prevRank = i + 1;
+            }
+            prevPoints = topPoints.get(i);
+            String entry = String.format("%d. %s - %d points\n", prevRank, topNames.get(i), topPoints.get(i));
+            if (message.length() + entry.length() > DISCORD_MAX_CHARS - 3) {
+                break;
+            }
+            else {
+                message.append(entry);
+            }
+        }
+        message.append("```");
+        
+        //edit message for current month if it exists, otherwise make a new one
+        if (dbc.hasRecentMessageContents(DISCORD_CHANNEL_MONTHLY)) {
+            String dateString = dbc.getMostRecentMessageContents(DISCORD_CHANNEL_MONTHLY).split("\n", 2)[0];
+            YearMonth now = YearMonth.now();
+            YearMonth messageDate = YearMonth.parse(dateString, DateTimeFormatter.ofPattern("MMMM yyyy"));
+            if (now.getMonth() == messageDate.getMonth() && now.getYear() == messageDate.getYear()) {
+                dbc.editMostRecentMessage(DISCORD_CHANNEL_MONTHLY, message.toString());
+                return;
+            }
+        }
+        dbc.sendMessage(DISCORD_CHANNEL_MONTHLY, message.toString());
     }
     
     /**

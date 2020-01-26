@@ -10,9 +10,17 @@ import static java.lang.System.out;
 import javax.security.auth.login.LoginException;
 
 public class DiscordBotController {
+    private static DiscordBotController dbc = null;
     private JDA jda;
     
-    public DiscordBotController(String token) {
+    public static DiscordBotController getInstance() {
+        if (dbc == null) {
+            dbc = new DiscordBotController();
+        }
+        return dbc;
+    }
+    
+    public void init(String token) {
         try {
             JDABuilder builder = new JDABuilder(AccountType.BOT);
             builder.setToken(token);
@@ -25,8 +33,25 @@ public class DiscordBotController {
         }
     }
     
-    public void sendMessage(String channelName, String message) throws InterruptedException {
+    public void sendMessage(String channelName, String message) {
         TextChannel channel =  jda.getTextChannelsByName(channelName, true).get(0);
         channel.sendMessage(message).queue();
+    }
+    
+    public void editMostRecentMessage(String channelName, String message) {
+        TextChannel channel =  jda.getTextChannelsByName(channelName, true).get(0);
+        long messageId = channel.getLatestMessageIdLong();
+        channel.editMessageById(messageId, message).queue();
+    }
+    
+    public String getMostRecentMessageContents(String channelName) {
+        TextChannel channel =  jda.getTextChannelsByName(channelName, true).get(0);
+        String messageId = channel.getLatestMessageId();
+        return channel.retrieveMessageById(messageId).complete().getContentDisplay();
+    }
+    
+    public boolean hasRecentMessageContents(String channelName) {
+        TextChannel channel =  jda.getTextChannelsByName(channelName, true).get(0);
+        return channel.hasLatestMessage();
     }
 }

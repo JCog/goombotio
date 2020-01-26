@@ -27,11 +27,12 @@ public class MainBotController {
     private StreamInfo streamInfo;
     private StatsTracker statsTracker;
     private SocialScheduler socialScheduler;
+    private DiscordBotController dbc;
     
     private static final boolean VERBOSE_MODE = false;
     private static final int SOCIAL_INTERVAL_LENGTH = 20;
     
-    private MainBotController(String stream, String authToken, String channel, String nick, String oauth) throws IOException {
+    private MainBotController(String stream, String authToken, String discordToken, String channel, String nick, String oauth) throws IOException {
         this.twirk = new TwirkBuilder(channel, nick, oauth)
                 .setVerboseMode(VERBOSE_MODE)
                 .build();
@@ -39,11 +40,13 @@ public class MainBotController {
         streamInfo = new StreamInfo(stream, twitchClient, authToken);
         statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, stream, authToken, 60*1000);
         socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH, nick);
+        dbc = DiscordBotController.getInstance();
+        dbc.init(discordToken);
     }
     
-    public static MainBotController getInstance(String stream, String authToken, String channel, String nick, String oauth) throws IOException {
+    public static MainBotController getInstance(String stream, String authToken, String discordToken, String channel, String nick, String oauth) throws IOException {
         if (instance == null) {
-            instance = new MainBotController(stream, authToken, channel, nick, oauth);
+            instance = new MainBotController(stream, authToken, discordToken, channel, nick, oauth);
         }
         return instance;
     }

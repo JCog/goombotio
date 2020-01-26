@@ -24,8 +24,7 @@ public class Main {
         final String NICK = args[1];
         final String OAUTH = "oauth:" + AUTH_TOKEN;
         
-        MainBotController mainBotController = MainBotController.getInstance(STREAM, AUTH_TOKEN, CHANNEL, NICK, OAUTH);
-        DiscordBotController discordBotController = new DiscordBotController(DISCORD_TOKEN);
+        MainBotController mainBotController = MainBotController.getInstance(STREAM, AUTH_TOKEN, DISCORD_TOKEN, CHANNEL, NICK, OAUTH);
         
         out.println("Goombotio is ready.");
         
