@@ -179,7 +179,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     }
     
     //returns id's of top 3 monthly scorers. if there are less than 3, returns -1 for those slots
-    public ArrayList<Long> getTopMonthlyScorers() {
+    public ArrayList<Long> getTopThreeMonthlyScorers() {
         ArrayList<Long> topMonthlyScorers = new ArrayList<>();
         
         MongoCursor<Document> result = find().sort(Sorts.descending(getMonthlyPointsKey())).iterator();
@@ -196,8 +196,23 @@ public class SpeedySpinLeaderboard extends CollectionBase{
         return topMonthlyScorers;
     }
     
+    //returns id's of top all-time scorers
+    public ArrayList<Long> getTopMonthlyScorers() {
+        ArrayList<Long> topMonthlyScorers = new ArrayList<>();
+    
+        for (Document next : find().sort(Sorts.descending(getMonthlyPointsKey()))) {
+            if (next.get(getMonthlyPointsKey()) == null) {
+                break;
+            } else {
+                topMonthlyScorers.add((long) next.get(ID_KEY));
+            }
+        }
+        
+        return topMonthlyScorers;
+    }
+    
     //returns id's of top 3 all-time scorers. if there are less than 3, returns -1 for those slots
-    public ArrayList<Long> getTopScorers() {
+    public ArrayList<Long> getTopThreeScorers() {
         ArrayList<Long> topScorers = new ArrayList<>();
         
         MongoCursor<Document> result = find().sort(Sorts.descending(POINTS_KEY)).iterator();
@@ -208,6 +223,21 @@ public class SpeedySpinLeaderboard extends CollectionBase{
             }
             else {
                 topScorers.add((long)next.get(ID_KEY));
+            }
+        }
+        
+        return topScorers;
+    }
+    
+    //returns id's of top all-time scorers
+    public ArrayList<Long> getTopScorers() {
+        ArrayList<Long> topScorers = new ArrayList<>();
+    
+        for (Document next : find().sort(Sorts.descending(POINTS_KEY))) {
+            if (next.get(POINTS_KEY) == null) {
+                break;
+            } else {
+                topScorers.add((long) next.get(ID_KEY));
             }
         }
         

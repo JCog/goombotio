@@ -87,7 +87,7 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
     }
     
     private String buildMonthlyLeaderboardString() {
-        ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
+        ArrayList<Long> topMonthlyScorers = leaderboard.getTopThreeMonthlyScorers();
         ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
         ArrayList<String> topMonthlyNames = new ArrayList<>();
         
@@ -114,7 +114,7 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
     }
     
     private String buildAllTimeLeaderboardString() {
-        ArrayList<Long> topScorers = leaderboard.getTopScorers();
+        ArrayList<Long> topScorers = leaderboard.getTopThreeScorers();
         ArrayList<Integer> topPoints = new ArrayList<>();
         ArrayList<String> topNames = new ArrayList<>();
         for (Long topScorer : topScorers) {

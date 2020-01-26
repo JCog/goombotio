@@ -149,7 +149,7 @@ public class SpeedySpinPredictionManager {
     }
     
     private String buildMonthlyLeaderboardString() {
-        ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
+        ArrayList<Long> topMonthlyScorers = leaderboard.getTopThreeMonthlyScorers();
         ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
         ArrayList<String> topMonthlyNames = new ArrayList<>();
         
