@@ -16,6 +16,7 @@ public class SpeedySpinPredictionManager {
 
     private final int DISCORD_MAX_CHARS = 2000;
     private final String DISCORD_CHANNEL_MONTHLY = "preds-monthly";
+    private final String DISCORD_CHANNEL_ALL_TIME = "preds-all-time";
     private final int POINTS_3 = 20;
     private final int POINTS_2 = 5;
     private final int POINTS_1 = 1;
@@ -138,6 +139,7 @@ public class SpeedySpinPredictionManager {
         twirk.channelMessage(String.format("/me The correct answer was %s %s %s - %s",
                 badgeToString(one), badgeToString(two), badgeToString(three), message.toString()));
         updateDiscordMonthlyPoints();
+        updateDiscordAllTimePoints();
     }
     
     /**
@@ -271,6 +273,44 @@ public class SpeedySpinPredictionManager {
             }
         }
         dbc.sendMessage(DISCORD_CHANNEL_MONTHLY, message.toString());
+    }
+    
+    private void updateDiscordAllTimePoints() {
+        ArrayList<Long> topScorers = leaderboard.getTopScorers();
+        ArrayList<Integer> topPoints = new ArrayList<>();
+        ArrayList<String> topNames = new ArrayList<>();
+        for (Long topScorer : topScorers) {
+            topPoints.add(leaderboard.getPoints(topScorer));
+            topNames.add(leaderboard.getUsername(topScorer));
+        }
+        
+        StringBuilder message = new StringBuilder();
+        message.append("All-Time Points:\n```");
+        
+        //add entries until discord character limit is reached
+        int prevPoints = -1;
+        int prevRank = -1;
+        for (int i = 0; i < topNames.size(); i++) {
+            if (topPoints.get(i) != prevPoints) {
+                prevRank = i + 1;
+            }
+            prevPoints = topPoints.get(i);
+            String entry = String.format("%d. %s - %d points\n", prevRank, topNames.get(i), topPoints.get(i));
+            if (message.length() + entry.length() > DISCORD_MAX_CHARS - 3) {
+                break;
+            }
+            else {
+                message.append(entry);
+            }
+        }
+        message.append("```");
+        
+        if (dbc.hasRecentMessageContents(DISCORD_CHANNEL_ALL_TIME)) {
+            dbc.editMostRecentMessage(DISCORD_CHANNEL_ALL_TIME, message.toString());
+        }
+        else {
+            dbc.sendMessage(DISCORD_CHANNEL_ALL_TIME, message.toString());
+        }
     }
     
     /**
