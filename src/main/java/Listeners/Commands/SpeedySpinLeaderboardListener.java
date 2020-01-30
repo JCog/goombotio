@@ -52,10 +52,12 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
                 break;
 
             case patternBadgeShop:
-                chatMessage = "/me Guess the badge locations in the badge shop! Get 1 point for one badge, 5 for two badges, and 20 if you " +
-                        "get all three correct! Use !leaderboard to see the top scores this month and !points to see how many " +
-                        "points you have. If you get all three and aren't subscribed to the channel, JCog will gift you a sub, and at the " +
-                        "end of every month, the top three scorers will be given a VIP badge for the next month, so get guessing!";
+                chatMessage = "/me Guess the badge locations in the badge shop! Get 1 point for one badge (or if you " +
+                        "have them all but in the wrong locations), 5 for two badges, and 20 if you get all three " +
+                        "correct! Use !leaderboard to see the top scores this month and !points to see how many " +
+                        "points you have. If you get all three and aren't subscribed to the channel, JCog will gift " +
+                        "you a sub, and at the end of every month, the top three scorers will be given a VIP badge " +
+                        "for the next month, so get guessing!";
                 break;
                 
             case patternLeaderboardAll:

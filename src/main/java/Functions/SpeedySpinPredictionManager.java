@@ -88,8 +88,9 @@ public class SpeedySpinPredictionManager {
         enabled = true;
         twirk.addIrcListener(sspListener = new SpeedySpinPredictionListener(this));
         twirk.channelMessage("/me Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 " +
-                "BadSpin3 or SpoodlySpun to guess the order the badges will show up in the badgeshop! Type !badgeshop" +
-                " to learn more or !ffz if you can't see emotes in this message.");
+                "BadSpin3 or SpoodlySpun (or a message with 3 digits from 1 to 4) to guess the order the badges will " +
+                "show up in the badge shop! If you get all three right and don't have a sub, you'll win one! Type " +
+                "!badgeshop to learn more.");
     }
     
     /**
@@ -345,6 +346,26 @@ public class SpeedySpinPredictionManager {
             case "badspin3":
                 return Badge.BAD_SPIN3;
             case "spoodlyspun":
+                return Badge.SPOODLY_SPUN;
+            default:
+                return null;
+        }
+    }
+    
+    /**
+     * Converts an int to a {@link Badge}. Returns null if no match exists
+     * @param badge badge in int form to convert
+     * @return Badge or null
+     */
+    public static Badge intToBadge(int badge) {
+        switch (badge) {
+            case 1:
+                return Badge.BAD_SPIN1;
+            case 2:
+                return Badge.BAD_SPIN2;
+            case 3:
+                return Badge.BAD_SPIN3;
+            case 4:
                 return Badge.SPOODLY_SPUN;
             default:
                 return null;
