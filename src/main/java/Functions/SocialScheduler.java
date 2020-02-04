@@ -99,7 +99,7 @@ public class SocialScheduler {
                 twirk.channelMessage("Follow me on Twitter! I post stream updates as well as whatever happens to be on my mind. twitter.com/JCog_");
                 break;
             case YOUTUBE:
-                twirk.channelMessage("Check out my YouTube channel! This is where I post all my highlights, PB VODs, and tutorials. youtube.com/jcoggers");
+                twirk.channelMessage("Tired of missing the best parts of my stream? Check out my YouTube! New highlight videos every Mon/Wed/Fri! youtube.com/jcoggers");
                 break;
         }
     }
