@@ -120,6 +120,9 @@ public class SpeedrunApi {
 
 
         Leaderboard allLeaderboard = gson.fromJson(getWrJson(gameString, categoryString), Leaderboard.class);
+        if (allLeaderboard == null) {
+            return "The src certificate is out of date. Tell JCog to fix it. :)";
+        }
         String allPlayerId = allLeaderboard.getData().getRuns().get(0).getRun().getPlayers().get(0).getId();
 
         long allSeconds = allLeaderboard.getData().getRuns().get(0).getRun().getTimes().getPrimaryT();

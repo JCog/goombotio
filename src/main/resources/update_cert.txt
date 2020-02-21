@@ -1,0 +1,7 @@
+1. Copy to File...
+2. Base-64 encoded X.509 (.CER)
+3. src.cer
+4. Open "KeyStore Explorer" as admin
+5. C:\Program Files\Java\jdk1.8.0_66\jre\lib\security\cacerts
+6. import src.cer
+7. save

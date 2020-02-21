@@ -45,6 +45,9 @@ public class WrListener extends CommandBase {
             if (title.contains("any% (no peach warp)") || title.contains("any% (no pw)")) {
                 twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT_NO_PW)));
             }
+            else if (title.contains("any% no rng") || title.contains("any% (no rng)")) {
+                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.PAPER_MARIO_MEMES, PapeCategory.ANY_NO_RNG)));
+            }
             else if (title.contains("any%")) {
                 twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT)));
             }
@@ -65,9 +68,6 @@ public class WrListener extends CommandBase {
             }
             else if (title.contains("all bloops")) {
                 twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.PAPER_MARIO_MEMES, PapeCategory.ALL_BLOOPS)));
-            }
-            else if (title.contains("any% no rng") || title.contains("any% (no rng)")) {
-                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.PAPER_MARIO_MEMES, PapeCategory.ANY_NO_RNG)));
             }
             else if (title.contains("chapter 1")) {
                 twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.PAPER_MARIO_MEMES, PapeCategory.BEAT_CHAPTER_1)));
