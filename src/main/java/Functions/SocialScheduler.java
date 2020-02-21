@@ -1,5 +1,6 @@
 package Functions;
 
+import Util.Database.SocialSchedulerDb;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
@@ -7,21 +8,15 @@ import com.gikk.twirk.types.users.TwitchUser;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Random;
-import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class SocialScheduler {
 
-    enum SocialType {
-        DISCORD,
-        INSTA,
-        TWITTER,
-        YOUTUBE
-    }
-
+    private final SocialSchedulerDb socialSchedulerDb;
     private final Twirk twirk;
     private final String botName;
     private Random random;
@@ -36,6 +31,7 @@ public class SocialScheduler {
      * @param intervalLength minutes between posts
      */
     public SocialScheduler(Twirk twirk, int intervalLength, String botName) {
+        this.socialSchedulerDb = SocialSchedulerDb.getInstance();
         this.twirk = twirk;
         this.running = false;
         this.activeChat = false;
@@ -72,36 +68,15 @@ public class SocialScheduler {
     }
     
     private void postRandomMsg() {
-        Vector<SocialType> types = new Vector<>();
-        types.add(SocialType.DISCORD);
-        types.add(SocialType.INSTA);
-        types.add(SocialType.TWITTER);
-        types.add(SocialType.YOUTUBE);
+        ArrayList<String > messages = socialSchedulerDb.getAllMessages();
         
-        int index = random.nextInt(types.size());
+        int index = random.nextInt(messages.size());
         while(index == previousIndex) {
-            index = random.nextInt(types.size());
+            index = random.nextInt(messages.size());
         }
         
-        postMsg(types.elementAt(index));
+        twirk.channelMessage(messages.get(index));
         previousIndex = index;
-    }
-
-    private void postMsg(SocialType type) {
-        switch (type) {
-            case DISCORD:
-                twirk.channelMessage("Want somewhere to hang out when I'm offline? Join the community Discord! discord.gg/B5b28M5");
-                break;
-            case INSTA:
-                twirk.channelMessage("Follow me on Instagram! I post stories regularly so you can see what I'm up to. instagram.com/jcoggerr");
-                break;
-            case TWITTER:
-                twirk.channelMessage("Follow me on Twitter! I post stream updates as well as whatever happens to be on my mind. twitter.com/JCog_");
-                break;
-            case YOUTUBE:
-                twirk.channelMessage("Tired of missing the best parts of my stream? Check out my YouTube! New highlight videos every Monday and Friday! youtube.com/jcoggers");
-                break;
-        }
     }
 
     private void scheduleSocialMsgs() {
