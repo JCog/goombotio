@@ -1,9 +1,6 @@
 package Functions;
 
-import Listeners.Commands.ModListener;
-import Listeners.Commands.SpeedySpinGameListener;
-import Listeners.Commands.SpeedySpinLeaderboardListener;
-import Listeners.Commands.WrListener;
+import Listeners.Commands.*;
 import Listeners.Events.SubListener;
 import Util.Database.GoombotioDb;
 import Util.Database.SpeedySpinLeaderboard;
@@ -90,6 +87,7 @@ public class MainBotController {
         //addTwirkListener(new ModListener(twirk));
         addTwirkListener(new WrListener(twirk, streamInfo));
         addTwirkListener(new SubListener(twirk));
+        addTwirkListener(new GoombotioCommandsListener(twirk));
     }
     
     private void addTwirkListener(TwirkListener listener) {
