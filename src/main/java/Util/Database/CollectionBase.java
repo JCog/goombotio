@@ -24,6 +24,10 @@ public abstract class CollectionBase {
     void updateOne(Bson filter, Bson update) {
         collection.updateOne(filter, update);
     }
+    
+    void deleteOne(Bson filter) {
+        collection.deleteOne(filter);
+    }
 
     FindIterable<Document> find(Bson filter) {
         return collection.find(filter);

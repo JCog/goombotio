@@ -32,6 +32,36 @@ public class SocialSchedulerDb extends CollectionBase {
         return goombotioDb.getCollection(COLLECTION_NAME);
     }
     
+    public String addMessage(String id, String message) {
+        if (getMessage(id) != null) {
+            return "ERROR: Message ID already exists.";
+        }
+        
+        Document document = new Document(ID_KEY, id)
+                .append(MESSAGE_KEY, message);
+        insertOne(document);
+        return String.format("Successfully added \"%s\" to the list of scheduled messages.", id);
+    }
+    
+    public String editMessage(String id, String message) {
+        if (getMessage(id) == null) {
+            return "ERROR: Message ID doesn't exist.";
+        }
+    
+        Document document = new Document(ID_KEY, id)
+                .append(MESSAGE_KEY, message);
+        updateOne(eq(ID_KEY, id), new Document("$set", document));
+        return String.format("Successfully edited scheduled message \"%s\".", id);
+    }
+    
+    public String deleteMessage(String id) {
+        if (getMessage(id) == null) {
+            return "ERROR: Message ID doesn't exist.";
+        }
+        deleteOne(eq(ID_KEY, id));
+        return String.format("Successfully deleted scheduled message \"%s\".", id);
+    }
+    
     public String getMessage(String id) {
         Document result = find(eq(ID_KEY, id)).first();
         if (result != null) {
