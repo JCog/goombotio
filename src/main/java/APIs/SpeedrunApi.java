@@ -32,6 +32,7 @@ public class SpeedrunApi {
     private static final String CAT_PAPE_MEMES_BEAT_CHAPTER_1 = "beat_chapter_1";
     private static final String CAT_PAPE_MEMES_SOAP_CAKE = "soapcake";
     private static final String CAT_PAPE_MEMES_REVERSE_ALL_CARDS = "reverse_all_cards";
+    private static final String CAT_PAPE_MEMES_MAILMAN = "mailman";
     
     private static final String CAT_TTYD_ANY_PERCENT = "any";
     private static final String CAT_TTYD_ALL_CRYSTAL_STARS = "all_crystal_stars";
@@ -62,7 +63,8 @@ public class SpeedrunApi {
         ANY_NO_RNG,
         BEAT_CHAPTER_1,
         SOAP_CAKE,
-        REVERSE_ALL_CARDS
+        REVERSE_ALL_CARDS,
+        MAILMAN
     }
     
     public enum TtydCategory {
@@ -197,6 +199,8 @@ public class SpeedrunApi {
                 return "Soap Cake";
             case REVERSE_ALL_CARDS:
                 return "Reverse All Cards";
+            case MAILMAN:
+                return "MailMan%";
             default:
                 return "Any%";
         }
@@ -260,6 +264,8 @@ public class SpeedrunApi {
                 return CAT_PAPE_MEMES_SOAP_CAKE;
             case REVERSE_ALL_CARDS:
                 return CAT_PAPE_MEMES_REVERSE_ALL_CARDS;
+            case MAILMAN:
+                return CAT_PAPE_MEMES_MAILMAN;
             default:
                 return CAT_PAPE_ANY_PERCENT;
         }

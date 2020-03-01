@@ -78,6 +78,9 @@ public class WrListener extends CommandBase {
             else if (title.contains("reverse") && title.contains("all cards")) {
                 twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.PAPER_MARIO_MEMES, PapeCategory.REVERSE_ALL_CARDS)));
             }
+            else if (title.contains("mailman") || title.contains("amazon prime")) {
+                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.PAPER_MARIO_MEMES, PapeCategory.MAILMAN)));
+            }
             else {
                 twirk.channelMessage(String.format("@%s Unknown WR", sender.getDisplayName()));
             }
