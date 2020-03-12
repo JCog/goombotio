@@ -163,9 +163,9 @@ public class StreamStatsInterface {
      */
     public ArrayList<Map.Entry<String, Integer>> getTopFollowerCounts() {
         ArrayList<Map.Entry<String, Integer>> followerCounts = new ArrayList<>();
-        Set<Map.Entry<String, Long>> userIds = getUsersIds(streamStatsDb.getUserList()).entrySet();
+        Set<Map.Entry<String, String>> userIds = getUsersIds(streamStatsDb.getUserList()).entrySet();
         
-        for(Map.Entry<String, Long> entry : userIds) {
+        for(Map.Entry<String, String> entry : userIds) {
             FollowList userFollows = twitchClient.getHelix().getFollowers(authToken, null, entry.getValue(), null, 1).execute();
             String name = entry.getKey();
             int followCount = userFollows.getTotal();
@@ -214,8 +214,8 @@ public class StreamStatsInterface {
         return weightedAgeNumer / weightedAgeDenom;
     }
     
-    private HashMap<String, Long> getUsersIds(List<String> usersList) {
-        HashMap<String, Long> userIds = new HashMap<>();
+    private HashMap<String, String> getUsersIds(List<String> usersList) {
+        HashMap<String, String> userIds = new HashMap<>();
         Iterator<String> usersMapIt = usersList.iterator();
         List<String> usersHundred = new ArrayList<>();
         while (usersMapIt.hasNext()) {

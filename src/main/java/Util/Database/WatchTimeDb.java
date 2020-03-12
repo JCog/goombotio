@@ -38,12 +38,13 @@ public class WatchTimeDb extends CollectionBase {
         return goombotioDb.getCollection(COLLECTION_NAME);
     }
 
-    public void addMinutes(long id, String name, int minutes) {
-        Document result = find(eq(ID_KEY, id)).first();
+    public void addMinutes(String id, String name, int minutes) {
+        long idLong = Long.parseLong(id);
+        Document result = find(eq(ID_KEY, idLong)).first();
         String monthlyMinutesKey = getMonthlyMinutesKey();
 
         if (result == null) {
-            Document document = new Document(ID_KEY, id)
+            Document document = new Document(ID_KEY, idLong)
                     .append(NAME_KEY, name)
                     .append(MINUTES_KEY, minutes)
                     .append(monthlyMinutesKey, minutes)
@@ -62,10 +63,10 @@ public class WatchTimeDb extends CollectionBase {
             }
             newMonthlyMinutes += minutes;
     
-            updateOne(eq(ID_KEY, id), new Document("$set", new Document(NAME_KEY, name)));
-            updateOne(eq(ID_KEY, id), new Document("$set", new Document(MINUTES_KEY, newMinutes)));
-            updateOne(eq(ID_KEY, id), new Document("$set", new Document(monthlyMinutesKey, newMonthlyMinutes)));
-            updateOne(eq(ID_KEY, id), new Document("$set", new Document(LAST_SEEN_KEY, getDate())));
+            updateOne(eq(ID_KEY, idLong), new Document("$set", new Document(NAME_KEY, name)));
+            updateOne(eq(ID_KEY, idLong), new Document("$set", new Document(MINUTES_KEY, newMinutes)));
+            updateOne(eq(ID_KEY, idLong), new Document("$set", new Document(monthlyMinutesKey, newMonthlyMinutes)));
+            updateOne(eq(ID_KEY, idLong), new Document("$set", new Document(LAST_SEEN_KEY, getDate())));
         }
     }
     

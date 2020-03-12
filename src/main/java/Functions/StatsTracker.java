@@ -26,8 +26,8 @@ public class StatsTracker {
     private ArrayList<String> blacklist;
     private WatchTimeDb watchTimeDb;
     private Set<String> followers;
-    private long streamId;
-    private HashMap<String, Long> userIdMap;
+    private String streamId;
+    private HashMap<String, String> userIdMap;
     private ArrayList<Map.Entry<String, Integer>> allTimeViewers;
     
     /**Creates an object to track stats about the stream such as viewer watch time and new followers
@@ -88,11 +88,11 @@ public class StatsTracker {
      */
     public void storeAllMinutes() {
         Iterator<Map.Entry<String, Integer>> usersMapIt = usersMap.entrySet().iterator();
-        HashMap<String, Long> usersIds = getUsersIds();
+        HashMap<String, String> usersIds = getUsersIds();
         while (usersMapIt.hasNext()) {
             Map.Entry<String, Integer> entry = usersMapIt.next();
             String name = entry.getKey();
-            long id;
+            String id;
             try {
                 id = usersIds.get(name);
             }
@@ -196,9 +196,9 @@ public class StatsTracker {
      */
     public ArrayList<Map.Entry<String, Integer>> getTopFollowerCounts() {
         ArrayList<Map.Entry<String, Integer>> followerCounts = new ArrayList<>();
-        Set<Map.Entry<String, Long>> userIds = getUsersIds().entrySet();
+        Set<Map.Entry<String, String>> userIds = getUsersIds().entrySet();
 
-        for(Map.Entry<String, Long> entry : userIds) {
+        for(Map.Entry<String, String> entry : userIds) {
             FollowList userFollows = twitchClient.getHelix().getFollowers(authToken, null, entry.getValue(), null, 1).execute();
             String name = entry.getKey();
             int followCount = userFollows.getTotal();
@@ -224,9 +224,9 @@ public class StatsTracker {
         return blacklist;
     }
 
-    private HashMap<String, Long> getUsersIds() {
+    private HashMap<String, String> getUsersIds() {
         if (userIdMap.size() != usersMap.size()) {
-            HashMap<String, Long> userIds = new HashMap<>();
+            HashMap<String, String> userIds = new HashMap<>();
             Iterator<Map.Entry<String, Integer>> usersMapIt = usersMap.entrySet().iterator();
             List<String> usersHundred = new ArrayList<>();
             while (usersMapIt.hasNext()) {
@@ -245,7 +245,7 @@ public class StatsTracker {
         }
     }
 
-    private long getUserId() {
+    private String getUserId() {
         UserList resultList = twitchClient.getHelix().getUsers(authToken, null, Collections.singletonList(stream)).execute();
         return resultList.getUsers().get(0).getId();
     }
