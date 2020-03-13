@@ -39,7 +39,15 @@ public class WatchTimeDb extends CollectionBase {
     }
 
     public void addMinutes(String id, String name, int minutes) {
-        long idLong = Long.parseLong(id);
+        long idLong;
+        try {
+            idLong = Long.parseLong(id);
+        }
+        catch (NumberFormatException nfe) {
+            System.out.println(String.format("Error: ID \"%s\" (%s, %d minutes) cannot be parsed into long",
+                    id, name, minutes));
+            return;
+        }
         Document result = find(eq(ID_KEY, idLong)).first();
         String monthlyMinutesKey = getMonthlyMinutesKey();
 
