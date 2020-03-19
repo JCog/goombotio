@@ -24,6 +24,7 @@ public class MainBotController {
     private StreamInfo streamInfo;
     private StatsTracker statsTracker;
     private SocialScheduler socialScheduler;
+    private SubPointUpdater subPointUpdater;
     private DiscordBotController dbc;
     
     private static final boolean VERBOSE_MODE = false;
@@ -37,6 +38,7 @@ public class MainBotController {
         streamInfo = new StreamInfo(stream, twitchClient, authToken);
         statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, stream, authToken, 60*1000);
         socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH, nick);
+        subPointUpdater = new SubPointUpdater();
         dbc = DiscordBotController.getInstance();
         dbc.init(discordToken);
     }
@@ -52,6 +54,7 @@ public class MainBotController {
         streamInfo.startTracker();
         statsTracker.start();
         socialScheduler.start();
+        subPointUpdater.start();
         addAllListeners();
         twirk.connect();
     
@@ -73,6 +76,7 @@ public class MainBotController {
         streamInfo.stopTracker();
         statsTracker.stop();
         socialScheduler.stop();
+        subPointUpdater.stop();
         StreamStatsInterface.saveStreamStats(streamInfo, statsTracker); //run before storing minutes for accurate new viewers
         statsTracker.storeAllMinutes();
         ReportBuilder.generateReport(streamInfo, statsTracker);

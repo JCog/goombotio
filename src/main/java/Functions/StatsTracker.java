@@ -216,9 +216,10 @@ public class StatsTracker {
             while(sc.hasNextLine()) {
                 blacklist.add(sc.nextLine());
             }
+            sc.close();
         }
         catch (Exception e) {
-            out.println(Arrays.toString(e.getStackTrace()));
+            e.printStackTrace();
         }
         
         return blacklist;
