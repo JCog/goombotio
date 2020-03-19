@@ -23,9 +23,11 @@ public class SubPointUpdater {
     private int tier2Subs;
     private int tier3Subs;
     private Timer timer;
+    private int subPoints;
     
     public SubPointUpdater() {
         timer = new Timer();
+        subPoints = 0;
     }
     
     public void start() {
@@ -75,14 +77,17 @@ public class SubPointUpdater {
     }
     
     private void outputSubPointsFile() {
-        int subscore = getStreamlabsSubScore();
-        subscore += tier2Subs * TIER_2_MULTIPLIER - tier2Subs;
-        subscore += tier3Subs * TIER_3_MULTIPLIER - tier3Subs;
+        int newSubPoints = getStreamlabsSubScore();
+        newSubPoints += tier2Subs * TIER_2_MULTIPLIER - tier2Subs;
+        newSubPoints += tier3Subs * TIER_3_MULTIPLIER - tier3Subs;
     
-        FileWriter.writeToFile(
-                LOCAL_SUB_POINTS_FILE_LOCATION,
-                LOCAL_SUB_POINTS_FILENAME,
-                String.format(displayFormat, subscore));
+        if (newSubPoints != subPoints) {
+            subPoints = newSubPoints;
+            FileWriter.writeToFile(
+                    LOCAL_SUB_POINTS_FILE_LOCATION,
+                    LOCAL_SUB_POINTS_FILENAME,
+                    String.format(displayFormat, newSubPoints));
+        }
     }
     
     private int getStreamlabsSubScore() {
