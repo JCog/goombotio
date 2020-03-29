@@ -26,6 +26,7 @@ public class MainBotController {
     private SocialScheduler socialScheduler;
     private SubPointUpdater subPointUpdater;
     private DiscordBotController dbc;
+    private ViewerQueueManager vqm;
     
     private static final boolean VERBOSE_MODE = false;
     private static final int SOCIAL_INTERVAL_LENGTH = 20;
@@ -39,6 +40,7 @@ public class MainBotController {
         statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, stream, authToken, 60*1000);
         socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH, nick);
         subPointUpdater = new SubPointUpdater();
+        vqm = new ViewerQueueManager(twirk);
         dbc = DiscordBotController.getInstance();
         dbc.init(discordToken);
     }
@@ -60,10 +62,25 @@ public class MainBotController {
     
         String line;
         Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+        TwirkListener viewerQueueListener = new ViewerQueueListener(twirk, vqm);
         while( !(line = scanner.nextLine()).matches(".quit") ) {
             if(line.equals(".lb")) { //TODO: this is pretty hacky, should improve
                 SpeedySpinLeaderboard lb = SpeedySpinLeaderboard.getInstance();
                 lb.logPreviousTopMonthlyScorers();
+            }
+            else if (line.startsWith(".startqueue")) {
+                String[] lineSplit = line.split(" ");
+                int requestedCount = Integer.parseInt(lineSplit[1]);
+                String message = line.substring(lineSplit[0].length() + lineSplit[1].length() + 2);
+                vqm.startNewSession(requestedCount, message);
+                addTwirkListener(viewerQueueListener);
+            }
+            else if (line.equals(".endqueue")) {
+                removeTwirkListener(viewerQueueListener);
+                vqm.closeCurrentSession();
+            }
+            else if (line.equals(".next")) {
+                vqm.getNext();
             }
             else {
                 twirk.channelMessage(line);
@@ -96,6 +113,10 @@ public class MainBotController {
     
     private void addTwirkListener(TwirkListener listener) {
         twirk.addIrcListener(listener);
+    }
+    
+    private void removeTwirkListener(TwirkListener listener) {
+        twirk.removeIrcListener(listener);
     }
     
     private static TwirkListener getOnDisconnectListener(final Twirk twirk) {
