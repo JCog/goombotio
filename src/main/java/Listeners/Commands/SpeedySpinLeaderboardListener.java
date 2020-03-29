@@ -126,21 +126,22 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
             topNames.add(leaderboard.getUsername(topScorer));
         }
     
-        StringBuilder builder = new StringBuilder();
-        builder.append("All-Time Leaderboard: ");
+        int prevPoints = -1;
+        int prevRank = -1;
+        ArrayList<String> leaderboardStrings = new ArrayList<>();
         for (int i = 0; i < topNames.size(); i++) {
-            int index = i + 1;
-            String name = topNames.get(i);
-            int points = topPoints.get(i);
-        
-            builder.append(String.format("%d. %s - %d", index, name, points));
-        
-            if (i + 1 < topNames.size()) {
-                builder.append(", ");
+            if (topPoints.get(i) != prevPoints) {
+                prevRank = i + 1;
+                if (prevRank > 5) {
+                    break;
+                }
             }
+            prevPoints = topPoints.get(i);
+            String name = topNames.get(i);
+        
+            leaderboardStrings.add(String.format("%d. %s - %d", prevRank, name, prevPoints));
         }
     
-        return builder.toString();
-        
+        return "All-Time Leaderboard: " + String.join(", ", leaderboardStrings);
     }
 }
