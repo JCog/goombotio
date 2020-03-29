@@ -92,20 +92,16 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
         ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
         ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
         ArrayList<String> topMonthlyNames = new ArrayList<>();
-    
+        
         for (Long topMonthlyScorer : topMonthlyScorers) {
             topMonthlyPoints.add(leaderboard.getMonthlyPoints(topMonthlyScorer));
             topMonthlyNames.add(leaderboard.getUsername(topMonthlyScorer));
         }
-    
-        StringBuilder builder = new StringBuilder();
-        builder.append("Monthly Leaderboard: ");
+        
         int prevPoints = -1;
         int prevRank = -1;
+        ArrayList<String> leaderboardStrings = new ArrayList<>();
         for (int i = 0; i < topMonthlyNames.size(); i++) {
-            if (i != 0) {
-                builder.append(", ");
-            }
             if (topMonthlyPoints.get(i) != prevPoints) {
                 prevRank = i + 1;
                 if (prevRank > 5) {
@@ -114,11 +110,11 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
             }
             prevPoints = topMonthlyPoints.get(i);
             String name = topMonthlyNames.get(i);
-        
-            builder.append(String.format("%d. %s - %d", prevRank, name, prevPoints));
+            
+            leaderboardStrings.add(String.format("%d. %s - %d", prevRank, name, prevPoints));
         }
-    
-        return builder.toString();
+        
+        return "Monthly Leaderboard: " + String.join(", ", leaderboardStrings);
     }
     
     private String buildAllTimeLeaderboardString() {

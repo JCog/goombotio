@@ -118,7 +118,7 @@ public class SpeedySpinPredictionManager {
         ArrayList<String> winners = getWinners(one, two, three);
         StringBuilder message = new StringBuilder();
         if (winners.size() == 0) {
-            message.append("Nobody guessed it. BibleThump Hopefully you got some points, though!");
+            message.append("Nobody guessed it. jcogThump Hopefully you got some points, though!");
         }
         else if (winners.size() == 1) {
             message.append(String.format("Congrats to @%s on guessing correctly! jcogChamp", winners.get(0)));
@@ -169,14 +169,10 @@ public class SpeedySpinPredictionManager {
             topMonthlyNames.add(leaderboard.getUsername(topMonthlyScorer));
         }
         
-        StringBuilder builder = new StringBuilder();
-        builder.append("Monthly Leaderboard: ");
         int prevPoints = -1;
         int prevRank = -1;
+        ArrayList<String> leaderboardStrings = new ArrayList<>();
         for (int i = 0; i < topMonthlyNames.size(); i++) {
-            if (i != 0) {
-                builder.append(", ");
-            }
             if (topMonthlyPoints.get(i) != prevPoints) {
                 prevRank = i + 1;
                 if (prevRank > 5) {
@@ -186,10 +182,10 @@ public class SpeedySpinPredictionManager {
             prevPoints = topMonthlyPoints.get(i);
             String name = topMonthlyNames.get(i);
             
-            builder.append(String.format("%d. %s - %d", prevRank, name, prevPoints));
+            leaderboardStrings.add(String.format("%d. %s - %d", prevRank, name, prevPoints));
         }
         
-        return builder.toString();
+        return "Monthly Leaderboard: " + String.join(", ", leaderboardStrings);
     }
 
     private ArrayList<String> getWinners(Badge leftAnswer, Badge middleAnswer, Badge rightAnswer) {
