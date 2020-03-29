@@ -14,6 +14,7 @@ public class SubPointUpdater {
     private static final String STREAMLABS_SUB_POINTS_FILENAME = "src/main/resources/sub_points.txt";
     private static final String LOCAL_SUB_POINTS_FILE_LOCATION = "output/";
     private static final String LOCAL_SUB_POINTS_FILENAME = "sub_points.txt";
+    private static final int PERMANENT_SUB_COUNT = 2;
     private static final int INTERVAL = 60 * 1000;
     private static final int TIER_2_MULTIPLIER = 2;
     private static final int TIER_3_MULTIPLIER = 6;
@@ -106,7 +107,7 @@ public class SubPointUpdater {
             e.printStackTrace();
         }
         
-        //subtract 1 because the twitch api counts the streamer
-        return subScore - 1;
+        //subtract permanent subs because the twitch api counts them even though they don't count toward sub score
+        return subScore - PERMANENT_SUB_COUNT;
     }
 }
