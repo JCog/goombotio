@@ -1,5 +1,6 @@
 package Listeners.Commands;
 
+import Util.Database.CommandDb;
 import Util.Database.SocialSchedulerDb;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.enums.USER_TYPE;
@@ -9,7 +10,8 @@ import com.gikk.twirk.types.users.TwitchUser;
 public class GoombotioCommandsListener extends CommandBase {
     
     private enum TYPE {
-        SCHEDULED
+        SCHEDULED,
+        COMMAND
     }
     private enum FUNCTION {
         ADD,
@@ -20,11 +22,13 @@ public class GoombotioCommandsListener extends CommandBase {
     private final static String pattern = "!goombotio";
     private final Twirk twirk;
     private final SocialSchedulerDb ssdb;
+    private final CommandDb commandDb;
 
     public GoombotioCommandsListener(Twirk twirk) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
         this.ssdb = SocialSchedulerDb.getInstance();
+        this.commandDb = CommandDb.getInstance();
     }
 
     @Override
@@ -89,6 +93,18 @@ public class GoombotioCommandsListener extends CommandBase {
                         twirk.channelMessage(ssdb.deleteMessage(id));
                         break;
                 }
+            case COMMAND:
+                switch (function) {
+                    case ADD:
+                        twirk.channelMessage(commandDb.addMessage(id, content));
+                        break;
+                    case EDIT:
+                        twirk.channelMessage(commandDb.editMessage(id, content));
+                        break;
+                    case DELETE:
+                        twirk.channelMessage(commandDb.deleteMessage(id));
+                        break;
+                }
         }
     }
     
@@ -96,6 +112,8 @@ public class GoombotioCommandsListener extends CommandBase {
         switch (type) {
             case "scheduled":
                 return TYPE.SCHEDULED;
+            case "command":
+                return TYPE.COMMAND;
             default:
                 return null;
         }

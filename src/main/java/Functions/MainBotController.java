@@ -109,6 +109,7 @@ public class MainBotController {
         addTwirkListener(new WrListener(twirk, streamInfo));
         addTwirkListener(new SubListener(twirk));
         addTwirkListener(new GoombotioCommandsListener(twirk));
+        addTwirkListener(new GenericCommandListener(twirk));
     }
     
     private void addTwirkListener(TwirkListener listener) {

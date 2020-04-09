@@ -14,8 +14,20 @@ import java.util.Set;
 import java.util.HashSet;
 
 public abstract class CommandBase implements TwirkListener {
+    
+    private static char GENERIC_COMMAND_CHAR = '!';
+    
+    /*
+    PREFIX_COMMAND: command (first "word") matches exactly
+    CONTENT_COMMAND: message contains pattern
+    EXACT_MATCH_COMMAND: entire message matches pattern (case-sensitive)
+    GENERIC_COMMAND: message begins with '!'
+     */
     public enum CommandType {
-        PREFIX_COMMAND, CONTENT_COMMAND, EXACT_MATCH_COMMAND
+        PREFIX_COMMAND,
+        CONTENT_COMMAND,
+        EXACT_MATCH_COMMAND,
+        GENERIC_COMMAND
     }
 
     private Set<String> commandPattern;
@@ -35,37 +47,51 @@ public abstract class CommandBase implements TwirkListener {
     @Override
     public void onPrivMsg(TwitchUser sender, TwitchMessage message) {
         String exactContent = message.getContent().trim();
+        if(exactContent.length() == 0) {
+            return;
+        }
         String content = message.getContent().toLowerCase(Locale.ENGLISH).trim();
         String[] split = content.split("\\s", 2);
         String command = split[0];
+        char firstChar = content.charAt(0);
 
         if( !coolingDown && sender.getUserType().value >= minPrivilege.value ) {
             //TODO: make this a switch statement
-            if( commandType == CommandType.PREFIX_COMMAND ){
-                for( String pattern : commandPattern ){
-                    if( command.equals(pattern) ){
-                        performCommand(pattern, sender, message);
-                        startCooldown();
-                        break;	//We don't want to fire twice for the same message
+            switch (commandType) {
+                case PREFIX_COMMAND:
+                    for (String pattern : commandPattern) {
+                        if (command.equals(pattern)) {
+                            performCommand(pattern, sender, message);
+                            startCooldown();
+                            break;    //We don't want to fire twice for the same message
+                        }
                     }
-                }
-            }
-            else if (commandType == CommandType.CONTENT_COMMAND){
-                for( String pattern : commandPattern ) {
-                    if( content.contains(pattern) ){
-                        performCommand(pattern, sender, message);
-                        startCooldown();
-                        break; //We don't want to fire twice for the same message
+                    break;
+    
+                case CONTENT_COMMAND:
+                    for (String pattern : commandPattern) {
+                        if (content.contains(pattern)) {
+                            performCommand(pattern, sender, message);
+                            startCooldown();
+                            break;
+                        }
                     }
-                }
-            }
-            else if (commandType == CommandType.EXACT_MATCH_COMMAND) {
-                for (String pattern : commandPattern)
-                    if( exactContent.equals(pattern)) {
-                        performCommand(pattern, sender, message);
-                        startCooldown();
-                        break;
+                    break;
+    
+                case EXACT_MATCH_COMMAND:
+                    for (String pattern : commandPattern) {
+                        if (exactContent.equals(pattern)) {
+                            performCommand(pattern, sender, message);
+                            startCooldown();
+                            break;
+                        }
                     }
+                    break;
+                case GENERIC_COMMAND:
+                    if (firstChar == GENERIC_COMMAND_CHAR) {
+                        performCommand(command, sender, message);
+                    }
+                    break;
             }
         }
     }
