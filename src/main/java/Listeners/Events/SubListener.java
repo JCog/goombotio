@@ -53,10 +53,10 @@ public class SubListener implements TwirkListener {
                                 e.printStackTrace();
                             }
                             if (giftedSubs.get(gifterName).size() == 1) {
-                                twirk.channelMessage(String.format("blobDance @%s Thank you for gifting a sub to @%s! blobDance", gifterName, recipientName));
+                                twirk.channelMessage(String.format("jcogChamp @%s Thank you for gifting a sub to @%s! jcogChamp", gifterName, recipientName));
                             }
                             else {
-                                twirk.channelMessage(String.format("blobDance @%s Thank you for the %d gift subs! blobDance", gifterName, subCount));
+                                twirk.channelMessage(String.format("jcogChamp @%s Thank you for the %d gift subs! jcogChamp", gifterName, subCount));
                             }
                             
                             giftedSubs.remove(gifterName);
@@ -68,10 +68,10 @@ public class SubListener implements TwirkListener {
             else {
                 int months = sub.getMonths();
                 if (months == 1) {
-                    twirk.channelMessage(String.format("blobDance @%s just subbed! Welcome to the Rookery™! blobDance", user.getDisplayName()));
+                    twirk.channelMessage(String.format("jcogChamp @%s just subbed! Welcome to the Rookery™! jcogChamp", user.getDisplayName()));
                 }
                 else {
-                    twirk.channelMessage(String.format("blobDance @%s just resubbed for %d months! Welcome back to the Rookery™! blobDance", user.getDisplayName(), months));
+                    twirk.channelMessage(String.format("jcogChamp @%s just resubbed for %d months! Welcome back to the Rookery™! jcogChamp", user.getDisplayName(), months));
                 }
             }
         }
