@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    implementation "com.github.gikkman:Java-Twirk:0.5"
+    implementation "com.github.gikkman:Java-Twirk:0.6"
     implementation "org.mongodb:mongodb-driver:3.10.1"
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.google.code.gson:gson:2.8.5'
