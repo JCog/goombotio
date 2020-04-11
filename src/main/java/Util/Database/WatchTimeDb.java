@@ -106,6 +106,14 @@ public class WatchTimeDb extends CollectionBase {
         return getDate();
     }
     
+    public Date getFirstSeen(long userId) {
+        Document result = find(eq(ID_KEY, userId)).first();
+        if (result != null) {
+            return result.getDate(FIRST_SEEN_KEY);
+        }
+        return getDate();
+    }
+    
     public Date getLastSeen(String username) {
         String userLower = username.toLowerCase();
         
