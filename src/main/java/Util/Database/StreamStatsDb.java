@@ -8,22 +8,22 @@ import java.util.*;
 import static com.mongodb.client.model.Filters.eq;
 
 public class StreamStatsDb extends CollectionBase {
+    
+    private static final String COLLECTION_NAME = "streamstats";
+    private static final String ID_KEY = "_id";
+    private static final String START_KEY = "start_time";
+    private static final String END_KEY = "end_time";
+    private static final String VIEW_COUNTS_KEY = "view_counts";
+    private static final String USER_LIST_KEY = "user_list";
+    private static final String USERNAME_KEY = "username";
+    private static final String MINUTES_KEY = "minutes";
+    private static final String NEW_USER_KEY = "new_user";
+    private static final String NEWEST_KEY = "newest_key";
+    private static final String NEWEST_ID = "newest";
+    
     private static StreamStatsDb instance = null;
     
-    private WatchTimeDb watchTimeDb;
-    
-    private final String COLLECTION_NAME = "streamstats";
-    private final String ID_KEY = "_id";
-    private final String START_KEY = "start_time";
-    private final String END_KEY = "end_time";
-    private final String VIEW_COUNTS_KEY = "view_counts";
-    private final String USER_LIST_KEY = "user_list";
-    private final String USERNAME_KEY = "username";
-    private final String MINUTES_KEY = "minutes";
-    private final String NEW_USER_KEY = "new_user";
-    
-    private final String NEWEST_KEY = "newest_key";
-    private final String NEWEST_ID = "newest";
+    private final WatchTimeDb watchTimeDb;
     
     
     private StreamStatsDb() {
@@ -202,8 +202,7 @@ public class StreamStatsDb extends CollectionBase {
      */
     public List<Integer> getViewerCounts() {
         String streamKey = getNewestStreamKey();
-        List<Integer> result = find(eq(ID_KEY, streamKey)).first().getList(VIEW_COUNTS_KEY, Integer.class);
-        return result;
+        return find(eq(ID_KEY, streamKey)).first().getList(VIEW_COUNTS_KEY, Integer.class);
     }
     
     private String getNewestStreamKey() {

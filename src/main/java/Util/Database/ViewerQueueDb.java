@@ -7,16 +7,16 @@ import org.bson.Document;
 import static com.mongodb.client.model.Filters.eq;
 
 public class ViewerQueueDb extends CollectionBase {
+    
+    private static final String COLLECTION_NAME_KEY = "viewerqueue";
+    private static final String ID_KEY = "_id";
+    private static final String TOTAL_SESSIONS_KEY = "totalSessions";
+    private static final String ATTEMPTS_SINCE_LAST_SESSION_KEY = "attemptsSinceLastSession";
+    private static final String LAST_SESSION_ID_KEY = "lastSessionId";
+    private static final String SESSION = "session";
+    private static final String SESSION_ID_KEY = "sessionId";
+    
     private static ViewerQueueDb instance = null;
-    
-    private final String COLLECTION_NAME_KEY = "viewerqueue";
-    private final String ID_KEY = "_id";
-    private final String TOTAL_SESSIONS_KEY = "totalSessions";
-    private final String ATTEMPTS_SINCE_LAST_SESSION_KEY = "attemptsSinceLastSession";
-    private final String LAST_SESSION_ID_KEY = "lastSessionId";
-    
-    private final String SESSION = "session";
-    private final String SESSION_ID_KEY = "sessionId";
     
     private int sessionId;
     

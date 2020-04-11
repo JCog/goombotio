@@ -62,7 +62,7 @@ public class MainBotController {
     
         String line;
         Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-        TwirkListener viewerQueueListener = new ViewerQueueListener(twirk, vqm);
+        TwirkListener viewerQueueListener = new ViewerQueueListener(vqm);
         while( !(line = scanner.nextLine()).matches(".quit") ) {
             if(line.equals(".lb")) { //TODO: this is pretty hacky, should improve
                 SpeedySpinLeaderboard lb = SpeedySpinLeaderboard.getInstance();

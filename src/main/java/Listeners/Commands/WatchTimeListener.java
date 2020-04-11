@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class WatchTimeListener extends CommandBase {
     
     private final static String PATTERN = "!watchtime";
+    
     private final Twirk twirk;
     private final WatchTimeDb watchTimeDb;
     private final Date cutoffDate;

@@ -8,7 +8,8 @@ import com.gikk.twirk.types.users.TwitchUser;
 
 public class GenericCommandListener extends CommandBase {
 
-    private final static String pattern = "";
+    private final static String PATTERN = "";
+    
     private final Twirk twirk;
     private final CommandDb commandDb;
     
@@ -21,7 +22,7 @@ public class GenericCommandListener extends CommandBase {
 
     @Override
     protected String getCommandWords() {
-        return pattern;
+        return PATTERN;
     }
 
     @Override

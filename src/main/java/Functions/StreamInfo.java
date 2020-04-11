@@ -11,14 +11,15 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.System.out;
 
 public class StreamInfo {
-
+    
+    private static final int timerInterval = 60*1000;
+    
     private String streamer;
     private TwitchClient twitchClient;
     private String authToken;
 
     private Stream streamStats = null;
     private Timer timer = new Timer();
-    private int timerInterval = 60*1000;
     private boolean isLive = false;
     private Date startTime = null;
     private Date endTime = null;
@@ -83,7 +84,7 @@ public class StreamInfo {
      */
     public String getGame() {
         if (isLive()) {
-            String gameId = streamStats.getGameId().toString();
+            String gameId = streamStats.getGameId();
             GameList gameList = twitchClient.getHelix().getGames(authToken, Collections.singletonList(gameId), null).execute();
             return gameList.getGames().get(0).getName();
         }

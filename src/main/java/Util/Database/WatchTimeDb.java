@@ -12,14 +12,15 @@ import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;
 
 public class WatchTimeDb extends CollectionBase {
-    private static WatchTimeDb instance = null;
     
-    private final String COLLECTION_NAME = "watchtime";
-    private final String ID_KEY = "_id";
-    private final String MINUTES_KEY = "minutes";
-    private final String NAME_KEY = "name";
-    private final String FIRST_SEEN_KEY = "first_seen";
-    private final String LAST_SEEN_KEY = "last_seen";
+    private static final String COLLECTION_NAME = "watchtime";
+    private static final String ID_KEY = "_id";
+    private static final String MINUTES_KEY = "minutes";
+    private static final String NAME_KEY = "name";
+    private static final String FIRST_SEEN_KEY = "first_seen";
+    private static final String LAST_SEEN_KEY = "last_seen";
+    
+    private static WatchTimeDb instance = null;
 
 
     private WatchTimeDb() {
@@ -165,20 +166,18 @@ public class WatchTimeDb extends CollectionBase {
     public int getTotalMonthlyWatchtime(int year, int month) {
         int minutes = 0;
         String monthlyMinutesKey = getMonthlyMinutesKey(year, month);
-        MongoCursor<Document> result = find(exists(monthlyMinutesKey)).iterator();
-        
-        while (result.hasNext()) {
-            minutes += result.next().getInteger(monthlyMinutesKey);
+    
+        for (Document document : find(exists(monthlyMinutesKey))) {
+            minutes += document.getInteger(monthlyMinutesKey);
         }
         return minutes;
     }
     
     public Vector<String> getMatchingUsers(String search) {
         Vector<String> result = new Vector<>();
-        
-        MongoCursor<Document> iterator = find().iterator();
-        while (iterator.hasNext()) {
-            String name = iterator.next().getString(NAME_KEY);
+    
+        for (Document document : find()) {
+            String name = document.getString(NAME_KEY);
             if (name.contains(search)) {
                 result.add(name);
             }

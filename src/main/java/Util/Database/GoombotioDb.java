@@ -7,11 +7,12 @@ import org.bson.Document;
 
 public class GoombotioDb {
 
-    private final String DATABASE_NAME = "goombotio";
+    private static final String DATABASE_NAME = "goombotio";
 
     private static GoombotioDb goombotioDb = null;
-    private MongoClient mongoClient;
-    private MongoDatabase mongoDatabase;
+    
+    private final MongoClient mongoClient;
+    private final MongoDatabase mongoDatabase;
 
     private GoombotioDb() {
         mongoClient = new MongoClient();

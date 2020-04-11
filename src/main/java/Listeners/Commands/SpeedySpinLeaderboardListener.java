@@ -9,12 +9,15 @@ import com.gikk.twirk.types.users.TwitchUser;
 import java.util.ArrayList;
 
 public class SpeedySpinLeaderboardListener extends CommandBase {
-    private static final String patternLeaderboard = "!leaderboard";
-    private static final String patternBadgeShop = "!badgeshop";
-    private static final String patternPoints = "!points";
-    private static final String patternLeaderboardAll = "!leaderboardall";
-    private static final String patternPointsAll = "!pointsall";
+    
+    private static final String PATTERN_LEADERBOARD = "!leaderboard";
+    private static final String PATTERN_BADGE_SHOP = "!badgeshop";
+    private static final String PATTERN_POINTS = "!points";
+    private static final String PATTERN_LEADERBOARD_ALL = "!leaderboardall";
+    private static final String PATTERN_POINTS_ALL = "!pointsall";
+    
     private final Twirk twirk;
+    
     private SpeedySpinLeaderboard leaderboard;
 
     public SpeedySpinLeaderboardListener(Twirk twirk) {
@@ -25,7 +28,12 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
 
     @Override
     protected String getCommandWords() {
-        return String.join("|", patternLeaderboard, patternBadgeShop, patternPoints, patternLeaderboardAll, patternPointsAll);
+        return String.join("|",
+                PATTERN_LEADERBOARD,
+                PATTERN_BADGE_SHOP,
+                PATTERN_POINTS,
+                PATTERN_LEADERBOARD_ALL,
+                PATTERN_POINTS_ALL);
     }
 
     @Override
@@ -43,15 +51,15 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
         String chatMessage;
 
         switch (command) {
-            case patternLeaderboard:
+            case PATTERN_LEADERBOARD:
                 chatMessage = buildMonthlyLeaderboardString();
                 break;
 
-            case patternPoints:
+            case PATTERN_POINTS:
                 chatMessage = buildMonthlyPointsString(sender);
                 break;
 
-            case patternBadgeShop:
+            case PATTERN_BADGE_SHOP:
                 chatMessage = "/me Guess the badge locations in the badge shop! Get 1 point for one badge (or if you " +
                         "have them all but in the wrong locations), 5 for two badges, and 20 if you get all three " +
                         "correct! Use !leaderboard to see the top scores this month and !points to see how many " +
@@ -60,11 +68,11 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
                         "for the next month, so get guessing!";
                 break;
                 
-            case patternLeaderboardAll:
+            case PATTERN_LEADERBOARD_ALL:
                 chatMessage = buildAllTimeLeaderboardString();
                 break;
                 
-            case patternPointsAll:
+            case PATTERN_POINTS_ALL:
                 chatMessage = buildPointsString(sender);
                 
                 break;

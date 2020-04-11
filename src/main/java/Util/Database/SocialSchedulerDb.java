@@ -10,11 +10,11 @@ import static com.mongodb.client.model.Filters.eq;
 
 public class SocialSchedulerDb extends CollectionBase {
     
-    private static SocialSchedulerDb instance = null;
+    private static final String COLLECTION_NAME = "socialscheduler";
+    private static final String ID_KEY = "_id";
+    private static final String MESSAGE_KEY = "message";
     
-    private final String COLLECTION_NAME = "socialscheduler";
-    private final String ID_KEY = "_id";
-    private final String MESSAGE_KEY = "message";
+    private static SocialSchedulerDb instance = null;
     
     private SocialSchedulerDb() {
         super();

@@ -12,10 +12,10 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class StreamStatsInterface {
-    private StreamStatsDb streamStatsDb;
-    private WatchTimeDb watchTimeDb;
-    private TwitchClient twitchClient;
-    private String authToken;
+    private final StreamStatsDb streamStatsDb;
+    private final WatchTimeDb watchTimeDb;
+    private final TwitchClient twitchClient;
+    private final String authToken;
     
     /**
      * Interface for saving and reading information about streams in a database

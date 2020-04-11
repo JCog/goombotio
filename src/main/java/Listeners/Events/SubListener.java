@@ -6,13 +6,18 @@ import com.gikk.twirk.types.usernotice.Usernotice;
 import com.gikk.twirk.types.usernotice.subtype.Subscription;
 import com.gikk.twirk.types.users.TwitchUser;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
 
 public class SubListener implements TwirkListener {
-    private Twirk twirk;
+    
+    private final Twirk twirk;
+    
     private HashMap<String, Boolean> subTimersActive;
     private HashMap<String, ArrayList<String>> giftedSubs;
     

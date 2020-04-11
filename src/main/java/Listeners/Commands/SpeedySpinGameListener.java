@@ -11,8 +11,10 @@ import static java.lang.System.out;
 
 public class SpeedySpinGameListener extends CommandBase {
 
-    private final static String pattern = "!preds";
+    private final static String PATTERN = "!preds";
+    
     private final Twirk twirk;
+    
     private SpeedySpinPredictionManager game;
 
     public SpeedySpinGameListener(Twirk twirk) {
@@ -23,7 +25,7 @@ public class SpeedySpinGameListener extends CommandBase {
 
     @Override
     protected String getCommandWords() {
-        return pattern;
+        return PATTERN;
     }
 
     @Override

@@ -10,7 +10,8 @@ import java.util.*;
 import static Functions.SpeedySpinPredictionManager.*;
 
 public class SpeedySpinPredictionListener implements TwirkListener {
-    private static final Set<String> badgeChoices = new HashSet<>(Arrays.asList(
+    
+    private static final Set<String> BADGE_CHOICES = new HashSet<>(Arrays.asList(
             "badspin1",
             "badspin2",
             "badspin3",
@@ -32,7 +33,7 @@ public class SpeedySpinPredictionListener implements TwirkListener {
             //using FFZ emotes
             ArrayList<String> badgeGuess = new ArrayList<>();
             for (String word : split) {
-                if (badgeChoices.contains(word.toLowerCase()) && !badgeGuess.contains(word.toLowerCase())) {
+                if (BADGE_CHOICES.contains(word.toLowerCase()) && !badgeGuess.contains(word.toLowerCase())) {
                     badgeGuess.add(word.toLowerCase());
                 }
             }

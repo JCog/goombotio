@@ -9,12 +9,13 @@ import com.gikk.twirk.types.users.TwitchUser;
 import static APIs.SpeedrunApi.*;
 
 public class WrListener extends CommandBase {
-
-    private final static String pattern = "!wr";
+    
+    private static final String GAME_PAPER_MARIO = "Paper Mario";
+    private static final String GAME_TTYD = "Paper Mario: The Thousand-Year Door";
+    private static final String PATTERN = "!wr";
+    
     private final Twirk twirk;
     private final StreamInfo streamInfo;
-    private final String GAME_PAPER_MARIO = "Paper Mario";
-    private final String GAME_TTYD = "Paper Mario: The Thousand-Year Door";
 
     public WrListener(Twirk twirk, StreamInfo streamInfo) {
         super(CommandType.PREFIX_COMMAND);
@@ -24,7 +25,7 @@ public class WrListener extends CommandBase {
 
     @Override
     protected String getCommandWords() {
-        return pattern;
+        return PATTERN;
     }
 
     @Override

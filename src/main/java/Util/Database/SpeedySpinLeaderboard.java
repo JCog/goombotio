@@ -10,17 +10,18 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Filters.eq;
 import static java.lang.System.out;
 
 public class SpeedySpinLeaderboard extends CollectionBase{
-    private static SpeedySpinLeaderboard instance = null;
 
-    private final String COLLECTION_NAME = "speedyspin";
-    private final String ID_KEY = "_id";
-    private final String NAME_KEY = "name";
-    private final String POINTS_KEY = "points";
-    private final String WINS_KEY = "wins";
+    private static final String COLLECTION_NAME = "speedyspin";
+    private static final String ID_KEY = "_id";
+    private static final String NAME_KEY = "name";
+    private static final String POINTS_KEY = "points";
+    private static final String WINS_KEY = "wins";
+    
+    private static SpeedySpinLeaderboard instance = null;
     
     private SpeedySpinLeaderboard() {
         super();

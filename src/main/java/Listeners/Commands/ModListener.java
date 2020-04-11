@@ -7,7 +7,7 @@ import com.gikk.twirk.types.users.TwitchUser;
 
 public class ModListener extends CommandBase {
 
-    private final static String pattern = "crashes paper mario";
+    private final static String PATTERN = "crashes paper mario";
     private final Twirk twirk;
 
     public ModListener(Twirk twirk) {
@@ -17,7 +17,7 @@ public class ModListener extends CommandBase {
 
     @Override
     protected String getCommandWords() {
-        return pattern;
+        return PATTERN;
     }
 
     @Override

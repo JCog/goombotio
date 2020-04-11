@@ -6,16 +6,14 @@ import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.HashSet;
 
 public abstract class CommandBase implements TwirkListener {
     
-    private static char GENERIC_COMMAND_CHAR = '!';
+    private static final char GENERIC_COMMAND_CHAR = '!';
     
     /*
     PREFIX_COMMAND: command (first "word") matches exactly

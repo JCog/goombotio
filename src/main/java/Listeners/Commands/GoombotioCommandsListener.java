@@ -19,7 +19,8 @@ public class GoombotioCommandsListener extends CommandBase {
         DELETE
     }
 
-    private final static String pattern = "!goombotio";
+    private final static String PATTERN = "!goombotio";
+    
     private final Twirk twirk;
     private final SocialSchedulerDb ssdb;
     private final CommandDb commandDb;
@@ -33,7 +34,7 @@ public class GoombotioCommandsListener extends CommandBase {
 
     @Override
     protected String getCommandWords() {
-        return pattern;
+        return PATTERN;
     }
 
     @Override
