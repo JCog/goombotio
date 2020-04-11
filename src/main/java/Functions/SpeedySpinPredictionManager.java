@@ -13,18 +13,20 @@ import java.util.*;
 import static java.lang.System.out;
 
 public class SpeedySpinPredictionManager {
-
-    private final int DISCORD_MAX_CHARS = 2000;
-    private final String DISCORD_CHANNEL_MONTHLY = "preds-monthly";
-    private final String DISCORD_CHANNEL_ALL_TIME = "preds-all-time";
-    private final int POINTS_3 = 20;
-    private final int POINTS_2 = 5;
-    private final int POINTS_1 = 1;
-    private final int POINTS_WRONG_ORDER = 1;
+    
+    private static final String DISCORD_CHANNEL_MONTHLY = "preds-monthly";
+    private static final String DISCORD_CHANNEL_ALL_TIME = "preds-all-time";
+    private static final int DISCORD_MAX_CHARS = 2000;
+    private static final int POINTS_3 = 20;
+    private static final int POINTS_2 = 5;
+    private static final int POINTS_1 = 1;
+    private static final int POINTS_WRONG_ORDER = 1;
+    
     private final Twirk twirk;
+    private final SpeedySpinLeaderboard leaderboard;
+    private final DiscordBotController dbc;
+    
     private SpeedySpinPredictionListener sspListener;
-    private SpeedySpinLeaderboard leaderboard;
-    private DiscordBotController dbc;
     
     public enum Badge {
         BAD_SPIN1,
@@ -255,7 +257,12 @@ public class SpeedySpinPredictionManager {
                 prevRank = i + 1;
             }
             prevPoints = topPoints.get(i);
-            String entry = String.format("%d. %s - %d points\n", prevRank, topNames.get(i), topPoints.get(i));
+            String entry = String.format(
+                    "%d. %s - %d point%s\n",
+                    prevRank,
+                    topNames.get(i),
+                    topPoints.get(i),
+                    topPoints.get(i) != 1 ? "s" : "");
             if (message.length() + entry.length() > DISCORD_MAX_CHARS - 3) {
                 break;
             }
