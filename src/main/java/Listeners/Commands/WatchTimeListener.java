@@ -13,17 +13,16 @@ import java.util.concurrent.TimeUnit;
 
 public class WatchTimeListener extends CommandBase {
     
-    private final static String PATTERN = "!watchtime";
+    private static final String PATTERN = "!watchtime";
+    private static final Date CUTOFF_DATE = generateCutoffDate();
     
     private final Twirk twirk;
     private final WatchTimeDb watchTimeDb;
-    private final Date cutoffDate;
     
     public WatchTimeListener(Twirk twirk) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
         watchTimeDb = WatchTimeDb.getInstance();
-        cutoffDate = generateCutoffDate();
     }
     
     @Override
@@ -72,11 +71,11 @@ public class WatchTimeListener extends CommandBase {
     
     //watchdata has been tracked since the cutoff date
     private boolean isOldViewer(TwitchUser user) {
-        return watchTimeDb.getFirstSeen(user.getUserID()).compareTo(cutoffDate) < 0;
+        return watchTimeDb.getFirstSeen(user.getUserID()).compareTo(CUTOFF_DATE) < 0;
     }
     
     //August 30, 2019
-    private Date generateCutoffDate() {
+    private static Date generateCutoffDate() {
         Calendar date = new GregorianCalendar();
         date.set(Calendar.YEAR, 2019);
         date.set(Calendar.MONTH, Calendar.AUGUST);
