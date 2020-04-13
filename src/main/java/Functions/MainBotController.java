@@ -18,18 +18,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class MainBotController {
-    private static MainBotController instance = null;
-    private Twirk twirk;
-    private TwitchClient twitchClient;
-    private StreamInfo streamInfo;
-    private StatsTracker statsTracker;
-    private SocialScheduler socialScheduler;
-    private SubPointUpdater subPointUpdater;
-    private DiscordBotController dbc;
-    private ViewerQueueManager vqm;
-    
     private static final boolean VERBOSE_MODE = false;
     private static final int SOCIAL_INTERVAL_LENGTH = 20;
+    
+    private static MainBotController instance = null;
+    
+    private final Twirk twirk;
+    private final TwitchClient twitchClient;
+    private final StreamInfo streamInfo;
+    private final StatsTracker statsTracker;
+    private final SocialScheduler socialScheduler;
+    private final SubPointUpdater subPointUpdater;
+    private final DiscordBotController dbc;
+    private final ViewerQueueManager vqm;
     
     private MainBotController(String stream, String authToken, String discordToken, String channel, String nick, String oauth) throws IOException {
         this.twirk = new TwirkBuilder(channel, nick, oauth)
@@ -98,7 +99,9 @@ public class MainBotController {
         statsTracker.storeAllMinutes();
         ReportBuilder.generateReport(streamInfo, statsTracker);
         GoombotioDb.getInstance().close();
+        twitchClient.close();
         twirk.close();
+        dbc.close();
     }
     
     private void addAllListeners() {

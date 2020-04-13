@@ -5,9 +5,9 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-import static java.lang.System.out;
-
 import javax.security.auth.login.LoginException;
+
+import static java.lang.System.out;
 
 public class DiscordBotController {
     private static DiscordBotController dbc = null;
@@ -31,6 +31,10 @@ public class DiscordBotController {
             out.println("Goombotio login to Discord unsuccessful:");
             e.printStackTrace();
         }
+    }
+    
+    public void close() {
+        jda.shutdown();
     }
     
     public void sendMessage(String channelName, String message) {
