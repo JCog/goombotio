@@ -1,6 +1,7 @@
 package Listeners.Commands;
 
 import Util.Database.CommandDb;
+import Util.Database.Entries.CommandItem;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.enums.USER_TYPE;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
@@ -37,9 +38,13 @@ public class GenericCommandListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        String output = commandDb.getMessage(command);
-        if (output != null) {
-            twirk.channelMessage(output);
+        CommandItem commandItem = commandDb.getCommandItem(command);
+        if (commandItem != null && userHasPermission(sender, commandItem) ) {
+            twirk.channelMessage(commandItem.getMessage());
         }
+    }
+    
+    private boolean userHasPermission(TwitchUser sender, CommandItem commandItem) {
+        return sender.getUserType().value >= commandItem.getPermission().value;
     }
 }

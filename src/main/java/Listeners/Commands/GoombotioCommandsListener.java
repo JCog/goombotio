@@ -18,6 +18,13 @@ public class GoombotioCommandsListener extends CommandBase {
         EDIT,
         DELETE
     }
+    
+    private final static String[] validPermissions = {
+            "default",
+            "sub",
+            "mod",
+            "owner"
+    };
 
     private final static String PATTERN = "!goombotio";
     
@@ -51,19 +58,19 @@ public class GoombotioCommandsListener extends CommandBase {
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         String[] messageSplit = message.getContent().split("\\s");
         if (messageSplit.length < 4) {
-            twirk.channelMessage("ERROR: missing arguments");
+            showError("missing arguments");
             return;
         }
     
         FUNCTION function = getFunction(messageSplit[1]);
         if (function == null) {
-            twirk.channelMessage(String.format("ERROR: Unknown function \"%s\"", messageSplit[1]));
+            showError(String.format("unknown function \"%s\"", messageSplit[1]));
             return;
         }
         
         TYPE type = getType(messageSplit[2]);
         if (type == null) {
-            twirk.channelMessage(String.format("ERROR: Unknown type \"%s\"", messageSplit[2]));
+            showError(String.format("unknown type \"%s\"", messageSplit[2]));
             return;
         }
         
@@ -75,11 +82,17 @@ public class GoombotioCommandsListener extends CommandBase {
             content = message.getContent().substring(start, end);
         }
         catch (StringIndexOutOfBoundsException e) {
-            if (function != FUNCTION.DELETE) {
-                twirk.channelMessage("ERROR: no content");
+            if (function != FUNCTION.DELETE && function != FUNCTION.EDIT) {
+                showError("no content");
                 return;
             }
         }
+        boolean hasContent = !content.isEmpty();
+        String permission = "";
+        if (end + 1 < message.getContent().length()) {
+            permission = messageSplit[messageSplit.length - 1];
+        }
+        boolean hasPermission = !permission.isEmpty();
         
         switch (type) {
             case SCHEDULED:
@@ -97,16 +110,49 @@ public class GoombotioCommandsListener extends CommandBase {
             case COMMAND:
                 switch (function) {
                     case ADD:
-                        twirk.channelMessage(commandDb.addMessage(id, content));
+                        if (!hasContent) {
+                            showError("no content");
+                            return;
+                        }
+                        if (hasPermission) {
+                            if (permissionIsValid(permission)) {
+                                twirk.channelMessage(commandDb.addMessage(id, content, permission));
+                            }
+                            else {
+                                showError("permission is invalid");
+                            }
+                        }
+                        else {
+                            twirk.channelMessage(commandDb.addMessage(id, content, USER_TYPE.DEFAULT));
+                        }
                         break;
                     case EDIT:
-                        twirk.channelMessage(commandDb.editMessage(id, content));
+                        if (hasPermission && !permissionIsValid(permission)) {
+                            showError("permission is invalid");
+                            return;
+                        }
+                        if (hasContent && hasPermission) {
+                            twirk.channelMessage(commandDb.editCommand(id, content, permission));
+                        }
+                        else if (hasContent) {
+                            twirk.channelMessage(commandDb.editMessage(id, content));
+                        }
+                        else if (hasPermission) {
+                            twirk.channelMessage(commandDb.editPermission(id, permission));
+                        }
+                        else {
+                            showError("no content or permission");
+                        }
                         break;
                     case DELETE:
                         twirk.channelMessage(commandDb.deleteMessage(id));
                         break;
                 }
         }
+    }
+    
+    private void showError(String error) {
+        twirk.channelMessage(String.format("ERROR: %s", error));
     }
     
     private TYPE getType(String type) {
@@ -131,5 +177,14 @@ public class GoombotioCommandsListener extends CommandBase {
             default:
                 return null;
         }
+    }
+    
+    private boolean permissionIsValid(String permission) {
+        for (String value : validPermissions) {
+            if (permission.toLowerCase().equals(value)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
