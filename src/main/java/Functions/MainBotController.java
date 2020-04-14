@@ -1,6 +1,7 @@
 package Functions;
 
 import Listeners.Commands.*;
+import Listeners.Events.CloudListener;
 import Listeners.Events.EmoteListener;
 import Listeners.Events.PyramidListener;
 import Listeners.Events.SubListener;
@@ -109,6 +110,7 @@ public class MainBotController {
     private void addAllListeners() {
         addTwirkListener(getOnDisconnectListener(twirk));
         
+        // Command Listeners
         addTwirkListener(new GenericCommandListener(twirk));
         addTwirkListener(new GoombotioCommandsListener(twirk));
         //addTwirkListener(new ModListener(twirk));
@@ -117,6 +119,8 @@ public class MainBotController {
         addTwirkListener(new WatchTimeListener(twirk));
         addTwirkListener(new WrListener(twirk, streamInfo));
     
+        // General Listeners
+        addTwirkListener(new CloudListener(twirk));
         addTwirkListener(new EmoteListener());
         addTwirkListener(new PyramidListener(twirk));
         addTwirkListener(new SubListener(twirk));
