@@ -107,15 +107,17 @@ public class MainBotController {
     
     private void addAllListeners() {
         addTwirkListener(getOnDisconnectListener(twirk));
+        
+        addTwirkListener(new GenericCommandListener(twirk));
+        addTwirkListener(new GoombotioCommandsListener(twirk));
+        //addTwirkListener(new ModListener(twirk));
         addTwirkListener(new SpeedySpinGameListener(twirk));
         addTwirkListener(new SpeedySpinLeaderboardListener(twirk));
-        //addTwirkListener(new ModListener(twirk));
-        addTwirkListener(new WrListener(twirk, streamInfo));
-        addTwirkListener(new SubListener(twirk));
-        addTwirkListener(new GoombotioCommandsListener(twirk));
-        addTwirkListener(new GenericCommandListener(twirk));
         addTwirkListener(new WatchTimeListener(twirk));
+        addTwirkListener(new WrListener(twirk, streamInfo));
+    
         addTwirkListener(new EmoteListener());
+        addTwirkListener(new SubListener(twirk));
     }
     
     private void addTwirkListener(TwirkListener listener) {
@@ -136,10 +138,12 @@ public class MainBotController {
                 }
             }
             catch (IOException e) {
+                System.out.println("ERROR: twirk IOException");
                 twirk.close();
             }
             catch (InterruptedException e) {
                 //continue
+                System.out.println("ERROR: twirk InterruptedException");
             }
             }
         };
