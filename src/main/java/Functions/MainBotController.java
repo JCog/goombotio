@@ -2,6 +2,7 @@ package Functions;
 
 import Listeners.Commands.*;
 import Listeners.Events.EmoteListener;
+import Listeners.Events.PyramidListener;
 import Listeners.Events.SubListener;
 import Util.Database.GoombotioDb;
 import Util.Database.SpeedySpinLeaderboard;
@@ -117,6 +118,7 @@ public class MainBotController {
         addTwirkListener(new WrListener(twirk, streamInfo));
     
         addTwirkListener(new EmoteListener());
+        addTwirkListener(new PyramidListener(twirk));
         addTwirkListener(new SubListener(twirk));
     }
     
