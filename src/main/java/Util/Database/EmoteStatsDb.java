@@ -37,7 +37,7 @@ public class EmoteStatsDb extends CollectionBase {
     }
     
     public void addEmoteUsage(String emoteId, String pattern, long userId) {
-        Document result = getEmote(emoteId);
+        Document result = getEmoteById(emoteId);
         String monthKeyValue = getMonthKeyValue();
         
         if (result == null) {
@@ -84,10 +84,51 @@ public class EmoteStatsDb extends CollectionBase {
         addEmoteUsage(emote.getEmoteIDString(), emote.getPattern(), userId);
     }
     
+    public int getTotalEmoteUsageCount(String pattern) {
+        Document emoteDoc = getEmoteByPattern(pattern);
+        if (emoteDoc == null) {
+            return 0;
+        }
+        
+        int count = 0;
+        List<Document> usageStatsList = emoteDoc.getList(USAGE_STATS_KEY, Document.class);
+        for (Document monthDoc : usageStatsList) {
+            count += monthDoc.getInteger(COUNT_KEY);
+        }
+        return count;
+    }
+    
+    public int getMonthlyEmoteUsageCount(String pattern) {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        return getMonthlyEmoteUsageCount(pattern, year, month);
+    }
+    
+    public int getMonthlyEmoteUsageCount(String pattern, int year, int month) {
+        String monthKeyValue = getMonthKeyValue(year, month);
+        Document emoteDoc = getEmoteByPattern(pattern);
+        if (emoteDoc == null) {
+            return 0;
+        }
+    
+        List<Document> usageStatsList = emoteDoc.getList(USAGE_STATS_KEY, Document.class);
+        for (Document monthDoc : usageStatsList) {
+            if (monthDoc.getString(MONTH_KEY).equals(monthKeyValue)) {
+                return monthDoc.getInteger(COUNT_KEY);
+            }
+        }
+        return 0;
+    }
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    private Document getEmote(String id) {
+    private Document getEmoteById(String id) {
         return find(eq(ID_KEY, id)).first();
+    }
+    
+    private Document getEmoteByPattern(String pattern) {
+        return find(eq(EMOTE_PATTERN_KEY, pattern)).first();
     }
     
     private String getMonthKeyValue() {
