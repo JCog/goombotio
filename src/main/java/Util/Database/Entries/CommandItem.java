@@ -3,6 +3,8 @@ package Util.Database.Entries;
 import com.gikk.twirk.enums.USER_TYPE;
 
 public class CommandItem {
+    private final static int DEFAULT_COOLDOWN = 2 * 1000;
+    
     private final String id;
     private final String message;
     private final USER_TYPE permission;
@@ -40,5 +42,10 @@ public class CommandItem {
     
     public USER_TYPE getPermission() {
         return permission;
+    }
+    
+    public int getCooldown() {
+        //TODO: implement custom cooldowns
+        return DEFAULT_COOLDOWN;
     }
 }
