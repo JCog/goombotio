@@ -1,7 +1,9 @@
 package Util.Database;
 
+import Util.Database.Entries.EmoteItem;
 import com.gikk.twirk.types.emote.Emote;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import org.bson.Document;
 
 import java.util.*;
@@ -20,7 +22,7 @@ public class EmoteStatsDb extends CollectionBase {
     
     private static EmoteStatsDb instance = null;
     
-    private EmoteStatsDb() {
+    EmoteStatsDb() {
         super();
     }
     
@@ -121,6 +123,26 @@ public class EmoteStatsDb extends CollectionBase {
         return 0;
     }
     
+    public Vector<EmoteItem> getTopMonthlyEmoteCounts(String prefix) {
+        Vector<EmoteItem> topEmotes = getEmoteItems(getMonthKeyValue(), prefix);
+        topEmotes.sort(new SortEmotesDescendingByCount());
+        return topEmotes;
+    }
+    
+    public Vector<EmoteItem> getTopMonthlyEmoteCounts() {
+        return getTopMonthlyEmoteCounts(null);
+    }
+    
+    public Vector<EmoteItem> getTopEmoteCounts(String prefix) {
+        Vector<EmoteItem> topEmotes = getEmoteItems(null, prefix);
+        topEmotes.sort(new SortEmotesDescendingByCount());
+        return topEmotes;
+    }
+    
+    public Vector<EmoteItem> getTopEmoteCounts() {
+        return getTopEmoteCounts(null);
+    }
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     private Document getEmoteById(String id) {
@@ -157,5 +179,43 @@ public class EmoteStatsDb extends CollectionBase {
         return new Document(MONTH_KEY, monthKeyValue)
                 .append(COUNT_KEY, 1)
                 .append(USERS_KEY, users);
+    }
+    
+    private Vector<EmoteItem> getEmoteItems(String monthKeyValue, String prefix) {
+        MongoCursor<Document> result = find().iterator();
+        Vector<EmoteItem> topEmotes = new Vector<>();
+    
+        while (result.hasNext()) {
+            Document emote = result.next();
+            if (prefix == null || emote.getString(EMOTE_PATTERN_KEY).startsWith(prefix)) {
+                List<Document> usageStatsList = emote.getList(USAGE_STATS_KEY, Document.class);
+                int count = 0;
+                int users = 0;
+                for (Document monthDoc : usageStatsList) {
+                    if (monthKeyValue == null || monthDoc.getString(MONTH_KEY).equals(monthKeyValue)) {
+                        count += monthDoc.getInteger(COUNT_KEY);
+                        users += monthDoc.getList(USERS_KEY, Long.class).size();
+                    }
+                }
+                topEmotes.add(new EmoteItem(emote.getString(EMOTE_PATTERN_KEY), count, users));
+            }
+        }
+        return topEmotes;
+    }
+    
+    private static class SortEmotesDescendingByCount implements Comparator<EmoteItem> {
+        
+        @Override
+        public int compare(EmoteItem o1, EmoteItem o2) {
+            return o2.getCount() - o1.getCount();
+        }
+    }
+    
+    private static class SortEmotesDescendingByUsers implements Comparator<EmoteItem> {
+        
+        @Override
+        public int compare(EmoteItem o1, EmoteItem o2) {
+            return o2.getUsers() - o1.getUsers();
+        }
     }
 }

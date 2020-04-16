@@ -83,7 +83,7 @@ public class SpeedrunApi {
         WIIU
     }
 
-    private static OkHttpClient client = new OkHttpClient();
+    private static final OkHttpClient client = new OkHttpClient();
     
     /**
      * Retrieves the current world records for the category specified. Game and
