@@ -1,11 +1,11 @@
 package APIs;
-
-import APIs.Leaderboard.Leaderboard;
-import APIs.Users.User;
-import com.google.gson.Gson;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.util.concurrent.TimeUnit;
 
@@ -44,6 +44,16 @@ public class SpeedrunApi {
     private static final String PLATFORM_PAPE_PLATFORM_N64 = "n64";
     private static final String PLATFORM_PAPE_PLATFORM_WII = "wiivc";
     private static final String PLATFORM_PAPE_PLATFORM_WII_U = "wiiuvc";
+    
+    private static final String DATA_KEY = "data";
+    private static final String RUNS_KEY = "runs";
+    private static final String RUN_KEY = "run";
+    private static final String TIMES_KEY = "times";
+    private static final String PRIMARY_T_KEY = "primary_t";
+    private static final String PLAYERS_KEY = "players";
+    private static final String ID_KEY = "id";
+    private static final String NAMES_KEY = "names";
+    private static final String INTERNATIONAL_KEY = "international";
 
     public enum Game {
         PAPER_MARIO,
@@ -93,18 +103,15 @@ public class SpeedrunApi {
      * @return formatted string containing WR(s)
      */
     public static String getWr(Game game, TtydCategory category) {
-        Gson gson = new Gson();
         String gameString = getGameUrlString(game);
         String categoryString = getCategoryUrlString(category);
     
-    
-        Leaderboard leaderboard = gson.fromJson(getWrJson(gameString, categoryString), Leaderboard.class);
-        String playerId = leaderboard.getData().getRuns().get(0).getRun().getPlayers().get(0).getId();
-    
-        long seconds = leaderboard.getData().getRuns().get(0).getRun().getTimes().getPrimaryT();
-        String time = getTimeString(seconds);
+        String json = getWrJson(gameString, categoryString);
+        String playerId = getPlayerIdFromJson(json);
+        long seconds = getRunTimeFromJson(json);
     
         String name = getUsernameFromId(playerId);
+        String time = getTimeString(seconds);
         return String.format("The TTYD %s WR is %s by %s", getCategoryString(category), time, name);
     }
     
@@ -116,30 +123,24 @@ public class SpeedrunApi {
      * @return formatted string containing WR(s)
      */
     public static String getWr(Game game, PapeCategory category) {
-        Gson gson = new Gson();
         String gameString = getGameUrlString(game);
         String categoryString = getCategoryUrlString(category);
-
-
-        Leaderboard allLeaderboard = gson.fromJson(getWrJson(gameString, categoryString), Leaderboard.class);
-        if (allLeaderboard == null) {
-            return "The src certificate is out of date. Tell JCog to fix it. :)";
-        }
-        String allPlayerId = allLeaderboard.getData().getRuns().get(0).getRun().getPlayers().get(0).getId();
-
-        long allSeconds = allLeaderboard.getData().getRuns().get(0).getRun().getTimes().getPrimaryT();
-        String allTime = getTimeString(allSeconds);
-
+        
+        String allJson = getWrJson(gameString, categoryString);
+        String allPlayerId = getPlayerIdFromJson(allJson);
+        long allSeconds = getRunTimeFromJson(allJson);
+        
         String allName = getUsernameFromId(allPlayerId);
-
-
+        String allTime = getTimeString(allSeconds);
+    
+    
         if (game.equals(Game.PAPER_MARIO)) {
             String n64 = getPapePlatformUrlString(PapePlatform.N64);
 
-            Leaderboard n64Leaderboard = gson.fromJson(getWrJson(gameString, categoryString, n64), Leaderboard.class);
-            String n64PlayerId = n64Leaderboard.getData().getRuns().get(0).getRun().getPlayers().get(0).getId();
+            String n64Json = getWrJson(gameString, categoryString, n64);
+            String n64PlayerId = getPlayerIdFromJson(n64Json);
 
-            long n64Seconds = n64Leaderboard.getData().getRuns().get(0).getRun().getTimes().getPrimaryT();
+            long n64Seconds = getRunTimeFromJson(n64Json);
             String n64Time = getTimeString(n64Seconds);
 
             String n64Name = getUsernameFromId(n64PlayerId);
@@ -151,13 +152,58 @@ public class SpeedrunApi {
             return String.format("The Paper Mario %s WR is %s by %s", getCategoryString(category), allTime, allName);
         }
     }
+    
+    private static String getPlayerIdFromJson(String json) {
+        JSONParser jsonParser = new JSONParser();
+        
+        JSONObject leaderboard;
+        try {
+            leaderboard = (JSONObject) jsonParser.parse(json);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return "";
+            //TODO: what
+        }
+        JSONObject data = (JSONObject) leaderboard.get(DATA_KEY);
+        JSONObject runs_first = (JSONObject) ((JSONArray) data.get(RUNS_KEY)).get(0);
+        JSONObject run = (JSONObject) runs_first.get(RUN_KEY);
+        JSONObject players_first = (JSONObject) ((JSONArray) run.get(PLAYERS_KEY)).get(0);
+        return players_first.get(ID_KEY).toString();
+    }
+    
+    private static long getRunTimeFromJson(String json) {
+        JSONParser jsonParser = new JSONParser();
+    
+        JSONObject leaderboard;
+        try {
+            leaderboard = (JSONObject) jsonParser.parse(json);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return 0;
+            //TODO: what
+        }
+        JSONObject data = (JSONObject) leaderboard.get(DATA_KEY);
+        JSONObject runs_first = (JSONObject) ((JSONArray) data.get(RUNS_KEY)).get(0);
+        JSONObject run = (JSONObject) runs_first.get(RUN_KEY);
+        JSONObject times = (JSONObject) run.get(TIMES_KEY);
+        return (long) times.get(PRIMARY_T_KEY);
+    }
 
     private static String getUsernameFromId(String id) {
-        Gson gson = new Gson();
+        JSONParser jsonParser = new JSONParser();
         String userJson = submitRequest(buildUserUrl(id));
-
-        User user = gson.fromJson(userJson, User.class);
-        return user.getData().getNames().getInternational();
+        
+        JSONObject user;
+        try {
+            user = (JSONObject) jsonParser.parse(userJson);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return "";
+            //TODO: what
+        }
+        JSONObject data = (JSONObject) user.get(DATA_KEY);
+        JSONObject names = (JSONObject) data.get(NAMES_KEY);
+        return names.get(INTERNATIONAL_KEY).toString();
     }
 
     private static String getTimeString(long seconds) {
