@@ -7,6 +7,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class SpeedrunApi {
@@ -54,6 +55,8 @@ public class SpeedrunApi {
     private static final String ID_KEY = "id";
     private static final String NAMES_KEY = "names";
     private static final String INTERNATIONAL_KEY = "international";
+    
+    private static final String ERROR_MESSAGE = "The SRC certificate has expired. Tell @JCog to fix it. :)";
 
     public enum Game {
         PAPER_MARIO,
@@ -107,6 +110,9 @@ public class SpeedrunApi {
         String categoryString = getCategoryUrlString(category);
     
         String json = getWrJson(gameString, categoryString);
+        if (json == null) {
+            return ERROR_MESSAGE;
+        }
         String playerId = getPlayerIdFromJson(json);
         long seconds = getRunTimeFromJson(json);
     
@@ -127,6 +133,9 @@ public class SpeedrunApi {
         String categoryString = getCategoryUrlString(category);
         
         String allJson = getWrJson(gameString, categoryString);
+        if (allJson == null) {
+            return ERROR_MESSAGE;
+        }
         String allPlayerId = getPlayerIdFromJson(allJson);
         long allSeconds = getRunTimeFromJson(allJson);
         
@@ -350,7 +359,7 @@ public class SpeedrunApi {
     }
 
     private static String getWrJson(String game, String category, String platform) {
-        String url = buildWrUrl(game, category,platform);
+        String url = buildWrUrl(game, category, platform);
         return submitRequest(url);
     }
     private static String getWrJson(String game, String category) {
@@ -365,8 +374,7 @@ public class SpeedrunApi {
         try (Response response = client.newCall(request).execute()) {
             return response.body().string();
         }
-        catch (Exception e) {
-            e.printStackTrace();
+        catch (IOException e) {
             return null;
         }
     }
