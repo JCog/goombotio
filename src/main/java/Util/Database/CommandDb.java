@@ -5,12 +5,9 @@ import com.gikk.twirk.enums.USER_TYPE;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
-import static com.mongodb.client.model.Filters.eq;
-
 public class CommandDb extends CollectionBase {
     
     private static final String COLLECTION_NAME = "commands";
-    private static final String ID_KEY = "_id";
     private static final String MESSAGE_KEY = "message";
     private static final String PERMISSION_KEY = "permission";
     
@@ -60,7 +57,7 @@ public class CommandDb extends CollectionBase {
         Document document = new Document(ID_KEY, id)
                 .append(MESSAGE_KEY, message)
                 .append(PERMISSION_KEY, permission.value);
-        updateOne(eq(ID_KEY, id), new Document("$set", document));
+        updateOne(id, document);
         return String.format(
                 "Successfully edited command message for \"%s\" and set permission to \"%s\".",
                 id,
@@ -80,7 +77,7 @@ public class CommandDb extends CollectionBase {
     
         Document document = new Document(ID_KEY, id)
                 .append(MESSAGE_KEY, message);
-        updateOne(eq(ID_KEY, id), new Document("$set", document));
+        updateOne(id, document);
         return String.format("Successfully edited command message for \"%s\".", id);
     }
     
@@ -91,7 +88,7 @@ public class CommandDb extends CollectionBase {
         
         Document document = new Document(ID_KEY, id)
                 .append(PERMISSION_KEY, permission.value);
-        updateOne(eq(ID_KEY, id), new Document("$set", document));
+        updateOne(id, document);
         return String.format("Successfully edited command permission for \"%s\".", id);
     }
     
@@ -102,7 +99,7 @@ public class CommandDb extends CollectionBase {
         
         Document document = new Document(ID_KEY, id)
                 .append(PERMISSION_KEY, getPermission(permission).value);
-        updateOne(eq(ID_KEY, id), new Document("$set", document));
+        updateOne(id, document);
         return String.format("Successfully edited command permission for \"%s\" to %s.", id, permission);
     }
     
@@ -110,7 +107,7 @@ public class CommandDb extends CollectionBase {
         if (getCommand(id) == null) {
             return "ERROR: Message ID doesn't exist.";
         }
-        deleteOne(eq(ID_KEY, id));
+        deleteOne(id);
         return String.format("Successfully deleted command \"%s\".", id);
     }
     
@@ -127,7 +124,7 @@ public class CommandDb extends CollectionBase {
     }
     
     private Document getCommand(String id) {
-        return find(eq(ID_KEY, id)).first();
+        return findFirstEquals(ID_KEY, id);
     }
     
     private USER_TYPE getPermission(String permission) {

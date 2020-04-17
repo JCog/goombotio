@@ -8,12 +8,9 @@ import org.bson.Document;
 
 import java.util.*;
 
-import static com.mongodb.client.model.Filters.eq;
-
 public class EmoteStatsDb extends CollectionBase {
     
     private static final String COLLECTION_NAME_KEY = "emotestats";
-    private static final String ID_KEY = "_id";
     private static final String EMOTE_PATTERN_KEY = "emote_pattern";
     private static final String MONTH_KEY = "month";
     private static final String USAGE_STATS_KEY = "usage_stats";
@@ -61,7 +58,7 @@ public class EmoteStatsDb extends CollectionBase {
                 Document usageStatsDocument = generateNewUsageStats(userId, monthKeyValue);
                 usageStatsList.add(usageStatsDocument);
                 
-                updateOne(eq(ID_KEY, emoteId), new Document("$set", new Document(USAGE_STATS_KEY, usageStatsList)));
+                updateOne(emoteId, new Document(USAGE_STATS_KEY, usageStatsList));
             }
             else {
                 Document newCurrentMonthStats = new Document(currentMonthStats);
@@ -76,7 +73,7 @@ public class EmoteStatsDb extends CollectionBase {
                 }
                 
                 usageStatsList.add(newCurrentMonthStats);
-                updateOne(eq(ID_KEY, emoteId), new Document("$set", new Document(USAGE_STATS_KEY, usageStatsList)));
+                updateOne(emoteId, new Document(USAGE_STATS_KEY, usageStatsList));
             }
             
         }
@@ -146,11 +143,11 @@ public class EmoteStatsDb extends CollectionBase {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     private Document getEmoteById(String id) {
-        return find(eq(ID_KEY, id)).first();
+        return findFirstEquals(ID_KEY, id);
     }
     
     private Document getEmoteByPattern(String pattern) {
-        return find(eq(EMOTE_PATTERN_KEY, pattern)).first();
+        return findFirstEquals(EMOTE_PATTERN_KEY, pattern);
     }
     
     private String getMonthKeyValue() {
@@ -182,7 +179,7 @@ public class EmoteStatsDb extends CollectionBase {
     }
     
     private Vector<EmoteItem> getEmoteItems(String monthKeyValue, String prefix) {
-        MongoCursor<Document> result = find().iterator();
+        MongoCursor<Document> result = findAll().iterator();
         Vector<EmoteItem> topEmotes = new Vector<>();
     
         while (result.hasNext()) {

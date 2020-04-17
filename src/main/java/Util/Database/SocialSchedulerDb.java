@@ -6,12 +6,9 @@ import org.bson.Document;
 
 import java.util.ArrayList;
 
-import static com.mongodb.client.model.Filters.eq;
-
 public class SocialSchedulerDb extends CollectionBase {
     
     private static final String COLLECTION_NAME = "socialscheduler";
-    private static final String ID_KEY = "_id";
     private static final String MESSAGE_KEY = "message";
     
     private static SocialSchedulerDb instance = null;
@@ -50,7 +47,7 @@ public class SocialSchedulerDb extends CollectionBase {
     
         Document document = new Document(ID_KEY, id)
                 .append(MESSAGE_KEY, message);
-        updateOne(eq(ID_KEY, id), new Document("$set", document));
+        updateOne(id, document);
         return String.format("Successfully edited scheduled message \"%s\".", id);
     }
     
@@ -58,12 +55,12 @@ public class SocialSchedulerDb extends CollectionBase {
         if (getMessage(id) == null) {
             return "ERROR: Message ID doesn't exist.";
         }
-        deleteOne(eq(ID_KEY, id));
+        deleteOne(id);
         return String.format("Successfully deleted scheduled message \"%s\".", id);
     }
     
     public String getMessage(String id) {
-        Document result = find(eq(ID_KEY, id)).first();
+        Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return result.getString(MESSAGE_KEY);
         }
@@ -71,7 +68,7 @@ public class SocialSchedulerDb extends CollectionBase {
     }
     
     public ArrayList<String> getAllMessages() {
-        MongoCursor<Document> result = find().iterator();
+        MongoCursor<Document> result = findAll().iterator();
         ArrayList<String> messages = new ArrayList<>();
         
         while (result.hasNext()) {

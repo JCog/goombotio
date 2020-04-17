@@ -5,12 +5,9 @@ import org.bson.Document;
 
 import java.util.*;
 
-import static com.mongodb.client.model.Filters.eq;
-
 public class StreamStatsDb extends CollectionBase {
     
     private static final String COLLECTION_NAME = "streamstats";
-    private static final String ID_KEY = "_id";
     private static final String START_KEY = "start_time";
     private static final String END_KEY = "end_time";
     private static final String VIEW_COUNTS_KEY = "view_counts";
@@ -73,21 +70,21 @@ public class StreamStatsDb extends CollectionBase {
         document.append(USER_LIST_KEY, userList);
         
         //add stream
-        Document stream = find(eq(ID_KEY, streamKey)).first();
+        Document stream = findFirstEquals(ID_KEY, streamKey);
         if (stream == null) {
             insertOne(document);
         }
         else {
-            updateOne(eq(ID_KEY, streamKey), new Document("$set", document));
+            updateOne(streamKey, document);
         }
         
         //update newest stream key
-        Document key = find(eq(ID_KEY, NEWEST_ID)).first();
+        Document key = findFirstEquals(ID_KEY, NEWEST_ID);
         if (key == null) {
             insertOne(new Document(ID_KEY, NEWEST_ID).append(NEWEST_KEY, streamKey));
         }
         else {
-            updateOne(eq(ID_KEY, NEWEST_ID), new Document("$set", new Document(NEWEST_KEY, streamKey)));
+            updateOne(NEWEST_ID, new Document(NEWEST_KEY, streamKey));
         }
     }
     
@@ -97,7 +94,7 @@ public class StreamStatsDb extends CollectionBase {
      */
     public Date getStreamStartTime() {
         String streamKey = getNewestStreamKey();
-        Document result = find(eq(ID_KEY, streamKey)).first();
+        Document result = findFirstEquals(ID_KEY, streamKey);
         
         if (result != null) {
             return result.getDate(START_KEY);
@@ -112,7 +109,7 @@ public class StreamStatsDb extends CollectionBase {
      */
     public Date getStreamEndTime() {
         String streamKey = getNewestStreamKey();
-        Document result = find(eq(ID_KEY, streamKey)).first();
+        Document result = findFirstEquals(ID_KEY, streamKey);
         
         if (result != null) {
             return result.getDate(END_KEY);
@@ -126,7 +123,7 @@ public class StreamStatsDb extends CollectionBase {
      */
     public HashMap<String, Integer> getUserMinutesList() {
         String streamKey = getNewestStreamKey();
-        List<Document> userListDocs = find(eq(ID_KEY, streamKey)).first().getList(USER_LIST_KEY, Document.class);
+        List<Document> userListDocs = findFirstEquals(ID_KEY, streamKey).getList(USER_LIST_KEY, Document.class);
         HashMap<String, Integer> userListMap = new HashMap<>();
         
         for(Document userDoc : userListDocs) {
@@ -144,7 +141,7 @@ public class StreamStatsDb extends CollectionBase {
      */
     public List<String> getNewUserList() {
         String streamKey = getNewestStreamKey();
-        List<Document> userListDocs = find(eq(ID_KEY, streamKey)).first().getList(USER_LIST_KEY, Document.class);
+        List<Document> userListDocs = findFirstEquals(ID_KEY, streamKey).getList(USER_LIST_KEY, Document.class);
         List<String> userListOut = new ArrayList<>();
         
         for(Document userDoc : userListDocs) {
@@ -164,7 +161,7 @@ public class StreamStatsDb extends CollectionBase {
      */
     public List<String> getReturningUserList() {
         String streamKey = getNewestStreamKey();
-        List<Document> userListDocs = find(eq(ID_KEY, streamKey)).first().getList(USER_LIST_KEY, Document.class);
+        List<Document> userListDocs = findFirstEquals(ID_KEY, streamKey).getList(USER_LIST_KEY, Document.class);
         List<String> userListOut = new ArrayList<>();
         
         for(Document userDoc : userListDocs) {
@@ -184,7 +181,7 @@ public class StreamStatsDb extends CollectionBase {
      */
     public List<String> getUserList() {
         String streamKey = getNewestStreamKey();
-        List<Document> userListDocs = find(eq(ID_KEY, streamKey)).first().getList(USER_LIST_KEY, Document.class);
+        List<Document> userListDocs = findFirstEquals(ID_KEY, streamKey).getList(USER_LIST_KEY, Document.class);
         List<String> userListOut = new ArrayList<>();
         
         for(Document userDoc : userListDocs) {
@@ -202,11 +199,11 @@ public class StreamStatsDb extends CollectionBase {
      */
     public List<Integer> getViewerCounts() {
         String streamKey = getNewestStreamKey();
-        return find(eq(ID_KEY, streamKey)).first().getList(VIEW_COUNTS_KEY, Integer.class);
+        return findFirstEquals(ID_KEY, streamKey).getList(VIEW_COUNTS_KEY, Integer.class);
     }
     
     private String getNewestStreamKey() {
-        Document result = find(eq(ID_KEY, NEWEST_ID)).first();
+        Document result = findFirstEquals(ID_KEY, NEWEST_ID);
         if (result != null) {
             return result.getString(NEWEST_KEY);
         }

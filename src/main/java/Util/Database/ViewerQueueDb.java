@@ -4,12 +4,9 @@ import Util.Database.Entries.ViewerQueueEntry;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
-import static com.mongodb.client.model.Filters.eq;
-
 public class ViewerQueueDb extends CollectionBase {
     
     private static final String COLLECTION_NAME_KEY = "viewerqueue";
-    private static final String ID_KEY = "_id";
     private static final String TOTAL_SESSIONS_KEY = "totalSessions";
     private static final String ATTEMPTS_SINCE_LAST_SESSION_KEY = "attemptsSinceLastSession";
     private static final String LAST_SESSION_ID_KEY = "lastSessionId";
@@ -23,7 +20,7 @@ public class ViewerQueueDb extends CollectionBase {
     private ViewerQueueDb() {
         super();
         sessionId = -1;
-        Document result = find(eq(ID_KEY, SESSION)).first();
+        Document result = findFirstEquals(ID_KEY, SESSION);
         if (result != null) {
             sessionId = result.getInteger(SESSION_ID_KEY);
         }
@@ -38,7 +35,7 @@ public class ViewerQueueDb extends CollectionBase {
     
     public void incrementSessionId() {
         sessionId++;
-        updateOne(eq(ID_KEY, SESSION), new Document("$set", new Document(SESSION_ID_KEY, sessionId)));
+        updateOne(SESSION, new Document(SESSION_ID_KEY, sessionId));
     }
     
     @Override
@@ -47,7 +44,7 @@ public class ViewerQueueDb extends CollectionBase {
     }
     
     public void setUserJoined(long userId) {
-        Document result = find(eq(ID_KEY, userId)).first();
+        Document result = findFirstEquals(ID_KEY, userId);
         
         if (result == null) {
             Document document = new Document(ID_KEY, userId)
@@ -58,14 +55,14 @@ public class ViewerQueueDb extends CollectionBase {
         }
         else {
             int newTotalSessions = result.getInteger(TOTAL_SESSIONS_KEY) + 1;
-            updateOne(eq(ID_KEY, userId), new Document("$set", new Document(TOTAL_SESSIONS_KEY, newTotalSessions)));
-            updateOne(eq(ID_KEY, userId), new Document("$set", new Document(ATTEMPTS_SINCE_LAST_SESSION_KEY, 0)));
-            updateOne(eq(ID_KEY, userId), new Document("$set", new Document(LAST_SESSION_ID_KEY, sessionId)));
+            updateOne(userId, new Document(TOTAL_SESSIONS_KEY, newTotalSessions));
+            updateOne(userId, new Document(ATTEMPTS_SINCE_LAST_SESSION_KEY, 0));
+            updateOne(userId, new Document(LAST_SESSION_ID_KEY, sessionId));
         }
     }
     
     public void setUserAttempted(long userId) {
-        Document result = find(eq(ID_KEY, userId)).first();
+        Document result = findFirstEquals(ID_KEY, userId);
     
         if (result == null) {
             Document document = new Document(ID_KEY, userId)
@@ -76,12 +73,12 @@ public class ViewerQueueDb extends CollectionBase {
         }
         else {
             int newAttempts = result.getInteger(ATTEMPTS_SINCE_LAST_SESSION_KEY) + 1;
-            updateOne(eq(ID_KEY, userId), new Document("$set", new Document(ATTEMPTS_SINCE_LAST_SESSION_KEY, newAttempts)));
+            updateOne(userId, new Document(ATTEMPTS_SINCE_LAST_SESSION_KEY, newAttempts));
         }
     }
     
     public ViewerQueueEntry getUser(long userId) {
-        Document result = find(eq(ID_KEY, userId)).first();
+        Document result = findFirstEquals(ID_KEY, userId);
         
         if (result == null) {
             Document document = new Document(ID_KEY, userId)

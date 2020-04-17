@@ -8,13 +8,9 @@ import org.bson.Document;
 
 import java.util.*;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.exists;
-
 public class WatchTimeDb extends CollectionBase {
     
     private static final String COLLECTION_NAME = "watchtime";
-    private static final String ID_KEY = "_id";
     private static final String MINUTES_KEY = "minutes";
     private static final String NAME_KEY = "name";
     private static final String FIRST_SEEN_KEY = "first_seen";
@@ -49,7 +45,7 @@ public class WatchTimeDb extends CollectionBase {
                     id, name, minutes));
             return;
         }
-        Document result = find(eq(ID_KEY, idLong)).first();
+        Document result = findFirstEquals(ID_KEY, idLong);
         String monthlyMinutesKey = getMonthlyMinutesKey();
 
         if (result == null) {
@@ -72,17 +68,17 @@ public class WatchTimeDb extends CollectionBase {
             }
             newMonthlyMinutes += minutes;
     
-            updateOne(eq(ID_KEY, idLong), new Document("$set", new Document(NAME_KEY, name)));
-            updateOne(eq(ID_KEY, idLong), new Document("$set", new Document(MINUTES_KEY, newMinutes)));
-            updateOne(eq(ID_KEY, idLong), new Document("$set", new Document(monthlyMinutesKey, newMonthlyMinutes)));
-            updateOne(eq(ID_KEY, idLong), new Document("$set", new Document(LAST_SEEN_KEY, getDate())));
+            updateOne(idLong, new Document(NAME_KEY, name));
+            updateOne(idLong, new Document(MINUTES_KEY, newMinutes));
+            updateOne(idLong, new Document(monthlyMinutesKey, newMonthlyMinutes));
+            updateOne(idLong, new Document(LAST_SEEN_KEY, getDate()));
         }
     }
     
     public int getMinutes(TwitchUser user) {
         long id = user.getUserID();
         
-        Document result = find(eq(ID_KEY, id)).first();
+        Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return result.getInteger(MINUTES_KEY);
         }
@@ -90,7 +86,7 @@ public class WatchTimeDb extends CollectionBase {
     }
     
     public int getMinutes(String username) {
-        Document result = find(eq(NAME_KEY, username.toLowerCase())).first();
+        Document result = findFirstEquals(NAME_KEY, username.toLowerCase());
         if (result != null) {
             return result.getInteger(MINUTES_KEY);
         }
@@ -100,7 +96,7 @@ public class WatchTimeDb extends CollectionBase {
     public Date getFirstSeen(String username) {
         String userLower = username.toLowerCase();
         
-        Document result = find(eq(NAME_KEY, userLower)).first();
+        Document result = findFirstEquals(NAME_KEY, userLower);
         if (result != null) {
             return result.getDate(FIRST_SEEN_KEY);
         }
@@ -108,7 +104,7 @@ public class WatchTimeDb extends CollectionBase {
     }
     
     public Date getFirstSeen(long userId) {
-        Document result = find(eq(ID_KEY, userId)).first();
+        Document result = findFirstEquals(ID_KEY, userId);
         if (result != null) {
             return result.getDate(FIRST_SEEN_KEY);
         }
@@ -118,7 +114,7 @@ public class WatchTimeDb extends CollectionBase {
     public Date getLastSeen(String username) {
         String userLower = username.toLowerCase();
         
-        Document result = find(eq(NAME_KEY, userLower)).first();
+        Document result = findFirstEquals(NAME_KEY, userLower);
         if (result != null) {
             return result.getDate(LAST_SEEN_KEY);
         }
@@ -126,7 +122,7 @@ public class WatchTimeDb extends CollectionBase {
     }
 
     public ArrayList<Map.Entry<String, Integer>> getTopUsers() {
-        MongoCursor<Document> result = find().sort(Sorts.descending(MINUTES_KEY)).iterator();
+        MongoCursor<Document> result = findAll().sort(Sorts.descending(MINUTES_KEY)).iterator();
         ArrayList<Map.Entry<String, Integer>> topUsers = new ArrayList<>();
 
         while (result.hasNext()) {
@@ -147,7 +143,8 @@ public class WatchTimeDb extends CollectionBase {
 
     public Vector<String> getTopMonthlyUsers(int year, int month) {
         String monthlyMinutesKey = getMonthlyMinutesKey(year, month);
-        MongoCursor<Document> result = find(exists(monthlyMinutesKey)).sort(Sorts.descending(monthlyMinutesKey)).iterator();
+        MongoCursor<Document> result = findContainsKey(monthlyMinutesKey)
+                .sort(Sorts.descending(monthlyMinutesKey)).iterator();
         Vector<String> topUsers = new Vector<>();
 
         while (result.hasNext()) {
@@ -167,7 +164,7 @@ public class WatchTimeDb extends CollectionBase {
         int minutes = 0;
         String monthlyMinutesKey = getMonthlyMinutesKey(year, month);
     
-        for (Document document : find(exists(monthlyMinutesKey))) {
+        for (Document document : findContainsKey(monthlyMinutesKey)) {
             minutes += document.getInteger(monthlyMinutesKey);
         }
         return minutes;
@@ -176,7 +173,7 @@ public class WatchTimeDb extends CollectionBase {
     public Vector<String> getMatchingUsers(String search) {
         Vector<String> result = new Vector<>();
     
-        for (Document document : find()) {
+        for (Document document : findAll()) {
             String name = document.getString(NAME_KEY);
             if (name.contains(search)) {
                 result.add(name);

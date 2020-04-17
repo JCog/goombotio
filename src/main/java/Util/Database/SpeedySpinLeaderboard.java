@@ -10,13 +10,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.mongodb.client.model.Filters.eq;
 import static java.lang.System.out;
 
 public class SpeedySpinLeaderboard extends CollectionBase{
 
     private static final String COLLECTION_NAME = "speedyspin";
-    private static final String ID_KEY = "_id";
     private static final String NAME_KEY = "name";
     private static final String POINTS_KEY = "points";
     private static final String WINS_KEY = "wins";
@@ -49,7 +47,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
         long id = user.getUserID();
         String name = user.getDisplayName();
 
-        Document result = find(eq(ID_KEY, id)).first();
+        Document result = findFirstEquals(ID_KEY, id);
 
         if (result == null) {
             Document document = new Document(ID_KEY, id)
@@ -70,9 +68,9 @@ public class SpeedySpinLeaderboard extends CollectionBase{
             }
             newMonthlyPoints += points;
     
-            updateOne(eq(ID_KEY, id), new Document("$set", new Document(NAME_KEY, name)));
-            updateOne(eq(ID_KEY, id), new Document("$set", new Document(POINTS_KEY, newPoints)));
-            updateOne(eq(ID_KEY, id), new Document("$set", new Document(monthlyPointsKey, newMonthlyPoints)));
+            updateOne(id, new Document(NAME_KEY, name));
+            updateOne(id, new Document(POINTS_KEY, newPoints));
+            updateOne(id, new Document(monthlyPointsKey, newMonthlyPoints));
         }
     }
 
@@ -81,7 +79,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
         long id = user.getUserID();
         String name = user.getDisplayName();
 
-        Document result = find(eq(ID_KEY, id)).first();
+        Document result = findFirstEquals(ID_KEY, id);
 
         if (result == null) {
             Document document = new Document(ID_KEY, id)
@@ -93,14 +91,14 @@ public class SpeedySpinLeaderboard extends CollectionBase{
         }
         else {
             int newWins = (int)result.get(WINS_KEY) + wins;
-            updateOne(eq(ID_KEY, id), new Document("$set", new Document(WINS_KEY, newWins)));
+            updateOne(id, new Document(WINS_KEY, newWins));
         }
     }
 
     public int getPoints(TwitchUser user) {
         long id = user.getUserID();
 
-        Document result = find(eq(ID_KEY, id)).first();
+        Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return (int)result.get(POINTS_KEY);
         }
@@ -118,7 +116,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     }
 
     public int getPoints(long id) {
-        Document result = find(eq(ID_KEY, id)).first();
+        Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return (int)result.get(POINTS_KEY);
         }
@@ -128,7 +126,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     public int getMonthlyPoints(TwitchUser user) {
         long id = user.getUserID();
 
-        Document result = find(eq(ID_KEY, id)).first();
+        Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             Object monthlyPoints = result.get(getMonthlyPointsKey());
             if (monthlyPoints != null) {
@@ -139,7 +137,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     }
 
     public int getMonthlyPoints(long id) {
-        Document result = find(eq(ID_KEY, id)).first();
+        Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             Object monthlyPoints = result.get(getMonthlyPointsKey());
             if (monthlyPoints != null) {
@@ -152,7 +150,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     public int getWins(TwitchUser user) {
         long id = user.getUserID();
 
-        Document result = find(eq(ID_KEY, id)).first();
+        Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return (int)result.get(WINS_KEY);
         }
@@ -160,7 +158,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     }
     
     public int getWins(long id) {
-        Document result = find(eq(ID_KEY, id)).first();
+        Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return (int)result.get(WINS_KEY);
         }
@@ -168,7 +166,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     }
 
     public String getUsername(long id) {
-        Document result = find(eq(ID_KEY, id)).first();
+        Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return (String)result.get(NAME_KEY);
         }
@@ -183,7 +181,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     public ArrayList<Long> getTopMonthlyScorers() {
         ArrayList<Long> topMonthlyScorers = new ArrayList<>();
     
-        for (Document next : find().sort(Sorts.descending(getMonthlyPointsKey()))) {
+        for (Document next : findAll().sort(Sorts.descending(getMonthlyPointsKey()))) {
             if (next.get(getMonthlyPointsKey()) == null) {
                 break;
             } else {
@@ -198,7 +196,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     public ArrayList<Long> getTopThreeScorers() {
         ArrayList<Long> topScorers = new ArrayList<>();
         
-        MongoCursor<Document> result = find().sort(Sorts.descending(POINTS_KEY)).iterator();
+        MongoCursor<Document> result = findAll().sort(Sorts.descending(POINTS_KEY)).iterator();
         while (result.hasNext() && topScorers.size() < 3) {
             Document next = result.next();
             if (next.get(POINTS_KEY) == null) {
@@ -216,7 +214,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     public ArrayList<Long> getTopScorers() {
         ArrayList<Long> topScorers = new ArrayList<>();
     
-        for (Document next : find().sort(Sorts.descending(POINTS_KEY))) {
+        for (Document next : findAll().sort(Sorts.descending(POINTS_KEY))) {
             if (next.get(POINTS_KEY) == null) {
                 break;
             } else {
@@ -231,7 +229,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     public ArrayList<Long> getTopWinners() {
         ArrayList<Long> topScorers = new ArrayList<>();
     
-        for (Document next : find().sort(Sorts.descending(WINS_KEY))) {
+        for (Document next : findAll().sort(Sorts.descending(WINS_KEY))) {
             if (next.get(WINS_KEY) == null) {
                 break;
             } else {
@@ -243,7 +241,7 @@ public class SpeedySpinLeaderboard extends CollectionBase{
     }
 
     public void logPreviousTopMonthlyScorers() {
-        MongoCursor<Document> result = find().sort(Sorts.descending(getPrevMonthlyPointsKey())).iterator();
+        MongoCursor<Document> result = findAll().sort(Sorts.descending(getPrevMonthlyPointsKey())).iterator();
         int index = 1;
         out.println("Last Month's Top Scorers:");
         while (result.hasNext() && index < 21) {
