@@ -171,7 +171,6 @@ public class SpeedrunApi {
         } catch (ParseException e) {
             e.printStackTrace();
             return "";
-            //TODO: what
         }
         JSONObject data = (JSONObject) leaderboard.get(DATA_KEY);
         JSONObject runs_first = (JSONObject) ((JSONArray) data.get(RUNS_KEY)).get(0);
@@ -189,7 +188,6 @@ public class SpeedrunApi {
         } catch (ParseException e) {
             e.printStackTrace();
             return 0;
-            //TODO: what
         }
         JSONObject data = (JSONObject) leaderboard.get(DATA_KEY);
         JSONObject runs_first = (JSONObject) ((JSONArray) data.get(RUNS_KEY)).get(0);
@@ -208,7 +206,6 @@ public class SpeedrunApi {
         } catch (ParseException e) {
             e.printStackTrace();
             return "";
-            //TODO: what
         }
         JSONObject data = (JSONObject) user.get(DATA_KEY);
         JSONObject names = (JSONObject) data.get(NAMES_KEY);
