@@ -54,7 +54,6 @@ public abstract class CommandBase implements TwirkListener {
         char firstChar = content.charAt(0);
 
         if( !coolingDown && sender.getUserType().value >= minPrivilege.value ) {
-            //TODO: make this a switch statement
             switch (commandType) {
                 case PREFIX_COMMAND:
                     for (String pattern : commandPattern) {
