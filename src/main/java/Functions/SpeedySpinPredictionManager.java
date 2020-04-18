@@ -35,7 +35,8 @@ public class SpeedySpinPredictionManager {
         SPOODLY_SPUN
     }
 
-    private HashMap<TwitchUser, ArrayList<Badge>> predictionList;
+    private final HashMap<TwitchUser, ArrayList<Badge>> predictionList;
+    
     private boolean enabled;
     private boolean waitingForAnswer;
     
@@ -83,12 +84,10 @@ public class SpeedySpinPredictionManager {
     
     
     /**
-     * Starts the listener for the game, sets the game to an enabled state, and sends a message to the chat to tell
-     * users to begin submitting predictions.
+     * Sets the game to an enabled state and sends a message to the chat to tell users to begin submitting predictions.
      */
     public void start() {
         enabled = true;
-        twirk.addIrcListener(sspListener = new SpeedySpinPredictionListener(this));
         twirk.channelMessage("/me Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 " +
                 "BadSpin3 or SpoodlySpun (or a message with 3 digits from 1 to 4) to guess the order the badges will " +
                 "show up in the badge shop! If you get all three right and don't have a sub, you'll win one! Type " +
@@ -96,12 +95,11 @@ public class SpeedySpinPredictionManager {
     }
     
     /**
-     * Removes the listener for the game, sets the game to a state where it's waiting for the correct answer, and sends
-     * a message to the chat to let them know to stop submitting predictions.
+     * Sets the game to a state where it's waiting for the correct answer and sends a message to the chat to let them
+     * know to stop submitting predictions.
      */
     public void stop() {
         waitingForAnswer = true;
-        twirk.removeIrcListener(sspListener);
         twirk.channelMessage("/me Predictions are up! Let's see how everyone did...");
     }
     

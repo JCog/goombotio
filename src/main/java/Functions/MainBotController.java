@@ -110,13 +110,18 @@ public class MainBotController {
     }
     
     private void addAllListeners() {
+        //setup
+        SpeedySpinPredictionListener guessListener = new SpeedySpinPredictionListener();
+        
+        //connection handling
         addTwirkListener(getOnDisconnectListener(twirk));
         
         // Command Listeners
         addTwirkListener(new GenericCommandListener(twirk));
         addTwirkListener(new GoombotioCommandsListener(twirk));
         //addTwirkListener(new ModListener(twirk));
-        addTwirkListener(new SpeedySpinGameListener(twirk));
+        addTwirkListener(guessListener);
+        addTwirkListener(new SpeedySpinGameListener(twirk, guessListener));
         addTwirkListener(new SpeedySpinLeaderboardListener(twirk));
         addTwirkListener(new WatchTimeListener(twirk));
         addTwirkListener(new WrListener(twirk, streamInfo));

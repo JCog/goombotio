@@ -14,12 +14,14 @@ public class SpeedySpinGameListener extends CommandBase {
     private final static String PATTERN = "!preds";
     
     private final TwirkInterface twirk;
+    private final SpeedySpinPredictionListener guessListener;
     
     private SpeedySpinPredictionManager game;
 
-    public SpeedySpinGameListener(TwirkInterface twirk) {
+    public SpeedySpinGameListener(TwirkInterface twirk, SpeedySpinPredictionListener guessListener) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
+        this.guessListener = guessListener;
         game = new SpeedySpinPredictionManager(twirk);
     }
 
@@ -54,11 +56,13 @@ public class SpeedySpinGameListener extends CommandBase {
             }
             else {
                 out.println("Ending the prediction game...");
+                guessListener.stop();
                 game.stop();
             }
         }
         else {
             game = new SpeedySpinPredictionManager(twirk);
+            guessListener.start(game);
             out.println("Starting the prediction game...");
             game.start();
         }
