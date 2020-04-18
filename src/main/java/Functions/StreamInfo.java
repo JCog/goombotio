@@ -14,16 +14,16 @@ public class StreamInfo {
     
     private static final int timerInterval = 60*1000;
     
-    private String streamer;
-    private TwitchClient twitchClient;
-    private String authToken;
+    private final String streamer;
+    private final TwitchClient twitchClient;
+    private final String authToken;
+    private final Timer timer = new Timer();
+    private final ArrayList<Integer> viewerCounts = new ArrayList<>();
 
     private Stream streamStats = null;
-    private Timer timer = new Timer();
-    private boolean isLive = false;
     private Date startTime = null;
     private Date endTime = null;
-    private ArrayList<Integer> viewerCounts = new ArrayList<>();
+    private boolean isLive = false;
     
     
     /**
@@ -168,9 +168,18 @@ public class StreamInfo {
     }
 
     private void updateStreamStats() {
-        StreamList resultList = twitchClient.getHelix().getStreams(authToken, "", "", 1,
-                null, null, null, null,
-                Collections.singletonList(streamer)).execute();
+        StreamList resultList;
+        try {
+            resultList = twitchClient.getHelix().getStreams(authToken, "", "", 1,
+                    null, null, null, null,
+                    Collections.singletonList(streamer)).execute();
+        }
+        catch (Exception e) {
+            streamStats = null;
+            updateLiveStatus(false);
+            return;
+        }
+        
         if (resultList.getStreams().isEmpty()) {
             streamStats = null;
             updateLiveStatus(false);
