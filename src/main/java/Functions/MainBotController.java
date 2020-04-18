@@ -67,25 +67,8 @@ public class MainBotController {
         
         String line;
         Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-        TwirkListener viewerQueueListener = new ViewerQueueListener(vqm);
         while( !(line = scanner.nextLine()).matches(".quit") ) {
-            if (line.startsWith(".startqueue")) {
-                String[] lineSplit = line.split(" ");
-                int requestedCount = Integer.parseInt(lineSplit[1]);
-                String message = line.substring(lineSplit[0].length() + lineSplit[1].length() + 2);
-                vqm.startNewSession(requestedCount, message);
-                addTwirkListener(viewerQueueListener);
-            }
-            else if (line.equals(".endqueue")) {
-                removeTwirkListener(viewerQueueListener);
-                vqm.closeCurrentSession();
-            }
-            else if (line.equals(".next")) {
-                vqm.getNext();
-            }
-            else {
-                twirk.channelMessage(line);
-            }
+            twirk.channelMessage(line);
         }
         scanner.close();
     }
@@ -107,6 +90,7 @@ public class MainBotController {
     private void addAllListeners() {
         //setup
         SpeedySpinPredictionListener guessListener = new SpeedySpinPredictionListener();
+        ViewerQueueJoinListener queueJoinListener = new ViewerQueueJoinListener(vqm);
         
         //connection handling
         addTwirkListener(getOnDisconnectListener(twirk));
@@ -118,6 +102,8 @@ public class MainBotController {
         addTwirkListener(guessListener);
         addTwirkListener(new SpeedySpinGameListener(twirk, guessListener));
         addTwirkListener(new SpeedySpinLeaderboardListener(twirk));
+        addTwirkListener(queueJoinListener);
+        addTwirkListener(new ViewerQueueManageListener(vqm, queueJoinListener));
         addTwirkListener(new WatchTimeListener(twirk));
         addTwirkListener(new WrListener(twirk, streamInfo));
     
@@ -125,8 +111,8 @@ public class MainBotController {
         addTwirkListener(new CloudListener(twirk));
         addTwirkListener(new EmoteListener());
         addTwirkListener(new PyramidListener(twirk));
-        addTwirkListener(new SubListener(twirk));
         addTwirkListener(socialScheduler.getListener());
+        addTwirkListener(new SubListener(twirk));
     }
     
     private void addTwirkListener(TwirkListener listener) {
