@@ -9,16 +9,18 @@ import Util.Database.GoombotioDb;
 import Util.Database.SpeedySpinLeaderboard;
 import Util.ReportBuilder;
 import Util.StreamStatsInterface;
-import com.gikk.twirk.Twirk;
-import com.gikk.twirk.TwirkBuilder;
+import Util.TwirkInterface;
 import com.gikk.twirk.events.TwirkListener;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+
+import static java.lang.System.out;
 
 public class MainBotController {
     private static final boolean VERBOSE_MODE = false;
@@ -26,7 +28,7 @@ public class MainBotController {
     
     private static MainBotController instance = null;
     
-    private final Twirk twirk;
+    private final TwirkInterface twirk;
     private final TwitchClient twitchClient;
     private final StreamInfo streamInfo;
     private final StatsTracker statsTracker;
@@ -35,10 +37,8 @@ public class MainBotController {
     private final DiscordBotController dbc;
     private final ViewerQueueManager vqm;
     
-    private MainBotController(String stream, String authToken, String discordToken, String channel, String nick, String oauth) throws IOException {
-        this.twirk = new TwirkBuilder(channel, nick, oauth)
-                .setVerboseMode(VERBOSE_MODE)
-                .build();
+    private MainBotController(String stream, String authToken, String discordToken, String channel, String nick, String oauth) {
+        this.twirk = new TwirkInterface(channel, nick, oauth, VERBOSE_MODE);
         this.twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
         streamInfo = new StreamInfo(stream, twitchClient, authToken);
         statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, stream, authToken, 60*1000);
@@ -49,14 +49,14 @@ public class MainBotController {
         dbc.init(discordToken);
     }
     
-    public static MainBotController getInstance(String stream, String authToken, String discordToken, String channel, String nick, String oauth) throws IOException {
+    public static MainBotController getInstance(String stream, String authToken, String discordToken, String channel, String nick, String oauth) {
         if (instance == null) {
             instance = new MainBotController(stream, authToken, discordToken, channel, nick, oauth);
         }
         return instance;
     }
     
-    public void run() throws IOException, InterruptedException {
+    public void run() {
         streamInfo.startTracker();
         statsTracker.start();
         socialScheduler.start();
@@ -64,6 +64,8 @@ public class MainBotController {
         addAllListeners();
         twirk.connect();
     
+        out.println("Goombotio is ready.");
+        
         String line;
         Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));
         TwirkListener viewerQueueListener = new ViewerQueueListener(vqm);
@@ -124,6 +126,7 @@ public class MainBotController {
         addTwirkListener(new EmoteListener());
         addTwirkListener(new PyramidListener(twirk));
         addTwirkListener(new SubListener(twirk));
+        addTwirkListener(socialScheduler.getListener());
     }
     
     private void addTwirkListener(TwirkListener listener) {
@@ -134,23 +137,23 @@ public class MainBotController {
         twirk.removeIrcListener(listener);
     }
     
-    private static TwirkListener getOnDisconnectListener(final Twirk twirk) {
+    private static TwirkListener getOnDisconnectListener(final TwirkInterface twirk) {
         return new TwirkListener() {
             @Override
             public void onDisconnect() {
-            try {
-                if(!twirk.connect()) {
-                    twirk.close();
-                }
-            }
-            catch (IOException e) {
-                System.out.println("ERROR: twirk IOException");
-                twirk.close();
-            }
-            catch (InterruptedException e) {
-                //continue
-                System.out.println("ERROR: twirk InterruptedException");
-            }
+                do {
+                    Calendar date = Calendar.getInstance();
+                    int hour = date.get(Calendar.HOUR);
+                    int minute = date.get(Calendar.MINUTE);
+                    int second = date.get(Calendar.SECOND);
+                    out.println(String.format("%02d:%02d:%02d - Trying to connect again in 10 seconds",
+                            hour, minute, second));
+                    try {
+                        TimeUnit.SECONDS.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } while (!twirk.connect());
             }
         };
     }

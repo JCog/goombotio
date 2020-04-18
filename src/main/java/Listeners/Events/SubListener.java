@@ -1,6 +1,6 @@
 package Listeners.Events;
 
-import com.gikk.twirk.Twirk;
+import Util.TwirkInterface;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.usernotice.Usernotice;
 import com.gikk.twirk.types.usernotice.subtype.Subscription;
@@ -16,12 +16,12 @@ import static java.lang.System.out;
 
 public class SubListener implements TwirkListener {
     
-    private final Twirk twirk;
+    private final TwirkInterface twirk;
     
     private HashMap<String, Boolean> subTimersActive;
     private HashMap<String, ArrayList<String>> giftedSubs;
     
-    public SubListener(Twirk twirk){
+    public SubListener(TwirkInterface twirk){
         this.twirk = twirk;
         subTimersActive = new HashMap<>();
         giftedSubs = new HashMap<>();

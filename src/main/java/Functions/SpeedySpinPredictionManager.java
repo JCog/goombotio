@@ -2,7 +2,7 @@ package Functions;
 
 import Listeners.Commands.SpeedySpinPredictionListener;
 import Util.Database.SpeedySpinLeaderboard;
-import com.gikk.twirk.Twirk;
+import Util.TwirkInterface;
 import com.gikk.twirk.types.users.TwitchUser;
 
 import java.text.SimpleDateFormat;
@@ -22,7 +22,7 @@ public class SpeedySpinPredictionManager {
     private static final int POINTS_1 = 1;
     private static final int POINTS_WRONG_ORDER = 1;
     
-    private final Twirk twirk;
+    private final TwirkInterface twirk;
     private final SpeedySpinLeaderboard leaderboard;
     private final DiscordBotController dbc;
     
@@ -43,7 +43,7 @@ public class SpeedySpinPredictionManager {
      * Manages the !preds Twitch chat game.
      * @param twirk twirk for chat
      */
-    public SpeedySpinPredictionManager(Twirk twirk) {
+    public SpeedySpinPredictionManager(TwirkInterface twirk) {
         this.twirk = twirk;
         enabled = false;
         waitingForAnswer = false;

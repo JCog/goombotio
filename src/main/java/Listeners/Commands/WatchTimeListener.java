@@ -1,7 +1,7 @@
 package Listeners.Commands;
 
 import Util.Database.WatchTimeDb;
-import com.gikk.twirk.Twirk;
+import Util.TwirkInterface;
 import com.gikk.twirk.enums.USER_TYPE;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
@@ -16,10 +16,10 @@ public class WatchTimeListener extends CommandBase {
     private static final String PATTERN = "!watchtime";
     private static final Date CUTOFF_DATE = generateCutoffDate();
     
-    private final Twirk twirk;
+    private final TwirkInterface twirk;
     private final WatchTimeDb watchTimeDb;
     
-    public WatchTimeListener(Twirk twirk) {
+    public WatchTimeListener(TwirkInterface twirk) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
         watchTimeDb = WatchTimeDb.getInstance();

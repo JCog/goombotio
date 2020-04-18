@@ -2,7 +2,7 @@ package Listeners.Commands;
 
 import Functions.SpeedySpinPredictionManager;
 import Functions.SpeedySpinPredictionManager.Badge;
-import com.gikk.twirk.Twirk;
+import Util.TwirkInterface;
 import com.gikk.twirk.enums.USER_TYPE;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
@@ -13,11 +13,11 @@ public class SpeedySpinGameListener extends CommandBase {
 
     private final static String PATTERN = "!preds";
     
-    private final Twirk twirk;
+    private final TwirkInterface twirk;
     
     private SpeedySpinPredictionManager game;
 
-    public SpeedySpinGameListener(Twirk twirk) {
+    public SpeedySpinGameListener(TwirkInterface twirk) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
         game = new SpeedySpinPredictionManager(twirk);

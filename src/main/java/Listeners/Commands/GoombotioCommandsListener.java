@@ -2,7 +2,7 @@ package Listeners.Commands;
 
 import Util.Database.CommandDb;
 import Util.Database.SocialSchedulerDb;
-import com.gikk.twirk.Twirk;
+import Util.TwirkInterface;
 import com.gikk.twirk.enums.USER_TYPE;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
@@ -28,11 +28,11 @@ public class GoombotioCommandsListener extends CommandBase {
 
     private final static String PATTERN = "!goombotio";
     
-    private final Twirk twirk;
+    private final TwirkInterface twirk;
     private final SocialSchedulerDb ssdb;
     private final CommandDb commandDb;
 
-    public GoombotioCommandsListener(Twirk twirk) {
+    public GoombotioCommandsListener(TwirkInterface twirk) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
         this.ssdb = SocialSchedulerDb.getInstance();

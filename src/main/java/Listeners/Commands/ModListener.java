@@ -1,6 +1,6 @@
 package Listeners.Commands;
 
-import com.gikk.twirk.Twirk;
+import Util.TwirkInterface;
 import com.gikk.twirk.enums.USER_TYPE;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
@@ -8,9 +8,9 @@ import com.gikk.twirk.types.users.TwitchUser;
 public class ModListener extends CommandBase {
 
     private final static String PATTERN = "crashes paper mario";
-    private final Twirk twirk;
+    private final TwirkInterface twirk;
 
-    public ModListener(Twirk twirk) {
+    public ModListener(TwirkInterface twirk) {
         super(CommandType.CONTENT_COMMAND);
         this.twirk = twirk;
     }

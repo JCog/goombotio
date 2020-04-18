@@ -1,5 +1,5 @@
 package Listeners.Events;
-import com.gikk.twirk.Twirk;
+import Util.TwirkInterface;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
@@ -16,14 +16,14 @@ public class PyramidListener implements TwirkListener {
     private static final int MIN_HEIGHT = 3;
     private static final int TRIGGER_HEIGHT = 2;
     
-    private final Twirk twirk;
+    private final TwirkInterface twirk;
     
     private STATE state;
     private String pattern;
     private long userId;
     private int height;
     
-    public PyramidListener(Twirk twirk) {
+    public PyramidListener(TwirkInterface twirk) {
         this.twirk = twirk;
         resetState();
     }

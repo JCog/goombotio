@@ -1,7 +1,7 @@
 package Functions;
 
 import Util.Database.WatchTimeDb;
-import com.gikk.twirk.Twirk;
+import Util.TwirkInterface;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.Follow;
 import com.github.twitch4j.helix.domain.FollowList;
@@ -15,20 +15,21 @@ import static java.lang.System.out;
 public class StatsTracker {
     private final static String BLACKLIST_FILENAME = "src/main/resources/blacklist.txt";
     
-    private Twirk twirk;
-    private TwitchClient twitchClient;
-    private StreamInfo streamInfo;
-    private String stream;
-    private String authToken;
-    private int interval;
-    private Timer timer;
-    private HashMap<String, Integer> usersMap;
-    private ArrayList<String> blacklist;
-    private WatchTimeDb watchTimeDb;
-    private Set<String> followers;
-    private String streamId;
+    private final TwirkInterface twirk;
+    private final TwitchClient twitchClient;
+    private final StreamInfo streamInfo;
+    private final String stream;
+    private final String authToken;
+    private final int interval;
+    private final Timer timer;
+    private final HashMap<String, Integer> usersMap;
+    private final ArrayList<String> blacklist;
+    private final WatchTimeDb watchTimeDb;
+    private final Set<String> followers;
+    private final String streamId;
+    private final ArrayList<Map.Entry<String, Integer>> allTimeViewers;
+    
     private HashMap<String, String> userIdMap;
-    private ArrayList<Map.Entry<String, Integer>> allTimeViewers;
     
     /**Creates an object to track stats about the stream such as viewer watch time and new followers
      * @param twirk Twirk object to communicate with Twitch chat
@@ -38,7 +39,7 @@ public class StatsTracker {
      * @param authToken bot's auth token
      * @param interval how often to collect data in milliseconds
      */
-    public StatsTracker(Twirk twirk, TwitchClient twitchClient, StreamInfo streamInfo, String stream, String authToken, int interval) {
+    public StatsTracker(TwirkInterface twirk, TwitchClient twitchClient, StreamInfo streamInfo, String stream, String authToken, int interval) {
         this.twirk = twirk;
         this.twitchClient = twitchClient;
         this.streamInfo = streamInfo;

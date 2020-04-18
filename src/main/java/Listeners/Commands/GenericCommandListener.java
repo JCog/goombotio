@@ -2,7 +2,7 @@ package Listeners.Commands;
 
 import Util.Database.CommandDb;
 import Util.Database.Entries.CommandItem;
-import com.gikk.twirk.Twirk;
+import Util.TwirkInterface;
 import com.gikk.twirk.enums.USER_TYPE;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
@@ -15,12 +15,12 @@ public class GenericCommandListener extends CommandBase {
 
     private final static String PATTERN = "";
     
-    private final Twirk twirk;
+    private final TwirkInterface twirk;
     private final CommandDb commandDb;
     private final HashSet<String> activeCooldowns;
     
 
-    public GenericCommandListener(Twirk twirk) {
+    public GenericCommandListener(TwirkInterface twirk) {
         super(CommandType.GENERIC_COMMAND);
         this.twirk = twirk;
         this.commandDb = CommandDb.getInstance();

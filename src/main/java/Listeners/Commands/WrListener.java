@@ -1,7 +1,7 @@
 package Listeners.Commands;
 
 import Functions.StreamInfo;
-import com.gikk.twirk.Twirk;
+import Util.TwirkInterface;
 import com.gikk.twirk.enums.USER_TYPE;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
@@ -14,10 +14,10 @@ public class WrListener extends CommandBase {
     private static final String GAME_TTYD = "Paper Mario: The Thousand-Year Door";
     private static final String PATTERN = "!wr";
     
-    private final Twirk twirk;
+    private final TwirkInterface twirk;
     private final StreamInfo streamInfo;
 
-    public WrListener(Twirk twirk, StreamInfo streamInfo) {
+    public WrListener(TwirkInterface twirk, StreamInfo streamInfo) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
         this.streamInfo = streamInfo;

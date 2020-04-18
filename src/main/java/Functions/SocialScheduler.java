@@ -1,7 +1,7 @@
 package Functions;
 
 import Util.Database.SocialSchedulerDb;
-import com.gikk.twirk.Twirk;
+import Util.TwirkInterface;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
@@ -17,28 +17,30 @@ import java.util.concurrent.TimeUnit;
 public class SocialScheduler {
 
     private final SocialSchedulerDb socialSchedulerDb;
-    private final Twirk twirk;
+    private final TwirkInterface twirk;
     private final String botName;
-    private Random random;
+    private final AnyMessageListener anyMessageListener;
+    private final Random random;
+    private final int intervalLength;
+    
     private boolean running;
     private boolean activeChat;
     private int previousIndex = -1;
-    private int intervalLength;
     
     /**
      * Schedules random social media plugs on a set interval
      * @param twirk chat interface
      * @param intervalLength minutes between posts
      */
-    public SocialScheduler(Twirk twirk, int intervalLength, String botName) {
+    public SocialScheduler(TwirkInterface twirk, int intervalLength, String botName) {
         this.socialSchedulerDb = SocialSchedulerDb.getInstance();
         this.twirk = twirk;
         this.running = false;
         this.activeChat = false;
         this.intervalLength = intervalLength;
         this.botName = botName;
+        this.anyMessageListener = new AnyMessageListener();
         random = new Random();
-        twirk.addIrcListener(new AnyMessageListener());
     }
     
     /**
@@ -55,6 +57,10 @@ public class SocialScheduler {
      */
     public void stop() {
         running = false;
+    }
+    
+    public AnyMessageListener getListener() {
+        return anyMessageListener;
     }
 
     private void socialLoop() {

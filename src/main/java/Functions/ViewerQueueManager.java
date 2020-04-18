@@ -2,7 +2,7 @@ package Functions;
 
 import Util.Database.Entries.ViewerQueueEntry;
 import Util.Database.ViewerQueueDb;
-import com.gikk.twirk.Twirk;
+import Util.TwirkInterface;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.google.common.collect.ComparisonChain;
 
@@ -10,18 +10,18 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.System.*;
+import static java.lang.System.out;
 
 public class ViewerQueueManager {
     
-    private final Twirk twirk;
+    private final TwirkInterface twirk;
     private final ViewerQueueDb viewerQueueDb;
     private ArrayList<ViewerQueueEntry> viewers;
     private int position;
     private int requestedCount;
     private String message;
     
-    public ViewerQueueManager(Twirk twirk) {
+    public ViewerQueueManager(TwirkInterface twirk) {
         this.twirk = twirk;
         viewerQueueDb = ViewerQueueDb.getInstance();
         viewers = new ArrayList<>();
