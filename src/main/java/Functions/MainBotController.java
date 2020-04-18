@@ -6,7 +6,6 @@ import Listeners.Events.EmoteListener;
 import Listeners.Events.PyramidListener;
 import Listeners.Events.SubListener;
 import Util.Database.GoombotioDb;
-import Util.Database.SpeedySpinLeaderboard;
 import Util.ReportBuilder;
 import Util.StreamStatsInterface;
 import Util.TwirkInterface;
@@ -70,11 +69,7 @@ public class MainBotController {
         Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));
         TwirkListener viewerQueueListener = new ViewerQueueListener(vqm);
         while( !(line = scanner.nextLine()).matches(".quit") ) {
-            if(line.equals(".lb")) { //TODO: this is pretty hacky, should improve
-                SpeedySpinLeaderboard lb = SpeedySpinLeaderboard.getInstance();
-                lb.logPreviousTopMonthlyScorers();
-            }
-            else if (line.startsWith(".startqueue")) {
+            if (line.startsWith(".startqueue")) {
                 String[] lineSplit = line.split(" ");
                 int requestedCount = Integer.parseInt(lineSplit[1]);
                 String message = line.substring(lineSplit[0].length() + lineSplit[1].length() + 2);

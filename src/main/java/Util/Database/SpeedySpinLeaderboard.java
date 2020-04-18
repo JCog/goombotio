@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import static java.lang.System.out;
-
 public class SpeedySpinLeaderboard extends CollectionBase{
 
     private static final String COLLECTION_NAME = "speedyspin";
@@ -238,24 +236,6 @@ public class SpeedySpinLeaderboard extends CollectionBase{
         }
         
         return topScorers;
-    }
-
-    public void logPreviousTopMonthlyScorers() {
-        MongoCursor<Document> result = findAll().sort(Sorts.descending(getPrevMonthlyPointsKey())).iterator();
-        int index = 1;
-        out.println("Last Month's Top Scorers:");
-        while (result.hasNext() && index < 21) {
-            Document next = result.next();
-            if (next.get(getPrevMonthlyPointsKey()) == null) {
-                break;
-            }
-            else {
-                String name = getUsername(next);
-                int points = getPrevMonthlyPoints(next);
-                out.println(String.format("%d. %s - %d", index, name, points));
-                index++;
-            }
-        }
     }
 
     private String getMonthlyPointsKey() {
