@@ -3,6 +3,7 @@ package Util;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.TwirkBuilder;
 import com.gikk.twirk.events.TwirkListener;
+import com.gikk.twirk.types.users.TwitchUser;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -29,8 +30,16 @@ public class TwirkInterface {
         twirk.channelMessage(line);
     }
     
+    public void priorityMessage(String message) {
+        twirk.priorityChannelMessage(message);
+    }
+    
     public void whisper(String username, String message) {
         twirk.whisper(username, message);
+    }
+    
+    public void whisper(TwitchUser receiver, String message) {
+        twirk.whisper(receiver, message);
     }
     
     public void addIrcListener(TwirkListener listener) {
@@ -49,6 +58,10 @@ public class TwirkInterface {
         return twirk.getUsersOnline();
     }
     
+    public Set<String> getModsOnline() {
+        return twirk.getModsOnline();
+    }
+    
     public boolean connect() {
         try {
             getNewTwirk();
@@ -60,6 +73,26 @@ public class TwirkInterface {
         }
         System.out.println(String.format("Twirk connected to %s successfully", channel));
         return true;
+    }
+    
+    public void serverMessage(String message) {
+        twirk.serverMessage(message);
+    }
+    
+    public boolean isConnected() {
+        return twirk.isConnected();
+    }
+    
+    public boolean isDisposed() {
+        return twirk.isDisposed();
+    }
+    
+    public String getNick() {
+        return twirk.getNick();
+    }
+    
+    public synchronized void disconnect() {
+        twirk.disconnect();
     }
     
     public void close() {
