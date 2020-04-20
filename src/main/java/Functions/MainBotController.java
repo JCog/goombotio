@@ -1,10 +1,8 @@
 package Functions;
 
 import Listeners.Commands.*;
-import Listeners.Events.CloudListener;
-import Listeners.Events.EmoteListener;
-import Listeners.Events.PyramidListener;
-import Listeners.Events.SubListener;
+import Listeners.Events.*;
+import Util.ChatLogger;
 import Util.Database.GoombotioDb;
 import Util.ReportBuilder;
 import Util.StreamStatsInterface;
@@ -35,6 +33,7 @@ public class MainBotController {
     private final SubPointUpdater subPointUpdater;
     private final DiscordBotController dbc;
     private final ViewerQueueManager vqm;
+    private final ChatLogger chatLogger;
     
     private MainBotController(String stream, String authToken, String discordToken, String channel, String nick, String oauth) {
         this.twirk = new TwirkInterface(channel, nick, oauth, VERBOSE_MODE);
@@ -44,6 +43,7 @@ public class MainBotController {
         socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH, nick);
         subPointUpdater = new SubPointUpdater();
         vqm = new ViewerQueueManager(twirk);
+        chatLogger = new ChatLogger();
         dbc = DiscordBotController.getInstance();
         dbc.init(discordToken);
     }
@@ -82,6 +82,7 @@ public class MainBotController {
         statsTracker.storeAllMinutes();
         ReportBuilder.generateReport(streamInfo, statsTracker);
         GoombotioDb.getInstance().close();
+        chatLogger.close();
         twitchClient.close();
         twirk.close();
         dbc.close();
@@ -108,6 +109,7 @@ public class MainBotController {
         addTwirkListener(new WrListener(twirk, streamInfo));
     
         // General Listeners
+        addTwirkListener(new ChatLoggerListener(chatLogger));
         addTwirkListener(new CloudListener(twirk));
         addTwirkListener(new EmoteListener());
         addTwirkListener(new PyramidListener(twirk));
