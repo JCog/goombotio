@@ -32,18 +32,21 @@ public class ChatLogger {
     }
     
     public void logMessage(TwitchUser user, TwitchMessage message) {
+        logMessage(user.getUserID(), user.getDisplayName(), message.getContent());
+    }
+    
+    public void logMessage(long userId, String displayName, String message) {
         if (isNewDayUTC()) {
             currentDate = getCurrentDateUTC();
             openNewFile();
         }
         if (writer != null) {
-            writer.println();
             writer.write(String.format(
-                    "%s %d %s: %s",
+                    "%s %d %s: %s\n",
                     getDateString(),
-                    user.getUserID(),
-                    user.getDisplayName(),
-                    message.getContent()
+                    userId,
+                    displayName,
+                    message
             ));
         }
     }
