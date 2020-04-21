@@ -3,9 +3,10 @@ package Util;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 
-import java.io.FileNotFoundException;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -56,15 +57,16 @@ public class ChatLogger {
             writer.close();
         }
         String filename = LOCATION + getFileName() + ".log";
+        FileWriter fw;
         try {
-            writer = new PrintWriter(filename, "UTF-8");
-        } catch (FileNotFoundException e) {
-            writer = null;
-            System.out.println(String.format("ERROR: file \"%s\" not found", filename));
-        } catch (UnsupportedEncodingException e) {
-            //no idea how this would happen
+            fw = new FileWriter(filename, true);
+        } catch (IOException e) {
+            System.out.println(String.format("ERROR: IOException for filename \"%s\"", filename));
             e.printStackTrace();
+            return;
         }
+        BufferedWriter bw = new BufferedWriter(fw);
+        writer = new PrintWriter(bw);
     }
     
     private String getDateString() {
