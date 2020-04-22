@@ -8,6 +8,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class SpeedrunApi {
@@ -15,6 +16,8 @@ public class SpeedrunApi {
     private static final String BASE_URL = "http://www.speedrun.com/api/v1/";
     private static final String LEADERBOARDS = "leaderboards/";
     private static final String USERS = "users/";
+    
+    private static final String TEST_URL = "https://www.speedrun.com/api/v1/leaderboards/o1y9wo6q/category/7dgrrxk4?top=1";
 
     private static final String GAME_PAPER_MARIO = "pm64/";
     private static final String GAME_PAPER_MARIO_MEMES = "pmariomemes/";
@@ -97,6 +100,10 @@ public class SpeedrunApi {
     }
 
     private static final OkHttpClient client = new OkHttpClient();
+    
+    public static boolean certificateIsUpToDate() {
+        return submitRequest(TEST_URL) != null;
+    }
     
     /**
      * Retrieves the current world records for the category specified. Game and
@@ -369,9 +376,9 @@ public class SpeedrunApi {
                 .url(url)
                 .build();
         try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
+            return Objects.requireNonNull(response.body()).string();
         }
-        catch (IOException e) {
+        catch (IOException|NullPointerException e) {
             return null;
         }
     }

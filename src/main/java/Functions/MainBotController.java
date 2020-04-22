@@ -1,5 +1,6 @@
 package Functions;
 
+import APIs.SpeedrunApi;
 import Listeners.Commands.*;
 import Listeners.Events.*;
 import Util.ChatLogger;
@@ -62,6 +63,7 @@ public class MainBotController {
         subPointUpdater.start();
         addAllListeners();
         twirk.connect();
+        checkSrcCert();
     
         out.println("Goombotio is ready.");
         
@@ -144,5 +146,11 @@ public class MainBotController {
                 } while (!twirk.connect());
             }
         };
+    }
+    
+    private void checkSrcCert() {
+        if (!SpeedrunApi.certificateIsUpToDate()) {
+            out.println("UPDATE THE SPEEDRUN.COM CERTIFICATE");
+        }
     }
 }
