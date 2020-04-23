@@ -95,6 +95,10 @@ public class QuoteDb extends CollectionBase {
         return String.format("Successfully edited quote %d", index);
     }
     
+    public int getQuoteCount() {
+        return (int) countDocuments();
+    }
+    
     public List<QuoteItem> searchQuotes(String query) {
         ArrayList<QuoteItem> output = new ArrayList<>();
         for (Document quote : findAll()) {
@@ -106,10 +110,13 @@ public class QuoteDb extends CollectionBase {
     }
     
     private String getDoesNotExistString(long index) {
-        return String.format("ERROR: quote %d does note exist", index);
+        return String.format("ERROR: quote %d does not exist", index);
     }
     
     private QuoteItem convertQuoteDocument(Document quoteDoc) {
+        if (quoteDoc == null) {
+            return null;
+        }
         long index = quoteDoc.getLong(ID_KEY);
         String text = quoteDoc.getString(TEXT_KEY);
         Long creatorId = quoteDoc.getLong(CREATOR_ID_KEY);

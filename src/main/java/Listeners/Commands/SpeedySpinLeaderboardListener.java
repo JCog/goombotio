@@ -33,7 +33,8 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
                 PATTERN_BADGE_SHOP,
                 PATTERN_POINTS,
                 PATTERN_LEADERBOARD_ALL,
-                PATTERN_POINTS_ALL);
+                PATTERN_POINTS_ALL
+        );
     }
 
     @Override

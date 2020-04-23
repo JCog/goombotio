@@ -96,6 +96,7 @@ public class MainBotController {
         addTwirkListener(new GoombotioCommandsListener(twirk));
         //addTwirkListener(new ModListener(twirk));
         addTwirkListener(guessListener);
+        addTwirkListener(new QuoteListener(twirk));
         addTwirkListener(new SpeedySpinGameListener(twirk, guessListener));
         addTwirkListener(new SpeedySpinLeaderboardListener(twirk));
         addTwirkListener(queueJoinListener);
