@@ -46,7 +46,7 @@ public class QuoteItem {
             return String.format("%d. %s", index, text);
         }
         else {
-            return String.format("%d. %s -%s", index, text, getDateString());
+            return String.format("%d. %s ~%s", index, text, getDateString());
         }
     }
     
