@@ -12,10 +12,7 @@ import com.gikk.twirk.events.TwirkListener;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
@@ -67,12 +64,8 @@ public class MainBotController {
     
         out.println("Goombotio is ready.");
         
-        String line;
-        Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-        while( !(line = scanner.nextLine()).matches(".quit") ) {
-            twirk.channelMessage(line);
-        }
-        scanner.close();
+        //main loop
+        new ConsoleCommandListener(twirk, dbc).run();
     }
     
     public void closeAll() {

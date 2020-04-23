@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
+import net.dv8tion.jda.api.exceptions.VerificationLevelException;
 
 import javax.security.auth.login.LoginException;
 
@@ -38,8 +40,29 @@ public class DiscordBotController {
     }
     
     public void sendMessage(String channelName, String message) {
-        TextChannel channel =  jda.getTextChannelsByName(channelName, true).get(0);
-        channel.sendMessage(message).queue();
+        TextChannel channel;
+        try {
+            channel = jda.getTextChannelsByName(channelName, true).get(0);
+        } catch (IndexOutOfBoundsException e) {
+            out.println(String.format("ERROR: discord channel \"#%s\" does not exist", channelName));
+            return;
+        }
+        
+        try {
+            channel.sendMessage(message).queue();
+        }
+        catch (InsufficientPermissionException e) {
+            out.println("ERROR: insufficient write privileges in this channel");
+        }
+        catch (VerificationLevelException e) {
+            out.println("ERROR: verification failed");
+        }
+        catch (IllegalArgumentException e) {
+            out.println("ERROR: provided text is null, empty, or longer than 2000 characters");
+        }
+        catch (UnsupportedOperationException e) {
+            out.println("ERROR: this is a private channel and both the currently logged in account and the target user are bots");
+        }
     }
     
     public void editMostRecentMessage(String channelName, String message) {
