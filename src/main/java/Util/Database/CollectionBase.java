@@ -82,4 +82,11 @@ public abstract class CollectionBase {
     FindIterable<Document> findContainsKey(String key) {
         return collection.find(exists(key));
     }
+    
+    /*
+    Returns the number of documents in the collection
+     */
+    long countDocuments() {
+        return collection.countDocuments();
+    }
 }
