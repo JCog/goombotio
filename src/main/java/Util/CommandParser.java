@@ -21,6 +21,7 @@ public class CommandParser {
     private static final String TYPE_TOUSER = "touser";
     private static final String TYPE_CHANNEL = "channel";
     private static final String TYPE_URL_FETCH = "urlfetch";
+    private static final String TYPE_UPTIME = "uptime";
     
     private static final ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
     private static final OkHttpClient client = new OkHttpClient();
@@ -58,6 +59,8 @@ public class CommandParser {
                 return streamInfo.getChannelName();
             case TYPE_URL_FETCH:
                 return submitRequest(content);
+            case TYPE_UPTIME:
+                return streamInfo.getUptime();
             default:
                 return ERROR;
         }

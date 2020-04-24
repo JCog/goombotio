@@ -1,5 +1,7 @@
 package Listeners.Commands;
 
+import Functions.StreamInfo;
+import Util.CommandParser;
 import Util.Database.CommandDb;
 import Util.Database.Entries.CommandItem;
 import Util.TwirkInterface;
@@ -17,13 +19,15 @@ public class GenericCommandListener extends CommandBase {
     
     private final TwirkInterface twirk;
     private final CommandDb commandDb;
+    private final CommandParser commandParser;
     private final HashSet<String> activeCooldowns;
     
 
-    public GenericCommandListener(TwirkInterface twirk) {
+    public GenericCommandListener(TwirkInterface twirk, StreamInfo streamInfo) {
         super(CommandType.GENERIC_COMMAND);
         this.twirk = twirk;
         this.commandDb = CommandDb.getInstance();
+        this.commandParser = new CommandParser(streamInfo);
         activeCooldowns = new HashSet<>();
     }
 
@@ -46,7 +50,7 @@ public class GenericCommandListener extends CommandBase {
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         CommandItem commandItem = commandDb.getCommandItem(command);
         if (commandItem != null && userHasPermission(sender, commandItem) && !cooldownActive(commandItem)) {
-            twirk.channelMessage(commandItem.getMessage());
+            twirk.channelMessage(commandParser.parse(commandItem.getMessage(), sender));
             startCooldown(commandItem);
         }
     }

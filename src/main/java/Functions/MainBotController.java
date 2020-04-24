@@ -92,7 +92,7 @@ public class MainBotController {
         addTwirkListener(getOnDisconnectListener(twirk));
         
         // Command Listeners
-        addTwirkListener(new GenericCommandListener(twirk));
+        addTwirkListener(new GenericCommandListener(twirk, streamInfo));
         addTwirkListener(new GoombotioCommandsListener(twirk));
         //addTwirkListener(new ModListener(twirk));
         addTwirkListener(guessListener);

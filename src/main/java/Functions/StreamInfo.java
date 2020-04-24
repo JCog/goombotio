@@ -170,6 +170,15 @@ public class StreamInfo {
     public String getChannelName() {
         return streamer;
     }
+    
+    public String getUptime() {
+        if (isLive()) {
+            return streamStats.getUptime().toString();
+        }
+        else {
+            return "channel is not live";
+        }
+    }
 
     private void updateStreamStats() {
         StreamList resultList;
