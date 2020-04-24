@@ -10,6 +10,7 @@ public class CommandDb extends CollectionBase {
     private static final String COLLECTION_NAME = "commands";
     private static final String MESSAGE_KEY = "message";
     private static final String PERMISSION_KEY = "permission";
+    private static final String COUNT_KEY = "count";
     
     private static CommandDb instance = null;
     
@@ -111,13 +112,21 @@ public class CommandDb extends CollectionBase {
         return String.format("Successfully deleted command \"%s\".", id);
     }
     
+    public void incrementCount(String id) {
+        CommandItem commandItem = getCommandItem(id);
+        if (commandItem != null) {
+            updateOne(id, new Document(COUNT_KEY, commandItem.getCount() + 1));
+        }
+    }
+    
     public CommandItem getCommandItem(String id) {
         Document result = getCommand(id);
         if (result != null) {
             return new CommandItem(
                     result.getString(ID_KEY),
                     result.getString(MESSAGE_KEY),
-                    CommandItem.getUserType(result.getInteger(PERMISSION_KEY))
+                    CommandItem.getUserType(result.getInteger(PERMISSION_KEY)),
+                    result.containsKey(COUNT_KEY) ? result.getInteger(COUNT_KEY) : 0
             );
         }
         return null;

@@ -8,6 +8,7 @@ public class CommandItem {
     private final String id;
     private final String message;
     private final USER_TYPE permission;
+    private final int count;
     
     public static USER_TYPE getUserType(int permission) {
         switch (permission) {
@@ -26,10 +27,11 @@ public class CommandItem {
         }
     }
     
-    public CommandItem(String id, String message, USER_TYPE permission) {
+    public CommandItem(String id, String message, USER_TYPE permission, int count) {
         this.id = id;
         this.message = message;
         this.permission = permission;
+        this.count = count;
     }
     
     public String getId() {
@@ -42,6 +44,10 @@ public class CommandItem {
     
     public USER_TYPE getPermission() {
         return permission;
+    }
+    
+    public int getCount() {
+        return count;
     }
     
     public int getCooldown() {

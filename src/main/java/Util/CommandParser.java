@@ -1,6 +1,8 @@
 package Util;
 
 import Functions.StreamInfo;
+import Util.Database.CommandDb;
+import Util.Database.Entries.CommandItem;
 import com.gikk.twirk.types.users.TwitchUser;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -22,28 +24,31 @@ public class CommandParser {
     private static final String TYPE_CHANNEL = "channel";
     private static final String TYPE_URL_FETCH = "urlfetch";
     private static final String TYPE_UPTIME = "uptime";
+    private static final String TYPE_COUNT = "count";
     
     private static final ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
     private static final OkHttpClient client = new OkHttpClient();
     
     private final StreamInfo streamInfo;
+    private final CommandDb commandDb;
     
     public CommandParser(StreamInfo streamInfo) {
         this.streamInfo = streamInfo;
+        this.commandDb = CommandDb.getInstance();
     }
     
-    public String parse(String input, TwitchUser user) {
-        String output = input;
+    public String parse(CommandItem commandItem, TwitchUser user) {
+        String output = commandItem.getMessage();
         String expression = getNextExpression(output);
         while (!expression.isEmpty()) {
-            String replacement = evaluateExpression(expression, user);
+            String replacement = evaluateExpression(expression, commandItem, user);
             output = output.replaceFirst(Pattern.quote("$(" + expression + ")"), replacement);
             expression = getNextExpression(output);
         }
         return output;
     }
     
-    private String evaluateExpression(String expression, TwitchUser user) {
+    private String evaluateExpression(String expression, CommandItem commandItem, TwitchUser user) {
         String[] split = expression.split(" ", 2);
         String type = split[0];
         String content = "";
@@ -61,6 +66,9 @@ public class CommandParser {
                 return submitRequest(content);
             case TYPE_UPTIME:
                 return streamInfo.getUptime();
+            case TYPE_COUNT:
+                commandDb.incrementCount(commandItem.getId());
+                return Integer.toString(commandItem.getCount() + 1);
             default:
                 return ERROR;
         }
