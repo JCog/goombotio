@@ -166,6 +166,10 @@ public class StreamInfo {
         long duration  = endTemp.getTime() - startTime.getTime();
         return Math.toIntExact(TimeUnit.MILLISECONDS.toMinutes(duration));
     }
+    
+    public String getChannelName() {
+        return streamer;
+    }
 
     private void updateStreamStats() {
         StreamList resultList;
