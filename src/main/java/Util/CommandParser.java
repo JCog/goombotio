@@ -30,6 +30,7 @@ public class CommandParser {
     private static final String TYPE_TOUSER = "touser";
     private static final String TYPE_UPTIME = "uptime";
     private static final String TYPE_URL_FETCH = "urlfetch";
+    private static final String TYPE_USER_ID = "userid";
     
     private static final ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
     private static final OkHttpClient client = new OkHttpClient();
@@ -105,6 +106,8 @@ public class CommandParser {
                 return streamInfo.getUptime();
             case TYPE_URL_FETCH:
                 return submitRequest(content);
+            case TYPE_USER_ID:
+                return Long.toString(user.getUserID());
             default:
                 return ERROR;
         }
