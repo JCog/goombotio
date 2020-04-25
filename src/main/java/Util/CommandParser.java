@@ -20,12 +20,16 @@ public class CommandParser {
     private static final String ERROR = "ERROR";
     private static final String ERROR_URL = "-bad url-";
     private static final String ERROR_URL_RETRIEVAL = "unable to retrieve result from url";
-    private static final String TYPE_EVAL = "eval";
-    private static final String TYPE_TOUSER = "touser";
+    private static final String ERROR_BAD_ARG_NUM_FORMAT = "-bad argument number \"%s\"-";
+    
+    private static final String TYPE_ARG = "arg";
     private static final String TYPE_CHANNEL = "channel";
-    private static final String TYPE_URL_FETCH = "urlfetch";
-    private static final String TYPE_UPTIME = "uptime";
     private static final String TYPE_COUNT = "count";
+    private static final String TYPE_EVAL = "eval";
+    private static final String TYPE_QUERY = "query";
+    private static final String TYPE_TOUSER = "touser";
+    private static final String TYPE_UPTIME = "uptime";
+    private static final String TYPE_URL_FETCH = "urlfetch";
     
     private static final ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
     private static final OkHttpClient client = new OkHttpClient();
@@ -59,8 +63,37 @@ public class CommandParser {
             content = split[1];
         }
         switch (type) {
+            case TYPE_ARG:
+                int arg;
+                try {
+                    arg = Integer.parseInt(content) + 1;
+                } catch (NumberFormatException e) {
+                    return String.format(ERROR_BAD_ARG_NUM_FORMAT, content);
+                }
+        
+                if (arg < 0) {
+                    return String.format(ERROR_BAD_ARG_NUM_FORMAT, content);
+                }
+                else  if (arguments.length > arg) {
+                    return arguments[arg];
+                }
+                else {
+                    return "";
+                }
+            case TYPE_CHANNEL:
+                return streamInfo.getChannelName();
+            case TYPE_COUNT:
+                commandDb.incrementCount(commandItem.getId());
+                return Integer.toString(commandItem.getCount() + 1);
             case TYPE_EVAL:
                 return evalJavaScript(content);
+            case TYPE_QUERY:
+                if (arguments.length > 1) {
+                    return twitchMessage.getContent().split(" ", 2)[1];
+                }
+                else {
+                    return "";
+                }
             case TYPE_TOUSER:
                 if (arguments.length > 1) {
                     return arguments[1];
@@ -68,15 +101,10 @@ public class CommandParser {
                 else {
                     return user.getUserName();
                 }
-            case TYPE_CHANNEL:
-                return streamInfo.getChannelName();
-            case TYPE_URL_FETCH:
-                return submitRequest(content);
             case TYPE_UPTIME:
                 return streamInfo.getUptime();
-            case TYPE_COUNT:
-                commandDb.incrementCount(commandItem.getId());
-                return Integer.toString(commandItem.getCount() + 1);
+            case TYPE_URL_FETCH:
+                return submitRequest(content);
             default:
                 return ERROR;
         }
