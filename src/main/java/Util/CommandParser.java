@@ -3,6 +3,7 @@ package Util;
 import Functions.StreamInfo;
 import Util.Database.CommandDb;
 import Util.Database.Entries.CommandItem;
+import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -37,20 +38,22 @@ public class CommandParser {
         this.commandDb = CommandDb.getInstance();
     }
     
-    public String parse(CommandItem commandItem, TwitchUser user) {
+    public String parse(CommandItem commandItem, TwitchUser user, TwitchMessage twitchMessage) {
         String output = commandItem.getMessage();
         String expression = getNextExpression(output);
         while (!expression.isEmpty()) {
-            String replacement = evaluateExpression(expression, commandItem, user);
+            String replacement = evaluateExpression(expression, commandItem, user, twitchMessage);
             output = output.replaceFirst(Pattern.quote("$(" + expression + ")"), replacement);
             expression = getNextExpression(output);
         }
         return output;
     }
     
-    private String evaluateExpression(String expression, CommandItem commandItem, TwitchUser user) {
+    private String evaluateExpression(String expression, CommandItem commandItem,
+                                      TwitchUser user, TwitchMessage twitchMessage) {
         String[] split = expression.split(" ", 2);
         String type = split[0];
+        String[] arguments = twitchMessage.getContent().split(" ");
         String content = "";
         if (split.length > 1) {
             content = split[1];
@@ -59,7 +62,12 @@ public class CommandParser {
             case TYPE_EVAL:
                 return evalJavaScript(content);
             case TYPE_TOUSER:
-                return user.getUserName();
+                if (arguments.length > 1) {
+                    return arguments[1];
+                }
+                else {
+                    return user.getUserName();
+                }
             case TYPE_CHANNEL:
                 return streamInfo.getChannelName();
             case TYPE_URL_FETCH:

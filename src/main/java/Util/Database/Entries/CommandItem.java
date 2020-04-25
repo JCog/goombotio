@@ -3,11 +3,11 @@ package Util.Database.Entries;
 import com.gikk.twirk.enums.USER_TYPE;
 
 public class CommandItem {
-    private final static int DEFAULT_COOLDOWN = 2 * 1000;
     
     private final String id;
     private final String message;
     private final USER_TYPE permission;
+    private final long cooldown;
     private final int count;
     
     public static USER_TYPE getUserType(int permission) {
@@ -27,10 +27,11 @@ public class CommandItem {
         }
     }
     
-    public CommandItem(String id, String message, USER_TYPE permission, int count) {
+    public CommandItem(String id, String message, USER_TYPE permission, long cooldown, int count) {
         this.id = id;
         this.message = message;
         this.permission = permission;
+        this.cooldown = cooldown;
         this.count = count;
     }
     
@@ -46,12 +47,11 @@ public class CommandItem {
         return permission;
     }
     
-    public int getCount() {
-        return count;
+    public long getCooldown() {
+        return cooldown;
     }
     
-    public int getCooldown() {
-        //TODO: implement custom cooldowns
-        return DEFAULT_COOLDOWN;
+    public int getCount() {
+        return count;
     }
 }

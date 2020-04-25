@@ -50,7 +50,7 @@ public class GenericCommandListener extends CommandBase {
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         CommandItem commandItem = commandDb.getCommandItem(command);
         if (commandItem != null && userHasPermission(sender, commandItem) && !cooldownActive(commandItem)) {
-            twirk.channelMessage(commandParser.parse(commandItem, sender));
+            twirk.channelMessage(commandParser.parse(commandItem, sender, message));
             startCooldown(commandItem);
         }
     }

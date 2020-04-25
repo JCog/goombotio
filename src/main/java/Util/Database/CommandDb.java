@@ -11,6 +11,9 @@ public class CommandDb extends CollectionBase {
     private static final String MESSAGE_KEY = "message";
     private static final String PERMISSION_KEY = "permission";
     private static final String COUNT_KEY = "count";
+    private static final String COOLDOWN_KEY = "cooldown";
+    
+    private final static long DEFAULT_COOLDOWN = 2 * 1000;
     
     private static CommandDb instance = null;
     
@@ -104,6 +107,17 @@ public class CommandDb extends CollectionBase {
         return String.format("Successfully edited command permission for \"%s\" to %s.", id, permission);
     }
     
+    public String editTimeout(String id, long ms) {
+        if (getCommand(id) == null) {
+            return "ERROR: Message ID doesn't exist.";
+        }
+    
+        Document document = new Document(ID_KEY, id)
+                .append(COOLDOWN_KEY, ms);
+        updateOne(id, document);
+        return String.format("Successfully edited cooldown length for \"%s\" to %d ms.", id, ms);
+    }
+    
     public String deleteMessage(String id) {
         if (getCommand(id) == null) {
             return "ERROR: Message ID doesn't exist.";
@@ -126,6 +140,7 @@ public class CommandDb extends CollectionBase {
                     result.getString(ID_KEY),
                     result.getString(MESSAGE_KEY),
                     CommandItem.getUserType(result.getInteger(PERMISSION_KEY)),
+                    result.containsKey(COOLDOWN_KEY) ? result.getLong(COOLDOWN_KEY) : DEFAULT_COOLDOWN,
                     result.containsKey(COUNT_KEY) ? result.getInteger(COUNT_KEY) : 0
             );
         }
