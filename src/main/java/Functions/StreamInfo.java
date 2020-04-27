@@ -171,12 +171,16 @@ public class StreamInfo {
         return streamer;
     }
     
-    public String getUptime() {
+    /**
+     * Returns uptime in seconds according to Helix
+     * @return uptime in seconds, -1 if stream is offline
+     */
+    public long getUptime() {
         if (isLive()) {
-            return streamStats.getUptime().toString();
+            return streamStats.getUptime().toMillis() / 1000;
         }
         else {
-            return "channel is not live";
+            return -1;
         }
     }
 

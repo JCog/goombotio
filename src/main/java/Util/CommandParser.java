@@ -14,6 +14,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class CommandParser {
@@ -103,7 +104,13 @@ public class CommandParser {
                     return user.getUserName();
                 }
             case TYPE_UPTIME:
-                return streamInfo.getUptime();
+                long uptimeSeconds = streamInfo.getUptime();
+                if (uptimeSeconds == -1) {
+                    return "stream is not live";
+                }
+                else {
+                    return getTimeString(uptimeSeconds);
+                }
             case TYPE_URL_FETCH:
                 return submitRequest(content);
             case TYPE_USER_ID:
@@ -166,6 +173,22 @@ public class CommandParser {
             return Objects.requireNonNull(response.body()).string();
         } catch (IOException e) {
             return ERROR_URL_RETRIEVAL;
+        }
+    }
+    
+    private static String getTimeString(long seconds) {
+        long hours = TimeUnit.SECONDS.toHours(seconds);
+        seconds -= TimeUnit.HOURS.toSeconds(hours);
+        long minutes = TimeUnit.SECONDS.toMinutes(seconds);
+        seconds -= TimeUnit.MINUTES.toSeconds(minutes);
+        if (hours > 0) {
+            return String.format("%d hours, %d minutes, %d seconds", hours, minutes, seconds);
+        }
+        else if (minutes > 0){
+            return String.format("%d minutes, %d seconds", minutes, seconds);
+        }
+        else {
+            return String.format("%d seconds", seconds);
         }
     }
 }
