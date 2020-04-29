@@ -32,10 +32,12 @@ public class MainBotController {
     private final DiscordBotController dbc;
     private final ViewerQueueManager vqm;
     private final ChatLogger chatLogger;
+    private final String authToken;
     
     private MainBotController(String stream, String authToken, String discordToken, String channel, String nick, String oauth) {
         this.twirk = new TwirkInterface(channel, nick, oauth, VERBOSE_MODE);
         this.twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
+        this.authToken = authToken;
         streamInfo = new StreamInfo(stream, twitchClient, authToken);
         statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, stream, authToken, 60*1000);
         socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH, nick);
@@ -92,7 +94,7 @@ public class MainBotController {
         addTwirkListener(getOnDisconnectListener(twirk));
         
         // Command Listeners
-        addTwirkListener(new GenericCommandListener(twirk, streamInfo));
+        addTwirkListener(new GenericCommandListener(authToken, twirk, twitchClient, streamInfo));
         addTwirkListener(new GoombotioCommandsListener(twirk));
         //addTwirkListener(new ModListener(twirk));
         addTwirkListener(guessListener);

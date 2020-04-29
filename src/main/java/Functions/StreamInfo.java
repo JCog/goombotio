@@ -4,6 +4,7 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.GameList;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.StreamList;
+import com.github.twitch4j.helix.domain.UserList;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +20,8 @@ public class StreamInfo {
     private final String authToken;
     private final Timer timer = new Timer();
     private final ArrayList<Integer> viewerCounts = new ArrayList<>();
+    private final String streamerId;
+    private final String streamerDisplayName;
 
     private Stream streamStats = null;
     private Date startTime = null;
@@ -36,6 +39,9 @@ public class StreamInfo {
         this.streamer = streamer;
         this.twitchClient = twitchClient;
         this.authToken = authToken;
+        UserList tempList = twitchClient.getHelix().getUsers(authToken, null, Collections.singletonList(streamer)).execute();
+        streamerDisplayName = tempList.getUsers().get(0).getDisplayName();
+        streamerId = tempList.getUsers().get(0).getId();
     }
     
     /**
@@ -169,6 +175,14 @@ public class StreamInfo {
     
     public String getChannelName() {
         return streamer;
+    }
+    
+    public String getChannelDisplayName() {
+        return streamerDisplayName;
+    }
+    
+    public String getChannelId() {
+        return streamerId;
     }
     
     /**

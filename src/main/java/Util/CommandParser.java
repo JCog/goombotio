@@ -5,6 +5,10 @@ import Util.Database.CommandDb;
 import Util.Database.Entries.CommandItem;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.TwitchClient;
+import com.github.twitch4j.helix.domain.FollowList;
+import com.github.twitch4j.helix.domain.User;
+import com.github.twitch4j.helix.domain.UserList;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -13,6 +17,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -27,6 +34,7 @@ public class CommandParser {
     private static final String TYPE_CHANNEL = "channel";
     private static final String TYPE_COUNT = "count";
     private static final String TYPE_EVAL = "eval";
+    private static final String TYPE_FOLLOW_AGE = "followage";
     private static final String TYPE_QUERY = "query";
     private static final String TYPE_TOUSER = "touser";
     private static final String TYPE_UPTIME = "uptime";
@@ -36,10 +44,14 @@ public class CommandParser {
     private static final ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
     private static final OkHttpClient client = new OkHttpClient();
     
+    private final TwitchClient twitchClient;
     private final StreamInfo streamInfo;
     private final CommandDb commandDb;
+    private final String authToken;
     
-    public CommandParser(StreamInfo streamInfo) {
+    public CommandParser(String authToken, TwitchClient twitchClient, StreamInfo streamInfo) {
+        this.authToken = authToken;
+        this.twitchClient = twitchClient;
         this.streamInfo = streamInfo;
         this.commandDb = CommandDb.getInstance();
     }
@@ -89,6 +101,13 @@ public class CommandParser {
                 return Integer.toString(commandItem.getCount() + 1);
             case TYPE_EVAL:
                 return evalJavaScript(content);
+            case TYPE_FOLLOW_AGE:
+                if (content.split(" ").length == 1) {
+                    return getFollowAgeString(content);
+                }
+                else {
+                    return ERROR;
+                }
             case TYPE_QUERY:
                 if (arguments.length > 1) {
                     return twitchMessage.getContent().split(" ", 2)[1];
@@ -117,6 +136,50 @@ public class CommandParser {
                 return Long.toString(user.getUserID());
             default:
                 return ERROR;
+        }
+    }
+    
+    private String getFollowAgeString(String userName) {
+        UserList userList = twitchClient.getHelix().getUsers(authToken, null, Collections.singletonList(userName)).execute();
+        if (userList.getUsers().size() == 0) {
+            return String.format("Unknown user \"%s\"", userName);
+        }
+        User user = userList.getUsers().get(0);
+        FollowList followList = twitchClient.getHelix().getFollowers(
+                authToken,
+                user.getId(),
+                streamInfo.getChannelId(),
+                null,
+                1
+        ).execute();
+        
+        if(followList.getFollows().size() > 0) {
+            LocalDate followDate = followList.getFollows().get(0).getFollowedAt().toLocalDate();
+            LocalDate today = LocalDate.now();
+            Period period = Period.between(followDate, today);
+            int years = period.getYears();
+            int months = period.getMonths();
+            int days = period.getDays();
+            if (years == 0 && months == 0 && days == 0) {
+                return String.format("%s followed %s today", user.getDisplayName(), streamInfo.getChannelDisplayName());
+            }
+            StringBuilder timeString = new StringBuilder();
+            timeString.append(years > 0 ? String.format("%d year%s, ", years, years > 1 ? "s" : "") : "");
+            timeString.append(months > 0 ? String.format("%d month%s, ", months, months > 1 ? "s" : "") : "");
+            timeString.append(days > 0 ? String.format("%d day%s", days, days > 1 ? "s" : "") : "");
+            if (timeString.charAt(timeString.length() - 1) == ' ') {
+                timeString.deleteCharAt(timeString.length() - 1);
+                timeString.deleteCharAt(timeString.length() - 1);
+            }
+            return String.format(
+                    "%s has been following %s for %s",
+                    user.getDisplayName(),
+                    streamInfo.getChannelDisplayName(),
+                    timeString.toString()
+            );
+        }
+        else {
+            return String.format("%s is not following %s", user.getDisplayName(), streamInfo.getChannelDisplayName());
         }
     }
     

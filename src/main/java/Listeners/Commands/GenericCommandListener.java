@@ -8,6 +8,7 @@ import Util.TwirkInterface;
 import com.gikk.twirk.enums.USER_TYPE;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.TwitchClient;
 
 import java.util.HashSet;
 import java.util.Timer;
@@ -23,11 +24,11 @@ public class GenericCommandListener extends CommandBase {
     private final HashSet<String> activeCooldowns;
     
 
-    public GenericCommandListener(TwirkInterface twirk, StreamInfo streamInfo) {
+    public GenericCommandListener(String authToken, TwirkInterface twirk, TwitchClient twitchClient, StreamInfo streamInfo) {
         super(CommandType.GENERIC_COMMAND);
         this.twirk = twirk;
         this.commandDb = CommandDb.getInstance();
-        this.commandParser = new CommandParser(streamInfo);
+        this.commandParser = new CommandParser(authToken, twitchClient, streamInfo);
         activeCooldowns = new HashSet<>();
     }
 
