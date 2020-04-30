@@ -1,33 +1,35 @@
 package Util.Database.Entries;
 
-import com.gikk.twirk.enums.USER_TYPE;
+import Util.TwitchUserLevel;
 
 public class CommandItem {
     
     private final String id;
     private final String message;
-    private final USER_TYPE permission;
+    private final TwitchUserLevel.USER_LEVEL permission;
     private final long cooldown;
     private final int count;
     
-    public static USER_TYPE getUserType(int permission) {
+    public static TwitchUserLevel.USER_LEVEL getUserLevel(int permission) {
         switch (permission) {
             case 0:
-                return USER_TYPE.DEFAULT;
+                return TwitchUserLevel.USER_LEVEL.DEFAULT;
             case 2:
-                return USER_TYPE.SUBSCRIBER;
+                return TwitchUserLevel.USER_LEVEL.SUBSCRIBER;
             case 4:
-                return USER_TYPE.STAFF;
+                return TwitchUserLevel.USER_LEVEL.STAFF;
+            case 5:
+                return TwitchUserLevel.USER_LEVEL.VIP;
             case 6:
-                return USER_TYPE.MOD;
+                return TwitchUserLevel.USER_LEVEL.MOD;
             case 9:
-                return USER_TYPE.OWNER;
+                return TwitchUserLevel.USER_LEVEL.BROADCASTER;
             default:
                 return null;
         }
     }
     
-    public CommandItem(String id, String message, USER_TYPE permission, long cooldown, int count) {
+    public CommandItem(String id, String message, TwitchUserLevel.USER_LEVEL permission, long cooldown, int count) {
         this.id = id;
         this.message = message;
         this.permission = permission;
@@ -43,7 +45,7 @@ public class CommandItem {
         return message;
     }
     
-    public USER_TYPE getPermission() {
+    public TwitchUserLevel.USER_LEVEL getPermission() {
         return permission;
     }
     

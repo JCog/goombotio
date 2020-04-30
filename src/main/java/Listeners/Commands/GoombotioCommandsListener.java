@@ -3,7 +3,7 @@ package Listeners.Commands;
 import Util.Database.CommandDb;
 import Util.Database.SocialSchedulerDb;
 import Util.TwirkInterface;
-import com.gikk.twirk.enums.USER_TYPE;
+import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 
@@ -22,6 +22,7 @@ public class GoombotioCommandsListener extends CommandBase {
     private final static String[] validPermissions = {
             "default",
             "sub",
+            "vip",
             "mod",
             "owner"
     };
@@ -45,8 +46,8 @@ public class GoombotioCommandsListener extends CommandBase {
     }
 
     @Override
-    protected USER_TYPE getMinUserPrivilege() {
-        return USER_TYPE.MOD;
+    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
+        return TwitchUserLevel.USER_LEVEL.MOD;
     }
 
     @Override
@@ -123,7 +124,7 @@ public class GoombotioCommandsListener extends CommandBase {
                             }
                         }
                         else {
-                            twirk.channelMessage(commandDb.addMessage(id, content, USER_TYPE.DEFAULT));
+                            twirk.channelMessage(commandDb.addMessage(id, content, TwitchUserLevel.USER_LEVEL.DEFAULT));
                         }
                         break;
                     case EDIT:

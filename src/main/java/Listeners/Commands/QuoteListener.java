@@ -3,7 +3,7 @@ package Listeners.Commands;
 import Util.Database.Entries.QuoteItem;
 import Util.Database.QuoteDb;
 import Util.TwirkInterface;
-import com.gikk.twirk.enums.USER_TYPE;
+import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 
@@ -42,8 +42,8 @@ public class QuoteListener extends CommandBase {
     }
     
     @Override
-    protected USER_TYPE getMinUserPrivilege() {
-        return USER_TYPE.DEFAULT;
+    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
+        return TwitchUserLevel.USER_LEVEL.DEFAULT;
     }
     
     @Override
@@ -90,7 +90,7 @@ public class QuoteListener extends CommandBase {
                 break;
             //TODO: once Twirk supports checking for VIP status, allow VIPs to add unapproved quotes
             case PATTERN_ADD_QUOTE:
-                if (sender.getUserType().value >= USER_TYPE.MOD.value) {
+                if (TwitchUserLevel.getUserLevel(sender).value >= TwitchUserLevel.USER_LEVEL.MOD.value) {
                     if (content.isEmpty()) {
                         twirk.channelMessage(ERROR_MISSING_ARGUMENTS);
                         break;
@@ -99,7 +99,7 @@ public class QuoteListener extends CommandBase {
                 }
                 break;
             case PATTERN_DELETE_QUOTE:
-                if (sender.getUserType().value >= USER_TYPE.MOD.value) {
+                if (TwitchUserLevel.getUserLevel(sender).value >= TwitchUserLevel.USER_LEVEL.MOD.value) {
                     if (content.isEmpty()) {
                         twirk.channelMessage(ERROR_MISSING_ARGUMENTS);
                         break;
@@ -116,7 +116,7 @@ public class QuoteListener extends CommandBase {
                 }
                 break;
             case PATTERN_EDIT_QUOTE:
-                if (sender.getUserType().value >= USER_TYPE.MOD.value) {
+                if (TwitchUserLevel.getUserLevel(sender).value >= TwitchUserLevel.USER_LEVEL.MOD.value) {
                     String[] editSplit = content.split(" ", 2);
                     if (editSplit.length != 2) {
                         twirk.channelMessage(ERROR_MISSING_ARGUMENTS);

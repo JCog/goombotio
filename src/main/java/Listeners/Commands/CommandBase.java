@@ -1,6 +1,6 @@
 package Listeners.Commands;
 
-import com.gikk.twirk.enums.USER_TYPE;
+import Util.TwitchUserLevel;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
@@ -28,10 +28,11 @@ public abstract class CommandBase implements TwirkListener {
         GENERIC_COMMAND
     }
 
-    private Set<String> commandPattern;
-    private CommandType commandType;
-    private USER_TYPE minPrivilege;
-    private int cooldownLength;
+    private final Set<String> commandPattern;
+    private final CommandType commandType;
+    private final int cooldownLength;
+    
+    private TwitchUserLevel.USER_LEVEL minPrivilege;
     private boolean coolingDown;
 
     CommandBase(CommandType commandType) {
@@ -53,7 +54,7 @@ public abstract class CommandBase implements TwirkListener {
         String command = split[0];
         char firstChar = content.charAt(0);
 
-        if( !coolingDown && sender.getUserType().value >= minPrivilege.value ) {
+        if( !coolingDown && TwitchUserLevel.getUserLevel(sender).value >= minPrivilege.value ) {
             switch (commandType) {
                 case PREFIX_COMMAND:
                     for (String pattern : commandPattern) {
@@ -112,7 +113,7 @@ public abstract class CommandBase implements TwirkListener {
 
     protected abstract String getCommandWords();
 
-    protected abstract USER_TYPE getMinUserPrivilege();
+    protected abstract TwitchUserLevel.USER_LEVEL getMinUserPrivilege();
 
     protected abstract int getCooldownLength();
 

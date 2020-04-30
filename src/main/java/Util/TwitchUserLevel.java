@@ -13,19 +13,19 @@ public class TwitchUserLevel {
     
         public final int value;
     
-        private USER_LEVEL(int value) {
+        USER_LEVEL(int value) {
             this.value = value;
         }
     }
     
     public static USER_LEVEL getUserLevel(TwitchUser twitchUser) {
-        String[] badges = twitchUser.getBadges();
         boolean broadcaster = false;
         boolean mod = false;
         boolean vip = false;
         boolean staff = false;
         boolean sub = false;
-        for (String badge : badges) {
+        for (String badgeString : twitchUser.getBadges()) {
+            String badge = badgeString.split("/", 2)[0];
             switch (badge) {
                 case ("broadcaster"):
                     broadcaster = true;

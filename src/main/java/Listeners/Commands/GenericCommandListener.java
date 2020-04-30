@@ -5,7 +5,7 @@ import Util.CommandParser;
 import Util.Database.CommandDb;
 import Util.Database.Entries.CommandItem;
 import Util.TwirkInterface;
-import com.gikk.twirk.enums.USER_TYPE;
+import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.TwitchClient;
@@ -38,8 +38,8 @@ public class GenericCommandListener extends CommandBase {
     }
 
     @Override
-    protected USER_TYPE getMinUserPrivilege() {
-        return USER_TYPE.DEFAULT;
+    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
+        return TwitchUserLevel.USER_LEVEL.DEFAULT;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class GenericCommandListener extends CommandBase {
     }
     
     private boolean userHasPermission(TwitchUser sender, CommandItem commandItem) {
-        return sender.getUserType().value >= commandItem.getPermission().value;
+        return TwitchUserLevel.getUserLevel(sender).value >= commandItem.getPermission().value;
     }
     
     private void startCooldown(CommandItem commandItem) {

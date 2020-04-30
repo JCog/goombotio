@@ -2,7 +2,7 @@ package Listeners.Commands;
 
 import Functions.StreamInfo;
 import Util.TwirkInterface;
-import com.gikk.twirk.enums.USER_TYPE;
+import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 
@@ -29,8 +29,8 @@ public class WrListener extends CommandBase {
     }
 
     @Override
-    protected USER_TYPE getMinUserPrivilege() {
-        return USER_TYPE.DEFAULT;
+    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
+        return TwitchUserLevel.USER_LEVEL.DEFAULT;
     }
 
     @Override

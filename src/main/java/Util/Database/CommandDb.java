@@ -1,7 +1,7 @@
 package Util.Database;
 
 import Util.Database.Entries.CommandItem;
-import com.gikk.twirk.enums.USER_TYPE;
+import Util.TwitchUserLevel;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
@@ -33,7 +33,7 @@ public class CommandDb extends CollectionBase {
         return goombotioDb.getCollection(COLLECTION_NAME);
     }
     
-    public String addMessage(String id, String message, USER_TYPE permission) {
+    public String addMessage(String id, String message, TwitchUserLevel.USER_LEVEL permission) {
         if (getCommand(id) != null) {
             return "ERROR: Message ID already exists.";
         }
@@ -53,7 +53,7 @@ public class CommandDb extends CollectionBase {
         return addMessage(id, message, getPermission(permission));
     }
     
-    public String editCommand(String id, String message, USER_TYPE permission) {
+    public String editCommand(String id, String message, TwitchUserLevel.USER_LEVEL permission) {
         if (getCommand(id) == null) {
             return "ERROR: Message ID doesn't exist.";
         }
@@ -85,7 +85,7 @@ public class CommandDb extends CollectionBase {
         return String.format("Successfully edited command message for \"%s\".", id);
     }
     
-    public String editPermission(String id, USER_TYPE permission) {
+    public String editPermission(String id, TwitchUserLevel.USER_LEVEL permission) {
         if (getCommand(id) == null) {
             return "ERROR: Message ID doesn't exist.";
         }
@@ -139,7 +139,7 @@ public class CommandDb extends CollectionBase {
             return new CommandItem(
                     result.getString(ID_KEY),
                     result.getString(MESSAGE_KEY),
-                    CommandItem.getUserType(result.getInteger(PERMISSION_KEY)),
+                    CommandItem.getUserLevel(result.getInteger(PERMISSION_KEY)),
                     result.containsKey(COOLDOWN_KEY) ? result.getLong(COOLDOWN_KEY) : DEFAULT_COOLDOWN,
                     result.containsKey(COUNT_KEY) ? result.getInteger(COUNT_KEY) : 0
             );
@@ -151,26 +151,30 @@ public class CommandDb extends CollectionBase {
         return findFirstEquals(ID_KEY, id);
     }
     
-    private USER_TYPE getPermission(String permission) {
+    private TwitchUserLevel.USER_LEVEL getPermission(String permission) {
         switch (permission) {
             case "sub":
-                return USER_TYPE.SUBSCRIBER;
+                return TwitchUserLevel.USER_LEVEL.SUBSCRIBER;
+            case "vip":
+                return TwitchUserLevel.USER_LEVEL.VIP;
             case "mod":
-                return USER_TYPE.MOD;
+                return TwitchUserLevel.USER_LEVEL.MOD;
             case "owner":
-                return USER_TYPE.OWNER;
+                return TwitchUserLevel.USER_LEVEL.BROADCASTER;
             default:
-                return USER_TYPE.DEFAULT;
+                return TwitchUserLevel.USER_LEVEL.DEFAULT;
         }
     }
     
-    private String getPermission(USER_TYPE permission) {
+    private String getPermission(TwitchUserLevel.USER_LEVEL permission) {
         switch (permission) {
             case SUBSCRIBER:
                 return "sub";
+            case VIP:
+                return "vip";
             case MOD:
                 return "mod";
-            case OWNER:
+            case BROADCASTER:
                 return "owner";
             default:
                 return "default";
