@@ -1,6 +1,5 @@
-package Functions;
-
 import APIs.SpeedrunApi;
+import Functions.*;
 import Listeners.Commands.*;
 import Listeners.Events.*;
 import Util.ChatLogger;
