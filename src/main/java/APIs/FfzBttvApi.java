@@ -1,17 +1,13 @@
 package APIs;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.io.IOException;
 import java.util.HashMap;
 
-public class FfzBttvApi {
+public class FfzBttvApi extends BaseAPI {
     private static final String FFZ_URL = "https://api.frankerfacez.com/v1/room/jcog";
     private static final String FFZ_SETS_KEY = "sets";
     private static final String FFZ_SET_ID_KEY = "170319";
@@ -23,8 +19,6 @@ public class FfzBttvApi {
     private static final String BTTV_EMOTES_KEY = "emotes";
     private static final String BTTV_ID_KEY = "id";
     private static final String BTTV_CODE_KEY = "code";
-    
-    private static final OkHttpClient client = new OkHttpClient();
     
     public static HashMap<String, String> getFfzEmotes() {
         JSONParser jsonParser = new JSONParser();
@@ -68,17 +62,5 @@ public class FfzBttvApi {
             emotesMap.put(code, id);
         }
         return emotesMap;
-    }
-    
-    private static String submitRequest(String url) {
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 }

@@ -32,11 +32,13 @@ public class MainBotController {
     private final ViewerQueueManager vqm;
     private final ChatLogger chatLogger;
     private final String authToken;
+    private final String youtubeApiKey;
     
-    private MainBotController(String stream, String authToken, String discordToken, String channel, String nick, String oauth) {
+    private MainBotController(String stream, String authToken, String discordToken, String channel, String nick, String oauth, String youtubeApiKey) {
         this.twirk = new TwirkInterface(channel, nick, oauth, VERBOSE_MODE);
         this.twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
         this.authToken = authToken;
+        this.youtubeApiKey = youtubeApiKey;
         streamInfo = new StreamInfo(stream, twitchClient, authToken);
         statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, stream, authToken, 60*1000);
         socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH, nick);
@@ -47,9 +49,9 @@ public class MainBotController {
         dbc.init(discordToken);
     }
     
-    public static MainBotController getInstance(String stream, String authToken, String discordToken, String channel, String nick, String oauth) {
+    public static MainBotController getInstance(String stream, String authToken, String discordToken, String channel, String nick, String oauth, String youtubeApiKey) {
         if (instance == null) {
-            instance = new MainBotController(stream, authToken, discordToken, channel, nick, oauth);
+            instance = new MainBotController(stream, authToken, discordToken, channel, nick, oauth, youtubeApiKey);
         }
         return instance;
     }
@@ -109,6 +111,7 @@ public class MainBotController {
         addTwirkListener(new ChatLoggerListener(chatLogger));
         addTwirkListener(new CloudListener(twirk));
         addTwirkListener(new EmoteListener());
+        addTwirkListener(new LinkListener(twirk, twitchClient, authToken, youtubeApiKey));
         addTwirkListener(new PyramidListener(twirk));
         addTwirkListener(socialScheduler.getListener());
         addTwirkListener(new SubListener(twirk));

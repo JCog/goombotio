@@ -1,17 +1,13 @@
 package APIs;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.io.IOException;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public class SpeedrunApi {
+public class SpeedrunApi extends BaseAPI {
 
     private static final String BASE_URL = "http://www.speedrun.com/api/v1/";
     private static final String LEADERBOARDS = "leaderboards/";
@@ -98,8 +94,6 @@ public class SpeedrunApi {
         WII,
         WIIU
     }
-
-    private static final OkHttpClient client = new OkHttpClient();
     
     public static boolean certificateIsUpToDate() {
         return submitRequest(TEST_URL) != null;
@@ -369,18 +363,6 @@ public class SpeedrunApi {
     private static String getWrJson(String game, String category) {
         String url = buildWrUrl(game, category);
         return submitRequest(url);
-    }
-
-    private static String submitRequest(String url) {
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        try (Response response = client.newCall(request).execute()) {
-            return Objects.requireNonNull(response.body()).string();
-        }
-        catch (IOException|NullPointerException e) {
-            return null;
-        }
     }
 
     private static String buildUserUrl(String id) {
