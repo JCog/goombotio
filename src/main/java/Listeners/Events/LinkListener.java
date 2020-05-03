@@ -15,8 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LinkListener implements TwirkListener {
-    private static final Pattern clipPattern = Pattern.compile("(?:https?://www\\.|www\\.|^|\\s)+twitch\\.tv/[a-zA-Z0-9_]+/clip/([a-zA-Z]+)");
-    private static final Pattern videoPattern = Pattern.compile("(?:https?://www\\.|www\\.|^|\\s)+twitch\\.tv/videos/([0-9]+)");
+    private static final Pattern clipPattern = Pattern.compile("(?:https?://|^|\\s)+(?:www\\.|clips\\.)?twitch\\.tv/(?:[a-zA-Z0-9_]+/clip/)?([a-zA-Z]+)\\S*");
+    private static final Pattern videoPattern = Pattern.compile("(?:https?://|^|\\s)+(?:www\\.)?twitch\\.tv/videos/([0-9]+)");
     private static final Pattern youtubePattern = Pattern.compile("(?:https?://|^|\\s)+(?:www\\.)?(?:youtube\\.com/watch\\?v=|youtu\\.be/)([a-zA-Z0-9_\\-]+)");
     
     private final TwirkInterface twirk;
