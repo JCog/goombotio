@@ -4,6 +4,7 @@ import com.gikk.twirk.Twirk;
 import com.gikk.twirk.TwirkBuilder;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.helix.domain.User;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -13,21 +14,28 @@ public class TwirkInterface {
     private final String channel;
     private final String nick;
     private final String oauth;
+    private final ChatLogger chatLogger;
     private final Boolean verbose;
     private final HashSet<TwirkListener> twirkListeners;
+    private final String botDisplayName;
+    private final long botId;
     
     private Twirk twirk;
     
-    public TwirkInterface (String channel, String nick, String oauth, boolean verbose) {
+    public TwirkInterface (String channel, String nick, String oauth, ChatLogger chatLogger, User botUser, boolean verbose) {
         this.channel = channel;
         this.nick = nick;
         this.oauth = oauth;
+        this.chatLogger = chatLogger;
         this.verbose = verbose;
+        botDisplayName = botUser.getDisplayName();
+        botId = Long.parseLong(botUser.getId());
         twirkListeners = new HashSet<>();
     }
     
     public void channelMessage(String line) {
         twirk.channelMessage(line);
+        chatLogger.logMessage(botId, botDisplayName, line);
     }
     
     public void priorityMessage(String message) {

@@ -10,8 +10,11 @@ import Util.TwirkInterface;
 import com.gikk.twirk.events.TwirkListener;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
+import com.github.twitch4j.helix.domain.User;
+import com.github.twitch4j.helix.domain.UserList;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
@@ -35,8 +38,9 @@ public class MainBotController {
     private final String youtubeApiKey;
     
     private MainBotController(String stream, String authToken, String discordToken, String channel, String nick, String oauth, String youtubeApiKey) {
-        this.twirk = new TwirkInterface(channel, nick, oauth, VERBOSE_MODE);
+        chatLogger = new ChatLogger();
         this.twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
+        this.twirk = new TwirkInterface(channel, nick, oauth, chatLogger, getBotUser(nick), VERBOSE_MODE);
         this.authToken = authToken;
         this.youtubeApiKey = youtubeApiKey;
         streamInfo = new StreamInfo(stream, twitchClient, authToken);
@@ -44,7 +48,6 @@ public class MainBotController {
         socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH, nick);
         subPointUpdater = new SubPointUpdater();
         vqm = new ViewerQueueManager(twirk);
-        chatLogger = new ChatLogger();
         dbc = DiscordBotController.getInstance();
         dbc.init(discordToken);
     }
@@ -123,6 +126,11 @@ public class MainBotController {
     
     private void removeTwirkListener(TwirkListener listener) {
         twirk.removeIrcListener(listener);
+    }
+    
+    private User getBotUser(String nick) {
+        UserList result = twitchClient.getHelix().getUsers(authToken, null, Collections.singletonList(nick)).execute();
+        return result.getUsers().get(0);
     }
     
     private static TwirkListener getOnDisconnectListener(final TwirkInterface twirk) {
