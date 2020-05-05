@@ -16,6 +16,7 @@ public class QuoteListener extends CommandBase {
     private static final String PATTERN_ADD_QUOTE = "!addquote";
     private static final String PATTERN_DELETE_QUOTE = "!delquote";
     private static final String PATTERN_EDIT_QUOTE = "!editquote";
+    private static final String PATTERN_LATEST_QUOTE = "!latestquote";
     private static final String ERROR_MISSING_ARGUMENTS = "Missing argument(s)";
     private static final String ERROR_NO_MATCHING_QUOTES = "No matching quotes";
     private static final String ERROR_BAD_INDEX_FORMAT = "Unable to parse quote \"%s\"";
@@ -37,7 +38,8 @@ public class QuoteListener extends CommandBase {
                 PATTERN_QUOTE,
                 PATTERN_ADD_QUOTE,
                 PATTERN_DELETE_QUOTE,
-                PATTERN_EDIT_QUOTE
+                PATTERN_EDIT_QUOTE,
+                PATTERN_LATEST_QUOTE
         );
     }
     
@@ -88,7 +90,6 @@ public class QuoteListener extends CommandBase {
                     twirk.channelMessage(quote.toString());
                 }
                 break;
-            //TODO: once Twirk supports checking for VIP status, allow VIPs to add unapproved quotes
             case PATTERN_ADD_QUOTE:
                 if (TwitchUserLevel.getUserLevel(sender).value >= TwitchUserLevel.USER_LEVEL.MOD.value) {
                     if (content.isEmpty()) {
@@ -132,6 +133,9 @@ public class QuoteListener extends CommandBase {
                     }
                     twirk.channelMessage(quoteDb.editQuote(editIndex, editSplit[1], sender.getUserID()));
                 }
+            case PATTERN_LATEST_QUOTE:
+                quote = quoteDb.getQuote(quoteDb.getQuoteCount());
+                twirk.channelMessage(quote.toString());
         }
     }
     
