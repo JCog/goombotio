@@ -15,9 +15,16 @@ public class SpeedrunApi extends BaseAPI {
     
     private static final String TEST_URL = "https://www.speedrun.com/api/v1/leaderboards/o1y9wo6q/category/7dgrrxk4?top=1";
 
+    private static final String GAME_SUNSHINE = "sms/";
     private static final String GAME_PAPER_MARIO = "pm64/";
     private static final String GAME_PAPER_MARIO_MEMES = "pmariomemes/";
     private static final String GAME_TTYD = "ttyd/";
+    
+    private static final String CAT_SUNSHINE_ANY_PERCENT = "any";
+    private static final String CAT_SUNSHINE_ALL_EPISODES = "all_episodes";
+    private static final String CAT_SUNSHINE_SHINES_79 = "79_shines";
+    private static final String CAT_SUNSHINE_SHINES_96 = "96_shines";
+    private static final String CAT_SUNSHINE_SHINES_120 = "120_shines";
 
     private static final String CAT_PAPE_ANY_PERCENT = "any";
     private static final String CAT_PAPE_ANY_NO_PW = "any_no_pw";
@@ -58,9 +65,18 @@ public class SpeedrunApi extends BaseAPI {
     private static final String ERROR_MESSAGE = "The SRC certificate has expired. Tell @JCog to fix it. :)";
 
     public enum Game {
+        SUNSHINE,
         PAPER_MARIO,
         PAPER_MARIO_MEMES,
         TTYD
+    }
+    
+    public enum SunshineCategory {
+        ANY_PERCENT,
+        ALL_EPISODES,
+        SHINES_79,
+        SHINES_96,
+        SHINES_120
     }
 
     public enum PapeCategory {
@@ -97,6 +113,22 @@ public class SpeedrunApi extends BaseAPI {
     
     public static boolean certificateIsUpToDate() {
         return submitRequest(TEST_URL) != null;
+    }
+    
+    public static String getWr(Game game, SunshineCategory category) {
+        String gameString = getGameUrlString(game);
+        String categoryString = getCategoryUrlString(category);
+    
+        String json = getWrJson(gameString, categoryString);
+        if (json == null) {
+            return ERROR_MESSAGE;
+        }
+        String playerId = getPlayerIdFromJson(json);
+        long seconds = getRunTimeFromJson(json);
+    
+        String name = getUsernameFromId(playerId);
+        String time = getTimeString(seconds);
+        return String.format("The Super Mario Sunshine %s WR is %s by %s", getCategoryString(category), time, name);
     }
     
     /**
@@ -225,6 +257,23 @@ public class SpeedrunApi extends BaseAPI {
             return String.format("%d:%02d", minutes, seconds);
         }
     }
+    
+    private static String getCategoryString(SunshineCategory category) {
+        switch (category) {
+            case ANY_PERCENT:
+                return "Any%";
+            case ALL_EPISODES:
+                return "All Episodes";
+            case SHINES_79:
+                return "79 Shines";
+            case SHINES_96:
+                return "96 Shines";
+            case SHINES_120:
+                return "120 Shines";
+            default:
+                return "Any%";
+        }
+    }
 
     private static String getCategoryString(PapeCategory category) {
         switch (category) {
@@ -280,6 +329,8 @@ public class SpeedrunApi extends BaseAPI {
 
     private static String getGameUrlString(Game game) {
         switch (game) {
+            case SUNSHINE:
+                return GAME_SUNSHINE;
             case PAPER_MARIO:
                 return GAME_PAPER_MARIO;
             case PAPER_MARIO_MEMES:
@@ -288,6 +339,23 @@ public class SpeedrunApi extends BaseAPI {
                 return GAME_TTYD;
             default:
                 return GAME_PAPER_MARIO;
+        }
+    }
+    
+    private static String getCategoryUrlString(SunshineCategory category) {
+        switch (category) {
+            case ANY_PERCENT:
+                return CAT_SUNSHINE_ANY_PERCENT;
+            case ALL_EPISODES:
+                return CAT_SUNSHINE_ALL_EPISODES;
+            case SHINES_79:
+                return CAT_SUNSHINE_SHINES_79;
+            case SHINES_96:
+                return CAT_SUNSHINE_SHINES_96;
+            case SHINES_120:
+                return CAT_SUNSHINE_SHINES_120;
+            default:
+                return CAT_SUNSHINE_ANY_PERCENT;
         }
     }
     
