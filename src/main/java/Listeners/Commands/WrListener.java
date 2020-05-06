@@ -10,6 +10,7 @@ import static APIs.SpeedrunApi.*;
 
 public class WrListener extends CommandBase {
     
+    private static final String GAME_SUNSHINE = "Super Mario Sunshine";
     private static final String GAME_PAPER_MARIO = "Paper Mario";
     private static final String GAME_TTYD = "Paper Mario: The Thousand-Year Door";
     private static final String PATTERN = "!wr";
@@ -42,7 +43,27 @@ public class WrListener extends CommandBase {
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         String title = streamInfo.getTitle().toLowerCase();
         String game = streamInfo.getGame();
-        if (game.equals(GAME_PAPER_MARIO)) {
+        if (game.equals(GAME_SUNSHINE)) {
+            if (title.contains("any%")) {
+                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.SUNSHINE, SunshineCategory.ANY_PERCENT)));
+            }
+            else if (title.contains("all episodes")) {
+                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.SUNSHINE, SunshineCategory.ALL_EPISODES)));
+            }
+            else if (title.contains("79")) {
+                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.SUNSHINE, SunshineCategory.SHINES_79)));
+            }
+            else if (title.contains("96")) {
+                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.SUNSHINE, SunshineCategory.SHINES_96)));
+            }
+            else if (title.contains("120")) {
+                twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.SUNSHINE, SunshineCategory.SHINES_120)));
+            }
+            else {
+                twirk.channelMessage(String.format("@%s Unknown WR", sender.getDisplayName()));
+            }
+        }
+        else if (game.equals(GAME_PAPER_MARIO)) {
             if (title.contains("any% (no peach warp)") || title.contains("any% (no pw)")) {
                 twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), getWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT_NO_PW)));
             }
