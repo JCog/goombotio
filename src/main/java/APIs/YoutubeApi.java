@@ -33,8 +33,8 @@ public class YoutubeApi extends BaseAPI {
         String title;
         String channelName;
         int viewCount;
-        int likeCount;
-        int dislikeCount;
+        int likeCount = 0;
+        int dislikeCount = 0;
         
         JSONArray items = (JSONArray) object.get(ITEMS_KEY);
         JSONObject item = (JSONObject) items.get(0);
@@ -44,8 +44,13 @@ public class YoutubeApi extends BaseAPI {
         
         JSONObject stats = (JSONObject) item.get(STATISTICS_KEY);
         viewCount = Integer.parseInt(stats.get(VIEW_COUNT_KEY).toString());
-        likeCount = Integer.parseInt(stats.get(LIKE_COUNT_KEY).toString());
-        dislikeCount = Integer.parseInt(stats.get(DISLIKE_COUNT_KEY).toString());
+        try {
+            likeCount = Integer.parseInt(stats.get(LIKE_COUNT_KEY).toString());
+            dislikeCount = Integer.parseInt(stats.get(DISLIKE_COUNT_KEY).toString());
+        }
+        catch (NullPointerException e) {
+            //ratings hidden
+        }
     
         NumberFormat numberFormat = NumberFormat.getInstance();
         numberFormat.setGroupingUsed(true);
