@@ -39,9 +39,9 @@ public class MainBotController {
     
     private MainBotController(String stream, String authToken, String discordToken, String channel, String nick, String oauth, String youtubeApiKey) {
         chatLogger = new ChatLogger();
+        this.authToken = authToken;
         this.twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
         this.twirk = new TwirkInterface(channel, nick, oauth, chatLogger, getBotUser(nick), VERBOSE_MODE);
-        this.authToken = authToken;
         this.youtubeApiKey = youtubeApiKey;
         streamInfo = new StreamInfo(stream, twitchClient, authToken);
         statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, stream, authToken, 60*1000);
