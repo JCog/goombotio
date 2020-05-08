@@ -37,7 +37,13 @@ public class YoutubeApi extends BaseAPI {
         int dislikeCount = 0;
         
         JSONArray items = (JSONArray) object.get(ITEMS_KEY);
-        JSONObject item = (JSONObject) items.get(0);
+        JSONObject item;
+        try {
+            item = (JSONObject) items.get(0);
+        }
+        catch (IndexOutOfBoundsException e) {
+            return "Deleted/Private Youtube Video";
+        }
         JSONObject snippet = (JSONObject) item.get(SNIPPET_KEY);
         title = snippet.get(TITLE_KEY).toString();
         channelName = snippet.get(CHANNEL_TITLE_KEY).toString();
