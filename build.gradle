@@ -26,6 +26,8 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     compile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.25'
     compile group: 'com.github.twitch4j', name: 'twitch4j', version: '1.0.0-alpha.20'
+    compile group: 'org.twitter4j', name: 'twitter4j-core', version: '4.0.1'
+    compile group: 'org.ini4j', name: 'ini4j', version: '0.5.4'
     compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
     compile 'net.dv8tion:JDA:4.1.1_101'
 }

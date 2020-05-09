@@ -2,11 +2,8 @@ import APIs.SpeedrunApi;
 import Functions.*;
 import Listeners.Commands.*;
 import Listeners.Events.*;
-import Util.ChatLogger;
+import Util.*;
 import Util.Database.GoombotioDb;
-import Util.ReportBuilder;
-import Util.StreamStatsInterface;
-import Util.TwirkInterface;
 import com.gikk.twirk.events.TwirkListener;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
@@ -20,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.System.out;
 
 public class MainBotController {
-    private static final boolean VERBOSE_MODE = false;
     private static final int SOCIAL_INTERVAL_LENGTH = 20;
     
     private static MainBotController instance = null;
@@ -34,27 +30,23 @@ public class MainBotController {
     private final DiscordBotController dbc;
     private final ViewerQueueManager vqm;
     private final ChatLogger chatLogger;
-    private final String authToken;
-    private final String youtubeApiKey;
     
-    private MainBotController(String stream, String authToken, String discordToken, String channel, String nick, String oauth, String youtubeApiKey) {
+    private MainBotController() {
         chatLogger = new ChatLogger();
-        this.authToken = authToken;
         this.twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
-        this.twirk = new TwirkInterface(channel, nick, oauth, chatLogger, getBotUser(nick), VERBOSE_MODE);
-        this.youtubeApiKey = youtubeApiKey;
-        streamInfo = new StreamInfo(stream, twitchClient, authToken);
-        statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, stream, authToken, 60*1000);
-        socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH, nick);
+        this.twirk = new TwirkInterface(Settings.getTwitchChannel(), Settings.getTwitchUsername(), Settings.getTwitchOauth(), chatLogger, getBotUser(Settings.getTwitchUsername()), Settings.isVerbose());
+        streamInfo = new StreamInfo(Settings.getTwitchStream(), twitchClient, Settings.getTwitchAuthToken());
+        statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, Settings.getTwitchStream(), Settings.getTwitchAuthToken(), 60*1000);
+        socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH, Settings.getTwitchUsername());
         subPointUpdater = new SubPointUpdater();
         vqm = new ViewerQueueManager(twirk);
         dbc = DiscordBotController.getInstance();
-        dbc.init(discordToken);
+        dbc.init(Settings.getDiscordToken());
     }
     
-    public static MainBotController getInstance(String stream, String authToken, String discordToken, String channel, String nick, String oauth, String youtubeApiKey) {
+    public static MainBotController getInstance() {
         if (instance == null) {
-            instance = new MainBotController(stream, authToken, discordToken, channel, nick, oauth, youtubeApiKey);
+            instance = new MainBotController();
         }
         return instance;
     }
@@ -98,7 +90,7 @@ public class MainBotController {
         addTwirkListener(getOnDisconnectListener(twirk));
         
         // Command Listeners
-        addTwirkListener(new GenericCommandListener(authToken, twirk, twitchClient, streamInfo));
+        addTwirkListener(new GenericCommandListener(Settings.getTwitchAuthToken(), twirk, twitchClient, streamInfo));
         addTwirkListener(new GoombotioCommandsListener(twirk));
         //addTwirkListener(new ModListener(twirk));
         addTwirkListener(guessListener);
@@ -114,7 +106,7 @@ public class MainBotController {
         addTwirkListener(new ChatLoggerListener(chatLogger));
         addTwirkListener(new CloudListener(twirk));
         addTwirkListener(new EmoteListener());
-        addTwirkListener(new LinkListener(twirk, twitchClient, authToken, youtubeApiKey));
+        addTwirkListener(new LinkListener(twirk, twitchClient, Settings.getTwitchAuthToken(), Settings.getYoutubeApiKey()));
         addTwirkListener(new PyramidListener(twirk));
         addTwirkListener(socialScheduler.getListener());
         addTwirkListener(new SubListener(twirk));
@@ -129,7 +121,7 @@ public class MainBotController {
     }
     
     private User getBotUser(String nick) {
-        UserList result = twitchClient.getHelix().getUsers(authToken, null, Collections.singletonList(nick)).execute();
+        UserList result = twitchClient.getHelix().getUsers(Settings.getTwitchAuthToken(), null, Collections.singletonList(nick)).execute();
         return result.getUsers().get(0);
     }
     
