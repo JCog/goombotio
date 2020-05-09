@@ -35,13 +35,13 @@ public class MainBotController {
         chatLogger = new ChatLogger();
         this.twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
         this.twirk = new TwirkInterface(chatLogger, getBotUser(Settings.getTwitchUsername()));
-        streamInfo = new StreamInfo(Settings.getTwitchStream(), twitchClient, Settings.getTwitchAuthToken());
-        statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, Settings.getTwitchStream(), Settings.getTwitchAuthToken(), 60*1000);
-        socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH, Settings.getTwitchUsername());
+        streamInfo = new StreamInfo(twitchClient);
+        statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, 60*1000);
+        socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH);
         subPointUpdater = new SubPointUpdater();
         vqm = new ViewerQueueManager(twirk);
         dbc = DiscordBotController.getInstance();
-        dbc.init(Settings.getDiscordToken());
+        dbc.init();
     }
     
     public static MainBotController getInstance() {
@@ -90,7 +90,7 @@ public class MainBotController {
         addTwirkListener(getOnDisconnectListener(twirk));
         
         // Command Listeners
-        addTwirkListener(new GenericCommandListener(Settings.getTwitchAuthToken(), twirk, twitchClient, streamInfo));
+        addTwirkListener(new GenericCommandListener(twirk, twitchClient, streamInfo));
         addTwirkListener(new GoombotioCommandsListener(twirk));
         //addTwirkListener(new ModListener(twirk));
         addTwirkListener(guessListener);
@@ -106,7 +106,7 @@ public class MainBotController {
         addTwirkListener(new ChatLoggerListener(chatLogger));
         addTwirkListener(new CloudListener(twirk));
         addTwirkListener(new EmoteListener());
-        addTwirkListener(new LinkListener(twirk, twitchClient, Settings.getTwitchAuthToken(), Settings.getYoutubeApiKey()));
+        addTwirkListener(new LinkListener(twirk, twitchClient));
         addTwirkListener(new PyramidListener(twirk));
         addTwirkListener(socialScheduler.getListener());
         addTwirkListener(new SubListener(twirk));

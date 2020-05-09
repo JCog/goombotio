@@ -1,6 +1,7 @@
 package Functions;
 
 import Util.Database.SocialSchedulerDb;
+import Util.Settings;
 import Util.TwirkInterface;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
@@ -32,13 +33,13 @@ public class SocialScheduler {
      * @param twirk chat interface
      * @param intervalLength minutes between posts
      */
-    public SocialScheduler(TwirkInterface twirk, int intervalLength, String botName) {
+    public SocialScheduler(TwirkInterface twirk, int intervalLength) {
         this.socialSchedulerDb = SocialSchedulerDb.getInstance();
         this.twirk = twirk;
         this.running = false;
         this.activeChat = false;
         this.intervalLength = intervalLength;
-        this.botName = botName;
+        this.botName = Settings.getTwitchUsername();
         this.anyMessageListener = new AnyMessageListener();
         random = new Random();
     }

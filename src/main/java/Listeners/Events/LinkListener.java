@@ -1,6 +1,7 @@
 package Listeners.Events;
 
 import APIs.YoutubeApi;
+import Util.Settings;
 import Util.TwirkInterface;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
@@ -24,11 +25,11 @@ public class LinkListener implements TwirkListener {
     private final String authToken;
     private final String youtubeApiKey;
     
-    public LinkListener(TwirkInterface twirk, TwitchClient twitchClient, String authToken, String youtubeApiKey) {
+    public LinkListener(TwirkInterface twirk, TwitchClient twitchClient) {
         this.twirk = twirk;
         this.twitchClient = twitchClient;
-        this.authToken = authToken;
-        this.youtubeApiKey = youtubeApiKey;
+        this.authToken = Settings.getTwitchAuthToken();
+        this.youtubeApiKey = Settings.getYoutubeApiKey();
     }
     
     @Override

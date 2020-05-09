@@ -1,5 +1,6 @@
 package Functions;
 
+import Util.Settings;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -22,10 +23,10 @@ public class DiscordBotController {
         return dbc;
     }
     
-    public void init(String token) {
+    public void init() {
         try {
             JDABuilder builder = new JDABuilder(AccountType.BOT);
-            builder.setToken(token);
+            builder.setToken(Settings.getDiscordToken());
             jda = builder.build().awaitReady();
             out.println("Goombotio login to Discord successful.");
         }

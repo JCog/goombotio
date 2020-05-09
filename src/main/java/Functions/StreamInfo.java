@@ -1,5 +1,6 @@
 package Functions;
 
+import Util.Settings;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.GameList;
 import com.github.twitch4j.helix.domain.Stream;
@@ -31,14 +32,12 @@ public class StreamInfo {
     
     /**
      * Provides an interface to get basic information about a Twitch stream
-     * @param streamer username of the streamer
      * @param twitchClient twitchClient object to query the Twitch API (must have Helix enabled)
-     * @param authToken bot's auth token
      */
-    public StreamInfo(String streamer, TwitchClient twitchClient, String authToken) {
-        this.streamer = streamer;
+    public StreamInfo(TwitchClient twitchClient) {
+        this.streamer = Settings.getTwitchStream();
+        this.authToken = Settings.getTwitchAuthToken();
         this.twitchClient = twitchClient;
-        this.authToken = authToken;
         UserList tempList = twitchClient.getHelix().getUsers(authToken, null, Collections.singletonList(streamer)).execute();
         streamerDisplayName = tempList.getUsers().get(0).getDisplayName();
         streamerId = tempList.getUsers().get(0).getId();

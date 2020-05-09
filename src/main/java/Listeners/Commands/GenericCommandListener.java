@@ -4,6 +4,7 @@ import Functions.StreamInfo;
 import Util.CommandParser;
 import Util.Database.CommandDb;
 import Util.Database.Entries.CommandItem;
+import Util.Settings;
 import Util.TwirkInterface;
 import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
@@ -24,11 +25,11 @@ public class GenericCommandListener extends CommandBase {
     private final HashSet<String> activeCooldowns;
     
 
-    public GenericCommandListener(String authToken, TwirkInterface twirk, TwitchClient twitchClient, StreamInfo streamInfo) {
+    public GenericCommandListener(TwirkInterface twirk, TwitchClient twitchClient, StreamInfo streamInfo) {
         super(CommandType.GENERIC_COMMAND);
         this.twirk = twirk;
         this.commandDb = CommandDb.getInstance();
-        this.commandParser = new CommandParser(authToken, twitchClient, streamInfo);
+        this.commandParser = new CommandParser(Settings.getTwitchAuthToken(), twitchClient, streamInfo);
         activeCooldowns = new HashSet<>();
     }
 

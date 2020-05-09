@@ -1,6 +1,7 @@
 package Functions;
 
 import Util.Database.WatchTimeDb;
+import Util.Settings;
 import Util.TwirkInterface;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.Follow;
@@ -39,12 +40,12 @@ public class StatsTracker {
      * @param authToken bot's auth token
      * @param interval how often to collect data in milliseconds
      */
-    public StatsTracker(TwirkInterface twirk, TwitchClient twitchClient, StreamInfo streamInfo, String stream, String authToken, int interval) {
+    public StatsTracker(TwirkInterface twirk, TwitchClient twitchClient, StreamInfo streamInfo, int interval) {
         this.twirk = twirk;
         this.twitchClient = twitchClient;
         this.streamInfo = streamInfo;
-        this.stream = stream;
-        this.authToken = authToken;
+        this.stream = Settings.getTwitchStream();
+        this.authToken = Settings.getTwitchAuthToken();
         this.interval = interval;
         timer = new Timer();
         usersMap = new HashMap<>();
