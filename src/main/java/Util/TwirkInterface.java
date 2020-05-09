@@ -22,12 +22,12 @@ public class TwirkInterface {
     
     private Twirk twirk;
     
-    public TwirkInterface (String channel, String nick, String oauth, ChatLogger chatLogger, User botUser, boolean verbose) {
-        this.channel = channel;
-        this.nick = nick;
-        this.oauth = oauth;
+    public TwirkInterface (ChatLogger chatLogger, User botUser) {
+        this.channel = Settings.getTwitchChannel();
+        this.nick = Settings.getTwitchUsername();
+        this.oauth = Settings.getTwitchOauth();
+        this.verbose = Settings.isVerbose();
         this.chatLogger = chatLogger;
-        this.verbose = verbose;
         botDisplayName = botUser.getDisplayName();
         botId = Long.parseLong(botUser.getId());
         twirkListeners = new HashSet<>();

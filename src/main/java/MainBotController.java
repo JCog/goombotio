@@ -34,7 +34,7 @@ public class MainBotController {
     private MainBotController() {
         chatLogger = new ChatLogger();
         this.twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
-        this.twirk = new TwirkInterface(Settings.getTwitchChannel(), Settings.getTwitchUsername(), Settings.getTwitchOauth(), chatLogger, getBotUser(Settings.getTwitchUsername()), Settings.isVerbose());
+        this.twirk = new TwirkInterface(chatLogger, getBotUser(Settings.getTwitchUsername()));
         streamInfo = new StreamInfo(Settings.getTwitchStream(), twitchClient, Settings.getTwitchAuthToken());
         statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, Settings.getTwitchStream(), Settings.getTwitchAuthToken(), 60*1000);
         socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH, Settings.getTwitchUsername());
