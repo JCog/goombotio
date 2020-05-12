@@ -1,5 +1,7 @@
 package Util;
 
+import Listeners.Commands.CommandBase;
+import Listeners.Commands.GenericCommandListener;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.TwirkBuilder;
 import com.gikk.twirk.events.TwirkListener;
@@ -7,8 +9,7 @@ import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.User;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class TwirkInterface {
     private final String channel;
@@ -36,6 +37,17 @@ public class TwirkInterface {
     public void channelMessage(String line) {
         twirk.channelMessage(line);
         chatLogger.logMessage(botId, botDisplayName, line);
+    }
+    
+    public List<String> getCommandPatterns() {
+        ArrayList<String> commands = new ArrayList<>();
+        for (TwirkListener listener : twirkListeners) {
+            if(CommandBase.class.isAssignableFrom(listener.getClass()) && listener.getClass() != GenericCommandListener.class) {
+                String[] commandWords = ((CommandBase) listener).getCommandWords().split("\\|");
+                commands.addAll(Arrays.asList(commandWords));
+            }
+        }
+        return commands;
     }
     
     public void priorityMessage(String message) {

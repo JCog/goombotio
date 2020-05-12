@@ -28,7 +28,7 @@ public class ViewerQueueManageListener extends CommandBase {
     }
     
     @Override
-    protected String getCommandWords() {
+    public String getCommandWords() {
         return String.join("|", START, END, NEXT);
     }
     

@@ -41,7 +41,7 @@ public class GoombotioCommandsListener extends CommandBase {
     }
 
     @Override
-    protected String getCommandWords() {
+    public String getCommandWords() {
         return PATTERN;
     }
 

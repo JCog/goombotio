@@ -33,7 +33,7 @@ public class QuoteListener extends CommandBase {
     }
     
     @Override
-    protected String getCommandWords() {
+    public String getCommandWords() {
         return String.join("|",
                 PATTERN_QUOTE,
                 PATTERN_ADD_QUOTE,

@@ -26,7 +26,7 @@ public class SpeedySpinGameListener extends CommandBase {
     }
 
     @Override
-    protected String getCommandWords() {
+    public String getCommandWords() {
         return PATTERN;
     }
 

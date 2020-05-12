@@ -27,7 +27,7 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
     }
 
     @Override
-    protected String getCommandWords() {
+    public String getCommandWords() {
         return String.join("|",
                 PATTERN_LEADERBOARD,
                 PATTERN_BADGE_SHOP,

@@ -111,7 +111,7 @@ public abstract class CommandBase implements TwirkListener {
         cooldownTimer.start();
     }
 
-    protected abstract String getCommandWords();
+    public abstract String getCommandWords();
 
     protected abstract TwitchUserLevel.USER_LEVEL getMinUserPrivilege();
 

@@ -26,7 +26,7 @@ public class WatchTimeListener extends CommandBase {
     }
     
     @Override
-    protected String getCommandWords() {
+    public String getCommandWords() {
         return PATTERN;
     }
     
