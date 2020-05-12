@@ -9,7 +9,9 @@ import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.User;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TwirkInterface {
     private final String channel;
@@ -39,8 +41,8 @@ public class TwirkInterface {
         chatLogger.logMessage(botId, botDisplayName, line);
     }
     
-    public List<String> getCommandPatterns() {
-        ArrayList<String> commands = new ArrayList<>();
+    public Set<String> getCommandPatterns() {
+        HashSet<String> commands = new HashSet<>();
         for (TwirkListener listener : twirkListeners) {
             if(CommandBase.class.isAssignableFrom(listener.getClass()) && listener.getClass() != GenericCommandListener.class) {
                 String[] commandWords = ((CommandBase) listener).getCommandWords().split("\\|");

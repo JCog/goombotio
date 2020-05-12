@@ -95,6 +95,11 @@ public class GoombotioCommandsListener extends CommandBase {
         }
         boolean hasPermission = !permission.isEmpty();
         
+        if (twirk.getCommandPatterns().contains(id)) {
+            showError(String.format("%s is a reserved command and cannot be changed", id));
+            return;
+        }
+        
         switch (type) {
             case SCHEDULED:
                 switch (function) {
