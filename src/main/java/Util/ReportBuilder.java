@@ -1,8 +1,8 @@
 package Util;
 
+import Database.WatchTimeDb;
 import Functions.StatsTracker;
 import Functions.StreamInfo;
-import Util.Database.WatchTimeDb;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

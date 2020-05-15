@@ -1,6 +1,6 @@
-package Util.Database;
+package Database;
 
-import Util.Database.Entries.ViewerQueueEntry;
+import Database.Entries.ViewerQueueEntry;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 

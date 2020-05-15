@@ -1,6 +1,6 @@
 package Listeners.Commands;
 
-import Util.Database.SpeedySpinLeaderboard;
+import Database.SpeedySpinLeaderboard;
 import Util.TwirkInterface;
 import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;

@@ -1,4 +1,4 @@
-package Util.Database.Entries;
+package Database.Entries;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

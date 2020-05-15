@@ -1,4 +1,4 @@
-package Util.Database.Entries;
+package Database.Entries;
 
 import Util.TwitchUserLevel;
 

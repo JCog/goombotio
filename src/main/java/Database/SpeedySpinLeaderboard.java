@@ -1,4 +1,4 @@
-package Util.Database;
+package Database;
 
 import com.gikk.twirk.types.users.TwitchUser;
 import com.mongodb.client.MongoCollection;

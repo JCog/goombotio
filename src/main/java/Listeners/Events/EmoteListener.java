@@ -1,8 +1,8 @@
 package Listeners.Events;
 import APIs.FfzBttvApi;
-import Util.Database.BttvEmoteStatsDb;
-import Util.Database.EmoteStatsDb;
-import Util.Database.FfzEmoteStatsDb;
+import Database.BttvEmoteStatsDb;
+import Database.EmoteStatsDb;
+import Database.FfzEmoteStatsDb;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.emote.Emote;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;

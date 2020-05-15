@@ -1,9 +1,9 @@
 package Util;
 
+import Database.StreamStatsDb;
+import Database.WatchTimeDb;
 import Functions.StatsTracker;
 import Functions.StreamInfo;
-import Util.Database.StreamStatsDb;
-import Util.Database.WatchTimeDb;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.FollowList;
 import com.github.twitch4j.helix.domain.UserList;

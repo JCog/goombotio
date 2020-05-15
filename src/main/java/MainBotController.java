@@ -1,9 +1,9 @@
 import APIs.SpeedrunApi;
+import Database.GoombotioDb;
 import Functions.*;
 import Listeners.Commands.*;
 import Listeners.Events.*;
 import Util.*;
-import Util.Database.GoombotioDb;
 import com.gikk.twirk.events.TwirkListener;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;

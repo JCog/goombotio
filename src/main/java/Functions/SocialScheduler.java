@@ -1,6 +1,6 @@
 package Functions;
 
-import Util.Database.SocialSchedulerDb;
+import Database.SocialSchedulerDb;
 import Util.Settings;
 import Util.TwirkInterface;
 import com.gikk.twirk.events.TwirkListener;

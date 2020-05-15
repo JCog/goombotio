@@ -1,6 +1,6 @@
-package Util.Database;
+package Database;
 
-import Util.Database.Entries.EmoteItem;
+import Database.Entries.EmoteItem;
 import com.gikk.twirk.types.emote.Emote;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;

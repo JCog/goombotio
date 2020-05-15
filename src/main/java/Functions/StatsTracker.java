@@ -1,6 +1,6 @@
 package Functions;
 
-import Util.Database.WatchTimeDb;
+import Database.WatchTimeDb;
 import Util.Settings;
 import Util.TwirkInterface;
 import com.github.twitch4j.TwitchClient;

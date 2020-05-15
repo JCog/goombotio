@@ -1,9 +1,9 @@
 package Listeners.Commands;
 
+import Database.CommandDb;
+import Database.Entries.CommandItem;
 import Functions.StreamInfo;
 import Util.CommandParser;
-import Util.Database.CommandDb;
-import Util.Database.Entries.CommandItem;
 import Util.Settings;
 import Util.TwirkInterface;
 import Util.TwitchUserLevel;

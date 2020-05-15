@@ -1,4 +1,4 @@
-package Util.Database;
+package Database;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;

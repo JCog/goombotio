@@ -1,7 +1,7 @@
 package Listeners.Commands;
 
-import Util.Database.Entries.QuoteItem;
-import Util.Database.QuoteDb;
+import Database.Entries.QuoteItem;
+import Database.QuoteDb;
 import Util.TwirkInterface;
 import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
