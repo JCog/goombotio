@@ -11,8 +11,6 @@ import com.github.twitch4j.helix.domain.*;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
-import twitter4j.conf.ConfigurationBuilder;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -35,19 +33,12 @@ public class LinkListener implements TwirkListener {
     private final String authToken;
     private final String youtubeApiKey;
     
-    public LinkListener(TwirkInterface twirk, TwitchClient twitchClient) {
+    public LinkListener(TwirkInterface twirk, TwitchClient twitchClient, Twitter twitter) {
         this.twirk = twirk;
         this.twitchClient = twitchClient;
         this.authToken = Settings.getTwitchAuthToken();
         this.youtubeApiKey = Settings.getYoutubeApiKey();
-        ConfigurationBuilder cb = new ConfigurationBuilder();
-        cb.setDebugEnabled(true)
-                .setOAuthConsumerKey(Settings.getTwitterConsumerKey())
-                .setOAuthConsumerSecret(Settings.getTwitterConsumerSecret())
-                .setOAuthAccessToken(Settings.getTwitterAccessToken())
-                .setOAuthAccessTokenSecret(Settings.getTwitterAccessTokenSecret());
-        TwitterFactory tf = new TwitterFactory(cb.build());
-        twitter = tf.getInstance();
+        this.twitter = twitter;
     }
     
     @Override

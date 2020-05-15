@@ -9,6 +9,9 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.helix.domain.UserList;
+import twitter4j.Twitter;
+import twitter4j.TwitterFactory;
+import twitter4j.conf.ConfigurationBuilder;
 
 import java.util.Calendar;
 import java.util.Collections;
@@ -30,9 +33,18 @@ public class MainBotController {
     private final DiscordBotController dbc;
     private final ViewerQueueManager vqm;
     private final ChatLogger chatLogger;
+    private final Twitter twitter;
     
     private MainBotController() {
         chatLogger = new ChatLogger();
+        ConfigurationBuilder cb = new ConfigurationBuilder();
+        cb.setDebugEnabled(true)
+                .setOAuthConsumerKey(Settings.getTwitterConsumerKey())
+                .setOAuthConsumerSecret(Settings.getTwitterConsumerSecret())
+                .setOAuthAccessToken(Settings.getTwitterAccessToken())
+                .setOAuthAccessTokenSecret(Settings.getTwitterAccessTokenSecret());
+        TwitterFactory tf = new TwitterFactory(cb.build());
+        twitter = tf.getInstance();
         this.twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
         this.twirk = new TwirkInterface(chatLogger, getBotUser(Settings.getTwitchUsername()));
         streamInfo = new StreamInfo(twitchClient);
@@ -106,7 +118,7 @@ public class MainBotController {
         addTwirkListener(new ChatLoggerListener(chatLogger));
         addTwirkListener(new CloudListener(twirk));
         addTwirkListener(new EmoteListener());
-        addTwirkListener(new LinkListener(twirk, twitchClient));
+        addTwirkListener(new LinkListener(twirk, twitchClient, twitter));
         addTwirkListener(new PyramidListener(twirk));
         addTwirkListener(socialScheduler.getListener());
         addTwirkListener(new SubListener(twirk));
