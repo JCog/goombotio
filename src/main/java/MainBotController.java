@@ -37,14 +37,7 @@ public class MainBotController {
     
     private MainBotController() {
         chatLogger = new ChatLogger();
-        ConfigurationBuilder cb = new ConfigurationBuilder();
-        cb.setDebugEnabled(true)
-                .setOAuthConsumerKey(Settings.getTwitterConsumerKey())
-                .setOAuthConsumerSecret(Settings.getTwitterConsumerSecret())
-                .setOAuthAccessToken(Settings.getTwitterAccessToken())
-                .setOAuthAccessTokenSecret(Settings.getTwitterAccessTokenSecret());
-        TwitterFactory tf = new TwitterFactory(cb.build());
-        twitter = tf.getInstance();
+        twitter = getTwitterInstance();
         this.twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
         this.twirk = new TwirkInterface(chatLogger, getBotUser(Settings.getTwitchUsername()));
         streamInfo = new StreamInfo(twitchClient);
@@ -162,5 +155,16 @@ public class MainBotController {
         if (!SpeedrunApi.certificateIsUpToDate()) {
             out.println("UPDATE THE SPEEDRUN.COM CERTIFICATE");
         }
+    }
+    
+    private Twitter getTwitterInstance() {
+        ConfigurationBuilder cb = new ConfigurationBuilder();
+        cb.setDebugEnabled(true)
+                .setOAuthConsumerKey(Settings.getTwitterConsumerKey())
+                .setOAuthConsumerSecret(Settings.getTwitterConsumerSecret())
+                .setOAuthAccessToken(Settings.getTwitterAccessToken())
+                .setOAuthAccessTokenSecret(Settings.getTwitterAccessTokenSecret());
+        TwitterFactory tf = new TwitterFactory(cb.build());
+        return tf.getInstance();
     }
 }
