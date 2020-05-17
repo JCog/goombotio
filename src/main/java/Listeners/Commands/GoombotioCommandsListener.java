@@ -27,7 +27,8 @@ public class GoombotioCommandsListener extends CommandBase {
             "owner"
     };
 
-    private final static String PATTERN = "!goombotio";
+    private final static String PATTERN_GOOMBOTIO = "!goombotio";
+    private final static String PATTERN_GB = "!gb";
     
     private final TwirkInterface twirk;
     private final SocialSchedulerDb ssdb;
@@ -39,10 +40,13 @@ public class GoombotioCommandsListener extends CommandBase {
         this.ssdb = SocialSchedulerDb.getInstance();
         this.commandDb = CommandDb.getInstance();
     }
-
+    
     @Override
     public String getCommandWords() {
-        return PATTERN;
+        return String.join("|",
+                PATTERN_GOOMBOTIO,
+                PATTERN_GB
+        );
     }
 
     @Override
