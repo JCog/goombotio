@@ -3,7 +3,10 @@ package Database;
 import Database.Entries.CommandItem;
 import Util.TwitchUserLevel;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Sorts;
 import org.bson.Document;
+
+import java.util.ArrayList;
 
 public class CommandDb extends CollectionBase {
     
@@ -145,6 +148,14 @@ public class CommandDb extends CollectionBase {
             );
         }
         return null;
+    }
+    
+    public ArrayList<String> getAllCommandIds() {
+        ArrayList<String> commands = new ArrayList<>();
+        for(Document document : findAll().sort(Sorts.ascending(ID_KEY))) {
+            commands.add(document.getString(ID_KEY));
+        }
+        return commands;
     }
     
     private Document getCommand(String id) {
