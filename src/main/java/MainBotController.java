@@ -38,7 +38,10 @@ public class MainBotController {
     private MainBotController() {
         chatLogger = new ChatLogger();
         twitter = getTwitterInstance();
-        this.twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
+        this.twitchClient = TwitchClientBuilder.builder()
+                .withEnableHelix(true)
+                .withClientId(Settings.getTwitchClientId())
+                .build();
         User botUser = getBotUser(Settings.getTwitchUsername());
         this.twirk = new TwirkInterface(chatLogger, botUser);
         streamInfo = new StreamInfo(twitchClient);
