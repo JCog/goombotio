@@ -39,11 +39,12 @@ public class MainBotController {
         chatLogger = new ChatLogger();
         twitter = getTwitterInstance();
         this.twitchClient = TwitchClientBuilder.builder().withEnableHelix(true).build();
-        this.twirk = new TwirkInterface(chatLogger, getBotUser(Settings.getTwitchUsername()));
+        User botUser = getBotUser(Settings.getTwitchUsername());
+        this.twirk = new TwirkInterface(chatLogger, botUser);
         streamInfo = new StreamInfo(twitchClient);
         statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, 60*1000);
         socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH);
-        subPointUpdater = new SubPointUpdater();
+        subPointUpdater = new SubPointUpdater(twitchClient, streamInfo, botUser);
         vqm = new ViewerQueueManager(twirk);
         dbc = DiscordBotController.getInstance();
         dbc.init();
