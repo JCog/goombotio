@@ -1,7 +1,6 @@
 package Functions;
 
 import Database.SpeedySpinLeaderboard;
-import Listeners.Commands.SpeedySpinPredictionListener;
 import Util.TwirkInterface;
 import com.gikk.twirk.types.users.TwitchUser;
 
@@ -25,8 +24,6 @@ public class SpeedySpinPredictionManager {
     private final TwirkInterface twirk;
     private final SpeedySpinLeaderboard leaderboard;
     private final DiscordBotController dbc;
-    
-    private SpeedySpinPredictionListener sspListener;
     
     public enum Badge {
         BAD_SPIN1,
