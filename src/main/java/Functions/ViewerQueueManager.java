@@ -1,7 +1,7 @@
 package Functions;
 
 import Database.Entries.ViewerQueueEntry;
-import Database.ViewerQueueDb;
+import Database.Misc.ViewerQueueDb;
 import Util.TwirkInterface;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.google.common.collect.ComparisonChain;

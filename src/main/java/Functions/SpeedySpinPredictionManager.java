@@ -1,6 +1,6 @@
 package Functions;
 
-import Database.SpeedySpinLeaderboard;
+import Database.Preds.SpeedySpinLeaderboard;
 import Util.TwirkInterface;
 import com.gikk.twirk.types.users.TwitchUser;
 

@@ -1,7 +1,7 @@
 package Util;
 
-import Database.StreamStatsDb;
-import Database.WatchTimeDb;
+import Database.Stats.StreamStatsDb;
+import Database.Stats.WatchTimeDb;
 import Functions.StatsTracker;
 import Functions.StreamInfo;
 import com.github.twitch4j.TwitchClient;

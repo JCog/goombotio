@@ -1,5 +1,6 @@
-package Database;
+package Database.Misc;
 
+import Database.CollectionBase;
 import Database.Entries.QuoteItem;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;

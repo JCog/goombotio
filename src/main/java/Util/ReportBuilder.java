@@ -1,6 +1,6 @@
 package Util;
 
-import Database.WatchTimeDb;
+import Database.Stats.WatchTimeDb;
 import Functions.StatsTracker;
 import Functions.StreamInfo;
 

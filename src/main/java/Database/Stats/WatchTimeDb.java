@@ -1,5 +1,6 @@
-package Database;
+package Database.Stats;
 
+import Database.CollectionBase;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;

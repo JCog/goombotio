@@ -1,4 +1,4 @@
-package Database;
+package Database.Emotes;
 
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;

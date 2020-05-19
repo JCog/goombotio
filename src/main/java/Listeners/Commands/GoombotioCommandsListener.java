@@ -1,7 +1,7 @@
 package Listeners.Commands;
 
-import Database.CommandDb;
-import Database.SocialSchedulerDb;
+import Database.Misc.CommandDb;
+import Database.Misc.SocialSchedulerDb;
 import Util.TwirkInterface;
 import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;

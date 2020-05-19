@@ -1,5 +1,6 @@
-package Database;
+package Database.Misc;
 
+import Database.CollectionBase;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import org.bson.Document;

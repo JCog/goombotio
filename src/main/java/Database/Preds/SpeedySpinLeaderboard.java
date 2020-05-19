@@ -1,4 +1,4 @@
-package Database;
+package Database.Preds;
 
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;

@@ -1,5 +1,6 @@
-package Database;
+package Database.Preds;
 
+import Database.CollectionBase;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-public class PredsLeaderboard extends CollectionBase{
+public class PredsLeaderboard extends CollectionBase {
 
     private static final String COLLECTION_NAME_KEY = "predsleaderboard";
     private static final String NAME_KEY = "name";

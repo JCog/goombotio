@@ -1,5 +1,6 @@
-package Database;
+package Database.Misc;
 
+import Database.CollectionBase;
 import Database.Entries.CommandItem;
 import Util.TwitchUserLevel;
 import com.mongodb.client.MongoCollection;

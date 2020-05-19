@@ -1,6 +1,6 @@
 package Listeners.Commands;
 
-import Database.WatchTimeDb;
+import Database.Stats.WatchTimeDb;
 import Util.TwirkInterface;
 import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;

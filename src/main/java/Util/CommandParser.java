@@ -1,7 +1,7 @@
 package Util;
 
-import Database.CommandDb;
 import Database.Entries.CommandItem;
+import Database.Misc.CommandDb;
 import Functions.StreamInfo;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;

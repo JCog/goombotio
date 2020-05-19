@@ -1,7 +1,7 @@
 package Listeners.Commands;
 
-import Database.CommandDb;
 import Database.Entries.CommandItem;
+import Database.Misc.CommandDb;
 import Functions.StreamInfo;
 import Util.CommandParser;
 import Util.Settings;
