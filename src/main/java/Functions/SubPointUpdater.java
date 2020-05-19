@@ -97,7 +97,7 @@ public class SubPointUpdater {
     
     private SubscriptionList getSubList(String cursor) {
         return twitchClient.getHelix().getSubscriptions(
-                Settings.getTwitchAuthToken(),
+                Settings.getTwitchChannelAuthToken(),
                 channelId,
                 cursor,
                 null,

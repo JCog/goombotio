@@ -28,7 +28,7 @@ public class TwirkInterface {
     public TwirkInterface (ChatLogger chatLogger, User botUser) {
         this.channel = Settings.getTwitchChannel();
         this.nick = Settings.getTwitchUsername();
-        this.oauth = Settings.getTwitchOauth();
+        this.oauth = Settings.getTwitchBotOauth();
         this.verbose = Settings.isVerbose();
         this.chatLogger = chatLogger;
         botDisplayName = botUser.getDisplayName();

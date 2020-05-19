@@ -40,7 +40,7 @@ public class MainBotController {
         twitter = getTwitterInstance();
         this.twitchClient = TwitchClientBuilder.builder()
                 .withEnableHelix(true)
-                .withClientId(Settings.getTwitchClientId())
+                .withClientId(Settings.getTwitchChannelClientId())
                 .build();
         User botUser = getBotUser(Settings.getTwitchUsername());
         this.twirk = new TwirkInterface(chatLogger, botUser);
@@ -130,7 +130,7 @@ public class MainBotController {
     }
     
     private User getBotUser(String nick) {
-        UserList result = twitchClient.getHelix().getUsers(Settings.getTwitchAuthToken(), null, Collections.singletonList(nick)).execute();
+        UserList result = twitchClient.getHelix().getUsers(Settings.getTwitchChannelAuthToken(), null, Collections.singletonList(nick)).execute();
         return result.getUsers().get(0);
     }
     

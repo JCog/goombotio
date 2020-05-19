@@ -36,7 +36,7 @@ public class StreamInfo {
      */
     public StreamInfo(TwitchClient twitchClient) {
         this.streamer = Settings.getTwitchStream();
-        this.authToken = Settings.getTwitchAuthToken();
+        this.authToken = Settings.getTwitchChannelAuthToken();
         this.twitchClient = twitchClient;
         UserList tempList = twitchClient.getHelix().getUsers(authToken, null, Collections.singletonList(streamer)).execute();
         streamerDisplayName = tempList.getUsers().get(0).getDisplayName();

@@ -36,7 +36,7 @@ public class LinkListener implements TwirkListener {
     public LinkListener(TwirkInterface twirk, TwitchClient twitchClient, Twitter twitter) {
         this.twirk = twirk;
         this.twitchClient = twitchClient;
-        this.authToken = Settings.getTwitchAuthToken();
+        this.authToken = Settings.getTwitchChannelAuthToken();
         this.youtubeApiKey = Settings.getYoutubeApiKey();
         this.twitter = twitter;
     }

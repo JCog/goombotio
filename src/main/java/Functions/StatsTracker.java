@@ -36,8 +36,6 @@ public class StatsTracker {
      * @param twirk Twirk object to communicate with Twitch chat
      * @param twitchClient Twitch API interface
      * @param streamInfo object to collect basic info about the stream
-     * @param stream stream name to collect data for
-     * @param authToken bot's auth token
      * @param interval how often to collect data in milliseconds
      */
     public StatsTracker(TwirkInterface twirk, TwitchClient twitchClient, StreamInfo streamInfo, int interval) {
@@ -45,7 +43,7 @@ public class StatsTracker {
         this.twitchClient = twitchClient;
         this.streamInfo = streamInfo;
         this.stream = Settings.getTwitchStream();
-        this.authToken = Settings.getTwitchAuthToken();
+        this.authToken = Settings.getTwitchChannelAuthToken();
         this.interval = interval;
         timer = new Timer();
         usersMap = new HashMap<>();

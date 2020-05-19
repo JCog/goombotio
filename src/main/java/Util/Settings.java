@@ -15,8 +15,9 @@ public class Settings {
     private static final String TWITCH_CAT_TAG = "twitch";
     private static final String TWITCH_STREAM_TAG = "stream";
     private static final String TWITCH_USERNAME_TAG = "username";
-    private static final String TWITCH_AUTH_TOKEN_TAG = "authToken";
-    private static final String TWITCH_CLIENT_ID_TAG = "clientId";
+    private static final String TWITCH_CHANNEL_AUTH_TOKEN_TAG = "channelAuthToken";
+    private static final String TWITCH_CHANNEL_CLIENT_ID_TAG = "channelClientId";
+    private static final String TWITCH_BOT_AUTH_TOKEN_TAG = "botAuthToken";
     
     private static final String DISCORD_CAT_TAG = "discord";
     private static final String DISCORD_TOKEN_TAG = "token";
@@ -35,8 +36,9 @@ public class Settings {
     
     private static String TWITCH_STREAM;
     private static String TWITCH_USERNAME;
-    private static String TWITCH_AUTH_TOKEN;
-    private static String TWITCH_CLIENT_ID;
+    private static String TWITCH_CHANNEL_AUTH_TOKEN;
+    private static String TWITCH_CHANNEL_CLIENT_ID;
+    private static String TWITCH_BOT_AUTH_TOKEN;
     
     private static String DISCORD_TOKEN;
     
@@ -64,8 +66,9 @@ public class Settings {
     
         TWITCH_STREAM = ini.get(TWITCH_CAT_TAG, TWITCH_STREAM_TAG);
         TWITCH_USERNAME = ini.get(TWITCH_CAT_TAG, TWITCH_USERNAME_TAG);
-        TWITCH_AUTH_TOKEN = ini.get(TWITCH_CAT_TAG, TWITCH_AUTH_TOKEN_TAG);
-        TWITCH_CLIENT_ID = ini.get(TWITCH_CAT_TAG, TWITCH_CLIENT_ID_TAG);
+        TWITCH_CHANNEL_AUTH_TOKEN = ini.get(TWITCH_CAT_TAG, TWITCH_CHANNEL_AUTH_TOKEN_TAG);
+        TWITCH_CHANNEL_CLIENT_ID = ini.get(TWITCH_CAT_TAG, TWITCH_CHANNEL_CLIENT_ID_TAG);
+        TWITCH_BOT_AUTH_TOKEN = ini.get(TWITCH_CAT_TAG, TWITCH_BOT_AUTH_TOKEN_TAG);
         
         DISCORD_TOKEN = ini.get(DISCORD_CAT_TAG, DISCORD_TOKEN_TAG);
         
@@ -89,20 +92,24 @@ public class Settings {
         return TWITCH_USERNAME;
     }
     
-    public static String getTwitchAuthToken() {
-        return TWITCH_AUTH_TOKEN;
+    public static String getTwitchChannelAuthToken() {
+        return TWITCH_CHANNEL_AUTH_TOKEN;
     }
     
-    public static String getTwitchClientId() {
-        return TWITCH_CLIENT_ID;
+    public static String getTwitchChannelClientId() {
+        return TWITCH_CHANNEL_CLIENT_ID;
     }
     
     public static String getTwitchChannel() {
         return '#' + TWITCH_STREAM;
     }
     
-    public static String getTwitchOauth() {
-        return "oauth:" + TWITCH_AUTH_TOKEN;
+    public static String getTwitchChannelOauth() {
+        return "oauth:" + TWITCH_CHANNEL_AUTH_TOKEN;
+    }
+    
+    public static String getTwitchBotOauth() {
+        return "oauth:" + TWITCH_BOT_AUTH_TOKEN;
     }
     
     public static String getDiscordToken() {

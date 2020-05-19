@@ -29,7 +29,7 @@ public class GenericCommandListener extends CommandBase {
         super(CommandType.GENERIC_COMMAND);
         this.twirk = twirk;
         this.commandDb = CommandDb.getInstance();
-        this.commandParser = new CommandParser(Settings.getTwitchAuthToken(), twitchClient, streamInfo);
+        this.commandParser = new CommandParser(Settings.getTwitchChannelAuthToken(), twitchClient, streamInfo);
         activeCooldowns = new HashSet<>();
     }
 
