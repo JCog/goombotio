@@ -36,8 +36,8 @@ public class SunshinePredsManager {
         waitingForAnswer = false;
     }
     
-    public void makePrediction(TwitchUser user, int seconds) {
-        predictionList.add(new TimeGuess(user, seconds));
+    public void makePrediction(TwitchUser user, int hundredths) {
+        predictionList.add(new TimeGuess(user, hundredths));
     }
     
     //start listening for preds
