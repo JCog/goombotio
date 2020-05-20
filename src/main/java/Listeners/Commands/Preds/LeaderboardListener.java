@@ -1,6 +1,7 @@
-package Listeners.Commands;
+package Listeners.Commands.Preds;
 
 import Database.Preds.SpeedySpinLeaderboard;
+import Listeners.Commands.CommandBase;
 import Util.TwirkInterface;
 import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
@@ -8,7 +9,7 @@ import com.gikk.twirk.types.users.TwitchUser;
 
 import java.util.ArrayList;
 
-public class SpeedySpinLeaderboardListener extends CommandBase {
+public class LeaderboardListener extends CommandBase {
     
     private static final String PATTERN_LEADERBOARD = "!leaderboard";
     private static final String PATTERN_BADGE_SHOP = "!badgeshop";
@@ -20,7 +21,7 @@ public class SpeedySpinLeaderboardListener extends CommandBase {
     
     private SpeedySpinLeaderboard leaderboard;
 
-    public SpeedySpinLeaderboardListener(TwirkInterface twirk) {
+    public LeaderboardListener(TwirkInterface twirk) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
         leaderboard = SpeedySpinLeaderboard.getInstance();

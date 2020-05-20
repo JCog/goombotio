@@ -35,7 +35,7 @@ public abstract class CommandBase implements TwirkListener {
     private TwitchUserLevel.USER_LEVEL minPrivilege;
     private boolean coolingDown;
 
-    CommandBase(CommandType commandType) {
+    protected CommandBase(CommandType commandType) {
         this.commandType = commandType;
         commandPattern = compileCommandPattern();
         minPrivilege = getMinUserPrivilege();

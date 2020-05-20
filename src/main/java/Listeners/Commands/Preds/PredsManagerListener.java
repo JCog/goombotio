@@ -1,7 +1,8 @@
-package Listeners.Commands;
+package Listeners.Commands.Preds;
 
-import Functions.SpeedySpinPredictionManager;
-import Functions.SpeedySpinPredictionManager.Badge;
+import Functions.Preds.PapePredsManager;
+import Functions.Preds.PapePredsManager.Badge;
+import Listeners.Commands.CommandBase;
 import Util.TwirkInterface;
 import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
@@ -9,20 +10,20 @@ import com.gikk.twirk.types.users.TwitchUser;
 
 import static java.lang.System.out;
 
-public class SpeedySpinGameListener extends CommandBase {
+public class PredsManagerListener extends CommandBase {
 
     private final static String PATTERN = "!preds";
     
     private final TwirkInterface twirk;
-    private final SpeedySpinPredictionListener guessListener;
+    private final PapeGuessListener papeGuessListener;
     
-    private SpeedySpinPredictionManager game;
+    private PapePredsManager papePredsManager;
 
-    public SpeedySpinGameListener(TwirkInterface twirk, SpeedySpinPredictionListener guessListener) {
+    public PredsManagerListener(TwirkInterface twirk, PapeGuessListener papeGuessListener) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
-        this.guessListener = guessListener;
-        game = new SpeedySpinPredictionManager(twirk);
+        this.papeGuessListener = papeGuessListener;
+        papePredsManager = new PapePredsManager(twirk);
     }
 
     @Override
@@ -42,12 +43,12 @@ public class SpeedySpinGameListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        if (game.isEnabled()) {
-            if (game.isWaitingForAnswer()) {
+        if (papePredsManager.isEnabled()) {
+            if (papePredsManager.isWaitingForAnswer()) {
                 String[] content = message.getContent().split("\\s");
                 if (content.length > 1 && content[1].matches("[1-4]{3}")) {
                     out.println("Submitting predictions...");
-                    game.submitPredictions(
+                    papePredsManager.submitPredictions(
                             Badge.values()[Character.getNumericValue(content[1].charAt(0)) - 1],
                             Badge.values()[Character.getNumericValue(content[1].charAt(1)) - 1],
                             Badge.values()[Character.getNumericValue(content[1].charAt(2)) - 1]
@@ -56,15 +57,15 @@ public class SpeedySpinGameListener extends CommandBase {
             }
             else {
                 out.println("Ending the prediction game...");
-                guessListener.stop();
-                game.stop();
+                papeGuessListener.stop();
+                papePredsManager.stop();
             }
         }
         else {
-            game = new SpeedySpinPredictionManager(twirk);
-            guessListener.start(game);
+            papePredsManager = new PapePredsManager(twirk);
+            papeGuessListener.start(papePredsManager);
             out.println("Starting the prediction game...");
-            game.start();
+            papePredsManager.start();
         }
     }
 }

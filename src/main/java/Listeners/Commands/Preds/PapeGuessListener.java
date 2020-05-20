@@ -1,15 +1,15 @@
-package Listeners.Commands;
+package Listeners.Commands.Preds;
 
-import Functions.SpeedySpinPredictionManager;
+import Functions.Preds.PapePredsManager;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 
 import java.util.*;
 
-import static Functions.SpeedySpinPredictionManager.*;
+import static Functions.Preds.PapePredsManager.*;
 
-public class SpeedySpinPredictionListener implements TwirkListener {
+public class PapeGuessListener implements TwirkListener {
     
     private static final Set<String> BADGE_CHOICES = new HashSet<>(Arrays.asList(
             "badspin1",
@@ -18,14 +18,14 @@ public class SpeedySpinPredictionListener implements TwirkListener {
             "spoodlyspun"
     ));
 
-    private SpeedySpinPredictionManager manager;
+    private PapePredsManager manager;
     private boolean enabled;
 
-    public SpeedySpinPredictionListener() {
+    public PapeGuessListener() {
         enabled = false;
     }
     
-    public void start(SpeedySpinPredictionManager manager) {
+    public void start(PapePredsManager manager) {
         this.manager = manager;
         enabled = true;
     }

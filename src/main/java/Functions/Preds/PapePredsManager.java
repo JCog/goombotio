@@ -1,6 +1,7 @@
-package Functions;
+package Functions.Preds;
 
 import Database.Preds.SpeedySpinLeaderboard;
+import Functions.DiscordBotController;
 import Util.TwirkInterface;
 import com.gikk.twirk.types.users.TwitchUser;
 
@@ -11,7 +12,7 @@ import java.util.*;
 
 import static java.lang.System.out;
 
-public class SpeedySpinPredictionManager {
+public class PapePredsManager {
     
     private static final String DISCORD_CHANNEL_MONTHLY = "preds-monthly";
     private static final String DISCORD_CHANNEL_ALL_TIME = "preds-all-time";
@@ -41,7 +42,7 @@ public class SpeedySpinPredictionManager {
      * Manages the !preds Twitch chat game.
      * @param twirk twirk for chat
      */
-    public SpeedySpinPredictionManager(TwirkInterface twirk) {
+    public PapePredsManager(TwirkInterface twirk) {
         this.twirk = twirk;
         enabled = false;
         waitingForAnswer = false;

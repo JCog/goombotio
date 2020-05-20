@@ -1,4 +1,4 @@
-package Functions;
+package Functions.Preds;
 
 import Database.Preds.SunshineTimerLeaderboard;
 import Util.TwirkInterface;
@@ -10,7 +10,7 @@ import java.util.Set;
 
 import static java.lang.System.out;
 
-public class SunshineTimerPredsManager {
+public class SunshinePredsManager {
     private static final String START_MESSAGE = "starting preds";
     private static final String STOP_MESSAGE = "waiting for correct answer";
     private static final int POINTS_CORRECT = 50;
@@ -30,7 +30,7 @@ public class SunshineTimerPredsManager {
     private boolean enabled;
     private boolean waitingForAnswer;
     
-    public SunshineTimerPredsManager(TwirkInterface twirk) {
+    public SunshinePredsManager(TwirkInterface twirk) {
         this.twirk = twirk;
         enabled = false;
         waitingForAnswer = false;

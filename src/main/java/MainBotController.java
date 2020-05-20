@@ -2,6 +2,9 @@ import APIs.SpeedrunApi;
 import Database.GoombotioDb;
 import Functions.*;
 import Listeners.Commands.*;
+import Listeners.Commands.Preds.LeaderboardListener;
+import Listeners.Commands.Preds.PapeGuessListener;
+import Listeners.Commands.Preds.PredsManagerListener;
 import Listeners.Events.*;
 import Util.*;
 import com.gikk.twirk.events.TwirkListener;
@@ -92,7 +95,7 @@ public class MainBotController {
     
     private void addAllListeners() {
         //setup
-        SpeedySpinPredictionListener guessListener = new SpeedySpinPredictionListener();
+        PapeGuessListener guessListener = new PapeGuessListener();
         ViewerQueueJoinListener queueJoinListener = new ViewerQueueJoinListener(vqm);
         
         //connection handling
@@ -104,8 +107,8 @@ public class MainBotController {
         //addTwirkListener(new ModListener(twirk));
         addTwirkListener(guessListener);
         addTwirkListener(new QuoteListener(twirk));
-        addTwirkListener(new SpeedySpinGameListener(twirk, guessListener));
-        addTwirkListener(new SpeedySpinLeaderboardListener(twirk));
+        addTwirkListener(new PredsManagerListener(twirk, guessListener));
+        addTwirkListener(new LeaderboardListener(twirk));
         addTwirkListener(queueJoinListener);
         addTwirkListener(new ViewerQueueManageListener(vqm, queueJoinListener));
         addTwirkListener(new WatchTimeListener(twirk));
