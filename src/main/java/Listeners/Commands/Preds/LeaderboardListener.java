@@ -1,6 +1,9 @@
 package Listeners.Commands.Preds;
 
+import Database.Preds.PredsLeaderboard;
 import Database.Preds.SpeedySpinLeaderboard;
+import Database.Preds.SunshineTimerLeaderboard;
+import Functions.StreamInfo;
 import Listeners.Commands.CommandBase;
 import Util.TwirkInterface;
 import Util.TwitchUserLevel;
@@ -11,6 +14,8 @@ import java.util.ArrayList;
 
 public class LeaderboardListener extends CommandBase {
     
+    private static final String GAME_SUNSHINE = "Super Mario Sunshine";
+    private static final String GAME_PAPER_MARIO = "Paper Mario";
     private static final String PATTERN_LEADERBOARD = "!leaderboard";
     private static final String PATTERN_BADGE_SHOP = "!badgeshop";
     private static final String PATTERN_POINTS = "!points";
@@ -18,13 +23,15 @@ public class LeaderboardListener extends CommandBase {
     private static final String PATTERN_POINTS_ALL = "!pointsall";
     
     private final TwirkInterface twirk;
+    private final StreamInfo streamInfo;
     
-    private SpeedySpinLeaderboard leaderboard;
+    private PredsLeaderboard leaderboard;
 
-    public LeaderboardListener(TwirkInterface twirk) {
+    public LeaderboardListener(TwirkInterface twirk, StreamInfo streamInfo) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
-        leaderboard = SpeedySpinLeaderboard.getInstance();
+        this.streamInfo = streamInfo;
+        updateLeaderboardType();
     }
 
     @Override
@@ -52,6 +59,7 @@ public class LeaderboardListener extends CommandBase {
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         String chatMessage;
 
+        updateLeaderboardType();
         switch (command) {
             case PATTERN_LEADERBOARD:
                 chatMessage = buildMonthlyLeaderboardString();
@@ -84,6 +92,17 @@ public class LeaderboardListener extends CommandBase {
                 chatMessage = "";
         }
         twirk.channelMessage(chatMessage);
+    }
+    
+    private void updateLeaderboardType() {
+        switch (streamInfo.getGame()) {
+            case GAME_PAPER_MARIO:
+                leaderboard = SpeedySpinLeaderboard.getInstance();
+                break;
+            case GAME_SUNSHINE:
+            default:
+                leaderboard = SunshineTimerLeaderboard.getInstance();
+        }
     }
     
     private String buildMonthlyPointsString(TwitchUser user) {

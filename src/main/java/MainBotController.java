@@ -108,7 +108,7 @@ public class MainBotController {
         addTwirkListener(new GoombotioCommandsListener(twirk));
         //addTwirkListener(new ModListener(twirk));
         addTwirkListener(papeGuessListener);
-        addTwirkListener(new LeaderboardListener(twirk));
+        addTwirkListener(new LeaderboardListener(twirk, streamInfo));
         addTwirkListener(new QuoteListener(twirk));
         addTwirkListener(new PredsManagerListener(twirk, streamInfo, papeGuessListener, sunshineGuessListener));
         addTwirkListener(queueJoinListener);
