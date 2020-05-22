@@ -5,8 +5,8 @@ import Util.TwirkInterface;
 import com.gikk.twirk.types.users.TwitchUser;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.lang.System.out;
 
@@ -23,7 +23,7 @@ public class SunshinePredsManager {
     private static final int HUND_10_SECONDS = 10 * 100;
     
     private final SunshineTimerLeaderboard leaderboard = SunshineTimerLeaderboard.getInstance();
-    private final Set<TimeGuess> predictionList = new HashSet<>();
+    private final HashMap<Long, TimeGuess> predictionList = new HashMap<>();
     
     private final TwirkInterface twirk;
     
@@ -37,7 +37,11 @@ public class SunshinePredsManager {
     }
     
     public void makePrediction(TwitchUser user, int hundredths) {
-        predictionList.add(new TimeGuess(user, hundredths));
+        if (predictionList.containsKey(user.getUserID())) {
+            predictionList.remove(user.getUserID());
+            out.println(String.format("Replacing duplicate guess by %s", user.getDisplayName()));
+        }
+        predictionList.put(user.getUserID(), new TimeGuess(user, hundredths));
     }
     
     //start listening for preds
@@ -52,6 +56,14 @@ public class SunshinePredsManager {
         twirk.channelMessage(STOP_MESSAGE);
     }
     
+    public boolean isEnabled() {
+        return enabled;
+    }
+    
+    public boolean isWaitingForAnswer() {
+        return waitingForAnswer;
+    }
+    
     //submit the correct answer, calculate points, end game
     public void submitPredictions(int answer) {
         enabled = false;
@@ -60,29 +72,29 @@ public class SunshinePredsManager {
         ArrayList<String> winners = getWinners(answer);
         StringBuilder message = new StringBuilder();
         if (winners.size() == 0) {
-            ArrayList<TimeGuess> closestGuesses = getClosetGuesses(answer);
+            ArrayList<TimeGuess> closestGuesses = getClosestGuesses(answer);
             if (closestGuesses.size() == 0) {
                 message.append("Nobody guessed jcogREE");
             }
-            if (closestGuesses.size() == 1) {
+            else if (closestGuesses.size() == 1) {
                 message.append(String.format(
                         "Nobody won, but @%s was closest! jcogComfy",
-                        winners.get(0)
+                        closestGuesses.get(0).twitchUser.getDisplayName()
                 ));
             }
             else if (closestGuesses.size() == 2) {
                 message.append(String.format(
                         "Nobody won, but @%s and @%s were closest! jcogComfy",
-                        winners.get(0),
-                        winners.get(1)
+                        closestGuesses.get(0).twitchUser.getDisplayName(),
+                        closestGuesses.get(1).twitchUser.getDisplayName()
                 ));
             }
             else {
                 message.append("Nobody won, but ");
                 for (int i = 0; i < closestGuesses.size() - 1; i++) {
-                    message.append("@").append(closestGuesses.get(i)).append(", ");
+                    message.append("@").append(closestGuesses.get(i).twitchUser.getDisplayName()).append(", ");
                 }
-                message.append("and @").append(closestGuesses.get(closestGuesses.size() - 1));
+                message.append("and @").append(closestGuesses.get(closestGuesses.size() - 1).twitchUser.getDisplayName());
                 message.append(" were closest! jcogComfy");
             }
         }
@@ -117,7 +129,8 @@ public class SunshinePredsManager {
     
     private ArrayList<String> getWinners(int answer) {
         ArrayList<String> winners = new ArrayList<>();
-        for (TimeGuess guess : predictionList) {
+        for (Map.Entry<Long, TimeGuess> longTimeGuessEntry : predictionList.entrySet()) {
+            TimeGuess guess = longTimeGuessEntry.getValue();
             if (guess.hundredths == answer) {
                 //exactly right
                 winners.add(guess.twitchUser.getDisplayName());
@@ -160,9 +173,10 @@ public class SunshinePredsManager {
     }
     
     //returns the closest guess, multiple if there are ties
-    private ArrayList<TimeGuess> getClosetGuesses(int answer) {
+    private ArrayList<TimeGuess> getClosestGuesses(int answer) {
         int minDifference = -1;
-        for (TimeGuess guess : predictionList) {
+        for (Map.Entry<Long, TimeGuess> longTimeGuessEntry : predictionList.entrySet()) {
+            TimeGuess guess = longTimeGuessEntry.getValue();
             if (minDifference == -1) {
                 minDifference = Math.abs(guess.hundredths - answer);
             }
@@ -175,8 +189,9 @@ public class SunshinePredsManager {
         }
     
         ArrayList<TimeGuess> output = new ArrayList<>();
-        for (TimeGuess guess : predictionList) {
-            if (guess.hundredths == minDifference) {
+        for (Map.Entry<Long, TimeGuess> longTimeGuessEntry : predictionList.entrySet()) {
+            TimeGuess guess = longTimeGuessEntry.getValue();
+            if (Math.abs(guess.hundredths - answer) == minDifference) {
                 output.add(guess);
                 leaderboard.addPoints(guess.twitchUser, POINTS_CLOSEST);
                 out.println(String.format(
@@ -204,14 +219,6 @@ public class SunshinePredsManager {
         public TimeGuess(TwitchUser twitchUser, int hundredths) {
             this.twitchUser = twitchUser;
             this.hundredths = hundredths;
-        }
-    
-        @Override
-        public boolean equals(Object obj) {
-            if (obj.getClass() == TimeGuess.class) {
-                return ((TimeGuess) obj).twitchUser.getUserID() == twitchUser.getUserID();
-            }
-            return false;
         }
     }
 }

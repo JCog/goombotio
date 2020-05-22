@@ -35,9 +35,9 @@ public class SunshineGuessListener implements TwirkListener {
                 int minutes = Character.getNumericValue(guess.charAt(0));
                 int seconds = Integer.parseInt(guess.substring(1, 3));
                 int hundredths = Integer.parseInt(guess.substring(3, 5)) + (seconds * 100) + (minutes * 60 * 100);
+                System.out.println(String.format("%s has predicted %d hundredths", sender.getDisplayName(), hundredths));
                 manager.makePrediction(sender, hundredths);
             }
-            
         }
     }
 }
