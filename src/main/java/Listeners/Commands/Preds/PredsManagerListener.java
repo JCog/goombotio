@@ -53,8 +53,7 @@ public class PredsManagerListener extends CommandBase {
             if (streamInfo.getGame().equals(GAME_PAPER_MARIO)) {
                 predsManager = new PapePredsManager(twirk);
             }
-            //else if (streamInfo.getGame().equals(GAME_SUNSHINE)) {
-            else {
+            else if (streamInfo.getGame().equals(GAME_SUNSHINE)) {
                 predsManager = new SunshinePredsManager(twirk);
             }
             out.println("Starting the prediction game...");

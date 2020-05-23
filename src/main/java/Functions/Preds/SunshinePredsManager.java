@@ -127,6 +127,8 @@ public class SunshinePredsManager extends PredsManagerBase{
                 formatHundredths(hundredths),
                 message.toString()
         ));
+        updateDiscordMonthlyPoints();
+        updateDiscordAllTimePoints();
     }
     
     @Override
