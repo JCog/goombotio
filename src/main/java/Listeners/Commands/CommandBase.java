@@ -32,7 +32,7 @@ public abstract class CommandBase implements TwirkListener {
     private final CommandType commandType;
     private final int cooldownLength;
     
-    private TwitchUserLevel.USER_LEVEL minPrivilege;
+    private final TwitchUserLevel.USER_LEVEL minPrivilege;
     private boolean coolingDown;
 
     protected CommandBase(CommandType commandType) {

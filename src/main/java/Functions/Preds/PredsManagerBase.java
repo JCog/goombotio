@@ -15,8 +15,6 @@ public abstract class PredsManagerBase {
     private static final int DISCORD_MAX_CHARS = 2000;
     private static final String STOP_MESSAGE = "/me Predictions are up! Let's see how everyone did...";
     
-    protected final String DISCORD_CHANNEL_MONTHLY = getMonthlyChannelName();
-    protected final String DISCORD_CHANNEL_ALL_TIME = getAllTimeChannelName();
     protected final String START_MESSAGE = getStartMessage();
     
     
@@ -116,16 +114,16 @@ public abstract class PredsManagerBase {
         message.append("```");
         
         //edit message for current month if it exists, otherwise make a new one
-        if (discord.hasRecentMessageContents(DISCORD_CHANNEL_MONTHLY)) {
-            String dateString = discord.getMostRecentMessageContents(DISCORD_CHANNEL_MONTHLY).split("\n", 2)[0];
+        if (discord.hasRecentMessageContents(getMonthlyChannelName())) {
+            String dateString = discord.getMostRecentMessageContents(getMonthlyChannelName()).split("\n", 2)[0];
             YearMonth now = YearMonth.now();
             YearMonth messageDate = YearMonth.parse(dateString, DateTimeFormatter.ofPattern("MMMM yyyy"));
             if (now.getMonth() == messageDate.getMonth() && now.getYear() == messageDate.getYear()) {
-                discord.editMostRecentMessage(DISCORD_CHANNEL_MONTHLY, message.toString());
+                discord.editMostRecentMessage(getMonthlyChannelName(), message.toString());
                 return;
             }
         }
-        discord.sendMessage(DISCORD_CHANNEL_MONTHLY, message.toString());
+        discord.sendMessage(getMonthlyChannelName(), message.toString());
     }
     
     protected void updateDiscordAllTimePoints() {
@@ -158,11 +156,11 @@ public abstract class PredsManagerBase {
         }
         message.append("```");
         
-        if (discord.hasRecentMessageContents(DISCORD_CHANNEL_ALL_TIME)) {
-            discord.editMostRecentMessage(DISCORD_CHANNEL_ALL_TIME, message.toString());
+        if (discord.hasRecentMessageContents(getAllTimeChannelName())) {
+            discord.editMostRecentMessage(getAllTimeChannelName(), message.toString());
         }
         else {
-            discord.sendMessage(DISCORD_CHANNEL_ALL_TIME, message.toString());
+            discord.sendMessage(getAllTimeChannelName(), message.toString());
         }
     }
     
