@@ -1,7 +1,7 @@
 package Listeners.Commands.Preds;
 
 import Functions.Preds.PapePredsManager;
-import Functions.Preds.PapePredsManager.Badge;
+import Functions.Preds.PredsManagerBase;
 import Functions.Preds.SunshinePredsManager;
 import Functions.StreamInfo;
 import Listeners.Commands.CommandBase;
@@ -20,25 +20,16 @@ public class PredsManagerListener extends CommandBase {
     
     private final TwirkInterface twirk;
     private final StreamInfo streamInfo;
-    private final PapeGuessListener papeGuessListener;
-    private final SunshineGuessListener sunshineGuessListener;
+    private final PredsGuessListener predsGuessListener;
     
-    private PapePredsManager papePredsManager;
-    private SunshinePredsManager sunshinePredsManager;
+    private PredsManagerBase predsManager;
 
-    public PredsManagerListener(
-            TwirkInterface twirk,
-            StreamInfo streamInfo,
-            PapeGuessListener papeGuessListener,
-            SunshineGuessListener sunshineGuessListener
-    ) {
+    public PredsManagerListener(TwirkInterface twirk, StreamInfo streamInfo, PredsGuessListener predsGuessListener) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
         this.streamInfo = streamInfo;
-        this.papeGuessListener = papeGuessListener;
-        this.sunshineGuessListener = sunshineGuessListener;
-        papePredsManager = new PapePredsManager(twirk);
-        sunshinePredsManager = new SunshinePredsManager(twirk);
+        this.predsGuessListener = predsGuessListener;
+        predsManager = null;
     }
 
     @Override
@@ -58,60 +49,30 @@ public class PredsManagerListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        if (streamInfo.getGame().equals(GAME_PAPER_MARIO)) {
-            if (papePredsManager.isEnabled()) {
-                if (papePredsManager.isWaitingForAnswer()) {
-                    String[] content = message.getContent().split("\\s");
-                    if (content.length > 1 && content[1].matches("[1-4]{3}")) {
-                        out.println("Submitting predictions...");
-                        papePredsManager.submitPredictions(
-                                Badge.values()[Character.getNumericValue(content[1].charAt(0)) - 1],
-                                Badge.values()[Character.getNumericValue(content[1].charAt(1)) - 1],
-                                Badge.values()[Character.getNumericValue(content[1].charAt(2)) - 1]
-                        );
-                    }
-                }
-                else {
-                    out.println("Ending the prediction game...");
-                    papeGuessListener.stop();
-                    papePredsManager.stop();
-                }
+        if (predsManager == null || !predsManager.isActive()) {
+            if (streamInfo.getGame().equals(GAME_PAPER_MARIO)) {
+                predsManager = new PapePredsManager(twirk);
             }
+            //else if (streamInfo.getGame().equals(GAME_SUNSHINE)) {
             else {
-                papePredsManager = new PapePredsManager(twirk);
-                papeGuessListener.start(papePredsManager);
-                out.println("Starting the prediction game...");
-                papePredsManager.start();
+                predsManager = new SunshinePredsManager(twirk);
             }
+            out.println("Starting the prediction game...");
+            predsGuessListener.start(predsManager);
+            predsManager.startGame();
         }
-        //else if (streamInfo.getGame().equals(GAME_SUNSHINE)) {
         else {
-            if (sunshinePredsManager.isEnabled()) {
-                if (sunshinePredsManager.isWaitingForAnswer()) {
-                    String[] content = message.getContent().split("\\s");
-                    if (content.length > 1 && content[1].matches("[0-9]{5}")) {
-                        out.println("Submitting predictions...");
-                        int outcome = Integer.parseInt(content[1]);
-                        int minutes = outcome / 10000;
-                        outcome -= minutes * 10000;
-                        int seconds = outcome / 100;
-                        outcome -= seconds * 100;
-                        
-                        int hundredths = outcome + (seconds * 100) + (minutes * 60 * 100);
-                        sunshinePredsManager.submitPredictions(hundredths);
-                    }
-                }
-                else {
-                    out.println("Ending the prediction game...");
-                    sunshineGuessListener.stop();
-                    sunshinePredsManager.stop();
+            if (predsManager.isWaitingForAnswer()) {
+                String[] content = message.getContent().split("\\s");
+                if (content.length > 1 && content[1].matches(predsManager.getAnswerRegex())) {
+                    out.println("Submitting predictions...");
+                    predsManager.submitPredictions(content[1]);
                 }
             }
             else {
-                sunshinePredsManager = new SunshinePredsManager(twirk);
-                sunshineGuessListener.start(sunshinePredsManager);
-                out.println("Starting the prediction game...");
-                sunshinePredsManager.start();
+                out.println("Ending the prediction game...");
+                predsGuessListener.stop();
+                predsManager.waitForAnswer();
             }
         }
     }

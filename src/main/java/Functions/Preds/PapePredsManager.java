@@ -1,30 +1,29 @@
 package Functions.Preds;
 
+import Database.Preds.PredsLeaderboard;
 import Database.Preds.SpeedySpinLeaderboard;
-import Functions.DiscordBotController;
 import Util.TwirkInterface;
 import com.gikk.twirk.types.users.TwitchUser;
 
-import java.text.SimpleDateFormat;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static java.lang.System.out;
 
-public class PapePredsManager {
+public class PapePredsManager extends PredsManagerBase{
     
-    private static final String DISCORD_CHANNEL_MONTHLY = "preds-monthly";
-    private static final String DISCORD_CHANNEL_ALL_TIME = "preds-all-time";
-    private static final int DISCORD_MAX_CHARS = 2000;
+    private static final String DISCORD_CHANNEL_MONTHLY = "pape-preds-monthly";
+    private static final String DISCORD_CHANNEL_ALL_TIME = "pape-preds-all-time";
     private static final int POINTS_3 = 20;
     private static final int POINTS_2 = 5;
     private static final int POINTS_1 = 1;
     private static final int POINTS_WRONG_ORDER = 1;
     
-    private final TwirkInterface twirk;
-    private final SpeedySpinLeaderboard leaderboard;
-    private final DiscordBotController dbc;
+    private static final Set<String> BADGE_CHOICES = new HashSet<>(Arrays.asList(
+            "badspin1",
+            "badspin2",
+            "badspin3",
+            "spoodlyspun"
+    ));
     
     public enum Badge {
         BAD_SPIN1,
@@ -33,22 +32,14 @@ public class PapePredsManager {
         SPOODLY_SPUN
     }
 
-    private final HashMap<TwitchUser, ArrayList<Badge>> predictionList;
-    
-    private boolean enabled;
-    private boolean waitingForAnswer;
+    private final HashMap<TwitchUser, ArrayList<Badge>> predictionList = new HashMap<>();
     
     /**
      * Manages the !preds Twitch chat game.
      * @param twirk twirk for chat
      */
     public PapePredsManager(TwirkInterface twirk) {
-        this.twirk = twirk;
-        enabled = false;
-        waitingForAnswer = false;
-        predictionList = new HashMap<>();
-        leaderboard = SpeedySpinLeaderboard.getInstance();
-        dbc = DiscordBotController.getInstance();
+        super(twirk);
     }
     
     /**
@@ -59,7 +50,7 @@ public class PapePredsManager {
      * @param second middle badge
      * @param third right badge
      */
-    public void makePrediction(TwitchUser user, Badge first, Badge second, Badge third) {
+    private void makePrediction(TwitchUser user, Badge first, Badge second, Badge third) {
         if (enabled) {
             ArrayList<Badge> prediction = new ArrayList<>();
             prediction.add(first);
@@ -80,36 +71,16 @@ public class PapePredsManager {
         }
     }
     
-    
-    /**
-     * Sets the game to an enabled state and sends a message to the chat to tell users to begin submitting predictions.
-     */
-    public void start() {
-        enabled = true;
-        twirk.channelMessage("/me Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 " +
-                "BadSpin3 or SpoodlySpun (or a message with 3 digits from 1 to 4) to guess the order the badges will " +
-                "show up in the badge shop! If you get all three right and don't have a sub, you'll win one! Type " +
-                "!badgeshop to learn more.");
-    }
-    
-    /**
-     * Sets the game to a state where it's waiting for the correct answer and sends a message to the chat to let them
-     * know to stop submitting predictions.
-     */
-    public void stop() {
-        waitingForAnswer = true;
-        twirk.channelMessage("/me Predictions are up! Let's see how everyone did...");
-    }
-    
     /**
      * Given the three correct badges, sets the game to an ended state, determines and records points won, and sends a
      * message to the chat to let them know who, if anyone, got all three correct, as well as the current monthly
      * leaderboard.
-     * @param one left badge
-     * @param two middle badge
-     * @param three right badge
      */
-    public void submitPredictions(Badge one, Badge two, Badge three) {
+    @Override
+    public void submitPredictions(String answer) {
+        Badge one = Badge.values()[Character.getNumericValue(answer.charAt(0)) - 1];
+        Badge two = Badge.values()[Character.getNumericValue(answer.charAt(1)) - 1];
+        Badge three = Badge.values()[Character.getNumericValue(answer.charAt(2)) - 1];
         enabled = false;
         waitingForAnswer = false;
 
@@ -141,51 +112,58 @@ public class PapePredsManager {
         updateDiscordAllTimePoints();
     }
     
-    /**
-     * Returns true if there is an active !preds game
-     * @return enabled state
-     */
-    public boolean isEnabled() {
-        return enabled;
+    @Override
+    public String getAnswerRegex() {
+        return "[1-4]{3}";
     }
     
-    /**
-     * Returns true if the game is waiting on the correct answer
-     * @return waiting for answer state
-     */
-    public boolean isWaitingForAnswer() {
-        return waitingForAnswer;
-    }
+    @Override
+    public void makePredictionIfValid(TwitchUser user, String message) {
+        String[] split = message.split("\\s");
     
-    private String buildMonthlyLeaderboardString() {
-        ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
-        ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
-        ArrayList<String> topMonthlyNames = new ArrayList<>();
-        
-        for (Long topMonthlyScorer : topMonthlyScorers) {
-            topMonthlyPoints.add(leaderboard.getMonthlyPoints(topMonthlyScorer));
-            topMonthlyNames.add(leaderboard.getUsername(topMonthlyScorer));
-        }
-        
-        int prevPoints = -1;
-        int prevRank = -1;
-        ArrayList<String> leaderboardStrings = new ArrayList<>();
-        for (int i = 0; i < topMonthlyNames.size(); i++) {
-            if (topMonthlyPoints.get(i) != prevPoints) {
-                prevRank = i + 1;
-                if (prevRank > 5) {
-                    break;
+        if (split.length == 3) {
+            //using FFZ emotes
+            ArrayList<String> badgeGuess = new ArrayList<>();
+            for (String word : split) {
+                if (BADGE_CHOICES.contains(word.toLowerCase()) && !badgeGuess.contains(word.toLowerCase())) {
+                    badgeGuess.add(word.toLowerCase());
                 }
             }
-            prevPoints = topMonthlyPoints.get(i);
-            String name = topMonthlyNames.get(i);
-            
-            leaderboardStrings.add(String.format("%d. %s - %d", prevRank, name, prevPoints));
+    
+            if (badgeGuess.size() == 3) {
+                makePrediction(
+                        user,
+                        stringToBadge(badgeGuess.get(0)),
+                        stringToBadge(badgeGuess.get(1)),
+                        stringToBadge(badgeGuess.get(2))
+                );
+                System.out.println(String.format("%s has predicted %s %s %s",
+                        user.getUserName(), badgeGuess.get(0), badgeGuess.get(1), badgeGuess.get(2)));
+            }
         }
+        else if (split.length == 1 && split[0].matches("[1-4]{3}")) {
+            //using numbers, e.g. "412"
+            Vector<Integer> badgeGuess = new Vector<>();
+            for (int i = 0; i < split[0].length(); i++) {
+                int guess = Character.getNumericValue(split[0].charAt(i));
+                if (!badgeGuess.contains(guess)) {
+                    badgeGuess.add(guess);
+                }
+            }
+    
+            if (badgeGuess.size() == 3) {
+                Badge badge1 = intToBadge(badgeGuess.get(0));
+                Badge badge2 = intToBadge(badgeGuess.get(1));
+                Badge badge3 = intToBadge(badgeGuess.get(2));
         
-        return "Monthly Leaderboard: " + String.join(", ", leaderboardStrings);
+                makePrediction(user, badge1, badge2, badge3);
+        
+                System.out.println(String.format("%s has predicted %s %s %s", user.getUserName(),
+                        badgeToString(badge1), badgeToString(badge2), badgeToString(badge3)));
+            }
+        }
     }
-
+    
     private ArrayList<String> getWinners(Badge leftAnswer, Badge middleAnswer, Badge rightAnswer) {
         Set<Badge> answerSet = new HashSet<>();
         answerSet.add(leftAnswer);
@@ -231,92 +209,27 @@ public class PapePredsManager {
         return winners;
     }
     
-    private void updateDiscordMonthlyPoints() {
-        ArrayList<Long> topScorers = leaderboard.getTopMonthlyScorers();
-        ArrayList<Integer> topPoints = new ArrayList<>();
-        ArrayList<String> topNames = new ArrayList<>();
-        for (Long topScorer : topScorers) {
-            topPoints.add(leaderboard.getMonthlyPoints(topScorer));
-            topNames.add(leaderboard.getUsername(topScorer));
-        }
-        
-        StringBuilder message = new StringBuilder();
-        SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy");
-        message.append(sdf.format(new Date()));
-        message.append("\n```");
-        
-        //add entries until discord character limit is reached
-        int prevPoints = -1;
-        int prevRank = -1;
-        for (int i = 0; i < topNames.size(); i++) {
-            if (topPoints.get(i) != prevPoints) {
-                prevRank = i + 1;
-            }
-            prevPoints = topPoints.get(i);
-            String entry = String.format(
-                    "%d. %s - %d point%s\n",
-                    prevRank,
-                    topNames.get(i),
-                    topPoints.get(i),
-                    topPoints.get(i) != 1 ? "s" : "");
-            if (message.length() + entry.length() > DISCORD_MAX_CHARS - 3) {
-                break;
-            }
-            else {
-                message.append(entry);
-            }
-        }
-        message.append("```");
-        
-        //edit message for current month if it exists, otherwise make a new one
-        if (dbc.hasRecentMessageContents(DISCORD_CHANNEL_MONTHLY)) {
-            String dateString = dbc.getMostRecentMessageContents(DISCORD_CHANNEL_MONTHLY).split("\n", 2)[0];
-            YearMonth now = YearMonth.now();
-            YearMonth messageDate = YearMonth.parse(dateString, DateTimeFormatter.ofPattern("MMMM yyyy"));
-            if (now.getMonth() == messageDate.getMonth() && now.getYear() == messageDate.getYear()) {
-                dbc.editMostRecentMessage(DISCORD_CHANNEL_MONTHLY, message.toString());
-                return;
-            }
-        }
-        dbc.sendMessage(DISCORD_CHANNEL_MONTHLY, message.toString());
+    @Override
+    protected PredsLeaderboard getLeaderboardType() {
+        return SpeedySpinLeaderboard.getInstance();
     }
     
-    private void updateDiscordAllTimePoints() {
-        ArrayList<Long> topScorers = leaderboard.getTopScorers();
-        ArrayList<Integer> topPoints = new ArrayList<>();
-        ArrayList<String> topNames = new ArrayList<>();
-        for (Long topScorer : topScorers) {
-            topPoints.add(leaderboard.getPoints(topScorer));
-            topNames.add(leaderboard.getUsername(topScorer));
-        }
-        
-        StringBuilder message = new StringBuilder();
-        message.append("All-Time Points:\n```");
-        
-        //add entries until discord character limit is reached
-        int prevPoints = -1;
-        int prevRank = -1;
-        for (int i = 0; i < topNames.size(); i++) {
-            if (topPoints.get(i) != prevPoints) {
-                prevRank = i + 1;
-            }
-            prevPoints = topPoints.get(i);
-            String entry = String.format("%d. %s - %d points\n", prevRank, topNames.get(i), topPoints.get(i));
-            if (message.length() + entry.length() > DISCORD_MAX_CHARS - 3) {
-                break;
-            }
-            else {
-                message.append(entry);
-            }
-        }
-        message.append("```");
-        
-        if (dbc.hasRecentMessageContents(DISCORD_CHANNEL_ALL_TIME)) {
-            dbc.editMostRecentMessage(DISCORD_CHANNEL_ALL_TIME, message.toString());
-        }
-        else {
-            dbc.sendMessage(DISCORD_CHANNEL_ALL_TIME, message.toString());
-        }
+    @Override
+    protected String getMonthlyChannelName() {
+        return DISCORD_CHANNEL_MONTHLY;
+    }
+    
+    @Override
+    protected String getAllTimeChannelName() {
+        return DISCORD_CHANNEL_ALL_TIME;
+    }
+    
+    @Override
+    protected String getStartMessage() {
+        return "/me Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 " +
+                "BadSpin3 or SpoodlySpun (or a message with 3 digits from 1 to 4) to guess the order the badges will " +
+                "show up in the badge shop! If you get all three right and don't have a sub, you'll win one! Type " +
+                "!badgeshop to learn more.";
     }
     
     /**

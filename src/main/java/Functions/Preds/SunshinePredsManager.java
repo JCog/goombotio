@@ -1,5 +1,6 @@
 package Functions.Preds;
 
+import Database.Preds.PredsLeaderboard;
 import Database.Preds.SunshineTimerLeaderboard;
 import Util.TwirkInterface;
 import com.gikk.twirk.types.users.TwitchUser;
@@ -10,9 +11,10 @@ import java.util.Map;
 
 import static java.lang.System.out;
 
-public class SunshinePredsManager {
+public class SunshinePredsManager extends PredsManagerBase{
+    private static final String DISCORD_CHANNEL_MONTHLY = "sms-preds-monthly";
+    private static final String DISCORD_CHANNEL_ALL_TIME = "sms-preds-all-time";
     private static final String START_MESSAGE = "starting preds";
-    private static final String STOP_MESSAGE = "waiting for correct answer";
     private static final int POINTS_CORRECT = 50;
     private static final int POINTS_1_SECOND = 10;
     private static final int POINTS_5_SECONDS = 5;
@@ -22,41 +24,33 @@ public class SunshinePredsManager {
     private static final int HUND_5_SECONDS = 5 * 100;
     private static final int HUND_10_SECONDS = 10 * 100;
     
-    private final SunshineTimerLeaderboard leaderboard = SunshineTimerLeaderboard.getInstance();
     private final HashMap<Long, TimeGuess> predictionList = new HashMap<>();
     
-    private final TwirkInterface twirk;
-    
-    private boolean enabled;
-    private boolean waitingForAnswer;
-    
     public SunshinePredsManager(TwirkInterface twirk) {
-        this.twirk = twirk;
-        enabled = false;
-        waitingForAnswer = false;
+        super(twirk);
     }
     
-    public void makePrediction(TwitchUser user, int hundredths) {
-        if (predictionList.containsKey(user.getUserID())) {
-            predictionList.remove(user.getUserID());
-            out.println(String.format("Replacing duplicate guess by %s", user.getDisplayName()));
-        }
-        predictionList.put(user.getUserID(), new TimeGuess(user, hundredths));
+    @Override
+    protected PredsLeaderboard getLeaderboardType() {
+        return SunshineTimerLeaderboard.getInstance();
     }
     
-    //start listening for preds
-    public void start() {
-        enabled = true;
-        twirk.channelMessage(START_MESSAGE);
+    @Override
+    protected String getMonthlyChannelName() {
+        return DISCORD_CHANNEL_MONTHLY;
     }
     
-    //stop listening for preds and wait for the correct answer
-    public void stop() {
-        waitingForAnswer = true;
-        twirk.channelMessage(STOP_MESSAGE);
+    @Override
+    protected String getAllTimeChannelName() {
+        return DISCORD_CHANNEL_ALL_TIME;
     }
     
-    public boolean isEnabled() {
+    @Override
+    protected String getStartMessage() {
+        return START_MESSAGE;
+    }
+    
+    public boolean isActive() {
         return enabled;
     }
     
@@ -65,14 +59,22 @@ public class SunshinePredsManager {
     }
     
     //submit the correct answer, calculate points, end game
-    public void submitPredictions(int answer) {
+    @Override
+    public void submitPredictions(String answer) {
+        int outcome = Integer.parseInt(answer);
+        int minutes = outcome / 10000;
+        outcome -= minutes * 10000;
+        int seconds = outcome / 100;
+        outcome -= seconds * 100;
+    
+        int hundredths = outcome + (seconds * 100) + (minutes * 60 * 100);
         enabled = false;
         waitingForAnswer = false;
     
-        ArrayList<String> winners = getWinners(answer);
+        ArrayList<String> winners = getWinners(hundredths);
         StringBuilder message = new StringBuilder();
         if (winners.size() == 0) {
-            ArrayList<TimeGuess> closestGuesses = getClosestGuesses(answer);
+            ArrayList<TimeGuess> closestGuesses = getClosestGuesses(hundredths);
             if (closestGuesses.size() == 0) {
                 message.append("Nobody guessed jcogREE");
             }
@@ -122,9 +124,35 @@ public class SunshinePredsManager {
         
         twirk.channelMessage(String.format(
                 "/me The correct answer is %s - %s",
-                formatHundredths(answer),
+                formatHundredths(hundredths),
                 message.toString()
         ));
+    }
+    
+    @Override
+    public String getAnswerRegex() {
+        return "[0-9]{5}";
+    }
+    
+    @Override
+    public void makePredictionIfValid(TwitchUser user, String message) {
+        String guess = message.replaceAll("[^0-9]", "");
+        if (guess.length() == 5) {
+            int secondDigit = Character.getNumericValue(guess.charAt(1));
+            if (secondDigit > 5) {
+                return;
+            }
+            int minutes = Character.getNumericValue(guess.charAt(0));
+            int seconds = Integer.parseInt(guess.substring(1, 3));
+            int hundredths = Integer.parseInt(guess.substring(3, 5)) + (seconds * 100) + (minutes * 60 * 100);
+            System.out.println(String.format("%s has predicted %d hundredths", user.getDisplayName(), hundredths));
+    
+            if (predictionList.containsKey(user.getUserID())) {
+                predictionList.remove(user.getUserID());
+                out.println(String.format("Replacing duplicate guess by %s", user.getDisplayName()));
+            }
+            predictionList.put(user.getUserID(), new TimeGuess(user, hundredths));
+        }
     }
     
     private ArrayList<String> getWinners(int answer) {

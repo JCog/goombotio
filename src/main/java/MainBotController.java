@@ -3,9 +3,8 @@ import Database.GoombotioDb;
 import Functions.*;
 import Listeners.Commands.*;
 import Listeners.Commands.Preds.LeaderboardListener;
-import Listeners.Commands.Preds.PapeGuessListener;
+import Listeners.Commands.Preds.PredsGuessListener;
 import Listeners.Commands.Preds.PredsManagerListener;
-import Listeners.Commands.Preds.SunshineGuessListener;
 import Listeners.Events.*;
 import Util.*;
 import com.gikk.twirk.events.TwirkListener;
@@ -96,8 +95,7 @@ public class MainBotController {
     
     private void addAllListeners() {
         //setup
-        PapeGuessListener papeGuessListener = new PapeGuessListener();
-        SunshineGuessListener sunshineGuessListener = new SunshineGuessListener();
+        PredsGuessListener predsGuessListener = new PredsGuessListener();
         ViewerQueueJoinListener queueJoinListener = new ViewerQueueJoinListener(vqm);
         
         //connection handling
@@ -107,12 +105,11 @@ public class MainBotController {
         addTwirkListener(new GenericCommandListener(twirk, twitchClient, streamInfo));
         addTwirkListener(new GoombotioCommandsListener(twirk));
         //addTwirkListener(new ModListener(twirk));
-        addTwirkListener(papeGuessListener);
         addTwirkListener(new LeaderboardListener(twirk, streamInfo));
         addTwirkListener(new QuoteListener(twirk));
-        addTwirkListener(new PredsManagerListener(twirk, streamInfo, papeGuessListener, sunshineGuessListener));
+        addTwirkListener(predsGuessListener);
+        addTwirkListener(new PredsManagerListener(twirk, streamInfo, predsGuessListener));
         addTwirkListener(queueJoinListener);
-        addTwirkListener(sunshineGuessListener);
         addTwirkListener(new ViewerQueueManageListener(vqm, queueJoinListener));
         addTwirkListener(new WatchTimeListener(twirk));
         addTwirkListener(new WrListener(twirk, streamInfo));
