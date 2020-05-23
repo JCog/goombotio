@@ -229,7 +229,7 @@ public class PapePredsManager extends PredsManagerBase{
         return "/me Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 " +
                 "BadSpin3 or SpoodlySpun (or a message with 3 digits from 1 to 4) to guess the order the badges will " +
                 "show up in the badge shop! If you get all three right and don't have a sub, you'll win one! Type " +
-                "!badgeshop to learn more.";
+                "!preds to learn more.";
     }
     
     /**

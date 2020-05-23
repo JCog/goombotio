@@ -14,7 +14,7 @@ import static java.lang.System.out;
 public class SunshinePredsManager extends PredsManagerBase{
     private static final String DISCORD_CHANNEL_MONTHLY = "sms-preds-monthly";
     private static final String DISCORD_CHANNEL_ALL_TIME = "sms-preds-all-time";
-    private static final String START_MESSAGE = "starting preds";
+    private static final String START_MESSAGE = "/me Get your predictions in! Guess what the timer will end at when JCog finishes Pianta 6. You get more points the closer you are, plus a bonus if you're closest, and if you get it exactly right JCog will gift you a sub! Type !preds to learn more.";
     private static final int POINTS_CORRECT = 50;
     private static final int POINTS_1_SECOND = 10;
     private static final int POINTS_5_SECONDS = 5;

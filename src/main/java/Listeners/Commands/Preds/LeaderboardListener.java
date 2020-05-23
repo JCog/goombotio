@@ -7,17 +7,20 @@ import Functions.StreamInfo;
 import Listeners.Commands.CommandBase;
 import Util.TwirkInterface;
 import Util.TwitchUserLevel;
+import com.gikk.twirk.enums.USER_TYPE;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 
 import java.util.ArrayList;
 
 public class LeaderboardListener extends CommandBase {
+    private static final String PREDS_MESSAGE_PAPE = "/me Guess the badge locations in the badge shop! Get 1 point for one badge (or if you have them all but in the wrong locations), 5 for two badges, and 20 if you get all three correct! Use !leaderboard to see the top scores this month and !points to see how many points you have. If you get all three and aren't subscribed to the channel, JCog will gift you a sub, and at the end of every month, the top five scorers will be given a VIP badge for the next month, so get guessing!";
+    private static final String PREDS_MESSAGE_SMS = "/me Guess what the timer will be at the end of Pianta 6! You get 1 point if you're within ten seconds, 5 points if you're within five seconds, 10 points if you're within 1 second, and if you get it exactly right you'll get 50 points and a free gift sub! If nobody is exactly right, whoever's closest will get an additional 10 point bonus, and at the end of every month, the top five scorers will be given a VIP badge for the next month, so get guessing!";
     
     private static final String GAME_SUNSHINE = "Super Mario Sunshine";
     private static final String GAME_PAPER_MARIO = "Paper Mario";
     private static final String PATTERN_LEADERBOARD = "!leaderboard";
-    private static final String PATTERN_BADGE_SHOP = "!badgeshop";
+    private static final String PATTERN_PREDS = "!preds";
     private static final String PATTERN_POINTS = "!points";
     private static final String PATTERN_LEADERBOARD_ALL = "!leaderboardall";
     private static final String PATTERN_POINTS_ALL = "!pointsall";
@@ -38,7 +41,7 @@ public class LeaderboardListener extends CommandBase {
     public String getCommandWords() {
         return String.join("|",
                 PATTERN_LEADERBOARD,
-                PATTERN_BADGE_SHOP,
+                PATTERN_PREDS,
                 PATTERN_POINTS,
                 PATTERN_LEADERBOARD_ALL,
                 PATTERN_POINTS_ALL
@@ -57,7 +60,7 @@ public class LeaderboardListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        String chatMessage;
+        String chatMessage = "";
 
         updateLeaderboardType();
         switch (command) {
@@ -69,13 +72,17 @@ public class LeaderboardListener extends CommandBase {
                 chatMessage = buildMonthlyPointsString(sender);
                 break;
 
-            case PATTERN_BADGE_SHOP:
-                chatMessage = "/me Guess the badge locations in the badge shop! Get 1 point for one badge (or if you " +
-                        "have them all but in the wrong locations), 5 for two badges, and 20 if you get all three " +
-                        "correct! Use !leaderboard to see the top scores this month and !points to see how many " +
-                        "points you have. If you get all three and aren't subscribed to the channel, JCog will gift " +
-                        "you a sub, and at the end of every month, the top three scorers will be given a VIP badge " +
-                        "for the next month, so get guessing!";
+            case PATTERN_PREDS:
+                if (sender.getUserType() != USER_TYPE.OWNER) {
+                    switch (streamInfo.getGame()) {
+                        case GAME_PAPER_MARIO:
+                            chatMessage = PREDS_MESSAGE_PAPE;
+                            break;
+                        case GAME_SUNSHINE:
+                            chatMessage = PREDS_MESSAGE_SMS;
+                            break;
+                    }
+                }
                 break;
                 
             case PATTERN_LEADERBOARD_ALL:
@@ -86,10 +93,6 @@ public class LeaderboardListener extends CommandBase {
                 chatMessage = buildPointsString(sender);
                 
                 break;
-
-            default:
-                //should never get here
-                chatMessage = "";
         }
         twirk.channelMessage(chatMessage);
     }
@@ -102,6 +105,7 @@ public class LeaderboardListener extends CommandBase {
             case GAME_SUNSHINE:
             default:
                 leaderboard = SunshineTimerLeaderboard.getInstance();
+                break;
         }
     }
     
