@@ -18,14 +18,6 @@ public class GoombotioCommandsListener extends CommandBase {
         EDIT,
         DELETE
     }
-    
-    private final static String[] validPermissions = {
-            "default",
-            "sub",
-            "vip",
-            "mod",
-            "owner"
-    };
 
     private final static String PATTERN_GOOMBOTIO = "!goombotio";
     private final static String PATTERN_GB = "!gb";
@@ -117,47 +109,47 @@ public class GoombotioCommandsListener extends CommandBase {
                         twirk.channelMessage(ssdb.deleteMessage(id));
                         break;
                 }
-            case COMMAND:
-                switch (function) {
-                    case ADD:
-                        if (!hasContent) {
-                            showError("no content");
-                            return;
-                        }
-                        if (hasPermission) {
-                            if (permissionIsValid(permission)) {
-                                twirk.channelMessage(commandDb.addMessage(id, content, permission));
-                            }
-                            else {
-                                showError("permission is invalid");
-                            }
-                        }
-                        else {
-                            twirk.channelMessage(commandDb.addMessage(id, content, TwitchUserLevel.USER_LEVEL.DEFAULT));
-                        }
-                        break;
-                    case EDIT:
-                        if (hasPermission && !permissionIsValid(permission)) {
-                            showError("permission is invalid");
-                            return;
-                        }
-                        if (hasContent && hasPermission) {
-                            twirk.channelMessage(commandDb.editCommand(id, content, permission));
-                        }
-                        else if (hasContent) {
-                            twirk.channelMessage(commandDb.editMessage(id, content));
-                        }
-                        else if (hasPermission) {
-                            twirk.channelMessage(commandDb.editPermission(id, permission));
-                        }
-                        else {
-                            showError("no content or permission");
-                        }
-                        break;
-                    case DELETE:
-                        twirk.channelMessage(commandDb.deleteMessage(id));
-                        break;
-                }
+//            case COMMAND:
+//                switch (function) {
+//                    case ADD:
+//                        if (!hasContent) {
+//                            showError("no content");
+//                            return;
+//                        }
+//                        if (hasPermission) {
+//                            if (permissionIsValid(permission)) {
+//                                twirk.channelMessage(commandDb.addMessage(id, content, permission));
+//                            }
+//                            else {
+//                                showError("permission is invalid");
+//                            }
+//                        }
+//                        else {
+//                            twirk.channelMessage(commandDb.addMessage(id, content, TwitchUserLevel.USER_LEVEL.DEFAULT));
+//                        }
+//                        break;
+//                    case EDIT:
+//                        if (hasPermission && !permissionIsValid(permission)) {
+//                            showError("permission is invalid");
+//                            return;
+//                        }
+//                        if (hasContent && hasPermission) {
+//                            twirk.channelMessage(commandDb.editCommand(id, content, permission));
+//                        }
+//                        else if (hasContent) {
+//                            twirk.channelMessage(commandDb.editCommand(id, content));
+//                        }
+//                        else if (hasPermission) {
+//                            twirk.channelMessage(commandDb.editPermission(id, permission));
+//                        }
+//                        else {
+//                            showError("no content or permission");
+//                        }
+//                        break;
+//                    case DELETE:
+//                        twirk.channelMessage(commandDb.deleteMessage(id));
+//                        break;
+//                }
         }
     }
     
@@ -187,14 +179,5 @@ public class GoombotioCommandsListener extends CommandBase {
             default:
                 return null;
         }
-    }
-    
-    private boolean permissionIsValid(String permission) {
-        for (String value : validPermissions) {
-            if (permission.toLowerCase().equals(value)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

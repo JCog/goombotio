@@ -1,0 +1,219 @@
+package Listeners.Commands;
+
+import Database.Misc.CommandDb;
+import Util.TwirkInterface;
+import Util.TwitchUserLevel;
+import com.gikk.twirk.types.twitchMessage.TwitchMessage;
+import com.gikk.twirk.types.users.TwitchUser;
+
+import static Util.TwitchUserLevel.USER_LEVEL;
+
+public class CommandManagerListener extends CommandBase {
+    private final static String PATTERN = "!commands";
+    private final static String USER_LEVEL_TAG = "-ul=";
+    private final static String COOLDOWN_TAG = "-cd=";
+    private final static long DEFAULT_COOLDOWN = 2 * 1000;
+    
+    private final CommandDb commandDb = CommandDb.getInstance();
+    private final TwirkInterface twirk;
+    
+    private enum FUNCTION {
+        ADD,
+        EDIT,
+        DELETE
+    }
+    
+    public CommandManagerListener(TwirkInterface twirk) {
+        super(CommandType.PREFIX_COMMAND);
+        this.twirk = twirk;
+    }
+    
+    @Override
+    public String getCommandWords() {
+        return PATTERN;
+    }
+    
+    @Override
+    protected USER_LEVEL getMinUserPrivilege() {
+        return USER_LEVEL.MOD;
+    }
+    
+    @Override
+    protected int getCooldownLength() {
+        return 0;
+    }
+    
+    @Override
+    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
+        String[] messageSplit = message.getContent().split("\\s", 4);
+        if (messageSplit.length < 3) {
+            showError("missing arguments");
+            return;
+        }
+        
+        String typeString = messageSplit[1];
+        String idString = messageSplit[2];
+        if (!isValidId(idString)) {
+            showError("invalid command ID");
+            return;
+        }
+        
+        String content = null;
+        String[] parameterStrings = null;
+        
+        try {
+            int start = messageSplit[3].indexOf('"');
+            int end = messageSplit[3].lastIndexOf('"');
+            if (start != end) { //valid quote
+                content = messageSplit[3].substring(start + 1, end);
+                parameterStrings = messageSplit[3].replace(messageSplit[3].substring(start, end + 1), "").split("\\s");
+            }
+            else if (start == -1) { //no quotes
+                parameterStrings = messageSplit[3].split("\\s");
+            }
+            else { //one quote mark
+                showError("unbalanced quotation mark");
+                return;
+            }
+        } catch (IndexOutOfBoundsException e) {
+            //do nothing
+        }
+        boolean hasContent = content != null && !content.isEmpty();
+        
+        FUNCTION type = getFunction(typeString);
+        if (type == null) {
+            showError("invalid function");
+            return;
+        }
+        
+        boolean hasUserLevel = hasUserLevelTag(parameterStrings);
+        boolean hasCooldown = hasCooldownTag(parameterStrings);
+        USER_LEVEL userLevel = getUserLevel(parameterStrings);
+        Long cooldown = getCooldown(parameterStrings);
+        if (userLevel == null) {
+            showError("invalid user level");
+            return;
+        }
+        if (cooldown == null) {
+            showError("invalid cooldown");
+            return;
+        }
+        
+        switch (type) {
+            case ADD:
+                if (!hasContent) {
+                    showError("no content");
+                    return;
+                }
+                twirk.channelMessage(commandDb.addMessage(idString, content, cooldown, userLevel));
+                break;
+            case EDIT:
+                if (hasContent && hasCooldown && hasUserLevel) {
+                    twirk.channelMessage(commandDb.editCommand(idString, content, cooldown, userLevel));
+                }
+                else if (hasContent && hasCooldown) {
+                    twirk.channelMessage(commandDb.editCommand(idString, content, cooldown));
+                }
+                else if (hasContent && hasUserLevel) {
+                    twirk.channelMessage(commandDb.editCommand(idString, content, userLevel));
+                }
+                else if (hasCooldown && hasUserLevel) {
+                    twirk.channelMessage(commandDb.editCommand(idString, cooldown, userLevel));
+                }
+                else if (hasContent) {
+                    twirk.channelMessage(commandDb.editCommand(idString, content));
+                }
+                else if (hasCooldown) {
+                    twirk.channelMessage(commandDb.editCommand(idString, cooldown));
+                }
+                else if (hasUserLevel) {
+                    twirk.channelMessage(commandDb.editCommand(idString, userLevel));
+                }
+                else {
+                    showError("nothing to edit");
+                }
+                break;
+            case DELETE:
+                twirk.channelMessage(commandDb.deleteCommand(idString));
+                break;
+        }
+    }
+    
+    private void showError(String error) {
+        twirk.channelMessage(String.format("ERROR: %s", error));
+    }
+    
+    private FUNCTION getFunction(String function) {
+        switch (function) {
+            case "add":
+                return FUNCTION.ADD;
+            case "edit":
+                return FUNCTION.EDIT;
+            case "delete":
+                return FUNCTION.DELETE;
+            default:
+                return null;
+        }
+    }
+    
+    private boolean isValidId(String id) {
+        return id.length() > 1 && id.startsWith("!");
+    }
+    
+    private boolean hasUserLevelTag(String[] parameters) {
+        if (parameters == null) {
+            return false;
+        }
+        for (String param : parameters) {
+            if (param.startsWith(USER_LEVEL_TAG)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean hasCooldownTag(String[] parameters) {
+        if (parameters == null) {
+            return false;
+        }
+        for (String param : parameters) {
+            if (param.startsWith(COOLDOWN_TAG)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    //search everything after the command id for a permission - returns null if an invalid type is found
+    private USER_LEVEL getUserLevel(String[] parameters) {
+        if (parameters == null) {
+            return USER_LEVEL.DEFAULT;
+        }
+        for (String param : parameters) {
+            if (param.startsWith(USER_LEVEL_TAG)) {
+                int start = USER_LEVEL_TAG.length();
+                String type = param.substring(start);
+                return TwitchUserLevel.getUserLevel(type);
+            }
+        }
+        return USER_LEVEL.DEFAULT;
+    }
+    
+    private Long getCooldown(String[] parameters) {
+        if (parameters == null) {
+            return DEFAULT_COOLDOWN;
+        }
+        for (String param : parameters) {
+            if (param.startsWith(COOLDOWN_TAG)) {
+                int start = COOLDOWN_TAG.length();
+                String cooldownString = param.substring(start);
+                try {
+                    return Long.parseLong(cooldownString);
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            }
+        }
+        return DEFAULT_COOLDOWN;
+    }
+}

@@ -4,17 +4,24 @@ import com.gikk.twirk.types.users.TwitchUser;
 
 public class TwitchUserLevel {
     public enum USER_LEVEL {
-        BROADCASTER(9),
-        MOD(6),
-        VIP(5),
-        STAFF(4),
-        SUBSCRIBER(2),
-        DEFAULT(0);
+        BROADCASTER(9, "broadcaster"),
+        MOD(6, "mod"),
+        VIP(5, "vip"),
+        STAFF(4, "staff"),
+        SUBSCRIBER(2, "sub"),
+        DEFAULT(0, "default");
     
         public final int value;
+        public final String name;
     
-        USER_LEVEL(int value) {
+        USER_LEVEL(int value, String name) {
             this.value = value;
+            this.name = name;
+        }
+    
+        @Override
+        public String toString() {
+            return name;
         }
     }
     
@@ -40,6 +47,7 @@ public class TwitchUserLevel {
                     staff = true;
                     break;
                 case ("subscriber"):
+                case ("sub"):
                     sub = true;
                     break;
             }
@@ -61,6 +69,30 @@ public class TwitchUserLevel {
         }
         else {
             return USER_LEVEL.DEFAULT;
+        }
+    }
+    
+    public static USER_LEVEL getUserLevel(String type) {
+        if (type.equals(USER_LEVEL.DEFAULT.toString())) {
+            return USER_LEVEL.DEFAULT;
+        }
+        else if (type.equals(USER_LEVEL.SUBSCRIBER.toString()) || type.equals("sub")) {
+            return USER_LEVEL.SUBSCRIBER;
+        }
+        else if (type.equals(USER_LEVEL.STAFF.toString())) {
+            return USER_LEVEL.STAFF;
+        }
+        else if (type.equals(USER_LEVEL.VIP.toString())) {
+            return USER_LEVEL.VIP;
+        }
+        else if (type.equals(USER_LEVEL.MOD.toString())) {
+            return USER_LEVEL.MOD;
+        }
+        else if (type.equals(USER_LEVEL.BROADCASTER.toString())) {
+            return USER_LEVEL.BROADCASTER;
+        }
+        else {
+            return null;
         }
     }
 }

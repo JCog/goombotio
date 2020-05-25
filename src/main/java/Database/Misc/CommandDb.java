@@ -37,48 +37,96 @@ public class CommandDb extends CollectionBase {
         return goombotioDb.getCollection(COLLECTION_NAME);
     }
     
-    public String addMessage(String id, String message, TwitchUserLevel.USER_LEVEL permission) {
+    public String addMessage(String id, String message, long cooldown, TwitchUserLevel.USER_LEVEL userLevel) {
         if (getCommand(id) != null) {
             return "ERROR: Message ID already exists.";
         }
         
         Document document = new Document(ID_KEY, id)
                 .append(MESSAGE_KEY, message)
-                .append(PERMISSION_KEY, permission.value);
+                .append(COOLDOWN_KEY, cooldown)
+                .append(PERMISSION_KEY, userLevel.value);
         insertOne(document);
         return String.format(
-                "Successfully added \"%s\" to the list of commands with permission \"%s\".",
+                "Successfully added \"%s\" to the list of commands with cooldown %d ms and user level \"%s\".",
                 id,
-                getPermission(permission)
+                cooldown,
+                userLevel.toString()
         );
     }
     
-    public String addMessage(String id, String message, String permission) {
-        return addMessage(id, message, getPermission(permission));
+    public String editCommand(String id, String message, long cooldown, TwitchUserLevel.USER_LEVEL userLevel) {
+        if (getCommand(id) == null) {
+            return "ERROR: Message ID doesn't exist.";
+        }
+        
+        Document document = new Document(ID_KEY, id)
+                .append(MESSAGE_KEY, message)
+                .append(COOLDOWN_KEY, cooldown)
+                .append(PERMISSION_KEY, userLevel.value);
+        updateOne(id, document);
+        return String.format(
+                "Successfully edited command message for \"%s\", set cooldown to %d ms, and set user level to \"%s\".",
+                id,
+                cooldown,
+                userLevel.toString()
+        );
+        
     }
     
-    public String editCommand(String id, String message, TwitchUserLevel.USER_LEVEL permission) {
+    public String editCommand(String id, String message, long cooldown) {
+        if (getCommand(id) == null) {
+            return "ERROR: Message ID doesn't exist.";
+        }
+        
+        Document document = new Document(ID_KEY, id)
+                .append(MESSAGE_KEY, message)
+                .append(COOLDOWN_KEY, cooldown);
+        updateOne(id, document);
+        return String.format(
+                "Successfully edited command message for \"%s\" and set cooldown to %d ms.",
+                id,
+                cooldown
+        );
+        
+    }
+    
+    public String editCommand(String id, String message, TwitchUserLevel.USER_LEVEL userLevel) {
         if (getCommand(id) == null) {
             return "ERROR: Message ID doesn't exist.";
         }
     
         Document document = new Document(ID_KEY, id)
                 .append(MESSAGE_KEY, message)
-                .append(PERMISSION_KEY, permission.value);
+                .append(PERMISSION_KEY, userLevel.value);
         updateOne(id, document);
         return String.format(
-                "Successfully edited command message for \"%s\" and set permission to \"%s\".",
+                "Successfully edited command message for \"%s\" and set user level to \"%s\".",
                 id,
-                getPermission(permission)
+                userLevel.toString()
         );
         
     }
     
-    public String editCommand(String id, String message, String permission) {
-        return editCommand(id, message, getPermission(permission));
+    public String editCommand(String id, long cooldown, TwitchUserLevel.USER_LEVEL userLevel) {
+        if (getCommand(id) == null) {
+            return "ERROR: Message ID doesn't exist.";
+        }
+        
+        Document document = new Document(ID_KEY, id)
+                .append(COOLDOWN_KEY, cooldown)
+                .append(PERMISSION_KEY, userLevel.value);
+        updateOne(id, document);
+        return String.format(
+                "Successfully edited \"%s\": set cooldown to %d ms and set user level to \"%s\".",
+                id,
+                cooldown,
+                userLevel.toString()
+        );
+        
     }
     
-    public String editMessage(String id, String message) {
+    public String editCommand(String id, String message) {
         if (getCommand(id) == null) {
             return "ERROR: Message ID doesn't exist.";
         }
@@ -89,40 +137,29 @@ public class CommandDb extends CollectionBase {
         return String.format("Successfully edited command message for \"%s\".", id);
     }
     
-    public String editPermission(String id, TwitchUserLevel.USER_LEVEL permission) {
+    public String editCommand(String id, long cooldown) {
         if (getCommand(id) == null) {
             return "ERROR: Message ID doesn't exist.";
         }
         
         Document document = new Document(ID_KEY, id)
-                .append(PERMISSION_KEY, permission.value);
+                .append(COOLDOWN_KEY, cooldown);
         updateOne(id, document);
-        return String.format("Successfully edited command permission for \"%s\".", id);
+        return String.format("Successfully edited \"%s\": set cooldown to %d ms.", id, cooldown);
     }
     
-    public String editPermission(String id, String permission) {
+    public String editCommand(String id, TwitchUserLevel.USER_LEVEL userLevel) {
         if (getCommand(id) == null) {
             return "ERROR: Message ID doesn't exist.";
         }
         
         Document document = new Document(ID_KEY, id)
-                .append(PERMISSION_KEY, getPermission(permission).value);
+                .append(PERMISSION_KEY, userLevel.value);
         updateOne(id, document);
-        return String.format("Successfully edited command permission for \"%s\" to %s.", id, permission);
+        return String.format("Successfully edited \"%s\": set user level to \"%s\".", id, userLevel.toString());
     }
     
-    public String editTimeout(String id, long ms) {
-        if (getCommand(id) == null) {
-            return "ERROR: Message ID doesn't exist.";
-        }
-    
-        Document document = new Document(ID_KEY, id)
-                .append(COOLDOWN_KEY, ms);
-        updateOne(id, document);
-        return String.format("Successfully edited cooldown length for \"%s\" to %d ms.", id, ms);
-    }
-    
-    public String deleteMessage(String id) {
+    public String deleteCommand(String id) {
         if (getCommand(id) == null) {
             return "ERROR: Message ID doesn't exist.";
         }
@@ -161,35 +198,5 @@ public class CommandDb extends CollectionBase {
     
     private Document getCommand(String id) {
         return findFirstEquals(ID_KEY, id);
-    }
-    
-    private TwitchUserLevel.USER_LEVEL getPermission(String permission) {
-        switch (permission) {
-            case "sub":
-                return TwitchUserLevel.USER_LEVEL.SUBSCRIBER;
-            case "vip":
-                return TwitchUserLevel.USER_LEVEL.VIP;
-            case "mod":
-                return TwitchUserLevel.USER_LEVEL.MOD;
-            case "owner":
-                return TwitchUserLevel.USER_LEVEL.BROADCASTER;
-            default:
-                return TwitchUserLevel.USER_LEVEL.DEFAULT;
-        }
-    }
-    
-    private String getPermission(TwitchUserLevel.USER_LEVEL permission) {
-        switch (permission) {
-            case SUBSCRIBER:
-                return "sub";
-            case VIP:
-                return "vip";
-            case MOD:
-                return "mod";
-            case BROADCASTER:
-                return "owner";
-            default:
-                return "default";
-        }
     }
 }
