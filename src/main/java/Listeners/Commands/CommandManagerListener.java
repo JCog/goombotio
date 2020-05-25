@@ -120,7 +120,7 @@ public class CommandManagerListener extends CommandBase {
                     showError("no content");
                     return;
                 }
-                twirk.channelMessage(commandDb.addMessage(idString, content, cooldown, userLevel));
+                twirk.channelMessage(commandDb.addCommand(idString, content, cooldown, userLevel));
                 break;
             case EDIT:
                 if (hasContent && hasCooldown && hasUserLevel) {

@@ -37,7 +37,7 @@ public class CommandDb extends CollectionBase {
         return goombotioDb.getCollection(COLLECTION_NAME);
     }
     
-    public String addMessage(String id, String message, long cooldown, TwitchUserLevel.USER_LEVEL userLevel) {
+    public String addCommand(String id, String message, long cooldown, TwitchUserLevel.USER_LEVEL userLevel) {
         if (getCommand(id) != null) {
             return "ERROR: Message ID already exists.";
         }
