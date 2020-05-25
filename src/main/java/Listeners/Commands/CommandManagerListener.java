@@ -6,6 +6,9 @@ import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static Util.TwitchUserLevel.USER_LEVEL;
 
 public class CommandManagerListener extends CommandBase {
@@ -79,6 +82,18 @@ public class CommandManagerListener extends CommandBase {
             //do nothing
         }
         boolean hasContent = content != null && !content.isEmpty();
+        
+        String invalidTag = getInvalidTag(parameterStrings);
+        if (invalidTag != null) {
+            showError(String.format("invalid parameter \"%s\"", invalidTag));
+            return;
+        }
+    
+        String duplicateTag = getDuplicateTag(parameterStrings);
+        if (duplicateTag != null) {
+            showError(String.format("duplicate tag \"%s\"", duplicateTag));
+            return;
+        }
         
         FUNCTION type = getFunction(typeString);
         if (type == null) {
@@ -197,6 +212,37 @@ public class CommandManagerListener extends CommandBase {
             }
         }
         return USER_LEVEL.DEFAULT;
+    }
+    
+    //returns the first invalid tag, null if there are none
+    private String getInvalidTag(String[] parameters) {
+        if (parameters == null) {
+            return null;
+        }
+        for (String param : parameters) {
+            if (!(param.startsWith(USER_LEVEL_TAG) || param.startsWith(COOLDOWN_TAG))) {
+                return param;
+            }
+        }
+        return null;
+    }
+    
+    //returns duplicate tag, null if there are none. assumes no invalid tags
+    private String getDuplicateTag(String[] parameters) {
+        if (parameters == null) {
+            return null;
+        }
+        Set<String> tags = new HashSet<>();
+        for (String param : parameters) {
+            String paramTag = param.substring(0, param.indexOf('='));
+            if (tags.contains(paramTag)) {
+                return paramTag;
+            }
+            else {
+                tags.add(paramTag);
+            }
+        }
+        return null;
     }
     
     private Long getCooldown(String[] parameters) {
