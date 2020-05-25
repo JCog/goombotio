@@ -67,7 +67,7 @@ public class CommandManagerListener extends CommandBase {
         try {
             int start = messageSplit[3].indexOf('"');
             int end = messageSplit[3].lastIndexOf('"');
-            if (start != end) { //valid quote
+            if (start != end) { //valid quotes
                 content = messageSplit[3].substring(start + 1, end);
                 parameterStrings = messageSplit[3].replace(messageSplit[3].substring(start, end + 1), "").split("\\s");
             }
@@ -172,7 +172,7 @@ public class CommandManagerListener extends CommandBase {
     }
     
     private boolean isValidId(String id) {
-        return id.length() > 1 && id.startsWith("!");
+        return id.matches("![a-zA-Z0-9]+");
     }
     
     private boolean hasUserLevelTag(String[] parameters) {

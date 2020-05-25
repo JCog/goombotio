@@ -104,13 +104,13 @@ public class MainBotController {
         // Command Listeners
         addTwirkListener(new CommandManagerListener(twirk));
         addTwirkListener(new GenericCommandListener(twirk, twitchClient, streamInfo));
-        addTwirkListener(new GoombotioCommandsListener(twirk));
         //addTwirkListener(new ModListener(twirk));
         addTwirkListener(new LeaderboardListener(twirk, streamInfo));
         addTwirkListener(new QuoteListener(twirk));
         addTwirkListener(predsGuessListener);
         addTwirkListener(new PredsManagerListener(twirk, streamInfo, predsGuessListener));
         addTwirkListener(queueJoinListener);
+        addTwirkListener(new ScheduledMessageManagerListener(twirk));
         addTwirkListener(new ViewerQueueManageListener(vqm, queueJoinListener));
         addTwirkListener(new WatchTimeListener(twirk));
         addTwirkListener(new WrListener(twirk, streamInfo));
