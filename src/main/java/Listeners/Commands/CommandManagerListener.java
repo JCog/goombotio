@@ -83,18 +83,6 @@ public class CommandManagerListener extends CommandBase {
         }
         boolean hasContent = content != null && !content.isEmpty();
         
-        String invalidTag = getInvalidTag(parameterStrings);
-        if (invalidTag != null) {
-            showError(String.format("invalid parameter \"%s\"", invalidTag));
-            return;
-        }
-    
-        String duplicateTag = getDuplicateTag(parameterStrings);
-        if (duplicateTag != null) {
-            showError(String.format("duplicate tag \"%s\"", duplicateTag));
-            return;
-        }
-        
         FUNCTION type = getFunction(typeString);
         if (type == null) {
             showError("invalid function");
@@ -105,6 +93,20 @@ public class CommandManagerListener extends CommandBase {
         boolean hasCooldown = hasCooldownTag(parameterStrings);
         USER_LEVEL userLevel = getUserLevel(parameterStrings);
         Long cooldown = getCooldown(parameterStrings);
+        if (hasUserLevel || hasCooldown) {
+            String invalidTag = getInvalidTag(parameterStrings);
+            if (invalidTag != null) {
+                showError(String.format("invalid parameter \"%s\"", invalidTag));
+                return;
+            }
+    
+            String duplicateTag = getDuplicateTag(parameterStrings);
+            if (duplicateTag != null) {
+                showError(String.format("duplicate tag \"%s\"", duplicateTag));
+                return;
+            }
+        }
+        
         if (userLevel == null) {
             showError("invalid user level");
             return;
