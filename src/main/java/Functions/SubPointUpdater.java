@@ -71,11 +71,8 @@ public class SubPointUpdater {
         SubscriptionList tempList = getSubList(null);
         while (tempList.getSubscriptions().size() > 0) {
             for (Subscription sub : tempList.getSubscriptions()) {
-                //permanent subs apparently count as 1 sub point???
-                if (sub.getUserId().equals(channelId) || sub.getUserId().equals(botId)) {
-                    tier1++;
-                }
-                else {
+                //idk wtf is up with twitch's api, but sometimes the number is just wrong ¯\_(ツ)_/¯
+                if (!sub.getUserId().equals(channelId) && !sub.getUserId().equals(botId)) {
                     switch (sub.getTier()) {
                         case "1000":
                             tier1++;
