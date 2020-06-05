@@ -49,7 +49,7 @@ public class MainBotController {
         this.twirk = new TwirkInterface(chatLogger, botUser);
         streamInfo = new StreamInfo(twitchClient);
         statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, 60*1000);
-        socialScheduler = new SocialScheduler(twirk, SOCIAL_INTERVAL_LENGTH);
+        socialScheduler = new SocialScheduler(twirk, streamInfo, SOCIAL_INTERVAL_LENGTH);
         subPointUpdater = new SubPointUpdater(twitchClient, streamInfo, botUser);
         vqm = new ViewerQueueManager(twirk);
         dbc = DiscordBotController.getInstance();

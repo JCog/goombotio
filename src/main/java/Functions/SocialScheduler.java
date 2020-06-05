@@ -17,11 +17,13 @@ import java.util.concurrent.TimeUnit;
 
 public class SocialScheduler {
 
-    private final SocialSchedulerDb socialSchedulerDb;
+    private final SocialSchedulerDb socialSchedulerDb = SocialSchedulerDb.getInstance();
+    private final AnyMessageListener anyMessageListener = new AnyMessageListener();
+    private final String botName = Settings.getTwitchUsername();
+    private final Random random = new Random();
+    
     private final TwirkInterface twirk;
-    private final String botName;
-    private final AnyMessageListener anyMessageListener;
-    private final Random random;
+    private final StreamInfo streamInfo;
     private final int intervalLength;
     
     private boolean running;
@@ -33,15 +35,12 @@ public class SocialScheduler {
      * @param twirk chat interface
      * @param intervalLength minutes between posts
      */
-    public SocialScheduler(TwirkInterface twirk, int intervalLength) {
-        this.socialSchedulerDb = SocialSchedulerDb.getInstance();
+    public SocialScheduler(TwirkInterface twirk, StreamInfo streamInfo, int intervalLength) {
         this.twirk = twirk;
+        this.streamInfo = streamInfo;
         this.running = false;
         this.activeChat = false;
         this.intervalLength = intervalLength;
-        this.botName = Settings.getTwitchUsername();
-        this.anyMessageListener = new AnyMessageListener();
-        random = new Random();
     }
     
     /**
@@ -66,7 +65,7 @@ public class SocialScheduler {
 
     private void socialLoop() {
         if (running) {
-            if (activeChat) {
+            if (activeChat && streamInfo.isLive()) {
                 postRandomMsg();
             }
             scheduleSocialMsgs();
