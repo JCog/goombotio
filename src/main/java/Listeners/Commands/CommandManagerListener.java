@@ -60,6 +60,11 @@ public class CommandManagerListener extends CommandBase {
             showError("invalid command ID");
             return;
         }
+    
+        if (twirk.getCommandPatterns().contains(idString.toLowerCase())) {
+            showError(String.format("%s is a reserved command id and cannot be modified", idString));
+            return;
+        }
         
         String content = null;
         String[] parameterStrings = null;
