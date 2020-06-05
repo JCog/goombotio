@@ -28,6 +28,7 @@ snowbottos
 stay_hydrated_bot
 streamelements
 teyyd
+twitchprimereminder
 v_and_k
 virgoproz
 vlees
