@@ -78,26 +78,31 @@ public class SunshinePredsManager extends PredsManagerBase {
             if (closestGuesses.size() == 0) {
                 message.append("Nobody guessed jcogREE");
             }
-            else if (closestGuesses.size() == 1) {
-                message.append(String.format(
-                        "Nobody won, but @%s was closest! jcogComfy",
-                        closestGuesses.get(0).twitchUser.getDisplayName()
-                ));
-            }
-            else if (closestGuesses.size() == 2) {
-                message.append(String.format(
-                        "Nobody won, but @%s and @%s were closest! jcogComfy",
-                        closestGuesses.get(0).twitchUser.getDisplayName(),
-                        closestGuesses.get(1).twitchUser.getDisplayName()
-                ));
-            }
             else {
-                message.append("Nobody won, but ");
-                for (int i = 0; i < closestGuesses.size() - 1; i++) {
-                    message.append("@").append(closestGuesses.get(i).twitchUser.getDisplayName()).append(", ");
+                String difference = formatDifference(hundredths, closestGuesses.get(0).hundredths);
+                if (closestGuesses.size() == 1) {
+                    message.append(String.format(
+                            "Nobody won, but @%s was closest (+/- %ss)! jcogComfy",
+                            closestGuesses.get(0).twitchUser.getDisplayName(),
+                            difference
+                    ));
                 }
-                message.append("and @").append(closestGuesses.get(closestGuesses.size() - 1).twitchUser.getDisplayName());
-                message.append(" were closest! jcogComfy");
+                else if (closestGuesses.size() == 2) {
+                    message.append(String.format(
+                            "Nobody won, but @%s and @%s were closest (+/- %ss)! jcogComfy",
+                            closestGuesses.get(0).twitchUser.getDisplayName(),
+                            closestGuesses.get(1).twitchUser.getDisplayName(),
+                            difference
+                    ));
+                }
+                else {
+                    message.append("Nobody won, but ");
+                    for (int i = 0; i < closestGuesses.size() - 1; i++) {
+                        message.append("@").append(closestGuesses.get(i).twitchUser.getDisplayName()).append(", ");
+                    }
+                    message.append("and @").append(closestGuesses.get(closestGuesses.size() - 1).twitchUser.getDisplayName());
+                    message.append(String.format(" were closest (+/- %ss)! jcogComfy", difference));
+                }
             }
         }
         else if (winners.size() == 1) {
@@ -121,6 +126,8 @@ public class SunshinePredsManager extends PredsManagerBase {
             message.append("and @").append(winners.get(winners.size() - 1));
             message.append(" on guessing correctly! jcogChamp");
         }
+        message.append(" • ");
+        message.append(buildMonthlyLeaderboardString());
         
         twirk.channelMessage(String.format(
                 "/me The correct answer is %s - %s",
@@ -232,6 +239,14 @@ public class SunshinePredsManager extends PredsManagerBase {
             }
         }
         return output;
+    }
+    
+    //takes in hundredths, outputs seconds e.g. 5.02
+    private String formatDifference(int answer, int guess) {
+        int difference = Math.abs(answer - guess);
+        int seconds = difference / 100;
+        int hundredths = difference % 100;
+        return String.format("%d:%02d", seconds, hundredths);
     }
     
     private String formatHundredths(int hundredths) {
