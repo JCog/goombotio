@@ -36,7 +36,30 @@ public class TwirkInterface {
         twirkListeners = new HashSet<>();
     }
     
+    /**
+     * Sends a message to twitch chat if the first non-whitespace character is not '/' to prevent commands
+     * @param line
+     */
     public void channelMessage(String line) {
+        String firstWord = line.split("\\s", 2)[0];
+        if (firstWord.charAt(0) == '/') {
+            System.out.println(String.format("Illegal command usage \"%s\"", firstWord));
+        }
+        else {
+            twirk.channelMessage(line);
+            chatLogger.logMessage(botId, botDisplayName, line);
+        }
+    }
+    
+    /**
+     * Sends a message to twitch chat with no restrictions on commands
+     * @param line message to send
+     */
+    public void channelCommmand(String line) {
+        String firstWord = line.split("\\s", 2)[0];
+        if (firstWord.charAt(0) == '/') {
+            System.out.println(String.format("command message sent \"%s\"", line));
+        }
         twirk.channelMessage(line);
         chatLogger.logMessage(botId, botDisplayName, line);
     }

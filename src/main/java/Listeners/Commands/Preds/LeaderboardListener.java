@@ -94,7 +94,7 @@ public class LeaderboardListener extends CommandBase {
                 
                 break;
         }
-        twirk.channelMessage(chatMessage);
+        twirk.channelCommmand(chatMessage);
     }
     
     private void updateLeaderboardType() {
