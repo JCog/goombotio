@@ -56,6 +56,10 @@ public class PredsManagerListener extends CommandBase {
             else if (streamInfo.getGame().equals(GAME_SUNSHINE)) {
                 predsManager = new SunshinePredsManager(twirk);
             }
+            else {
+                twirk.channelMessage("The current game is not compatible with preds.");
+                return;
+            }
             out.println("Starting the prediction game...");
             predsGuessListener.start(predsManager);
             predsManager.startGame();

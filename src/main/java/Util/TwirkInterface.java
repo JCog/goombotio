@@ -41,13 +41,17 @@ public class TwirkInterface {
      * @param line
      */
     public void channelMessage(String line) {
-        String firstWord = line.split("\\s", 2)[0];
+        String output = line.trim();
+        if (output.isEmpty()) {
+            return;
+        }
+        String firstWord = output.split("\\s", 2)[0];
         if (firstWord.charAt(0) == '/') {
             System.out.println(String.format("Illegal command usage \"%s\"", firstWord));
         }
         else {
-            twirk.channelMessage(line);
-            chatLogger.logMessage(botId, botDisplayName, line);
+            twirk.channelMessage(output);
+            chatLogger.logMessage(botId, botDisplayName, output);
         }
     }
     
@@ -56,12 +60,16 @@ public class TwirkInterface {
      * @param line message to send
      */
     public void channelCommmand(String line) {
-        String firstWord = line.split("\\s", 2)[0];
-        if (firstWord.charAt(0) == '/') {
-            System.out.println(String.format("command message sent \"%s\"", line));
+        String output = line.trim();
+        if (output.isEmpty()) {
+            return;
         }
-        twirk.channelMessage(line);
-        chatLogger.logMessage(botId, botDisplayName, line);
+        String firstWord = output.split("\\s", 2)[0];
+        if (firstWord.charAt(0) == '/') {
+            System.out.println(String.format("command message sent \"%s\"", output));
+        }
+        twirk.channelMessage(output);
+        chatLogger.logMessage(botId, botDisplayName, output);
     }
     
     public Set<String> getCommandPatterns() {
