@@ -246,7 +246,7 @@ public class SunshinePredsManager extends PredsManagerBase {
         int difference = Math.abs(answer - guess);
         int seconds = difference / 100;
         int hundredths = difference % 100;
-        return String.format("%d:%02d", seconds, hundredths);
+        return String.format("%d.%02d", seconds, hundredths);
     }
     
     private String formatHundredths(int hundredths) {
