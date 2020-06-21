@@ -1,10 +1,11 @@
 package Listeners.Commands;
 
-import Functions.StreamInfo;
 import Util.TwirkInterface;
+import Util.TwitchApi;
 import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.helix.domain.Stream;
 
 import static APIs.SpeedrunApi.*;
 
@@ -16,12 +17,12 @@ public class WrListener extends CommandBase {
     private static final String PATTERN = "!wr";
     
     private final TwirkInterface twirk;
-    private final StreamInfo streamInfo;
+    private final TwitchApi twitchApi;
 
-    public WrListener(TwirkInterface twirk, StreamInfo streamInfo) {
+    public WrListener(TwirkInterface twirk, TwitchApi twitchApi) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
-        this.streamInfo = streamInfo;
+        this.twitchApi = twitchApi;
     }
 
     @Override
@@ -41,8 +42,9 @@ public class WrListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        String title = streamInfo.getTitle().toLowerCase();
-        String game = streamInfo.getGame();
+        Stream stream = twitchApi.getStream();
+        String title = stream.getTitle().toLowerCase();
+        String game = twitchApi.getGameById(stream.getGameId()).getName();
         String wrText = "Unknown WR";
         switch (game) {
             case GAME_SUNSHINE:
