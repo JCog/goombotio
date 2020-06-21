@@ -3,6 +3,7 @@ package Functions;
 import Database.Misc.SocialSchedulerDb;
 import Util.Settings;
 import Util.TwirkInterface;
+import Util.TwitchApi;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
@@ -23,7 +24,7 @@ public class SocialScheduler {
     private final Random random = new Random();
     
     private final TwirkInterface twirk;
-    private final StreamInfo streamInfo;
+    private final TwitchApi twitchApi;
     private final int intervalLength;
     
     private boolean running;
@@ -35,9 +36,9 @@ public class SocialScheduler {
      * @param twirk chat interface
      * @param intervalLength minutes between posts
      */
-    public SocialScheduler(TwirkInterface twirk, StreamInfo streamInfo, int intervalLength) {
+    public SocialScheduler(TwirkInterface twirk, TwitchApi twitchApi, int intervalLength) {
         this.twirk = twirk;
-        this.streamInfo = streamInfo;
+        this.twitchApi = twitchApi;
         this.running = false;
         this.activeChat = false;
         this.intervalLength = intervalLength;
@@ -65,7 +66,7 @@ public class SocialScheduler {
 
     private void socialLoop() {
         if (running) {
-            if (activeChat && streamInfo.isLive()) {
+            if (activeChat && twitchApi.getStream() != null) {
                 postRandomMsg();
             }
             scheduleSocialMsgs();
