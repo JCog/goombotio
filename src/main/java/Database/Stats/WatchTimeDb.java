@@ -134,6 +134,17 @@ public class WatchTimeDb extends CollectionBase {
         }
         return topUsers;
     }
+    
+    public HashSet<Long> getAllUserIds() {
+        MongoCursor<Document> result = findAll().iterator();
+        HashSet<Long> users = new HashSet<>();
+    
+        while (result.hasNext()) {
+            Document document = result.next();
+            users.add(document.getLong(ID_KEY));
+        }
+        return users;
+    }
 
     public Vector<String> getTopMonthlyUsers() {
         Calendar calendar = Calendar.getInstance();
