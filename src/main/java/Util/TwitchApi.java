@@ -3,16 +3,15 @@ package Util;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class TwitchApi {
     private final TwitchClient twitchClient;
+    private final String streamer;
     
     public TwitchApi(TwitchClient twitchClient) {
         this.twitchClient = twitchClient;
+        streamer = Settings.getTwitchStream();
     }
     
     public Clip getClipById(String id) {
@@ -80,6 +79,23 @@ public class TwitchApi {
         return gameList.getGames().get(0);
     }
     
+    public Stream getStream() {
+        StreamList streamList = twitchClient.getHelix().getStreams(
+                Settings.getTwitchChannelAuthToken(),
+                "",
+                "",
+                1,
+                null,
+                null,
+                null,
+                null,
+                Collections.singletonList(streamer)).execute();
+        if (streamList.getStreams().isEmpty()) {
+            return null;
+        }
+        return streamList.getStreams().get(0);
+    }
+    
     public User getUserById(String userId) {
         UserList userList = twitchClient.getHelix().getUsers(
                 Settings.getTwitchChannelAuthToken(),
@@ -104,7 +120,7 @@ public class TwitchApi {
         return userList.getUsers().get(0);
     }
     
-    public List<User> getUserListByUsernames(List<String> usernameList) {
+    public List<User> getUserListByUsernames(Collection<String> usernameList) {
         Iterator<String> iterator = usernameList.iterator();
         List<String> usersHundred = new ArrayList<>();
         List<User> output = new ArrayList<>();
