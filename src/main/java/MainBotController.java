@@ -29,6 +29,7 @@ public class MainBotController {
     
     private final TwirkInterface twirk;
     private final TwitchClient twitchClient;
+    private final TwitchApi twitchApi;
     private final StreamInfo streamInfo;
     private final StatsTracker statsTracker;
     private final SocialScheduler socialScheduler;
@@ -41,15 +42,16 @@ public class MainBotController {
     private MainBotController() {
         chatLogger = new ChatLogger();
         twitter = getTwitterInstance();
-        this.twitchClient = TwitchClientBuilder.builder()
+        twitchClient = TwitchClientBuilder.builder()
                 .withEnableHelix(true)
                 .withClientId(Settings.getTwitchChannelClientId())
                 .build();
+        twitchApi = new TwitchApi(twitchClient);
         User botUser = getBotUser(Settings.getTwitchUsername());
-        this.twirk = new TwirkInterface(chatLogger, botUser);
+        twirk = new TwirkInterface(chatLogger, botUser);
         streamInfo = new StreamInfo(twitchClient);
         statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, 60*1000);
-        socialScheduler = new SocialScheduler(twirk, streamInfo, SOCIAL_INTERVAL_LENGTH);
+        socialScheduler = new SocialScheduler(twirk, twitchApi, SOCIAL_INTERVAL_LENGTH);
         subPointUpdater = new SubPointUpdater(twitchClient, streamInfo, botUser);
         vqm = new ViewerQueueManager(twirk);
         dbc = DiscordBotController.getInstance();
@@ -105,7 +107,7 @@ public class MainBotController {
         addTwirkListener(new CommandManagerListener(twirk));
         addTwirkListener(new GenericCommandListener(twirk, twitchClient, streamInfo));
         //addTwirkListener(new ModListener(twirk));
-        addTwirkListener(new LeaderboardListener(twirk, streamInfo));
+        addTwirkListener(new LeaderboardListener(twirk, twitchApi));
         addTwirkListener(new QuoteListener(twirk));
         addTwirkListener(predsGuessListener);
         addTwirkListener(new PredsManagerListener(twirk, streamInfo, predsGuessListener));
@@ -113,7 +115,7 @@ public class MainBotController {
         addTwirkListener(new ScheduledMessageManagerListener(twirk));
         addTwirkListener(new ViewerQueueManageListener(vqm, queueJoinListener));
         addTwirkListener(new WatchTimeListener(twirk));
-        addTwirkListener(new WrListener(twirk, streamInfo));
+        addTwirkListener(new WrListener(twirk, twitchApi));
     
         // General Listeners
         addTwirkListener(new ChatLoggerListener(chatLogger));

@@ -3,13 +3,15 @@ package Listeners.Commands.Preds;
 import Database.Preds.PredsLeaderboard;
 import Database.Preds.SpeedySpinLeaderboard;
 import Database.Preds.SunshineTimerLeaderboard;
-import Functions.StreamInfo;
 import Listeners.Commands.CommandBase;
 import Util.TwirkInterface;
+import Util.TwitchApi;
 import Util.TwitchUserLevel;
 import com.gikk.twirk.enums.USER_TYPE;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.helix.domain.Game;
+import com.github.twitch4j.helix.domain.Stream;
 
 import java.util.ArrayList;
 
@@ -26,14 +28,14 @@ public class LeaderboardListener extends CommandBase {
     private static final String PATTERN_POINTS_ALL = "!pointsall";
     
     private final TwirkInterface twirk;
-    private final StreamInfo streamInfo;
+    private final TwitchApi twitchApi;
     
     private PredsLeaderboard leaderboard;
 
-    public LeaderboardListener(TwirkInterface twirk, StreamInfo streamInfo) {
+    public LeaderboardListener(TwirkInterface twirk, TwitchApi twitchApi) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
-        this.streamInfo = streamInfo;
+        this.twitchApi = twitchApi;
         updateLeaderboardType();
     }
 
@@ -74,7 +76,7 @@ public class LeaderboardListener extends CommandBase {
 
             case PATTERN_PREDS:
                 if (sender.getUserType() != USER_TYPE.OWNER) {
-                    switch (streamInfo.getGame()) {
+                    switch (getGameName()) {
                         case GAME_PAPER_MARIO:
                             chatMessage = PREDS_MESSAGE_PAPE;
                             break;
@@ -98,7 +100,7 @@ public class LeaderboardListener extends CommandBase {
     }
     
     private void updateLeaderboardType() {
-        switch (streamInfo.getGame()) {
+        switch (getGameName()) {
             case GAME_PAPER_MARIO:
                 leaderboard = SpeedySpinLeaderboard.getInstance();
                 break;
@@ -107,6 +109,17 @@ public class LeaderboardListener extends CommandBase {
                 leaderboard = SunshineTimerLeaderboard.getInstance();
                 break;
         }
+    }
+    
+    private String getGameName() {
+        Stream stream = twitchApi.getStream();
+        if (stream != null) {
+            Game game = twitchApi.getGameById(stream.getGameId());
+            if (game != null) {
+                return game.getName();
+            }
+        }
+        return "";
     }
     
     private String buildMonthlyPointsString(TwitchUser user) {
