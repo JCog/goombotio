@@ -2,8 +2,6 @@ package Util;
 
 import Database.Stats.StreamStatsDb;
 import Database.Stats.WatchTimeDb;
-import Functions.StatsTracker;
-import Functions.StreamInfo;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.FollowList;
 import com.github.twitch4j.helix.domain.UserList;
@@ -25,20 +23,6 @@ public class StreamStatsInterface {
         watchTimeDb = WatchTimeDb.getInstance();
         this.twitchClient = twitchClient;
         this.authToken = authToken;
-    }
-    
-    /**
-     * Stores relevant stats about the provided stream in a database collection
-     * @param streamInfo
-     * @param statsTracker
-     */
-    public static void saveStreamStats(StreamInfo streamInfo, StatsTracker statsTracker) {
-        Date startTime = streamInfo.getStartTime();
-        Date endTime = streamInfo.getEndTime();
-        List<Integer> viewerCounts = streamInfo.getViewerCounts();
-        HashMap<String, Integer> userMinutesMap = statsTracker.getUsersMapCopy();
-        
-        StreamStatsDb.getInstance().addStream(startTime, endTime, viewerCounts, userMinutesMap);
     }
     
     /**
@@ -214,6 +198,7 @@ public class StreamStatsInterface {
         return weightedAgeNumer / weightedAgeDenom;
     }
     
+    //TODO: replace all uses of this
     private HashMap<String, String> getUsersIds(List<String> usersList) {
         HashMap<String, String> userIds = new HashMap<>();
         Iterator<String> usersMapIt = usersList.iterator();

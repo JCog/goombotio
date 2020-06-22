@@ -1,5 +1,6 @@
 package Functions;
 
+import Util.ReportBuilder;
 import Util.TwirkInterface;
 import Util.TwitchApi;
 import com.github.twitch4j.helix.domain.Stream;
@@ -43,6 +44,7 @@ public class StreamTracker {
                 else {
                     if (streamData != null) {
                         streamData.endStream();
+                        ReportBuilder.generateReport(streamData);
                         streamData = null;
                     }
                 }

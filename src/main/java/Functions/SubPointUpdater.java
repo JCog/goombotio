@@ -2,6 +2,7 @@ package Functions;
 
 import Util.FileWriter;
 import Util.Settings;
+import Util.TwitchApi;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.Subscription;
 import com.github.twitch4j.helix.domain.SubscriptionList;
@@ -31,9 +32,9 @@ public class SubPointUpdater {
     private String displayFormat;
     private int subPoints;
     
-    public SubPointUpdater(TwitchClient twitchClient, StreamInfo streamInfo, User botUser) {
+    public SubPointUpdater(TwitchClient twitchClient, TwitchApi twitchApi, User botUser) {
         this.twitchClient = twitchClient;
-        channelId = streamInfo.getChannelId();
+        channelId = twitchApi.getUserByUsername(Settings.getTwitchStream()).getId();
         botId = botUser.getId();
         subPoints = 0;
     }

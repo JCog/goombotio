@@ -2,7 +2,6 @@ package Util;
 
 import Database.Entries.CommandItem;
 import Database.Misc.CommandDb;
-import Functions.StreamInfo;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.TwitchClient;
@@ -45,14 +44,14 @@ public class CommandParser {
     private static final OkHttpClient client = new OkHttpClient();
     
     private final TwitchClient twitchClient;
-    private final StreamInfo streamInfo;
+    private final TwitchApi twitchApi;
     private final CommandDb commandDb;
     private final String authToken;
     
-    public CommandParser(String authToken, TwitchClient twitchClient, StreamInfo streamInfo) {
+    public CommandParser(String authToken, TwitchClient twitchClient, TwitchApi twitchApi) {
         this.authToken = authToken;
         this.twitchClient = twitchClient;
-        this.streamInfo = streamInfo;
+        this.twitchApi = twitchApi;
         this.commandDb = CommandDb.getInstance();
     }
     
@@ -95,7 +94,7 @@ public class CommandParser {
                     return "";
                 }
             case TYPE_CHANNEL:
-                return streamInfo.getChannelName();
+                return Settings.getTwitchStream();
             case TYPE_COUNT:
                 commandDb.incrementCount(commandItem.getId());
                 return Integer.toString(commandItem.getCount() + 1);
@@ -123,7 +122,7 @@ public class CommandParser {
                     return user.getUserName();
                 }
             case TYPE_UPTIME:
-                long uptimeSeconds = streamInfo.getUptime();
+                long uptimeSeconds = twitchApi.getStream().getUptime().toMillis() / 1000;
                 if (uptimeSeconds == -1) {
                     return "stream is not live";
                 }
@@ -148,7 +147,7 @@ public class CommandParser {
         FollowList followList = twitchClient.getHelix().getFollowers(
                 authToken,
                 user.getId(),
-                streamInfo.getChannelId(),
+                twitchApi.getUserByUsername(Settings.getTwitchStream()).getId(),
                 null,
                 1
         ).execute();
@@ -161,7 +160,11 @@ public class CommandParser {
             int months = period.getMonths();
             int days = period.getDays();
             if (years == 0 && months == 0 && days == 0) {
-                return String.format("%s followed %s today", user.getDisplayName(), streamInfo.getChannelDisplayName());
+                return String.format(
+                        "%s followed %s today",
+                        user.getDisplayName(),
+                        twitchApi.getUserByUsername(Settings.getTwitchStream()).getDisplayName()
+                );
             }
             StringBuilder timeString = new StringBuilder();
             timeString.append(years > 0 ? String.format("%d year%s, ", years, years > 1 ? "s" : "") : "");
@@ -174,12 +177,16 @@ public class CommandParser {
             return String.format(
                     "%s has been following %s for %s",
                     user.getDisplayName(),
-                    streamInfo.getChannelDisplayName(),
+                    twitchApi.getUserByUsername(Settings.getTwitchStream()).getDisplayName(),
                     timeString.toString()
             );
         }
         else {
-            return String.format("%s is not following %s", user.getDisplayName(), streamInfo.getChannelDisplayName());
+            return String.format(
+                    "%s is not following %s",
+                    user.getDisplayName(),
+                    twitchApi.getUserByUsername(Settings.getTwitchStream()).getDisplayName()
+            );
         }
     }
     

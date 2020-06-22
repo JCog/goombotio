@@ -3,12 +3,14 @@ package Listeners.Commands.Preds;
 import Functions.Preds.PapePredsManager;
 import Functions.Preds.PredsManagerBase;
 import Functions.Preds.SunshinePredsManager;
-import Functions.StreamInfo;
 import Listeners.Commands.CommandBase;
 import Util.TwirkInterface;
+import Util.TwitchApi;
 import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.helix.domain.Game;
+import com.github.twitch4j.helix.domain.Stream;
 
 import static java.lang.System.out;
 
@@ -19,15 +21,15 @@ public class PredsManagerListener extends CommandBase {
     private static final String GAME_PAPER_MARIO = "Paper Mario";
     
     private final TwirkInterface twirk;
-    private final StreamInfo streamInfo;
+    private final TwitchApi twitchApi;
     private final PredsGuessListener predsGuessListener;
     
     private PredsManagerBase predsManager;
 
-    public PredsManagerListener(TwirkInterface twirk, StreamInfo streamInfo, PredsGuessListener predsGuessListener) {
+    public PredsManagerListener(TwirkInterface twirk, TwitchApi twitchApi, PredsGuessListener predsGuessListener) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
-        this.streamInfo = streamInfo;
+        this.twitchApi = twitchApi;
         this.predsGuessListener = predsGuessListener;
         predsManager = null;
     }
@@ -50,10 +52,18 @@ public class PredsManagerListener extends CommandBase {
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         if (predsManager == null || !predsManager.isActive()) {
-            if (streamInfo.getGame().equals(GAME_PAPER_MARIO)) {
+            String gameTitle = "";
+            Stream stream = twitchApi.getStream();
+            if (stream != null) {
+                Game game = twitchApi.getGameById(stream.getGameId());
+                if (game != null) {
+                    gameTitle = game.getName();
+                }
+            }
+            if (gameTitle.equals(GAME_PAPER_MARIO)) {
                 predsManager = new PapePredsManager(twirk);
             }
-            else if (streamInfo.getGame().equals(GAME_SUNSHINE)) {
+            else if (gameTitle.equals(GAME_SUNSHINE)) {
                 predsManager = new SunshinePredsManager(twirk);
             }
             else {

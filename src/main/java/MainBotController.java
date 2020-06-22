@@ -6,7 +6,10 @@ import Listeners.Commands.Preds.LeaderboardListener;
 import Listeners.Commands.Preds.PredsGuessListener;
 import Listeners.Commands.Preds.PredsManagerListener;
 import Listeners.Events.*;
-import Util.*;
+import Util.ChatLogger;
+import Util.Settings;
+import Util.TwirkInterface;
+import Util.TwitchApi;
 import com.gikk.twirk.events.TwirkListener;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
@@ -30,9 +33,8 @@ public class MainBotController {
     private final TwirkInterface twirk;
     private final TwitchClient twitchClient;
     private final TwitchApi twitchApi;
-    private final StreamInfo streamInfo;
-    private final StatsTracker statsTracker;
     private final SocialScheduler socialScheduler;
+    private final StreamTracker streamTracker;
     private final SubPointUpdater subPointUpdater;
     private final DiscordBotController dbc;
     private final ViewerQueueManager vqm;
@@ -49,10 +51,9 @@ public class MainBotController {
         twitchApi = new TwitchApi(twitchClient);
         User botUser = getBotUser(Settings.getTwitchUsername());
         twirk = new TwirkInterface(chatLogger, botUser);
-        streamInfo = new StreamInfo(twitchClient);
-        statsTracker = new StatsTracker(twirk, twitchClient, streamInfo, 60*1000);
+        streamTracker = new StreamTracker(twirk, twitchApi);
         socialScheduler = new SocialScheduler(twirk, twitchApi, SOCIAL_INTERVAL_LENGTH);
-        subPointUpdater = new SubPointUpdater(twitchClient, streamInfo, botUser);
+        subPointUpdater = new SubPointUpdater(twitchClient, twitchApi, botUser);
         vqm = new ViewerQueueManager(twirk);
         dbc = DiscordBotController.getInstance();
         dbc.init();
@@ -66,8 +67,7 @@ public class MainBotController {
     }
     
     public void run() {
-        streamInfo.startTracker();
-        statsTracker.start();
+        streamTracker.start();
         socialScheduler.start();
         subPointUpdater.start();
         addAllListeners();
@@ -81,13 +81,9 @@ public class MainBotController {
     }
     
     public void closeAll() {
-        streamInfo.stopTracker();
-        statsTracker.stop();
+        streamTracker.stop();
         socialScheduler.stop();
         subPointUpdater.stop();
-        StreamStatsInterface.saveStreamStats(streamInfo, statsTracker); //run before storing minutes for accurate new viewers
-        statsTracker.storeAllMinutes();
-        ReportBuilder.generateReport(streamInfo, statsTracker);
         GoombotioDb.getInstance().close();
         chatLogger.close();
         twitchClient.close();
@@ -105,12 +101,12 @@ public class MainBotController {
         
         // Command Listeners
         addTwirkListener(new CommandManagerListener(twirk));
-        addTwirkListener(new GenericCommandListener(twirk, twitchClient, streamInfo));
+        addTwirkListener(new GenericCommandListener(twirk, twitchClient, twitchApi));
         //addTwirkListener(new ModListener(twirk));
         addTwirkListener(new LeaderboardListener(twirk, twitchApi));
         addTwirkListener(new QuoteListener(twirk));
         addTwirkListener(predsGuessListener);
-        addTwirkListener(new PredsManagerListener(twirk, streamInfo, predsGuessListener));
+        addTwirkListener(new PredsManagerListener(twirk, twitchApi, predsGuessListener));
         addTwirkListener(queueJoinListener);
         addTwirkListener(new ScheduledMessageManagerListener(twirk));
         addTwirkListener(new ViewerQueueManageListener(vqm, queueJoinListener));
