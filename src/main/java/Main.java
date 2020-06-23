@@ -9,11 +9,14 @@ public class Main {
         Settings.init();
         MainBotController mainBotController = MainBotController.getInstance();
         
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            out.println("Stopping...");
+            mainBotController.closeAll();
+        }));
+        
         //primary loop
         mainBotController.run();
         
-        out.println("Stopping...");
-        mainBotController.closeAll();
         exit(0);
     }
 }
