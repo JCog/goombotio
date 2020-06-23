@@ -21,6 +21,7 @@ import twitter4j.conf.ConfigurationBuilder;
 
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
@@ -77,7 +78,13 @@ public class MainBotController {
         out.println("Goombotio is ready.");
         
         //main loop
-        new ConsoleCommandListener(twirk, dbc).run();
+        try {
+            new ConsoleCommandListener(twirk, dbc).run();
+        }
+        catch (NoSuchElementException e) {
+            out.println("No console detected. Process must be killed manually");
+            while (true) {}
+        }
     }
     
     public void closeAll() {

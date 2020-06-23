@@ -4,6 +4,7 @@ import Util.TwirkInterface;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import static java.lang.System.out;
@@ -21,7 +22,7 @@ public class ConsoleCommandListener {
         this.dbc = dbc;
     }
     
-    public void run() {
+    public void run() throws NoSuchElementException {
         //this should probably be made cleaner if I ever need more console commands, but honestly it's fine for now
         String line;
         Scanner scanner = new Scanner(new InputStreamReader(System.in, StandardCharsets.UTF_8));
