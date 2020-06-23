@@ -6,6 +6,7 @@ import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.FollowList;
+import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.helix.domain.UserList;
 import okhttp3.OkHttpClient;
@@ -122,12 +123,12 @@ public class CommandParser {
                     return user.getUserName();
                 }
             case TYPE_UPTIME:
-                long uptimeSeconds = twitchApi.getStream().getUptime().toMillis() / 1000;
-                if (uptimeSeconds == -1) {
+                Stream stream = twitchApi.getStream();
+                if (stream == null) {
                     return "stream is not live";
                 }
                 else {
-                    return getTimeString(uptimeSeconds);
+                    return getTimeString(stream.getUptime().toMillis() / 1000);
                 }
             case TYPE_URL_FETCH:
                 return submitRequest(content);
