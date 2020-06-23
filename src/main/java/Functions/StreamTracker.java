@@ -53,10 +53,12 @@ public class StreamTracker {
     }
     
     public void stop() {
+        timer.cancel();
         if (streamData != null) {
             streamData.endStream();
+            ReportBuilder.generateReport(streamData);
+            streamData = null;
         }
-        timer.cancel();
     }
     
 }
