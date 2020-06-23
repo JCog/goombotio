@@ -27,6 +27,7 @@ public class ReportBuilder {
         String filename = getReportFilename();
         
         FileWriter.writeToFile(REPORT_LOCATION, filename, report.toString());
+        System.out.println(String.format("Output report to %s%s", REPORT_LOCATION, filename));
     }
     
     private static String generateReportStats(StreamData streamData) {
@@ -240,7 +241,7 @@ public class ReportBuilder {
     
     private static String getReportFilename() {
         LocalDateTime date = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm", Locale.ENGLISH);
         return  "StreamReport" + formatter.format(date) + ".txt";
     }
     
