@@ -14,26 +14,23 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class TwirkInterface {
-    private final String channel;
-    private final String nick;
-    private final String oauth;
-    private final ChatLogger chatLogger;
-    private final Boolean verbose;
-    private final HashSet<TwirkListener> twirkListeners;
+    private final String channel = Settings.getTwitchChannel();
+    private final String nick = Settings.getTwitchUsername();
+    private final String oauth = Settings.getTwitchBotOauth();
+    private final Boolean silent = Settings.isSilentMode();
+    private final Boolean verbose = Settings.isVerboseLogging();
+    private final HashSet<TwirkListener> twirkListeners = new HashSet<>();
+    
     private final String botDisplayName;
     private final long botId;
+    private final ChatLogger chatLogger;
     
     private Twirk twirk;
     
     public TwirkInterface (ChatLogger chatLogger, User botUser) {
-        this.channel = Settings.getTwitchChannel();
-        this.nick = Settings.getTwitchUsername();
-        this.oauth = Settings.getTwitchBotOauth();
-        this.verbose = Settings.isVerbose();
         this.chatLogger = chatLogger;
         botDisplayName = botUser.getDisplayName();
         botId = Long.parseLong(botUser.getId());
-        twirkListeners = new HashSet<>();
     }
     
     /**
@@ -50,8 +47,7 @@ public class TwirkInterface {
             System.out.println(String.format("Illegal command usage \"%s\"", firstWord));
         }
         else {
-            twirk.channelMessage(output);
-            chatLogger.logMessage(botId, botDisplayName, output);
+            sendMessage(output);
         }
     }
     
@@ -68,8 +64,7 @@ public class TwirkInterface {
         if (firstWord.charAt(0) == '/') {
             System.out.println(String.format("command message sent \"%s\"", output));
         }
-        twirk.channelMessage(output);
-        chatLogger.logMessage(botId, botDisplayName, output);
+        sendMessage(output);
     }
     
     public Set<String> getCommandPatterns() {
@@ -150,6 +145,16 @@ public class TwirkInterface {
     
     public void close() {
         twirk.close();
+    }
+    
+    private void sendMessage(String message) {
+        if (silent) {
+            System.out.println("SILENT_CHAT: " + message);
+        }
+        else {
+            twirk.channelMessage(message);
+            chatLogger.logMessage(botId, botDisplayName, message);
+        }
     }
     
     private void getNewTwirk() throws IOException {

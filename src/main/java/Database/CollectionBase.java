@@ -1,20 +1,25 @@
 package Database;
 
+import Util.Settings;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;
+import static java.lang.System.out;
 
 public abstract class CollectionBase {
-    protected GoombotioDb goombotioDb;
     protected static final String ID_KEY = "_id";
-    private MongoCollection<Document> collection;
+    
+    protected final GoombotioDb goombotioDb = GoombotioDb.getInstance();
+    
+    private final MongoCollection<Document> collection = setCollection();
+    private final boolean writePermission = Settings.hasWritePermission();
+    
 
     protected CollectionBase() {
-        goombotioDb = GoombotioDb.getInstance();
-        collection = setCollection();
+    
     }
 
     // I feel like there's a better way to do this but idk
@@ -24,35 +29,60 @@ public abstract class CollectionBase {
     Inserts the given document into the collection
      */
     protected void insertOne(Document document) {
-        collection.insertOne(document);
+        if (writePermission) {
+            collection.insertOne(document);
+        }
+        else {
+            out.println("DATABASE: attempted to insertOne");
+        }
     }
     
     /*
     Updates a single document in the collection according to the given document
      */
     protected void updateOne(long id, Document document) {
-        collection.updateOne(eq(ID_KEY, id), new Document("$set", document));
+        if (writePermission) {
+            collection.updateOne(eq(ID_KEY, id), new Document("$set", document));
+        }
+        else {
+            out.println("DATABASE: attempted to updateOne");
+        }
     }
     
     /*
     Updates a single document in the collection according to the given document
      */
     protected void updateOne(String id, Document document) {
-        collection.updateOne(eq(ID_KEY, id), new Document("$set", document));
+        if (writePermission) {
+            collection.updateOne(eq(ID_KEY, id), new Document("$set", document));
+        }
+        else {
+            out.println("DATABASE: attempted to updateOne");
+        }
     }
     
     /*
     Removes the document with the given id from the collection if it exists
      */
     protected void deleteOne(long id) {
-        collection.deleteOne(eq(ID_KEY, id));
+        if (writePermission) {
+            collection.deleteOne(eq(ID_KEY, id));
+        }
+        else {
+            out.println("DATABASE: attempted to deleteOne");
+        }
     }
     
     /*
     Removes the document with the given id from the collection if it exists
      */
     protected void deleteOne(String id) {
-        collection.deleteOne(eq(ID_KEY, id));
+        if (writePermission) {
+            collection.deleteOne(eq(ID_KEY, id));
+        }
+        else {
+            out.println("DATABASE: attempted to deleteOne");
+        }
     }
 
     /*

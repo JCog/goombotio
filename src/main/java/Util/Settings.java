@@ -10,7 +10,9 @@ public class Settings {
     
     /////////////////////  TAGS  /////////////////////
     private static final String GENERAL_CAT_TAG = "general";
-    private static final String GENERAL_VERBOSE_TAG = "verbose";
+    private static final String GENERAL_VERBOSE_LOGGING_TAG = "verboseLogging";
+    private static final String GENERAL_SILENT_MODE_TAG = "silentMode";
+    private static final String GENERAL_WRITE_PERMISSION_TAG = "writePermission";
     
     private static final String TWITCH_CAT_TAG = "twitch";
     private static final String TWITCH_STREAM_TAG = "stream";
@@ -32,7 +34,9 @@ public class Settings {
     private static final String TWITTER_ACCESS_TOKEN_SECRET_TAG = "accessTokenSecret";
     
     /////////////////////  VARS  /////////////////////
-    private static boolean VERBOSE;
+    private static boolean VERBOSE_LOGGING;
+    private static boolean SILENT_MODE;
+    private static boolean WRITE_PERMISSION;
     
     private static String TWITCH_STREAM;
     private static String TWITCH_USERNAME;
@@ -62,7 +66,9 @@ public class Settings {
             return;
         }
         
-        VERBOSE = ini.get(GENERAL_CAT_TAG, GENERAL_VERBOSE_TAG, boolean.class);
+        VERBOSE_LOGGING = ini.get(GENERAL_CAT_TAG, GENERAL_VERBOSE_LOGGING_TAG, boolean.class);
+        SILENT_MODE = ini.get(GENERAL_CAT_TAG, GENERAL_SILENT_MODE_TAG, boolean.class);
+        WRITE_PERMISSION = ini.get(GENERAL_CAT_TAG, GENERAL_WRITE_PERMISSION_TAG, boolean.class);
     
         TWITCH_STREAM = ini.get(TWITCH_CAT_TAG, TWITCH_STREAM_TAG);
         TWITCH_USERNAME = ini.get(TWITCH_CAT_TAG, TWITCH_USERNAME_TAG);
@@ -80,8 +86,16 @@ public class Settings {
         TWITTER_ACCESS_TOKEN_SECRET = ini.get(TWITTER_CAT_TAG, TWITTER_ACCESS_TOKEN_SECRET_TAG);
     }
     
-    public static boolean isVerbose() {
-        return VERBOSE;
+    public static boolean isVerboseLogging() {
+        return VERBOSE_LOGGING;
+    }
+    
+    public static boolean isSilentMode() {
+        return SILENT_MODE;
+    }
+    
+    public static boolean hasWritePermission() {
+        return WRITE_PERMISSION;
     }
     
     public static String getTwitchStream() {
