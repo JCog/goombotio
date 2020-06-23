@@ -35,7 +35,7 @@ public class MainBotController {
     private final TwitchApi twitchApi;
     private final SocialScheduler socialScheduler;
     private final StreamTracker streamTracker;
-    private final SubPointUpdater subPointUpdater;
+    //private final SubPointUpdater subPointUpdater;
     private final DiscordBotController dbc;
     private final ViewerQueueManager vqm;
     private final ChatLogger chatLogger;
@@ -53,7 +53,7 @@ public class MainBotController {
         twirk = new TwirkInterface(chatLogger, botUser);
         streamTracker = new StreamTracker(twirk, twitchApi);
         socialScheduler = new SocialScheduler(twirk, twitchApi, SOCIAL_INTERVAL_LENGTH);
-        subPointUpdater = new SubPointUpdater(twitchClient, twitchApi, botUser);
+        //subPointUpdater = new SubPointUpdater(twitchClient, twitchApi, botUser);
         vqm = new ViewerQueueManager(twirk);
         dbc = DiscordBotController.getInstance();
         dbc.init();
@@ -69,7 +69,7 @@ public class MainBotController {
     public void run() {
         streamTracker.start();
         socialScheduler.start();
-        subPointUpdater.start();
+        //subPointUpdater.start();
         addAllListeners();
         twirk.connect();
         checkSrcCert();
@@ -83,7 +83,7 @@ public class MainBotController {
     public void closeAll() {
         streamTracker.stop();
         socialScheduler.stop();
-        subPointUpdater.stop();
+        //subPointUpdater.stop();
         GoombotioDb.getInstance().close();
         chatLogger.close();
         twitchClient.close();
