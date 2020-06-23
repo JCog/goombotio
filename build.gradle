@@ -1,4 +1,5 @@
 plugins {
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
     id 'java'
 }
 
@@ -10,9 +11,11 @@ allprojects {
     }
 }
 
-version '1.0-SNAPSHOT'
-
+version '1.0'
 sourceCompatibility = 1.8
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+javadoc.options.encoding = 'UTF-8'
 
 repositories {
     mavenCentral()
@@ -30,4 +33,13 @@ dependencies {
     compile group: 'org.ini4j', name: 'ini4j', version: '0.5.4'
     compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
     compile 'net.dv8tion:JDA:4.1.1_101'
+    compile "com.google.guava:guava:16+"
+}
+
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'Main'
+        )
+    }
 }
