@@ -49,6 +49,7 @@ public class ChatLogger {
                     displayName,
                     message
             ));
+            writer.flush();
         }
     }
     
