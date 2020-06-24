@@ -4,6 +4,7 @@ import Util.ReportBuilder;
 import Util.TwirkInterface;
 import Util.TwitchApi;
 import com.github.twitch4j.helix.domain.Stream;
+import com.github.twitch4j.helix.domain.User;
 
 import java.util.Set;
 import java.util.Timer;
@@ -16,12 +17,14 @@ public class StreamTracker {
     
     private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
+    private final User streamerUser;
     
     private StreamData streamData;
     
-    public StreamTracker(TwirkInterface twirk, TwitchApi twitchApi) {
+    public StreamTracker(TwirkInterface twirk, TwitchApi twitchApi, User streamerUser) {
         this.twirk = twirk;
         this.twitchApi = twitchApi;
+        this.streamerUser = streamerUser;
         
         streamData = null;
     }
@@ -34,7 +37,7 @@ public class StreamTracker {
                 Stream stream = twitchApi.getStream();
                 if (stream != null) {
                     if (streamData == null) {
-                        streamData = new StreamData(twitchApi);
+                        streamData = new StreamData(twitchApi, streamerUser);
                     }
                     Set<String> usersOnline = twirk.getUsersOnline();
                     usersOnline.forEach(user -> user = user.trim());

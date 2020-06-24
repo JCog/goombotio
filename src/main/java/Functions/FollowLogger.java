@@ -20,14 +20,14 @@ public class FollowLogger {
     private final Timer timer = new Timer();
     private final WatchTimeDb watchTimeDb = WatchTimeDb.getInstance();
     private final TwitchApi twitchApi;
-    private final String streamerId;
+    private final User streamerUser;
     
     private HashSet<String> oldFollowerIdList;
     private PrintWriter writer;
     
-    public FollowLogger(TwitchApi twitchApi, String streamerId) {
+    public FollowLogger(TwitchApi twitchApi, User streamerUser) {
         this.twitchApi = twitchApi;
-        this.streamerId = streamerId;
+        this.streamerUser = streamerUser;
         oldFollowerIdList = fetchFollowerIds();
         
         FileWriter fw;
@@ -108,7 +108,7 @@ public class FollowLogger {
     }
     
     private HashSet<String> fetchFollowerIds() {
-        List<Follow> followers = twitchApi.getFollowers(streamerId);
+        List<Follow> followers = twitchApi.getFollowers(streamerUser.getId());
         HashSet<String> followerIds = new HashSet<>();
         for (Follow follow : followers) {
             followerIds.add(follow.getFromId());

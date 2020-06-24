@@ -2,10 +2,13 @@ package Listeners.Commands;
 
 import Database.Entries.CommandItem;
 import Database.Misc.CommandDb;
-import Util.*;
+import Util.CommandParser;
+import Util.TwirkInterface;
+import Util.TwitchApi;
+import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
-import com.github.twitch4j.TwitchClient;
+import com.github.twitch4j.helix.domain.User;
 
 import java.util.HashSet;
 import java.util.Timer;
@@ -15,18 +18,17 @@ public class GenericCommandListener extends CommandBase {
 
     private final static String PATTERN = "";
     
+    private final CommandDb commandDb = CommandDb.getInstance();;
+    
     private final TwirkInterface twirk;
-    private final CommandDb commandDb;
     private final CommandParser commandParser;
-    private final HashSet<String> activeCooldowns;
+    private final HashSet<String> activeCooldowns = new HashSet<>();
     
 
-    public GenericCommandListener(TwirkInterface twirk, TwitchClient twitchClient, TwitchApi twitchApi) {
+    public GenericCommandListener(TwirkInterface twirk, TwitchApi twitchApi, User streamerUser) {
         super(CommandType.GENERIC_COMMAND);
         this.twirk = twirk;
-        this.commandDb = CommandDb.getInstance();
-        this.commandParser = new CommandParser(Settings.getTwitchChannelAuthToken(), twitchClient, twitchApi);
-        activeCooldowns = new HashSet<>();
+        this.commandParser = new CommandParser(twitchApi, streamerUser);
     }
 
     @Override

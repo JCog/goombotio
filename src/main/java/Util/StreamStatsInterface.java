@@ -2,9 +2,7 @@ package Util;
 
 import Database.Stats.StreamStatsDb;
 import Database.Stats.WatchTimeDb;
-import com.github.twitch4j.TwitchClient;
-import com.github.twitch4j.helix.domain.FollowList;
-import com.github.twitch4j.helix.domain.UserList;
+import com.github.twitch4j.helix.domain.User;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -12,17 +10,15 @@ import java.util.concurrent.TimeUnit;
 public class StreamStatsInterface {
     private final StreamStatsDb streamStatsDb;
     private final WatchTimeDb watchTimeDb;
-    private final TwitchClient twitchClient;
-    private final String authToken;
+    private final TwitchApi twitchApi;
     
     /**
      * Interface for saving and reading information about streams in a database
      */
-    public StreamStatsInterface(TwitchClient twitchClient, String authToken){
+    public StreamStatsInterface(TwitchApi twitchApi){
         streamStatsDb = StreamStatsDb.getInstance();
         watchTimeDb = WatchTimeDb.getInstance();
-        this.twitchClient = twitchClient;
-        this.authToken = authToken;
+        this.twitchApi = twitchApi;
     }
     
     /**
@@ -147,12 +143,11 @@ public class StreamStatsInterface {
      */
     public ArrayList<Map.Entry<String, Integer>> getTopFollowerCounts() {
         ArrayList<Map.Entry<String, Integer>> followerCounts = new ArrayList<>();
-        Set<Map.Entry<String, String>> userIds = getUsersIds(streamStatsDb.getUserList()).entrySet();
-        
-        for(Map.Entry<String, String> entry : userIds) {
-            FollowList userFollows = twitchClient.getHelix().getFollowers(authToken, null, entry.getValue(), null, 1).execute();
-            String name = entry.getKey();
-            int followCount = userFollows.getTotal();
+        List<User> userList = twitchApi.getUserListByUsernames(streamStatsDb.getUserList());
+    
+        for(User user : userList) {
+            String name = user.getDisplayName();
+            int followCount = twitchApi.getFollowerCount(user.getId());
             followerCounts.add(new AbstractMap.SimpleEntry<>(name, followCount));
         }
         followerCounts.sort(new SortMapDescending());
@@ -196,22 +191,6 @@ public class StreamStatsInterface {
             weightedAgeDenom += minutes;
         }
         return weightedAgeNumer / weightedAgeDenom;
-    }
-    
-    //TODO: replace all uses of this
-    private HashMap<String, String> getUsersIds(List<String> usersList) {
-        HashMap<String, String> userIds = new HashMap<>();
-        Iterator<String> usersMapIt = usersList.iterator();
-        List<String> usersHundred = new ArrayList<>();
-        while (usersMapIt.hasNext()) {
-            while (usersHundred.size() < 100 && usersMapIt.hasNext()) {
-                usersHundred.add(usersMapIt.next());
-            }
-            UserList resultList = twitchClient.getHelix().getUsers(authToken, null, usersHundred).execute();
-            resultList.getUsers().forEach(user -> userIds.put(user.getLogin(), user.getId()));
-            usersHundred.clear();
-        }
-        return userIds;
     }
     
     private static class SortMapDescending implements Comparator<Map.Entry<String, Integer>> {

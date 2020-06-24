@@ -36,10 +36,11 @@ public class MainBotController {
     private final StreamTracker streamTracker;
     //private final SubPointUpdater subPointUpdater;
     private final FollowLogger followLogger;
-    private final DiscordBotController dbc;
-    private final ViewerQueueManager vqm;
+    private final DiscordBotController discordBotController;
+    private final ViewerQueueManager viewerQueueManager;
     private final ChatLogger chatLogger;
     private final Twitter twitter;
+    private final User streamerUser;
     
     private MainBotController() {
         chatLogger = new ChatLogger();
@@ -50,15 +51,15 @@ public class MainBotController {
                 .build();
         twitchApi = new TwitchApi(twitchClient);
         User botUser = twitchApi.getUserByUsername(Settings.getTwitchUsername());
-        User streamerUser = twitchApi.getUserByUsername(Settings.getTwitchStream());
+        streamerUser = twitchApi.getUserByUsername(Settings.getTwitchStream());
         twirk = new TwirkInterface(chatLogger, botUser);
-        streamTracker = new StreamTracker(twirk, twitchApi);
-        socialScheduler = new SocialScheduler(twirk, twitchApi, SOCIAL_INTERVAL_LENGTH);
+        streamTracker = new StreamTracker(twirk, twitchApi, streamerUser);
+        socialScheduler = new SocialScheduler(twirk, twitchApi, botUser, SOCIAL_INTERVAL_LENGTH);
         //subPointUpdater = new SubPointUpdater(twitchClient, twitchApi, botUser);
-        followLogger = new FollowLogger(twitchApi, streamerUser.getId());
-        vqm = new ViewerQueueManager(twirk);
-        dbc = DiscordBotController.getInstance();
-        dbc.init();
+        followLogger = new FollowLogger(twitchApi, streamerUser);
+        viewerQueueManager = new ViewerQueueManager(twirk);
+        discordBotController = DiscordBotController.getInstance();
+        discordBotController.init();
     }
     
     public static MainBotController getInstance() {
@@ -81,7 +82,7 @@ public class MainBotController {
         
         //main loop
         try {
-            new ConsoleCommandListener(twirk, dbc).run();
+            new ConsoleCommandListener(twirk, discordBotController).run();
         }
         catch (NoSuchElementException nsee) {
             out.println("No console detected. Process must be killed manually");
@@ -103,47 +104,39 @@ public class MainBotController {
         chatLogger.close();
         twitchClient.close();
         twirk.close();
-        dbc.close();
+        discordBotController.close();
     }
     
     private void addAllListeners() {
         //setup
         PredsGuessListener predsGuessListener = new PredsGuessListener();
-        ViewerQueueJoinListener queueJoinListener = new ViewerQueueJoinListener(vqm);
+        ViewerQueueJoinListener queueJoinListener = new ViewerQueueJoinListener(viewerQueueManager);
         
         //connection handling
-        addTwirkListener(getOnDisconnectListener(twirk));
+        twirk.addIrcListener(getOnDisconnectListener(twirk));
         
         // Command Listeners
-        addTwirkListener(new CommandManagerListener(twirk));
-        addTwirkListener(new GenericCommandListener(twirk, twitchClient, twitchApi));
-        //addTwirkListener(new ModListener(twirk));
-        addTwirkListener(new LeaderboardListener(twirk, twitchApi));
-        addTwirkListener(new QuoteListener(twirk));
-        addTwirkListener(predsGuessListener);
-        addTwirkListener(new PredsManagerListener(twirk, twitchApi, predsGuessListener));
-        addTwirkListener(queueJoinListener);
-        addTwirkListener(new ScheduledMessageManagerListener(twirk));
-        addTwirkListener(new ViewerQueueManageListener(vqm, queueJoinListener));
-        addTwirkListener(new WatchTimeListener(twirk));
-        addTwirkListener(new WrListener(twirk, twitchApi));
+        twirk.addIrcListener(new CommandManagerListener(twirk));
+        twirk.addIrcListener(new GenericCommandListener(twirk, twitchApi, streamerUser));
+        //twirk.addIrcListener(new ModListener(twirk));
+        twirk.addIrcListener(new LeaderboardListener(twirk, twitchApi));
+        twirk.addIrcListener(new QuoteListener(twirk));
+        twirk.addIrcListener(predsGuessListener);
+        twirk.addIrcListener(new PredsManagerListener(twirk, twitchApi, predsGuessListener));
+        twirk.addIrcListener(queueJoinListener);
+        twirk.addIrcListener(new ScheduledMessageManagerListener(twirk));
+        twirk.addIrcListener(new ViewerQueueManageListener(viewerQueueManager, queueJoinListener));
+        twirk.addIrcListener(new WatchTimeListener(twirk));
+        twirk.addIrcListener(new WrListener(twirk, twitchApi));
     
         // General Listeners
-        addTwirkListener(new ChatLoggerListener(chatLogger));
-        addTwirkListener(new CloudListener(twirk));
-        addTwirkListener(new EmoteListener());
-        addTwirkListener(new LinkListener(twirk, twitchClient, twitter));
-        addTwirkListener(new PyramidListener(twirk));
-        addTwirkListener(socialScheduler.getListener());
-        addTwirkListener(new SubListener(twirk));
-    }
-    
-    private void addTwirkListener(TwirkListener listener) {
-        twirk.addIrcListener(listener);
-    }
-    
-    private void removeTwirkListener(TwirkListener listener) {
-        twirk.removeIrcListener(listener);
+        twirk.addIrcListener(new ChatLoggerListener(chatLogger));
+        twirk.addIrcListener(new CloudListener(twirk));
+        twirk.addIrcListener(new EmoteListener());
+        twirk.addIrcListener(new LinkListener(twirk, twitchApi, twitter));
+        twirk.addIrcListener(new PyramidListener(twirk));
+        twirk.addIrcListener(socialScheduler.getListener());
+        twirk.addIrcListener(new SubListener(twirk));
     }
     
     private static TwirkListener getOnDisconnectListener(final TwirkInterface twirk) {

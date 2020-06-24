@@ -2,7 +2,6 @@ package Functions;
 
 import Database.Stats.StreamStatsDb;
 import Database.Stats.WatchTimeDb;
-import Util.Settings;
 import Util.TwitchApi;
 import com.github.twitch4j.helix.domain.User;
 
@@ -17,7 +16,6 @@ public class StreamData {
     
     private final HashMap<String, Integer> userMinutes = new HashMap<>();
     private final ArrayList<Integer> viewerCounts = new ArrayList<>();
-    private final String streamer = Settings.getTwitchStream();
     private final StreamStatsDb streamStatsDb = StreamStatsDb.getInstance();
     private final WatchTimeDb watchTimeDb = WatchTimeDb.getInstance();
     private final ArrayList<String> blacklist = blacklistInit(BLACKLIST_FILENAME);
@@ -25,15 +23,17 @@ public class StreamData {
     private final ArrayList<User> returningViewers = new ArrayList<>();
     
     private final TwitchApi twitchApi;
+    private final User streamerUser;
     private final Date startTime;
     
     private Date endTime;
     
-    public StreamData(TwitchApi twitchApi) {
+    public StreamData(TwitchApi twitchApi, User streamerUser) {
         this.twitchApi = twitchApi;
+        this.streamerUser = streamerUser;
         
         out.println("---------------------");
-        out.println(streamer + " is now live.");
+        out.println(streamerUser.getDisplayName() + " is now live.");
         out.println("---------------------");
         startTime = new Date();
     }
@@ -51,7 +51,7 @@ public class StreamData {
     
     public void endStream() {
         out.println("---------------------");
-        out.println(streamer + " has gone offline.");
+        out.println(streamerUser.getDisplayName() + " has gone offline.");
         out.println("---------------------");
         endTime = new Date();
         

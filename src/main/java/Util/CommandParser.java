@@ -4,11 +4,9 @@ import Database.Entries.CommandItem;
 import Database.Misc.CommandDb;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
-import com.github.twitch4j.TwitchClient;
-import com.github.twitch4j.helix.domain.FollowList;
+import com.github.twitch4j.helix.domain.Follow;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
-import com.github.twitch4j.helix.domain.UserList;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -19,7 +17,6 @@ import javax.script.ScriptException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -44,16 +41,14 @@ public class CommandParser {
     private static final ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
     private static final OkHttpClient client = new OkHttpClient();
     
-    private final TwitchClient twitchClient;
-    private final TwitchApi twitchApi;
-    private final CommandDb commandDb;
-    private final String authToken;
+    private final CommandDb commandDb = CommandDb.getInstance();
     
-    public CommandParser(String authToken, TwitchClient twitchClient, TwitchApi twitchApi) {
-        this.authToken = authToken;
-        this.twitchClient = twitchClient;
+    private final TwitchApi twitchApi;
+    private final User streamerUser;
+    
+    public CommandParser(TwitchApi twitchApi, User streamerUser) {
         this.twitchApi = twitchApi;
-        this.commandDb = CommandDb.getInstance();
+        this.streamerUser = streamerUser;
     }
     
     public String parse(CommandItem commandItem, TwitchUser user, TwitchMessage twitchMessage) {
@@ -95,7 +90,7 @@ public class CommandParser {
                     return "";
                 }
             case TYPE_CHANNEL:
-                return Settings.getTwitchStream();
+                return streamerUser.getLogin();
             case TYPE_COUNT:
                 commandDb.incrementCount(commandItem.getId());
                 return Integer.toString(commandItem.getCount() + 1);
@@ -140,21 +135,14 @@ public class CommandParser {
     }
     
     private String getFollowAgeString(String userName) {
-        UserList userList = twitchClient.getHelix().getUsers(authToken, null, Collections.singletonList(userName)).execute();
-        if (userList.getUsers().size() == 0) {
+        User user = twitchApi.getUserByUsername(userName);
+        if (user == null) {
             return String.format("Unknown user \"%s\"", userName);
         }
-        User user = userList.getUsers().get(0);
-        FollowList followList = twitchClient.getHelix().getFollowers(
-                authToken,
-                user.getId(),
-                twitchApi.getUserByUsername(Settings.getTwitchStream()).getId(),
-                null,
-                1
-        ).execute();
-        
-        if(followList.getFollows().size() > 0) {
-            LocalDate followDate = followList.getFollows().get(0).getFollowedAt().toLocalDate();
+        Follow follow = twitchApi.getFollow(user.getId(), streamerUser.getId());
+    
+        if(follow != null) {
+            LocalDate followDate = follow.getFollowedAt().toLocalDate();
             LocalDate today = LocalDate.now();
             Period period = Period.between(followDate, today);
             int years = period.getYears();
@@ -164,7 +152,7 @@ public class CommandParser {
                 return String.format(
                         "%s followed %s today",
                         user.getDisplayName(),
-                        twitchApi.getUserByUsername(Settings.getTwitchStream()).getDisplayName()
+                        streamerUser.getDisplayName()
                 );
             }
             StringBuilder timeString = new StringBuilder();
@@ -178,7 +166,7 @@ public class CommandParser {
             return String.format(
                     "%s has been following %s for %s",
                     user.getDisplayName(),
-                    twitchApi.getUserByUsername(Settings.getTwitchStream()).getDisplayName(),
+                    streamerUser.getDisplayName(),
                     timeString.toString()
             );
         }
@@ -186,7 +174,7 @@ public class CommandParser {
             return String.format(
                     "%s is not following %s",
                     user.getDisplayName(),
-                    twitchApi.getUserByUsername(Settings.getTwitchStream()).getDisplayName()
+                    streamerUser.getDisplayName()
             );
         }
     }

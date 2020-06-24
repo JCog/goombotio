@@ -3,18 +3,21 @@ package Listeners.Events;
 import APIs.YoutubeApi;
 import Util.Settings;
 import Util.TwirkInterface;
+import Util.TwitchApi;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
-import com.github.twitch4j.TwitchClient;
-import com.github.twitch4j.helix.domain.*;
+import com.github.twitch4j.helix.domain.Clip;
+import com.github.twitch4j.helix.domain.Game;
+import com.github.twitch4j.helix.domain.User;
+import com.github.twitch4j.helix.domain.Video;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,15 +31,13 @@ public class LinkListener implements TwirkListener {
     private static final Pattern tweetPattern = Pattern.compile(URL_START + "(?:www\\.)?(?:twitter\\.com/[a-zA-Z0-9_]+/status/)([0-9]+)" + URL_END);
     
     private final TwirkInterface twirk;
-    private final TwitchClient twitchClient;
+    private final TwitchApi twitchApi;
     private final Twitter twitter;
-    private final String authToken;
     private final String youtubeApiKey;
     
-    public LinkListener(TwirkInterface twirk, TwitchClient twitchClient, Twitter twitter) {
+    public LinkListener(TwirkInterface twirk, TwitchApi twitchApi, Twitter twitter) {
         this.twirk = twirk;
-        this.twitchClient = twitchClient;
-        this.authToken = Settings.getTwitchChannelAuthToken();
+        this.twitchApi = twitchApi;
         this.youtubeApiKey = Settings.getYoutubeApiKey();
         this.twitter = twitter;
     }
@@ -72,23 +73,8 @@ public class LinkListener implements TwirkListener {
     }
     
     private String getClipDetails(String id) {
-        ClipList clipList = twitchClient.getHelix().getClips(
-                authToken,
-                null,
-                null,
-                id,
-                null,
-                null,
-                1,
-                null,
-                null
-        ).execute();
-        
-        Clip clip;
-        try {
-            clip = clipList.getData().get(0);
-        }
-        catch (IndexOutOfBoundsException e) {
+        Clip clip = twitchApi.getClipById(id);
+        if (clip == null) {
             return "";
         }
         
@@ -103,13 +89,19 @@ public class LinkListener implements TwirkListener {
                 add(clippedById);
             }
         };
+    
+        List<User> userList = twitchApi.getUserListByIds(userIds);
+        if (userList.size() != 2) {
+            return "";
+        }
+        String channelDisplayName = userList.get(0).getDisplayName();
+        String clippedByDisplayName = userList.get(1).getDisplayName();
         
-        UserList userList = twitchClient.getHelix().getUsers(authToken, userIds, null).execute();
-        String channelDisplayName = userList.getUsers().get(0).getDisplayName();
-        String clippedByDisplayName = userList.getUsers().get(1).getDisplayName();
-        
-        GameList gameList = twitchClient.getHelix().getGames(authToken, Collections.singletonList(gameId), null).execute();
-        String gameName = gameList.getGames().get(0).getName();
+        Game game = twitchApi.getGameById(gameId);
+        if (game == null) {
+            return "";
+        }
+        String gameName = game.getName();
         
         NumberFormat numberFormat = NumberFormat.getInstance();
         numberFormat.setGroupingUsed(true);
@@ -125,25 +117,8 @@ public class LinkListener implements TwirkListener {
     }
     
     private String getVideoDetails(String id) {
-        VideoList videoList = twitchClient.getHelix().getVideos(
-                authToken,
-                id,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                1
-        ).execute();
-        
-        Video video;
-        try {
-            video = videoList.getVideos().get(0);
-        }
-        catch (IndexOutOfBoundsException e) {
+        Video video = twitchApi.getVideoById(id);
+        if (video == null) {
             return "";
         }
         

@@ -1,12 +1,12 @@
 package Functions;
 
 import Database.Misc.SocialSchedulerDb;
-import Util.Settings;
 import Util.TwirkInterface;
 import Util.TwitchApi;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.helix.domain.User;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -20,11 +20,11 @@ public class SocialScheduler {
 
     private final SocialSchedulerDb socialSchedulerDb = SocialSchedulerDb.getInstance();
     private final AnyMessageListener anyMessageListener = new AnyMessageListener();
-    private final String botName = Settings.getTwitchUsername();
     private final Random random = new Random();
     
     private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
+    private final User botUser;
     private final int intervalLength;
     
     private boolean running;
@@ -36,12 +36,13 @@ public class SocialScheduler {
      * @param twirk chat interface
      * @param intervalLength minutes between posts
      */
-    public SocialScheduler(TwirkInterface twirk, TwitchApi twitchApi, int intervalLength) {
+    public SocialScheduler(TwirkInterface twirk, TwitchApi twitchApi, User botUser, int intervalLength) {
         this.twirk = twirk;
         this.twitchApi = twitchApi;
-        this.running = false;
-        this.activeChat = false;
+        this.botUser = botUser;
         this.intervalLength = intervalLength;
+        running = false;
+        activeChat = false;
     }
     
     /**
@@ -50,7 +51,7 @@ public class SocialScheduler {
      */
     public void start() {
         running = true;
-        scheduleSocialMsgs();
+        scheduleSocialMessages();
     }
     
     /**
@@ -69,7 +70,7 @@ public class SocialScheduler {
             if (activeChat && twitchApi.getStream() != null) {
                 postRandomMsg();
             }
-            scheduleSocialMsgs();
+            scheduleSocialMessages();
             activeChat = false;
         }
     }
@@ -86,7 +87,7 @@ public class SocialScheduler {
         previousIndex = index;
     }
 
-    private void scheduleSocialMsgs() {
+    private void scheduleSocialMessages() {
         LocalDateTime now = LocalDateTime.now();
         int currentMinute = now.getMinute();
         int minutesToAdd = intervalLength - (currentMinute % intervalLength);
@@ -99,7 +100,7 @@ public class SocialScheduler {
     private class AnyMessageListener implements TwirkListener {
         @Override
         public void onPrivMsg(TwitchUser sender, TwitchMessage message) {
-            if (!sender.isOwner() && !sender.getUserName().toLowerCase().equals(botName)) {
+            if (!sender.isOwner() && !sender.getUserName().toLowerCase().equals(botUser.getLogin())) {
                 activeChat = true;
             }
         }

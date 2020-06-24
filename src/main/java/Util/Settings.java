@@ -98,10 +98,12 @@ public class Settings {
         return WRITE_PERMISSION;
     }
     
+    //streamer username in all lowercase
     public static String getTwitchStream() {
         return TWITCH_STREAM;
     }
     
+    //bot username in all lowercase
     public static String getTwitchUsername() {
         return TWITCH_USERNAME;
     }

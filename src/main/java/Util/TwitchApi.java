@@ -32,6 +32,20 @@ public class TwitchApi {
         return clipList.getData().get(0);
     }
     
+    public Follow getFollow(String fromId, String toId) {
+        FollowList followList = twitchClient.getHelix().getFollowers(
+                Settings.getTwitchChannelAuthToken(),
+                fromId,
+                toId,
+                null,
+                1
+        ).execute();
+        if (followList.getFollows().isEmpty()) {
+            return null;
+        }
+        return followList.getFollows().get(0);
+    }
+    
     public int getFollowerCount(String userId) {
         FollowList followList = twitchClient.getHelix().getFollowers(
                 Settings.getTwitchChannelAuthToken(),
@@ -118,6 +132,25 @@ public class TwitchApi {
             return null;
         }
         return userList.getUsers().get(0);
+    }
+    
+    public List<User> getUserListByIds(Collection<String> userIdList) {
+        Iterator<String> iterator = userIdList.iterator();
+        List<String> usersHundred = new ArrayList<>();
+        List<User> output = new ArrayList<>();
+        while (iterator.hasNext()) {
+            while (usersHundred.size() < 100 && iterator.hasNext()) {
+                usersHundred.add(iterator.next());
+            }
+            UserList resultList = twitchClient.getHelix().getUsers(
+                    Settings.getTwitchChannelAuthToken(),
+                    usersHundred,
+                    null
+            ).execute();
+            output.addAll(resultList.getUsers());
+            usersHundred.clear();
+        }
+        return output;
     }
     
     public List<User> getUserListByUsernames(Collection<String> usernameList) {

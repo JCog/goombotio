@@ -165,14 +165,6 @@ public class ReportBuilder {
             newViewersReport.append(buildPaddedViewerMinutesString(viewer.getKey(), minutes, maxNameLength, maxMinutes));
         }
         newViewersReport.append("\n");
-        //New Followers
-//        Set<String> newFollowers = statsTracker.getFollowers();
-//        newFollowers.removeAll(statsTracker.getStartingFollowers());
-//        newViewersReport.append("New Followers:\n");
-//        for (String follower : newFollowers) {
-//            newViewersReport.append(String.format("%s\n", follower));
-//        }
-//        newViewersReport.append("\n");
         
         int averageNewMinutes = 0;
         if (newViewersList.size() != 0) {
