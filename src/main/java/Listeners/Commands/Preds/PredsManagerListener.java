@@ -11,14 +11,15 @@ import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Game;
 import com.github.twitch4j.helix.domain.Stream;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import static java.lang.System.out;
 
 public class PredsManagerListener extends CommandBase {
 
     private final static String PATTERN = "!preds";
-    private static final String GAME_SUNSHINE = "Super Mario Sunshine";
-    private static final String GAME_PAPER_MARIO = "Paper Mario";
+    private static final String GAME_ID_SUNSHINE = "6086";
+    private static final String GAME_ID_PAPER_MARIO = "18231";
     
     private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
@@ -52,18 +53,24 @@ public class PredsManagerListener extends CommandBase {
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         if (predsManager == null || !predsManager.isActive()) {
-            String gameTitle = "";
-            Stream stream = twitchApi.getStream();
-            if (stream != null) {
-                Game game = twitchApi.getGameById(stream.getGameId());
-                if (game != null) {
-                    gameTitle = game.getName();
-                }
+            String gameId = "";
+            Stream stream;
+            try {
+                stream = twitchApi.getStream();
             }
-            if (gameTitle.equals(GAME_PAPER_MARIO)) {
+            catch (HystrixRuntimeException e) {
+                e.printStackTrace();
+                twirk.channelMessage("Error retrieving current game");
+                return;
+            }
+
+            if (stream != null) {
+                gameId = stream.getGameId();
+            }
+            if (gameId.equals(GAME_ID_PAPER_MARIO)) {
                 predsManager = new PapePredsManager(twirk);
             }
-            else if (gameTitle.equals(GAME_SUNSHINE)) {
+            else if (gameId.equals(GAME_ID_SUNSHINE)) {
                 predsManager = new SunshinePredsManager(twirk);
             }
             else {

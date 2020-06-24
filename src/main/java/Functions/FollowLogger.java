@@ -4,6 +4,7 @@ import Database.Stats.WatchTimeDb;
 import Util.TwitchApi;
 import com.github.twitch4j.helix.domain.Follow;
 import com.github.twitch4j.helix.domain.User;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -28,8 +29,15 @@ public class FollowLogger {
     public FollowLogger(TwitchApi twitchApi, User streamerUser) {
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
-        oldFollowerIdList = fetchFollowerIds();
-        
+        try {
+            oldFollowerIdList = fetchFollowerIds();
+        }
+        catch (HystrixRuntimeException e) {
+            e.printStackTrace();
+            System.out.println(String.format("Error retrieving initial follower list. Trying again in %dms", INTERVAL));
+            oldFollowerIdList = null;
+        }
+
         FileWriter fw;
         try {
             fw = new FileWriter(FILENAME, true);
@@ -47,11 +55,32 @@ public class FollowLogger {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                HashSet<String> updatedFollowerIds = fetchFollowerIds();
+                HashSet<String> updatedFollowerIds;
+                try {
+                    updatedFollowerIds = fetchFollowerIds();
+                }
+                catch (HystrixRuntimeException e) {
+                    e.printStackTrace();
+                    System.out.println(String.format("Error retrieving updated follower list. Trying again in %dms", INTERVAL));
+                    return;
+                }
+                if (oldFollowerIdList == null) {
+                    oldFollowerIdList = updatedFollowerIds;
+                    System.out.println("Successfully retrieved initial follower list");
+                    return;
+                }
                 ArrayList<String> newFollowers = getNewFollowers(updatedFollowerIds);
                 ArrayList<String> unfollowers = getUnfollowers(updatedFollowerIds);
                 for (String newFollowerId : newFollowers) {
-                    User newFollowerUser = twitchApi.getUserById(newFollowerId);
+                    User newFollowerUser;
+                    try {
+                        newFollowerUser = twitchApi.getUserById(newFollowerId);
+                    }
+                    catch (HystrixRuntimeException e) {
+                        e.printStackTrace();
+                        System.out.println(String.format("error retrieving data for new follower with id %s", newFollowerId));
+                        newFollowerUser = null;
+                    }
                     if (newFollowerUser != null) {
                         writer.write(String.format(
                                 "%s New follower: %s - First seen: %s - Watchtime: %d minutes\n",
@@ -73,7 +102,15 @@ public class FollowLogger {
                     }
                 }
                 for (String unfollowerId : unfollowers) {
-                    User unfollowerUser = twitchApi.getUserById(unfollowerId);
+                    User unfollowerUser;
+                    try {
+                        unfollowerUser = twitchApi.getUserById(unfollowerId);
+                    }
+                    catch (HystrixRuntimeException e) {
+                        e.printStackTrace();
+                        System.out.println(String.format("error retrieving data for unfollower with id %s", unfollowerId));
+                        unfollowerUser = null;
+                    }
                     if (unfollowerUser != null) {
                         writer.write(String.format(
                                 "%s Unfollower: %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",
@@ -107,7 +144,7 @@ public class FollowLogger {
         writer.close();
     }
     
-    private HashSet<String> fetchFollowerIds() {
+    private HashSet<String> fetchFollowerIds() throws HystrixRuntimeException {
         List<Follow> followers = twitchApi.getFollowers(streamerUser.getId());
         HashSet<String> followerIds = new HashSet<>();
         for (Follow follow : followers) {

@@ -4,6 +4,7 @@ import Database.Stats.StreamStatsDb;
 import Database.Stats.WatchTimeDb;
 import Util.TwitchApi;
 import com.github.twitch4j.helix.domain.User;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.io.File;
 import java.util.*;
@@ -54,8 +55,16 @@ public class StreamData {
         out.println(streamerUser.getDisplayName() + " has gone offline.");
         out.println("---------------------");
         endTime = new Date();
-        
-        List<User> userList = twitchApi.getUserListByUsernames(userMinutes.keySet());
+
+        List<User> userList;
+        try {
+            userList = twitchApi.getUserListByUsernames(userMinutes.keySet());
+        }
+        catch (HystrixRuntimeException e) {
+            e.printStackTrace();
+            out.println("Error retrieving user data for stream, unable to save stream statistics");
+            return;
+        }
         //make sure this function is run before updating the database
         separateNewReturningViewers(userList);
         
@@ -156,7 +165,15 @@ public class StreamData {
         allViewers.addAll(returningViewers);
         
         for(User user : allViewers) {
-            int followCount = twitchApi.getFollowerCount(user.getId());
+            int followCount;
+            try {
+                followCount = twitchApi.getFollowerCount(user.getId());
+            }
+            catch (HystrixRuntimeException e) {
+                e.printStackTrace();
+                out.println(String.format("Error retrieving follower count for %s", user.getDisplayName()));
+                continue;
+            }
             followerCounts.add(new AbstractMap.SimpleEntry<>(user.getDisplayName(), followCount));
         }
         followerCounts.sort(new SortMapDescending());

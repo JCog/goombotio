@@ -6,7 +6,9 @@ import Util.TwitchApi;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -67,7 +69,16 @@ public class SocialScheduler {
 
     private void socialLoop() {
         if (running) {
-            if (activeChat && twitchApi.getStream() != null) {
+            Stream stream;
+            try {
+                stream = twitchApi.getStream();
+            }
+            catch (HystrixRuntimeException e) {
+                e.printStackTrace();
+                System.out.println("Error retrieving stream for SocialScheduler");
+                return;
+            }
+            if (activeChat && stream != null) {
                 postRandomMsg();
             }
             scheduleSocialMessages();

@@ -11,6 +11,7 @@ import com.github.twitch4j.helix.domain.Clip;
 import com.github.twitch4j.helix.domain.Game;
 import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.helix.domain.Video;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -73,7 +74,14 @@ public class LinkListener implements TwirkListener {
     }
     
     private String getClipDetails(String id) {
-        Clip clip = twitchApi.getClipById(id);
+        Clip clip;
+        try {
+            clip = twitchApi.getClipById(id);
+        }
+        catch (HystrixRuntimeException e) {
+            e.printStackTrace();
+            return "Error retrieving clip data";
+        }
         if (clip == null) {
             return "";
         }
@@ -90,14 +98,28 @@ public class LinkListener implements TwirkListener {
             }
         };
     
-        List<User> userList = twitchApi.getUserListByIds(userIds);
+        List<User> userList;
+        try {
+            userList = twitchApi.getUserListByIds(userIds);
+        }
+        catch (HystrixRuntimeException e) {
+            e.printStackTrace();
+            return "Error retrieving user data";
+        }
         if (userList.size() != 2) {
             return "";
         }
         String channelDisplayName = userList.get(0).getDisplayName();
         String clippedByDisplayName = userList.get(1).getDisplayName();
-        
-        Game game = twitchApi.getGameById(gameId);
+
+        Game game;
+        try {
+            game = twitchApi.getGameById(gameId);
+        }
+        catch (HystrixRuntimeException e) {
+            e.printStackTrace();
+            return "Error retrieving game data";
+        }
         if (game == null) {
             return "";
         }
@@ -117,7 +139,14 @@ public class LinkListener implements TwirkListener {
     }
     
     private String getVideoDetails(String id) {
-        Video video = twitchApi.getVideoById(id);
+        Video video;
+        try {
+            video = twitchApi.getVideoById(id);
+        }
+        catch (HystrixRuntimeException e) {
+            e.printStackTrace();
+            return "Error retrieving video data";
+        }
         if (video == null) {
             return "";
         }

@@ -8,14 +8,15 @@ import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Game;
 import com.github.twitch4j.helix.domain.Stream;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import static APIs.SpeedrunApi.*;
 
 public class WrListener extends CommandBase {
-    
-    private static final String GAME_SUNSHINE = "Super Mario Sunshine";
-    private static final String GAME_PAPER_MARIO = "Paper Mario";
-    private static final String GAME_TTYD = "Paper Mario: The Thousand-Year Door";
+
+    private static final String GAME_ID_SUNSHINE = "6086";
+    private static final String GAME_ID_PAPER_MARIO = "18231";
+    private static final String GAME_ID_TTYD = "6855";
     private static final String PATTERN = "!wr";
     
     private final TwirkInterface twirk;
@@ -44,19 +45,24 @@ public class WrListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        Stream stream = twitchApi.getStream();
+        Stream stream;
+        try {
+            stream = twitchApi.getStream();
+        }
+        catch (HystrixRuntimeException e) {
+            e.printStackTrace();
+            twirk.channelMessage("Error retrieving stream data");
+            return;
+        }
         String streamTitle = "";
-        String gameTitle = "";
+        String gameId = "";
         if (stream != null) {
             streamTitle = stream.getTitle().toLowerCase();
-            Game game = twitchApi.getGameById(stream.getGameId());
-            if (game != null) {
-                gameTitle = game.getName();
-            }
+            gameId = stream.getGameId();
         }
         String wrText = "Unknown WR";
-        switch (gameTitle) {
-            case GAME_SUNSHINE:
+        switch (gameId) {
+            case GAME_ID_SUNSHINE:
                 if (streamTitle.contains("any%")) {
                     wrText = getWr(SpeedrunApi.Game.SUNSHINE, SunshineCategory.ANY_PERCENT);
                 } else if (streamTitle.contains("all episodes")) {
@@ -69,7 +75,7 @@ public class WrListener extends CommandBase {
                     wrText = getWr(SpeedrunApi.Game.SUNSHINE, SunshineCategory.SHINES_120);
                 }
                 break;
-            case GAME_PAPER_MARIO:
+            case GAME_ID_PAPER_MARIO:
                 if (streamTitle.contains("any% (no peach warp)") || streamTitle.contains("any% (no pw)")) {
                     wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ANY_PERCENT_NO_PW);
                 } else if (streamTitle.contains("any% no rng") || streamTitle.contains("any% (no rng)")) {
@@ -98,7 +104,7 @@ public class WrListener extends CommandBase {
                     wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.MAILMAN);
                 }
                 break;
-            case GAME_TTYD:
+            case GAME_ID_TTYD:
                 if (streamTitle.contains("any%") && (streamTitle.contains("japanese") || streamTitle.contains("jp"))) {
                     wrText = getWr(SpeedrunApi.Game.TTYD, TtydCategory.ANY_PERCENT_JP);
                 } else if (streamTitle.contains("crystal stars")) {

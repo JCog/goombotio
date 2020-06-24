@@ -7,6 +7,7 @@ import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Follow;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -118,7 +119,14 @@ public class CommandParser {
                     return user.getUserName();
                 }
             case TYPE_UPTIME:
-                Stream stream = twitchApi.getStream();
+                Stream stream;
+                try {
+                    stream = twitchApi.getStream();
+                }
+                catch (HystrixRuntimeException e) {
+                    e.printStackTrace();
+                    return "error retrieving stream data";
+                }
                 if (stream == null) {
                     return "stream is not live";
                 }
@@ -135,12 +143,26 @@ public class CommandParser {
     }
     
     private String getFollowAgeString(String userName) {
-        User user = twitchApi.getUserByUsername(userName);
+        User user;
+        try {
+            user = twitchApi.getUserByUsername(userName);
+        }
+        catch (HystrixRuntimeException e) {
+            e.printStackTrace();
+            return String.format("Error retrieving user data for %s", userName);
+        }
         if (user == null) {
             return String.format("Unknown user \"%s\"", userName);
         }
-        Follow follow = twitchApi.getFollow(user.getId(), streamerUser.getId());
-    
+        Follow follow;
+        try {
+            follow = twitchApi.getFollow(user.getId(), streamerUser.getId());
+        }
+        catch (HystrixRuntimeException e) {
+            e.printStackTrace();
+            return String.format("Error retrieving follow age for %s", userName);
+        }
+
         if(follow != null) {
             LocalDate followDate = follow.getFollowedAt().toLocalDate();
             LocalDate today = LocalDate.now();

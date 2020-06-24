@@ -3,9 +3,12 @@ package Util;
 import Database.Stats.StreamStatsDb;
 import Database.Stats.WatchTimeDb;
 import com.github.twitch4j.helix.domain.User;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static java.lang.System.out;
 
 public class StreamStatsInterface {
     private final StreamStatsDb streamStatsDb;
@@ -143,11 +146,27 @@ public class StreamStatsInterface {
      */
     public ArrayList<Map.Entry<String, Integer>> getTopFollowerCounts() {
         ArrayList<Map.Entry<String, Integer>> followerCounts = new ArrayList<>();
-        List<User> userList = twitchApi.getUserListByUsernames(streamStatsDb.getUserList());
-    
-        for(User user : userList) {
+        List<User> userList;
+        try {
+            userList = twitchApi.getUserListByUsernames(streamStatsDb.getUserList());
+        }
+        catch (HystrixRuntimeException e) {
+            e.printStackTrace();
+            out.println("Error retrieving user data for top followers");
+            return null;
+        }
+
+        for (User user : userList) {
             String name = user.getDisplayName();
-            int followCount = twitchApi.getFollowerCount(user.getId());
+            int followCount;
+            try {
+                followCount = twitchApi.getFollowerCount(user.getId());
+            }
+            catch (HystrixRuntimeException e) {
+                e.printStackTrace();
+                out.println(String.format("Error retrieving follower count for %s", user.getDisplayName()));
+                continue;
+            }
             followerCounts.add(new AbstractMap.SimpleEntry<>(name, followCount));
         }
         followerCounts.sort(new SortMapDescending());

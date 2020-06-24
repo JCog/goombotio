@@ -2,6 +2,7 @@ package Util;
 
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.*;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.util.*;
 
@@ -14,7 +15,7 @@ public class TwitchApi {
         streamer = Settings.getTwitchStream();
     }
     
-    public Clip getClipById(String id) {
+    public Clip getClipById(String id) throws HystrixRuntimeException {
         ClipList clipList = twitchClient.getHelix().getClips(
                 Settings.getTwitchChannelAuthToken(),
                 null,
@@ -32,7 +33,7 @@ public class TwitchApi {
         return clipList.getData().get(0);
     }
     
-    public Follow getFollow(String fromId, String toId) {
+    public Follow getFollow(String fromId, String toId) throws HystrixRuntimeException {
         FollowList followList = twitchClient.getHelix().getFollowers(
                 Settings.getTwitchChannelAuthToken(),
                 fromId,
@@ -46,7 +47,7 @@ public class TwitchApi {
         return followList.getFollows().get(0);
     }
     
-    public int getFollowerCount(String userId) {
+    public int getFollowerCount(String userId) throws HystrixRuntimeException {
         FollowList followList = twitchClient.getHelix().getFollowers(
                 Settings.getTwitchChannelAuthToken(),
                 null,
@@ -57,7 +58,7 @@ public class TwitchApi {
         return followList.getTotal();
     }
     
-    public List<Follow> getFollowers(String userId) {
+    public List<Follow> getFollowers(String userId) throws HystrixRuntimeException {
         FollowList followList = twitchClient.getHelix().getFollowers(
                 Settings.getTwitchChannelAuthToken(),
                 null,
@@ -81,7 +82,7 @@ public class TwitchApi {
         return followsOutput;
     }
     
-    public Game getGameById(String gameId) {
+    public Game getGameById(String gameId) throws HystrixRuntimeException {
         GameList gameList = twitchClient.getHelix().getGames(
                 Settings.getTwitchChannelAuthToken(),
                 Collections.singletonList(gameId),
@@ -93,7 +94,7 @@ public class TwitchApi {
         return gameList.getGames().get(0);
     }
     
-    public Stream getStream() {
+    public Stream getStream() throws HystrixRuntimeException {
         StreamList streamList = twitchClient.getHelix().getStreams(
                 Settings.getTwitchChannelAuthToken(),
                 "",
@@ -110,7 +111,7 @@ public class TwitchApi {
         return streamList.getStreams().get(0);
     }
     
-    public User getUserById(String userId) {
+    public User getUserById(String userId) throws HystrixRuntimeException {
         UserList userList = twitchClient.getHelix().getUsers(
                 Settings.getTwitchChannelAuthToken(),
                 Collections.singletonList(userId),
@@ -122,7 +123,7 @@ public class TwitchApi {
         return userList.getUsers().get(0);
     }
     
-    public User getUserByUsername(String username) {
+    public User getUserByUsername(String username) throws HystrixRuntimeException {
         UserList userList = twitchClient.getHelix().getUsers(
                 Settings.getTwitchChannelAuthToken(),
                 null,
@@ -134,7 +135,7 @@ public class TwitchApi {
         return userList.getUsers().get(0);
     }
     
-    public List<User> getUserListByIds(Collection<String> userIdList) {
+    public List<User> getUserListByIds(Collection<String> userIdList) throws HystrixRuntimeException {
         Iterator<String> iterator = userIdList.iterator();
         List<String> usersHundred = new ArrayList<>();
         List<User> output = new ArrayList<>();
@@ -153,7 +154,7 @@ public class TwitchApi {
         return output;
     }
     
-    public List<User> getUserListByUsernames(Collection<String> usernameList) {
+    public List<User> getUserListByUsernames(Collection<String> usernameList) throws HystrixRuntimeException {
         Iterator<String> iterator = usernameList.iterator();
         List<String> usersHundred = new ArrayList<>();
         List<User> output = new ArrayList<>();
@@ -172,7 +173,7 @@ public class TwitchApi {
         return output;
     }
     
-    public Video getVideoById(String videoId) {
+    public Video getVideoById(String videoId) throws HystrixRuntimeException {
         VideoList videoList = twitchClient.getHelix().getVideos(
                 Settings.getTwitchChannelAuthToken(),
                 videoId,

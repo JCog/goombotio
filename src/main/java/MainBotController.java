@@ -40,8 +40,9 @@ public class MainBotController {
     private final ViewerQueueManager viewerQueueManager;
     private final ChatLogger chatLogger;
     private final Twitter twitter;
+    private final User botUser;
     private final User streamerUser;
-    
+
     private MainBotController() {
         chatLogger = new ChatLogger();
         twitter = getTwitterInstance();
@@ -50,7 +51,7 @@ public class MainBotController {
                 .withClientId(Settings.getTwitchChannelClientId())
                 .build();
         twitchApi = new TwitchApi(twitchClient);
-        User botUser = twitchApi.getUserByUsername(Settings.getTwitchUsername());
+        botUser = twitchApi.getUserByUsername(Settings.getTwitchUsername());
         streamerUser = twitchApi.getUserByUsername(Settings.getTwitchStream());
         twirk = new TwirkInterface(chatLogger, botUser);
         streamTracker = new StreamTracker(twirk, twitchApi, streamerUser);

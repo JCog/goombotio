@@ -5,6 +5,7 @@ import Util.TwirkInterface;
 import Util.TwitchApi;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.util.Set;
 import java.util.Timer;
@@ -34,7 +35,15 @@ public class StreamTracker {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Stream stream = twitchApi.getStream();
+                Stream stream;
+                try {
+                    stream = twitchApi.getStream();
+                }
+                catch (HystrixRuntimeException e) {
+                    e.printStackTrace();
+                    System.out.println("Error retrieving stream for StreamTracker, skipping interval");
+                    return;
+                }
                 if (stream != null) {
                     if (streamData == null) {
                         streamData = new StreamData(twitchApi, streamerUser);
