@@ -67,7 +67,7 @@ public class MainBotController {
         return instance;
     }
     
-    public void run() {
+    public synchronized void run() {
         streamTracker.start();
         socialScheduler.start();
         //subPointUpdater.start();
@@ -81,9 +81,14 @@ public class MainBotController {
         try {
             new ConsoleCommandListener(twirk, dbc).run();
         }
-        catch (NoSuchElementException e) {
+        catch (NoSuchElementException nsee) {
             out.println("No console detected. Process must be killed manually");
-            while (true) {}
+            try {
+                this.wait();
+            }
+            catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
         }
     }
     
