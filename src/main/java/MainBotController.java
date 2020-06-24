@@ -14,13 +14,11 @@ import com.gikk.twirk.events.TwirkListener;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.helix.domain.User;
-import com.github.twitch4j.helix.domain.UserList;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +35,7 @@ public class MainBotController {
     private final SocialScheduler socialScheduler;
     private final StreamTracker streamTracker;
     //private final SubPointUpdater subPointUpdater;
+    private final FollowLogger followLogger;
     private final DiscordBotController dbc;
     private final ViewerQueueManager vqm;
     private final ChatLogger chatLogger;
@@ -50,11 +49,13 @@ public class MainBotController {
                 .withClientId(Settings.getTwitchChannelClientId())
                 .build();
         twitchApi = new TwitchApi(twitchClient);
-        User botUser = getBotUser(Settings.getTwitchUsername());
+        User botUser = twitchApi.getUserByUsername(Settings.getTwitchUsername());
+        User streamerUser = twitchApi.getUserByUsername(Settings.getTwitchStream());
         twirk = new TwirkInterface(chatLogger, botUser);
         streamTracker = new StreamTracker(twirk, twitchApi);
         socialScheduler = new SocialScheduler(twirk, twitchApi, SOCIAL_INTERVAL_LENGTH);
         //subPointUpdater = new SubPointUpdater(twitchClient, twitchApi, botUser);
+        followLogger = new FollowLogger(twitchApi, streamerUser.getId());
         vqm = new ViewerQueueManager(twirk);
         dbc = DiscordBotController.getInstance();
         dbc.init();
@@ -71,6 +72,7 @@ public class MainBotController {
         streamTracker.start();
         socialScheduler.start();
         //subPointUpdater.start();
+        followLogger.start();
         addAllListeners();
         twirk.connect();
         checkSrcCert();
@@ -96,6 +98,7 @@ public class MainBotController {
         streamTracker.stop();
         socialScheduler.stop();
         //subPointUpdater.stop();
+        followLogger.stop();
         GoombotioDb.getInstance().close();
         chatLogger.close();
         twitchClient.close();
@@ -141,11 +144,6 @@ public class MainBotController {
     
     private void removeTwirkListener(TwirkListener listener) {
         twirk.removeIrcListener(listener);
-    }
-    
-    private User getBotUser(String nick) {
-        UserList result = twitchClient.getHelix().getUsers(Settings.getTwitchChannelAuthToken(), null, Collections.singletonList(nick)).execute();
-        return result.getUsers().get(0);
     }
     
     private static TwirkListener getOnDisconnectListener(final TwirkInterface twirk) {

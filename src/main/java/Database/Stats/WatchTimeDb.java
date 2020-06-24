@@ -1,6 +1,7 @@
 package Database.Stats;
 
 import Database.CollectionBase;
+import Database.Entries.WatchtimeItem;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -74,6 +75,28 @@ public class WatchTimeDb extends CollectionBase {
             updateOne(idLong, new Document(monthlyMinutesKey, newMonthlyMinutes));
             updateOne(idLong, new Document(LAST_SEEN_KEY, getDate()));
         }
+    }
+    
+    public WatchtimeItem getWatchtimeItem(String id) {
+        Document result = findFirstEquals(ID_KEY, id);
+        if (result != null) {
+            return new WatchtimeItem(
+                    result.getLong(ID_KEY),
+                    result.getString(NAME_KEY),
+                    result.getInteger(MINUTES_KEY),
+                    result.getDate(FIRST_SEEN_KEY),
+                    result.getDate(LAST_SEEN_KEY)
+            );
+        }
+        return null;
+    }
+    
+    public String getName(String id) {
+        Document result = findFirstEquals(ID_KEY, id);
+        if (result != null) {
+            return result.getString(NAME_KEY);
+        }
+        return "";
     }
     
     public int getMinutes(TwitchUser user) {
