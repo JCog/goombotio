@@ -60,7 +60,6 @@ public class MainBotController {
         followLogger = new FollowLogger(twitchApi, streamerUser);
         viewerQueueManager = new ViewerQueueManager(twirk);
         discordBotController = DiscordBotController.getInstance();
-        discordBotController.init();
     }
     
     public static MainBotController getInstance() {
@@ -71,6 +70,7 @@ public class MainBotController {
     }
     
     public synchronized void run() {
+        discordBotController.init();
         streamTracker.start();
         socialScheduler.start();
         //subPointUpdater.start();
