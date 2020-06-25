@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) {
         out.println("Starting...");
         Settings.init();
-        MainBotController mainBotController = MainBotController.getInstance();
+        MainBotController mainBotController = new MainBotController();
         
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             out.println("Stopping...");

@@ -26,48 +26,24 @@ import static java.lang.System.out;
 
 public class MainBotController {
     private static final int SOCIAL_INTERVAL_LENGTH = 20;
-    
-    private static MainBotController instance = null;
-    
-    private final TwirkInterface twirk;
-    private final TwitchClient twitchClient;
-    private final TwitchApi twitchApi;
-    private final SocialScheduler socialScheduler;
-    private final StreamTracker streamTracker;
-    //private final SubPointUpdater subPointUpdater;
-    private final FollowLogger followLogger;
-    private final DiscordBotController discordBotController;
-    private final ViewerQueueManager viewerQueueManager;
-    private final ChatLogger chatLogger;
-    private final Twitter twitter;
-    private final User botUser;
-    private final User streamerUser;
 
-    private MainBotController() {
-        chatLogger = new ChatLogger();
-        twitter = getTwitterInstance();
-        twitchClient = TwitchClientBuilder.builder()
-                .withEnableHelix(true)
-                .withClientId(Settings.getTwitchChannelClientId())
-                .build();
-        twitchApi = new TwitchApi(twitchClient);
-        botUser = twitchApi.getUserByUsername(Settings.getTwitchUsername());
-        streamerUser = twitchApi.getUserByUsername(Settings.getTwitchStream());
-        twirk = new TwirkInterface(chatLogger, botUser);
-        streamTracker = new StreamTracker(twirk, twitchApi, streamerUser);
-        socialScheduler = new SocialScheduler(twirk, twitchApi, botUser, SOCIAL_INTERVAL_LENGTH);
-        //subPointUpdater = new SubPointUpdater(twitchClient, twitchApi, botUser);
-        followLogger = new FollowLogger(twitchApi, streamerUser);
-        viewerQueueManager = new ViewerQueueManager(twirk);
-        discordBotController = DiscordBotController.getInstance();
-    }
-    
-    public static MainBotController getInstance() {
-        if (instance == null) {
-            instance = new MainBotController();
-        }
-        return instance;
-    }
+    private final Twitter twitter = getTwitterInstance();
+    private final DiscordBotController discordBotController = DiscordBotController.getInstance();
+    private final ChatLogger chatLogger = new ChatLogger();
+    private final TwitchClient
+            twitchClient = TwitchClientBuilder.builder()
+            .withEnableHelix(true)
+            .withClientId(Settings.getTwitchChannelClientId())
+            .build();
+    private final TwitchApi twitchApi = new TwitchApi(twitchClient);
+    private final User botUser = twitchApi.getUserByUsername(Settings.getTwitchUsername());
+    private final User streamerUser = twitchApi.getUserByUsername(Settings.getTwitchStream());
+    private final TwirkInterface twirk = new TwirkInterface(chatLogger, botUser);
+    private final StreamTracker streamTracker = new StreamTracker(twirk, twitchApi, streamerUser);
+    private final SocialScheduler socialScheduler = new SocialScheduler(twirk, twitchApi, botUser, SOCIAL_INTERVAL_LENGTH);
+    //private final SubPointUpdater subPointUpdater = new SubPointUpdater(twitchClient, twitchApi, botUser);
+    private final FollowLogger followLogger = new FollowLogger(twitchApi, streamerUser);
+    private final ViewerQueueManager viewerQueueManager = new ViewerQueueManager(twirk);
     
     public synchronized void run() {
         discordBotController.init();
