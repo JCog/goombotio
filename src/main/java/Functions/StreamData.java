@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.System.out;
 
 public class StreamData {
-    private static final String BLACKLIST_FILENAME = "src/main/resources/blacklist.txt";
+    private static final String BLACKLIST_FILENAME = "blacklist.txt";
     
     private final HashMap<String, Integer> userMinutes = new HashMap<>();
     private final ArrayList<Integer> viewerCounts = new ArrayList<>();
