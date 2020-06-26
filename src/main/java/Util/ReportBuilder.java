@@ -8,11 +8,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.System.out;
+
 public class ReportBuilder {
     
     private final static String REPORT_LOCATION = "streamreports/";
     
     public static void generateReport(StreamData streamData) {
+        out.println("Building report...");
         StringBuilder report = new StringBuilder();
         
         report.append("REPORT\n\n");
@@ -27,7 +30,7 @@ public class ReportBuilder {
         String filename = getReportFilename();
         
         FileWriter.writeToFile(REPORT_LOCATION, filename, report.toString());
-        System.out.println(String.format("Output report to %s%s", REPORT_LOCATION, filename));
+        out.println(String.format("Output report to %s%s", REPORT_LOCATION, filename));
     }
     
     private static String generateReportStats(StreamData streamData) {
@@ -81,7 +84,7 @@ public class ReportBuilder {
         
         HashMap<String, Integer> usersMap = streamData.getAllViewerMinutes();
         for (Integer value : usersMap.values()) {
-            allWatchTime += value / (60 * 1000);
+            allWatchTime += value;
         }
         int averageAllMinutes = 0;
         if (usersMap.size() != 0) {
@@ -94,7 +97,7 @@ public class ReportBuilder {
         int weightedAgeDenom = 0;
         for(Map.Entry<String, Integer> entry : usersMap.entrySet()) {
             String name = entry.getKey();
-            int minutes = entry.getValue() / 1000;
+            int minutes = entry.getValue();
             Date firstSeen = watchTimeDb.getFirstSeen(name);
             int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(getDate().getTime() - firstSeen.getTime(), TimeUnit.MILLISECONDS));
             
@@ -157,10 +160,10 @@ public class ReportBuilder {
         int maxMinutes = 0;
         for (Map.Entry<String, Integer> viewer : newViewersList) {
             maxNameLength = Math.max(maxNameLength, viewer.getKey().length());
-            maxMinutes = Math.max(maxMinutes, viewer.getValue() / (60 * 1000));
+            maxMinutes = Math.max(maxMinutes, viewer.getValue());
         }
         for (Map.Entry<String, Integer> viewer : newViewersList) {
-            int minutes = viewer.getValue() / (60 * 1000);
+            int minutes = viewer.getValue();
             newWatchTime += minutes;
             newViewersReport.append(buildPaddedViewerMinutesString(viewer.getKey(), minutes, maxNameLength, maxMinutes));
         }
@@ -191,10 +194,10 @@ public class ReportBuilder {
         int maxMinutes = 0;
         for (Map.Entry<String, Integer> viewer : returningViewersList) {
             maxNameLength = Math.max(maxNameLength, viewer.getKey().length());
-            maxMinutes = Math.max(maxMinutes, viewer.getValue() / (60 * 1000));
+            maxMinutes = Math.max(maxMinutes, viewer.getValue());
         }
         for (Map.Entry<String, Integer> viewer : returningViewersList) {
-            int minutes = viewer.getValue() / (60 * 1000);
+            int minutes = viewer.getValue();
             returningWatchTime += minutes;
             returningViewersReport.append(buildPaddedViewerMinutesString(viewer.getKey(), minutes, maxNameLength, maxMinutes));
         }

@@ -67,6 +67,7 @@ public class StreamData {
         }
         //make sure this function is run before updating the database
         separateNewReturningViewers(userList);
+        streamStatsDb.addStream(startTime, endTime, viewerCounts, userMinutes);
         
         for (User user : userList) {
             if (!blacklist.contains(user.getLogin())) {
@@ -74,8 +75,6 @@ public class StreamData {
                 watchTimeDb.addMinutes(user.getId(), user.getLogin(), minutes);
             }
         }
-        
-        streamStatsDb.addStream(startTime, endTime, viewerCounts, userMinutes);
     }
     
     ///////////////////////////////////////////////////////////////////////////

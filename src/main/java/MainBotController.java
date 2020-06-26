@@ -47,12 +47,12 @@ public class MainBotController {
     
     public synchronized void run() {
         discordBotController.init();
-        streamTracker.start();
         socialScheduler.start();
         //subPointUpdater.start();
         followLogger.start();
         addAllListeners();
         twirk.connect();
+        streamTracker.start();
         checkSrcCert();
     
         out.println("Goombotio is ready.");

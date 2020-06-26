@@ -103,7 +103,13 @@ public class TwirkInterface {
     }
     
     public Set<String> getUsersOnline() {
-        return twirk.getUsersOnline();
+        try {
+            return twirk.getUsersOnline();
+        }
+        catch (NullPointerException e) {
+            System.out.println("Attempted to get users online before connection was established");
+            return null;
+        }
     }
     
     public Set<String> getModsOnline() {

@@ -45,12 +45,14 @@ public class StreamTracker {
                     return;
                 }
                 if (stream != null) {
+                    Set<String> usersOnline = twirk.getUsersOnline();
+                    if (usersOnline == null) {
+                        return;
+                    }
                     if (streamData == null) {
                         streamData = new StreamData(twitchApi, streamerUser);
                     }
-                    Set<String> usersOnline = twirk.getUsersOnline();
-                    usersOnline.forEach(user -> user = user.trim());
-                    streamData.updateUsersMinutes(twirk.getUsersOnline());
+                    streamData.updateUsersMinutes(usersOnline);
                     streamData.updateViewerCounts(stream.getViewerCount());
                 }
                 else {
