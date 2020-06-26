@@ -182,7 +182,7 @@ public class StreamStatsInterface {
         Date streamDate = simplifyDate(streamStatsDb.getStreamEndTime());
         List<String> usersMap = streamStatsDb.getUserList();
         for(String name : usersMap) {
-            Date firstSeen = watchTimeDb.getFirstSeen(name);
+            Date firstSeen = watchTimeDb.getFirstSeenByUsername(name);
             int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(streamDate.getTime() - firstSeen.getTime(), TimeUnit.MILLISECONDS));
         
             totalAge += ageDays;
@@ -203,7 +203,7 @@ public class StreamStatsInterface {
         for (Map.Entry<String, Integer> entry : userMinutes) {
             String name = entry.getKey();
             int minutes = entry.getValue() / 1000;
-            Date firstSeen = watchTimeDb.getFirstSeen(name);
+            Date firstSeen = watchTimeDb.getFirstSeenByUsername(name);
             int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(streamDate.getTime() - firstSeen.getTime(), TimeUnit.MILLISECONDS));
             
             weightedAgeNumer += ageDays * minutes;

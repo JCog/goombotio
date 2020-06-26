@@ -98,7 +98,7 @@ public class ReportBuilder {
         for(Map.Entry<String, Integer> entry : usersMap.entrySet()) {
             String name = entry.getKey();
             int minutes = entry.getValue();
-            Date firstSeen = watchTimeDb.getFirstSeen(name);
+            Date firstSeen = watchTimeDb.getFirstSeenByUsername(name);
             int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(getDate().getTime() - firstSeen.getTime(), TimeUnit.MILLISECONDS));
             
             totalAge += ageDays;

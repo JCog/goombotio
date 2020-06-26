@@ -91,7 +91,7 @@ public class WatchTimeDb extends CollectionBase {
         return null;
     }
     
-    public String getName(String id) {
+    public String getNameById(long id) {
         Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return result.getString(NAME_KEY);
@@ -99,9 +99,19 @@ public class WatchTimeDb extends CollectionBase {
         return "";
     }
     
-    public int getMinutes(TwitchUser user) {
-        long id = user.getUserID();
-        
+    public int getMinutesByTwirkUser(TwitchUser user) {
+        return getMinutesById(user.getUserID());
+    }
+    
+    public int getMinutesByUsername(String username) {
+        Document result = findFirstEquals(NAME_KEY, username.toLowerCase());
+        if (result != null) {
+            return result.getInteger(MINUTES_KEY);
+        }
+        return 0;
+    }
+
+    public int getMinutesById(long id) {
         Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return result.getInteger(MINUTES_KEY);
@@ -109,15 +119,7 @@ public class WatchTimeDb extends CollectionBase {
         return 0;
     }
     
-    public int getMinutes(String username) {
-        Document result = findFirstEquals(NAME_KEY, username.toLowerCase());
-        if (result != null) {
-            return result.getInteger(MINUTES_KEY);
-        }
-        return 0;
-    }
-    
-    public Date getFirstSeen(String username) {
+    public Date getFirstSeenByUsername(String username) {
         String userLower = username.toLowerCase();
         
         Document result = findFirstEquals(NAME_KEY, userLower);
@@ -127,7 +129,7 @@ public class WatchTimeDb extends CollectionBase {
         return getDate();
     }
     
-    public Date getFirstSeen(long userId) {
+    public Date getFirstSeenById(long userId) {
         Document result = findFirstEquals(ID_KEY, userId);
         if (result != null) {
             return result.getDate(FIRST_SEEN_KEY);
@@ -135,10 +137,18 @@ public class WatchTimeDb extends CollectionBase {
         return getDate();
     }
     
-    public Date getLastSeen(String username) {
+    public Date getLastSeenByUsername(String username) {
         String userLower = username.toLowerCase();
         
         Document result = findFirstEquals(NAME_KEY, userLower);
+        if (result != null) {
+            return result.getDate(LAST_SEEN_KEY);
+        }
+        return getDate();
+    }
+
+    public Date getLastSeenById(long id) {
+        Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return result.getDate(LAST_SEEN_KEY);
         }

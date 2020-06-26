@@ -81,23 +81,24 @@ public class FollowLogger {
                         System.out.println(String.format("error retrieving data for new follower with id %s", newFollowerId));
                         newFollowerUser = null;
                     }
+                    long idLong = Long.parseLong(newFollowerId);
                     if (newFollowerUser != null) {
                         writer.write(String.format(
                                 "%s New follower: %s - First seen: %s - Watchtime: %d minutes\n",
                                 getDateString(),
                                 newFollowerUser.getDisplayName(),
-                                watchTimeDb.getFirstSeen(newFollowerId).toString(),
-                                watchTimeDb.getMinutes(newFollowerId)
+                                watchTimeDb.getFirstSeenById(idLong).toString(),
+                                watchTimeDb.getMinutesById(idLong)
                         ));
                     }
                     else {
-                        String name = watchTimeDb.getName(newFollowerId);
+                        String name = watchTimeDb.getNameById(idLong);
                         writer.write(String.format(
                                 "%s New follower (invalid state): %s - First seen: %s - Watchtime: %d minutes\n",
                                 getDateString(),
                                 name.isEmpty() ? "id: " + newFollowerId : name,
-                                watchTimeDb.getFirstSeen(newFollowerId),
-                                watchTimeDb.getMinutes(newFollowerId)
+                                watchTimeDb.getFirstSeenById(idLong).toString(),
+                                watchTimeDb.getMinutesById(idLong)
                         ));
                     }
                 }
@@ -111,25 +112,26 @@ public class FollowLogger {
                         System.out.println(String.format("error retrieving data for unfollower with id %s", unfollowerId));
                         unfollowerUser = null;
                     }
+                    long idLong = Long.parseLong(unfollowerId);
                     if (unfollowerUser != null) {
                         writer.write(String.format(
                                 "%s Unfollower: %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",
                                 getDateString(),
                                 unfollowerUser.getDisplayName(),
-                                watchTimeDb.getFirstSeen(unfollowerId).toString(),
-                                watchTimeDb.getLastSeen(unfollowerId).toString(),
-                                watchTimeDb.getMinutes(unfollowerId)
+                                watchTimeDb.getFirstSeenById(idLong).toString(),
+                                watchTimeDb.getLastSeenById(idLong).toString(),
+                                watchTimeDb.getMinutesById(idLong)
                         ));
                     }
                     else {
-                        String name = watchTimeDb.getName(unfollowerId);
+                        String name = watchTimeDb.getNameById(idLong);
                         writer.write(String.format(
                                 "%s Unfollower (account deleted): %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",
                                 getDateString(),
                                 name.isEmpty() ? "id: " + unfollowerId : name,
-                                watchTimeDb.getFirstSeen(unfollowerId),
-                                watchTimeDb.getLastSeen(unfollowerId),
-                                watchTimeDb.getMinutes(unfollowerId)
+                                watchTimeDb.getFirstSeenById(idLong).toString(),
+                                watchTimeDb.getLastSeenById(idLong).toString(),
+                                watchTimeDb.getMinutesById(idLong)
                         ));
                     }
                 }
