@@ -84,6 +84,15 @@ public class StreamTracker {
         }
     }
     
+    public int getViewerMinutes(String username) {
+        if (streamData == null) {
+            return 0;
+        }
+        else {
+            return streamData.getViewerMinutes(username);
+        }
+    }
+    
     private HashSet<String> blacklistInit() {
         HashSet<String> blacklist = new HashSet<>();
         try {

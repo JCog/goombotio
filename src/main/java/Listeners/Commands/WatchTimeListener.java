@@ -1,6 +1,7 @@
 package Listeners.Commands;
 
 import Database.Stats.WatchTimeDb;
+import Functions.StreamTracker;
 import Util.TwirkInterface;
 import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
@@ -17,11 +18,13 @@ public class WatchTimeListener extends CommandBase {
     private static final Date CUTOFF_DATE = generateCutoffDate();
     
     private final TwirkInterface twirk;
+    private final StreamTracker streamTracker;
     private final WatchTimeDb watchTimeDb;
     
-    public WatchTimeListener(TwirkInterface twirk) {
+    public WatchTimeListener(TwirkInterface twirk, StreamTracker streamTracker) {
         super(CommandType.PREFIX_COMMAND);
         this.twirk = twirk;
+        this.streamTracker = streamTracker;
         watchTimeDb = WatchTimeDb.getInstance();
     }
     
@@ -43,10 +46,12 @@ public class WatchTimeListener extends CommandBase {
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         StringBuilder output = new StringBuilder();
+        int minutes = watchTimeDb.getMinutesByTwirkUser(sender) + streamTracker.getViewerMinutes(sender.getUserName());
         output.append(String.format(
                 "@%s %s",
                 sender.getDisplayName(),
-                getTimeString(watchTimeDb.getMinutesByTwirkUser(sender))));
+                getTimeString(minutes)
+        ));
         if (isOldViewer(sender)) {
             output.append(" since August 30, 2019");
         }
