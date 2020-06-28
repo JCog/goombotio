@@ -74,6 +74,7 @@ $(`variable` `argument`)
 * `eval` - executes arbitrary javascript. be very careful not to call something with an infinite loop
 * `followage` - the length of time the user in `argument` has been following the channel
 * `query` - full user input that comes after the command
+* `rand` - returns a random integer. `argument` should be a comma-separated, inclusive range
 * `touser` - returns the same as `arg 0`, but if there are no user arguments, defaults to the user's username
 * `uptime` - the length of time the stream has been online
 * `urlfetch` - output from a remote url

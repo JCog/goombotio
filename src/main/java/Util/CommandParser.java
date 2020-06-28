@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -27,6 +28,7 @@ public class CommandParser {
     private static final String ERROR_URL = "-bad url-";
     private static final String ERROR_URL_RETRIEVAL = "unable to retrieve result from url";
     private static final String ERROR_BAD_ARG_NUM_FORMAT = "-bad argument number \"%s\"-";
+    private static final String ERROR_INVALID_RANGE = "-invalid range\"%s\"-";
     
     private static final String TYPE_ARG = "arg";
     private static final String TYPE_CHANNEL = "channel";
@@ -34,6 +36,7 @@ public class CommandParser {
     private static final String TYPE_EVAL = "eval";
     private static final String TYPE_FOLLOW_AGE = "followage";
     private static final String TYPE_QUERY = "query";
+    private static final String TYPE_RAND = "rand";
     private static final String TYPE_TOUSER = "touser";
     private static final String TYPE_UPTIME = "uptime";
     private static final String TYPE_URL_FETCH = "urlfetch";
@@ -43,6 +46,7 @@ public class CommandParser {
     private static final OkHttpClient client = new OkHttpClient();
     
     private final CommandDb commandDb = CommandDb.getInstance();
+    private final Random random = new Random();
     
     private final TwitchApi twitchApi;
     private final User streamerUser;
@@ -111,6 +115,24 @@ public class CommandParser {
                 else {
                     return "";
                 }
+            case TYPE_RAND:
+                String[] rangeSplit = content.split(",");
+                if (rangeSplit.length != 2) {
+                    return String.format(ERROR_INVALID_RANGE, content);
+                }
+                int low;
+                int high;
+                try {
+                    low = Integer.parseInt(rangeSplit[0]);
+                    high = Integer.parseInt(rangeSplit[1]);
+                } catch (NumberFormatException e) {
+                    return String.format(ERROR_INVALID_RANGE, content);
+                }
+                if (low >= high) {
+                    return String.format(ERROR_INVALID_RANGE, content);
+                }
+                int randomOutput = random.nextInt(high - low + 1) + low;
+                return Integer.toString(randomOutput);
             case TYPE_TOUSER:
                 if (arguments.length > 1) {
                     return arguments[1];
