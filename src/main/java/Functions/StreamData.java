@@ -6,20 +6,17 @@ import Util.TwitchApi;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
 
 public class StreamData {
-    private static final String BLACKLIST_FILENAME = "blacklist.txt";
     
     private final HashMap<String, Integer> userMinutes = new HashMap<>();
     private final ArrayList<Integer> viewerCounts = new ArrayList<>();
     private final StreamStatsDb streamStatsDb = StreamStatsDb.getInstance();
     private final WatchTimeDb watchTimeDb = WatchTimeDb.getInstance();
-    private final ArrayList<String> blacklist = blacklistInit(BLACKLIST_FILENAME);
     private final ArrayList<User> newViewers = new ArrayList<>();
     private final ArrayList<User> returningViewers = new ArrayList<>();
     
@@ -70,10 +67,8 @@ public class StreamData {
         streamStatsDb.addStream(startTime, endTime, viewerCounts, userMinutes);
         
         for (User user : userList) {
-            if (!blacklist.contains(user.getLogin())) {
-                int minutes = userMinutes.get(user.getLogin());
-                watchTimeDb.addMinutes(user.getId(), user.getLogin(), minutes);
-            }
+            int minutes = userMinutes.get(user.getLogin());
+            watchTimeDb.addMinutes(user.getId(), user.getLogin(), minutes);
         }
     }
     
@@ -180,23 +175,6 @@ public class StreamData {
     }
     
     ///////////////////////////////////////////////////////////////////////////
-    
-    private ArrayList<String> blacklistInit(String filename) {
-        ArrayList<String> blacklist = new ArrayList<>();
-        try {
-            File file = new File(filename);
-            Scanner sc = new Scanner(file);
-            while(sc.hasNextLine()) {
-                blacklist.add(sc.nextLine());
-            }
-            sc.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        return blacklist;
-    }
     
     private void separateNewReturningViewers(List<User> userList) {
         HashSet<Long> allTimeUserIds = watchTimeDb.getAllUserIds();
