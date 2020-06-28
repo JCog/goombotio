@@ -1,5 +1,6 @@
 package Listeners.Commands;
 
+import Database.Entries.CommandItem;
 import Database.Misc.CommandDb;
 import Util.TwirkInterface;
 import Util.TwitchUserLevel;
@@ -23,7 +24,8 @@ public class CommandManagerListener extends CommandBase {
     private enum FUNCTION {
         ADD,
         EDIT,
-        DELETE
+        DELETE,
+        DETAILS
     }
     
     public CommandManagerListener(TwirkInterface twirk) {
@@ -158,6 +160,14 @@ public class CommandManagerListener extends CommandBase {
             case DELETE:
                 twirk.channelMessage(commandDb.deleteCommand(idString));
                 break;
+            case DETAILS:
+                CommandItem commandItem = commandDb.getCommandItem(idString);
+                twirk.channelMessage(String.format(
+                        "\"%s\" -ul=%s -cd=%d",
+                        commandItem.getMessage(),
+                        commandItem.getPermission(),
+                        commandItem.getCooldown()
+                ));
         }
     }
     
@@ -173,6 +183,8 @@ public class CommandManagerListener extends CommandBase {
                 return FUNCTION.EDIT;
             case "delete":
                 return FUNCTION.DELETE;
+            case "details":
+                return FUNCTION.DETAILS;
             default:
                 return null;
         }

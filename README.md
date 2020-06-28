@@ -2,7 +2,7 @@
 This is a Twitch bot for use in JCog's channel with the Goombotio account.
 
 ## Commands
-The !commands command allows moderators to add, remove, and modify custom commands. It's use is similar to how Nightbot works, but not exactly the same.
+The !commands command allows moderators to add, remove, modify, and see details for custom commands. It's use is similar to how Nightbot works, but not exactly the same.
 
 #### Adding Commands
 ##### Usage
@@ -42,6 +42,15 @@ new test message
 
 ##### Example
 !commands delete !testing
+
+#### Details
+##### Usage
+!commands details `!command_name`
+
+`!command_name` is the name of the command you wish to see full details for
+
+##### Example
+!commands details !testing
 
 #### Advanced Usage
 ##### User Levels and Cooldowns
