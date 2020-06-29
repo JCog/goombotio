@@ -103,7 +103,7 @@ public class MainBotController {
         twirk.addIrcListener(queueJoinListener);
         twirk.addIrcListener(new ScheduledMessageManagerListener(twirk));
         twirk.addIrcListener(new ViewerQueueManageListener(viewerQueueManager, queueJoinListener));
-        twirk.addIrcListener(new WatchTimeListener(twirk));
+        twirk.addIrcListener(new WatchTimeListener(twirk, streamTracker));
         twirk.addIrcListener(new WrListener(twirk, twitchApi));
     
         // General Listeners
