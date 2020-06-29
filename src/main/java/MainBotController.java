@@ -39,7 +39,8 @@ public class MainBotController {
     private final User botUser = twitchApi.getUserByUsername(Settings.getTwitchUsername());
     private final User streamerUser = twitchApi.getUserByUsername(Settings.getTwitchStream());
     private final TwirkInterface twirk = new TwirkInterface(chatLogger, botUser);
-    private final StreamTracker streamTracker = new StreamTracker(twirk, twitchApi, streamerUser);
+    private final CloudListener cloudListener = new CloudListener(twirk);
+    private final StreamTracker streamTracker = new StreamTracker(twirk, twitchApi, streamerUser, cloudListener);
     private final SocialScheduler socialScheduler = new SocialScheduler(twirk, twitchApi, botUser, SOCIAL_INTERVAL_LENGTH);
     private final FollowLogger followLogger = new FollowLogger(twitchApi, streamerUser);
     private final ViewerQueueManager viewerQueueManager = new ViewerQueueManager(twirk);
@@ -105,7 +106,7 @@ public class MainBotController {
     
         // General Listeners
         twirk.addIrcListener(new ChatLoggerListener(chatLogger));
-        twirk.addIrcListener(new CloudListener(twirk));
+        twirk.addIrcListener(cloudListener);
         twirk.addIrcListener(new EmoteListener());
         twirk.addIrcListener(new LinkListener(twirk, twitchApi, twitter));
         twirk.addIrcListener(new PyramidListener(twirk));

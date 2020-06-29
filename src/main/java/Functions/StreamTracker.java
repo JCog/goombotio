@@ -1,5 +1,6 @@
 package Functions;
 
+import Listeners.Events.CloudListener;
 import Util.ReportBuilder;
 import Util.TwirkInterface;
 import Util.TwitchApi;
@@ -23,13 +24,15 @@ public class StreamTracker {
     private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
     private final User streamerUser;
+    private final CloudListener cloudListener;
     
     private StreamData streamData;
     
-    public StreamTracker(TwirkInterface twirk, TwitchApi twitchApi, User streamerUser) {
+    public StreamTracker(TwirkInterface twirk, TwitchApi twitchApi, User streamerUser, CloudListener cloudListener) {
         this.twirk = twirk;
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
+        this.cloudListener = cloudListener;
         
         streamData = null;
     }
@@ -60,6 +63,7 @@ public class StreamTracker {
                     }
                     if (streamData == null) {
                         streamData = new StreamData(twitchApi, streamerUser);
+                        cloudListener.reset();
                     }
                     streamData.updateUsersMinutes(usersOnline);
                     streamData.updateViewerCounts(stream.getViewerCount());
