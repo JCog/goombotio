@@ -88,6 +88,7 @@ $(`variable` `argument`)
 * `uptime` - the length of time the stream has been online
 * `urlfetch` - output from a remote url
 * `userid` - the twitch userId of the user
+* `weight` - randomly selects a message from a `|` separated list in `argument`. Each message should start with a positive weight, followed by a space, then the message
 
 ## Scheduled Messages
 The !scheduled command allows moderators to add, remove, and modify scheduled messages. Every 20 minutes, as long as there has been active chat, one message from the pool of messages is posted. The same message will never be posted twice in a row.

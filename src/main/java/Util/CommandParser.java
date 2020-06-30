@@ -18,6 +18,7 @@ import javax.script.ScriptException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +30,8 @@ public class CommandParser {
     private static final String ERROR_URL_RETRIEVAL = "unable to retrieve result from url";
     private static final String ERROR_BAD_ARG_NUM_FORMAT = "-bad argument number \"%s\"-";
     private static final String ERROR_INVALID_RANGE = "-invalid range\"%s\"-";
+    private static final String ERROR_BAD_ENTRY = "-bad entry-";
+    private static final String ERROR_INVALID_WEIGHT = "-invalid weight-";
     
     private static final String TYPE_ARG = "arg";
     private static final String TYPE_CHANNEL = "channel";
@@ -41,6 +44,7 @@ public class CommandParser {
     private static final String TYPE_UPTIME = "uptime";
     private static final String TYPE_URL_FETCH = "urlfetch";
     private static final String TYPE_USER_ID = "userid";
+    private static final String TYPE_WEIGHT = "weight";
     
     private static final ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
     private static final OkHttpClient client = new OkHttpClient();
@@ -159,6 +163,39 @@ public class CommandParser {
                 return submitRequest(content);
             case TYPE_USER_ID:
                 return Long.toString(user.getUserID());
+            case TYPE_WEIGHT:
+                String[] entries = content.split("\\|");
+                ArrayList<Integer> weights = new ArrayList<>();
+                ArrayList<String> messages = new ArrayList<>();
+                for (String entry : entries) {
+                    String[] weightMessage = entry.split("\\s", 2);
+                    if (weightMessage.length != 2) {
+                        return ERROR_BAD_ENTRY;
+                    }
+
+                    int weight;
+                    try {
+                        weight = Integer.parseInt(weightMessage[0]);
+                    }
+                    catch (NumberFormatException e) {
+                        return ERROR_INVALID_WEIGHT;
+                    }
+
+                    weights.add(weight);
+                    messages.add(weightMessage[1]);
+                }
+
+                int totalWeight = weights.stream().mapToInt(a -> a).sum();
+                int selection = random.nextInt(totalWeight);
+                for (int i = 0; i < weights.size(); i++) {
+                    if (selection < weights.get(i)) {
+                        return messages.get(i);
+                    }
+                    else {
+                        selection -= weights.get(i);
+                    }
+                }
+                return ERROR;
             default:
                 return ERROR;
         }
