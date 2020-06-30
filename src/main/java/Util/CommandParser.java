@@ -12,9 +12,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
@@ -36,7 +33,6 @@ public class CommandParser {
     private static final String TYPE_ARG = "arg";
     private static final String TYPE_CHANNEL = "channel";
     private static final String TYPE_COUNT = "count";
-    private static final String TYPE_EVAL = "eval";
     private static final String TYPE_FOLLOW_AGE = "followage";
     private static final String TYPE_QUERY = "query";
     private static final String TYPE_RAND = "rand";
@@ -45,8 +41,7 @@ public class CommandParser {
     private static final String TYPE_URL_FETCH = "urlfetch";
     private static final String TYPE_USER_ID = "userid";
     private static final String TYPE_WEIGHT = "weight";
-    
-    private static final ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
+
     private static final OkHttpClient client = new OkHttpClient();
     
     private final CommandDb commandDb = CommandDb.getInstance();
@@ -103,8 +98,6 @@ public class CommandParser {
             case TYPE_COUNT:
                 commandDb.incrementCount(commandItem.getId());
                 return Integer.toString(commandItem.getCount() + 1);
-            case TYPE_EVAL:
-                return evalJavaScript(content);
             case TYPE_FOLLOW_AGE:
                 if (content.split(" ").length == 1) {
                     return getFollowAgeString(content);
@@ -290,14 +283,6 @@ public class CommandParser {
             //do nothing, reached the end
         }
         return "";
-    }
-    
-    private static String evalJavaScript(String js) {
-        try {
-            return engine.eval(js).toString();
-        } catch (ScriptException e) {
-            return ERROR;
-        }
     }
     
     private static String submitRequest(String url) {
