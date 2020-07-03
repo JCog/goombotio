@@ -15,7 +15,7 @@ public class CloudListener implements TwirkListener {
     
     public CloudListener(TwirkInterface twirk) {
         this.twirk = twirk;
-        saidHi = false;
+        saidHi = true;
     }
     
     @Override
