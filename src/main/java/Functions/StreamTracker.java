@@ -88,6 +88,7 @@ public class StreamTracker {
         }
     }
     
+    //returns the length of time the given user has been watching the stream, 0 if there's no stream
     public int getViewerMinutes(String username) {
         if (streamData == null) {
             return 0;

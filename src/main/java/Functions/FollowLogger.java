@@ -21,13 +21,15 @@ public class FollowLogger {
     private final Timer timer = new Timer();
     private final WatchTimeDb watchTimeDb = WatchTimeDb.getInstance();
     private final TwitchApi twitchApi;
+    private final StreamTracker streamTracker;
     private final User streamerUser;
     
     private HashSet<String> oldFollowerIdList;
     private PrintWriter writer;
     
-    public FollowLogger(TwitchApi twitchApi, User streamerUser) {
+    public FollowLogger(TwitchApi twitchApi, StreamTracker streamTracker, User streamerUser) {
         this.twitchApi = twitchApi;
+        this.streamTracker = streamTracker;
         this.streamerUser = streamerUser;
         try {
             oldFollowerIdList = fetchFollowerIds();
@@ -88,7 +90,7 @@ public class FollowLogger {
                                 getDateString(),
                                 newFollowerUser.getDisplayName(),
                                 watchTimeDb.getFirstSeenById(idLong).toString(),
-                                watchTimeDb.getMinutesById(idLong)
+                                watchTimeDb.getMinutesById(idLong) + streamTracker.getViewerMinutes(newFollowerUser.getLogin())
                         ));
                     }
                     else {
@@ -120,7 +122,7 @@ public class FollowLogger {
                                 unfollowerUser.getDisplayName(),
                                 watchTimeDb.getFirstSeenById(idLong).toString(),
                                 watchTimeDb.getLastSeenById(idLong).toString(),
-                                watchTimeDb.getMinutesById(idLong)
+                                watchTimeDb.getMinutesById(idLong) + streamTracker.getViewerMinutes(unfollowerUser.getLogin())
                         ));
                     }
                     else {
