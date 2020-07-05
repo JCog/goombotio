@@ -42,7 +42,7 @@ public class MainBotController {
     private final CloudListener cloudListener = new CloudListener(twirk);
     private final StreamTracker streamTracker = new StreamTracker(twirk, twitchApi, streamerUser, cloudListener);
     private final SocialScheduler socialScheduler = new SocialScheduler(twirk, twitchApi, botUser, SOCIAL_INTERVAL_LENGTH);
-    private final FollowLogger followLogger = new FollowLogger(twitchApi, streamerUser);
+    private final FollowLogger followLogger = new FollowLogger(twitchApi, streamTracker, streamerUser);
     private final ViewerQueueManager viewerQueueManager = new ViewerQueueManager(twirk);
     
     public synchronized void run() {
