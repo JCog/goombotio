@@ -93,6 +93,29 @@ public class TwitchApi {
         }
         return gameList.getGames().get(0);
     }
+
+    public List<Moderator> getMods(String userId) throws HystrixRuntimeException {
+        ModeratorList moderatorList = twitchClient.getHelix().getModerators(
+                Settings.getTwitchChannelAuthToken(),
+                userId,
+                null,
+                null
+        ).execute();
+
+        //I have no idea why it's called getSubscriptions and not getModerators
+        List<Moderator> modsOutput = new ArrayList<>(moderatorList.getSubscriptions());
+
+        while (!moderatorList.getSubscriptions().isEmpty() && moderatorList.getPagination().getCursor() != null) {
+            moderatorList = twitchClient.getHelix().getModerators(
+                    Settings.getTwitchChannelAuthToken(),
+                    userId,
+                    null,
+                    moderatorList.getPagination().getCursor()
+            ).execute();
+            modsOutput.addAll(moderatorList.getSubscriptions());
+        }
+        return modsOutput;
+    }
     
     public Stream getStream() throws HystrixRuntimeException {
         StreamList streamList = twitchClient.getHelix().getStreams(
