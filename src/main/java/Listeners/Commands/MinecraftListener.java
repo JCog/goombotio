@@ -55,7 +55,7 @@ public class MinecraftListener extends CommandBase {
             return;
         }
 
-        String uuid = profile.get(0);
+        String uuid = convertStringToUuid(profile.get(0));
         String name = profile.get(1);
         minecraftUserDb.addUser(Long.toString(sender.getUserID()), uuid, name);
         twirk.channelMessage(String.format(
@@ -63,5 +63,16 @@ public class MinecraftListener extends CommandBase {
                 sender.getDisplayName(),
                 name
         ));
+    }
+
+    //assumes correct minecraft api output -- 8-4-4-4-12
+    private String convertStringToUuid(String input) {
+        String[] uuid = new String[5];
+        uuid[0] = input.substring(0, 8);
+        uuid[1] = input.substring(8, 12);
+        uuid[2] = input.substring(12, 16);
+        uuid[3] = input.substring(16, 20);
+        uuid[4] = input.substring(20, 32);
+        return String.join("-", uuid);
     }
 }
