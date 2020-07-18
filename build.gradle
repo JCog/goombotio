@@ -32,6 +32,7 @@ dependencies {
     compile group: 'org.twitter4j', name: 'twitter4j-core', version: '4.0.7'
     compile group: 'org.ini4j', name: 'ini4j', version: '0.5.4'
     compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+    compile group: 'com.jcraft', name: 'jsch', version: '0.1.54'
     compile 'net.dv8tion:JDA:4.1.1_101'
     compile "com.google.guava:guava:16+"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.4"

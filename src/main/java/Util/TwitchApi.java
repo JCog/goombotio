@@ -110,6 +110,30 @@ public class TwitchApi {
         }
         return streamList.getStreams().get(0);
     }
+
+    public List<Subscription> getSubList(String userId) throws HystrixRuntimeException {
+        SubscriptionList subscriptionList = twitchClient.getHelix().getSubscriptions(
+                Settings.getTwitchChannelAuthToken(),
+                userId,
+                null,
+                null,
+                100
+        ).execute();
+
+        List<Subscription> subscriptionsOutput = new ArrayList<>(subscriptionList.getSubscriptions());
+
+        while (!subscriptionList.getSubscriptions().isEmpty()) {
+            subscriptionList = twitchClient.getHelix().getSubscriptions(
+                    Settings.getTwitchChannelAuthToken(),
+                    userId,
+                    subscriptionList.getPagination().getCursor(),
+                    null,
+                    100
+            ).execute();
+            subscriptionsOutput.addAll(subscriptionList.getSubscriptions());
+        }
+        return subscriptionsOutput;
+    }
     
     public User getUserById(String userId) throws HystrixRuntimeException {
         UserList userList = twitchClient.getHelix().getUsers(

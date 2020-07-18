@@ -44,6 +44,7 @@ public class MainBotController {
     private final SocialScheduler socialScheduler = new SocialScheduler(twirk, twitchApi, botUser, SOCIAL_INTERVAL_LENGTH);
     private final FollowLogger followLogger = new FollowLogger(twitchApi, streamTracker, streamerUser);
     private final ViewerQueueManager viewerQueueManager = new ViewerQueueManager(twirk);
+    private final MinecraftWhitelistUpdater minecraftWhitelistUpdater = new MinecraftWhitelistUpdater(twitchApi, streamerUser);
     
     public synchronized void run() {
         discordBotController.init();
@@ -52,6 +53,7 @@ public class MainBotController {
         addAllListeners();
         twirk.connect();
         streamTracker.start();
+        minecraftWhitelistUpdater.start();
         checkSrcCert();
     
         out.println("Goombotio is ready.");
@@ -72,6 +74,7 @@ public class MainBotController {
     }
     
     public void closeAll() {
+        minecraftWhitelistUpdater.stop();
         streamTracker.stop();
         socialScheduler.stop();
         followLogger.stop();
@@ -95,6 +98,7 @@ public class MainBotController {
         twirk.addIrcListener(new GenericCommandListener(twirk, twitchApi, streamerUser));
         //twirk.addIrcListener(new ModListener(twirk));
         twirk.addIrcListener(new LeaderboardListener(twirk, twitchApi));
+        twirk.addIrcListener(new MinecraftListener(twirk));
         twirk.addIrcListener(new QuoteListener(twirk));
         twirk.addIrcListener(predsGuessListener);
         twirk.addIrcListener(new PredsManagerListener(twirk, twitchApi, predsGuessListener));
