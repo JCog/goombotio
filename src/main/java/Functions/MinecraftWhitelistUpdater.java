@@ -8,6 +8,7 @@ import Util.TwitchApi;
 import com.github.twitch4j.helix.domain.Subscription;
 import com.github.twitch4j.helix.domain.User;
 import com.jcraft.jsch.*;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -40,7 +41,14 @@ public class MinecraftWhitelistUpdater {
             @Override
             public void run() {
                 JSONArray currentWhitelist = readInWhitelist();
-                JSONArray newWhitelist = createWhitelist();
+                JSONArray newWhitelist;
+                try {
+                    newWhitelist = createWhitelist();
+                }
+                catch (HystrixRuntimeException e) {
+                    System.out.println("ERROR: unable to fetch sub list for Minecraft whitelist. Skipping interval");
+                    return;
+                }
                 if (!whitelistsEqual(currentWhitelist, newWhitelist)) {
                     updateLocalWhitelist(newWhitelist);
                     updateRemoteWhitelist();
@@ -66,7 +74,7 @@ public class MinecraftWhitelistUpdater {
         return new JSONArray();
     }
 
-    private JSONArray createWhitelist() {
+    private JSONArray createWhitelist() throws HystrixRuntimeException {
         List<Subscription> subList = twitchApi.getSubList(streamerUser.getId());
         ArrayList<MinecraftUser> whitelist = new ArrayList<>();
         for (Subscription sub : subList) {
