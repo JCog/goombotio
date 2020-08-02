@@ -49,6 +49,14 @@ public class GenericCommandListener extends CommandBase {
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         CommandItem commandItem = commandDb.getCommandItem(command);
+        if (message.getContent().matches(".*\\$\\(.*\\).*")) {
+            System.out.println(String.format(
+                    "Ignoring user (%s) attempt at custom variable: %s",
+                    sender.getDisplayName(),
+                    message.getContent()
+            ));
+            return;
+        }
         if (commandItem != null && userHasPermission(sender, commandItem) && !cooldownActive(commandItem)) {
             twirk.channelMessage(commandParser.parse(commandItem, sender, message));
             startCooldown(commandItem);

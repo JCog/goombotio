@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CommandParser {
@@ -60,7 +61,10 @@ public class CommandParser {
         String expression = getNextExpression(output);
         while (!expression.isEmpty()) {
             String replacement = evaluateExpression(expression, commandItem, user, twitchMessage);
-            output = output.replaceFirst(Pattern.quote("$(" + expression + ")"), replacement);
+            output = output.replaceFirst(
+                    Pattern.quote("$(" + expression + ")"),
+                    Matcher.quoteReplacement(replacement)
+            );
             expression = getNextExpression(output);
         }
         return output;
