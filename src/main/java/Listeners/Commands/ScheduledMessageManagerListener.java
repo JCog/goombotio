@@ -83,7 +83,7 @@ public class ScheduledMessageManagerListener extends CommandBase {
                     showError("no content");
                     return;
                 }
-                twirk.channelMessage(socialSchedulerDb.addMessage(idString, content));
+                twirk.channelMessage(socialSchedulerDb.addMessage(idString, content, 1));
                 break;
             case EDIT:
                 if (!hasContent) {

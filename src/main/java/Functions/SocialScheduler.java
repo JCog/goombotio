@@ -1,5 +1,6 @@
 package Functions;
 
+import Database.Entries.ScheduledMessage;
 import Database.Misc.SocialSchedulerDb;
 import Util.TwirkInterface;
 import Util.TwitchApi;
@@ -87,14 +88,14 @@ public class SocialScheduler {
     }
     
     private void postRandomMsg() {
-        ArrayList<String > messages = socialSchedulerDb.getAllMessages();
+        ArrayList<ScheduledMessage> messages = socialSchedulerDb.getAllMessages();
         
         int index = random.nextInt(messages.size());
         while(index == previousIndex) {
             index = random.nextInt(messages.size());
         }
         
-        twirk.channelMessage(messages.get(index));
+        twirk.channelMessage(messages.get(index).getMessage());
         previousIndex = index;
     }
 
