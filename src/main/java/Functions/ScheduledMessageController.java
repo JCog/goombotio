@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class SocialScheduler {
+public class ScheduledMessageController {
 
     private final SocialSchedulerDb socialSchedulerDb = SocialSchedulerDb.getInstance();
     private final AnyMessageListener anyMessageListener = new AnyMessageListener();
@@ -39,7 +39,7 @@ public class SocialScheduler {
      * @param twirk chat interface
      * @param intervalLength minutes between posts
      */
-    public SocialScheduler(TwirkInterface twirk, TwitchApi twitchApi, User botUser, int intervalLength) {
+    public ScheduledMessageController(TwirkInterface twirk, TwitchApi twitchApi, User botUser, int intervalLength) {
         this.twirk = twirk;
         this.twitchApi = twitchApi;
         this.botUser = botUser;

@@ -41,14 +41,14 @@ public class MainBotController {
     private final TwirkInterface twirk = new TwirkInterface(chatLogger, botUser);
     private final CloudListener cloudListener = new CloudListener(twirk);
     private final StreamTracker streamTracker = new StreamTracker(twirk, twitchApi, streamerUser, cloudListener);
-    private final SocialScheduler socialScheduler = new SocialScheduler(twirk, twitchApi, botUser, SOCIAL_INTERVAL_LENGTH);
+    private final ScheduledMessageController scheduledMessageController = new ScheduledMessageController(twirk, twitchApi, botUser, SOCIAL_INTERVAL_LENGTH);
     private final FollowLogger followLogger = new FollowLogger(twitchApi, streamTracker, streamerUser);
     private final ViewerQueueManager viewerQueueManager = new ViewerQueueManager(twirk);
     private final MinecraftWhitelistUpdater minecraftWhitelistUpdater = new MinecraftWhitelistUpdater(twitchApi, streamerUser);
     
     public synchronized void run() {
         discordBotController.init();
-        socialScheduler.start();
+        scheduledMessageController.start();
         followLogger.start();
         addAllListeners();
         twirk.connect();
@@ -76,7 +76,7 @@ public class MainBotController {
     public void closeAll() {
         minecraftWhitelistUpdater.stop();
         streamTracker.stop();
-        socialScheduler.stop();
+        scheduledMessageController.stop();
         followLogger.stop();
         GoombotioDb.getInstance().close();
         chatLogger.close();
@@ -114,7 +114,7 @@ public class MainBotController {
         twirk.addIrcListener(new EmoteListener());
         twirk.addIrcListener(new LinkListener(twirk, twitchApi, twitter));
         twirk.addIrcListener(new PyramidListener(twirk));
-        twirk.addIrcListener(socialScheduler.getListener());
+        twirk.addIrcListener(scheduledMessageController.getListener());
         twirk.addIrcListener(new SubListener(twirk));
     }
     
