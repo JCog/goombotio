@@ -92,7 +92,7 @@ public class SocialSchedulerDb extends CollectionBase {
             Document doc = result.next();
             String id = doc.getString(ID_KEY);
             String message = doc.getString(MESSAGE_KEY);
-            int weight = doc.getInteger(WEIGHT_KEY) == null ? doc.getInteger(WEIGHT_KEY) : 1;
+            int weight = doc.getInteger(WEIGHT_KEY) == null ? 1 : doc.getInteger(WEIGHT_KEY);
             messages.add(new ScheduledMessage(id, message, weight));
         }
         return messages;

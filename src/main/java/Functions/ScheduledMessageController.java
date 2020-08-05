@@ -32,7 +32,7 @@ public class ScheduledMessageController {
     
     private boolean running;
     private boolean activeChat;
-    private int previousIndex = -1;
+    private String previousId = "";
     
     /**
      * Schedules random social media plugs on a set interval
@@ -88,15 +88,19 @@ public class ScheduledMessageController {
     }
     
     private void postRandomMsg() {
-        ArrayList<ScheduledMessage> messages = socialSchedulerDb.getAllMessages();
-        
-        int index = random.nextInt(messages.size());
-        while(index == previousIndex) {
-            index = random.nextInt(messages.size());
+        //there's definitely a more memory-efficient way to do this, but eh
+        ArrayList<ScheduledMessage> choices = new ArrayList<>();
+        for (ScheduledMessage message : socialSchedulerDb.getAllMessages()) {
+            if (!message.getId().equals(previousId)) {
+                for (int i = 0; i < message.getWeight(); i++) {
+                    choices.add(message);
+                }
+            }
         }
         
-        twirk.channelMessage(messages.get(index).getMessage());
-        previousIndex = index;
+        int selection = random.nextInt(choices.size());
+        twirk.channelMessage(choices.get(selection).getMessage());
+        previousId = choices.get(selection).getId();
     }
 
     private void scheduleSocialMessages() {
