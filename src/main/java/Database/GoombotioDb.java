@@ -1,9 +1,16 @@
 package Database;
 
-import com.mongodb.MongoClient;
+import Util.Settings;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+
+import java.util.Collections;
 
 public class GoombotioDb {
 
@@ -15,7 +22,20 @@ public class GoombotioDb {
     private final MongoDatabase mongoDatabase;
 
     private GoombotioDb() {
-        mongoClient = new MongoClient();
+        MongoCredential credential = MongoCredential.createCredential(
+                Settings.getDbUser(),
+                DATABASE_NAME,
+                Settings.getDbPassword().toCharArray()
+        );
+        mongoClient = MongoClients.create(
+                MongoClientSettings.builder()
+                        .applyToClusterSettings(builder ->
+                                builder.hosts(Collections.singletonList(
+                                        new ServerAddress(Settings.getDbHost(), Settings.getDbPort())
+                                )))
+                        .credential(credential)
+                        .build()
+        );
         mongoDatabase = mongoClient.getDatabase(DATABASE_NAME);
     }
 
