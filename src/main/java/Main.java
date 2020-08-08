@@ -1,3 +1,4 @@
+import Database.GoombotioDb;
 import Util.Settings;
 
 import static java.lang.System.exit;
@@ -7,6 +8,12 @@ public class Main {
     public static void main(String[] args) {
         out.println("Starting...");
         Settings.init();
+        GoombotioDb.getInstance().init(
+                Settings.getDbHost(),
+                Settings.getDbPort(),
+                Settings.getDbUser(),
+                Settings.getDbPassword()
+        );
         MainBotController mainBotController = new MainBotController();
         
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

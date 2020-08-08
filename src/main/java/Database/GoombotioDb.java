@@ -1,6 +1,5 @@
 package Database;
 
-import Util.Settings;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
@@ -17,21 +16,25 @@ public class GoombotioDb {
     private static final String DATABASE_NAME = "goombotio";
 
     private static GoombotioDb goombotioDb = null;
-    
-    private final MongoClient mongoClient;
-    private final MongoDatabase mongoDatabase;
+
+    private MongoClient mongoClient;
+    private MongoDatabase mongoDatabase;
 
     private GoombotioDb() {
+
+    }
+
+    public void init(String host, int port, String user, String password) {
         MongoCredential credential = MongoCredential.createCredential(
-                Settings.getDbUser(),
+                user,
                 DATABASE_NAME,
-                Settings.getDbPassword().toCharArray()
+                password.toCharArray()
         );
         mongoClient = MongoClients.create(
                 MongoClientSettings.builder()
                         .applyToClusterSettings(builder ->
                                 builder.hosts(Collections.singletonList(
-                                        new ServerAddress(Settings.getDbHost(), Settings.getDbPort())
+                                        new ServerAddress(host, port)
                                 )))
                         .credential(credential)
                         .build()

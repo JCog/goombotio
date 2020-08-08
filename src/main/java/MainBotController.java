@@ -78,11 +78,11 @@ public class MainBotController {
         streamTracker.stop();
         scheduledMessageController.stop();
         followLogger.stop();
-        GoombotioDb.getInstance().close();
         chatLogger.close();
         twitchClient.close();
         twirk.close();
         discordBotController.close();
+        GoombotioDb.getInstance().close();
     }
     
     private void addAllListeners() {
