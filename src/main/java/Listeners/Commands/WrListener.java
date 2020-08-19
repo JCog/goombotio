@@ -14,6 +14,7 @@ import static APIs.SpeedrunApi.*;
 
 public class WrListener extends CommandBase {
 
+    private static final String GAME_ID_BUG_FABLES = "511735";
     private static final String GAME_ID_SUNSHINE = "6086";
     private static final String GAME_ID_PAPER_MARIO = "18231";
     private static final String GAME_ID_TTYD = "6855";
@@ -62,6 +63,25 @@ public class WrListener extends CommandBase {
         }
         String wrText = "Unknown WR";
         switch (gameId) {
+            case GAME_ID_BUG_FABLES:
+                if (streamTitle.contains("100%") || streamTitle.contains("hundo") || streamTitle.contains("\uD83D\uDCAF")){
+                    wrText = getWr(SpeedrunApi.Game.BUG_FABLES, BugFablesCategory.HUNDO);
+                } else if (streamTitle.contains("glitchless")) {
+                    wrText = getWr(SpeedrunApi.Game.BUG_FABLES, BugFablesCategory.GLITCHLESS);
+                } else if (streamTitle.contains("bosses")) {
+                    wrText = getWr(SpeedrunApi.Game.BUG_FABLES, BugFablesCategory.ALL_BOSSES);
+                } else if (streamTitle.contains("chapters")) {
+                    wrText = getWr(SpeedrunApi.Game.BUG_FABLES, BugFablesCategory.ALL_CHAPTERS);
+                } else if (streamTitle.contains("mystery")) {
+                    wrText = getWr(SpeedrunApi.Game.BUG_FABLES, BugFablesCategory.ANY_MYSTERY);
+                } else if (streamTitle.contains("codes")) {
+                    wrText = getWr(SpeedrunApi.Game.BUG_FABLES, BugFablesCategory.ANY_ALL_CODES);
+                } else if (streamTitle.contains("dll")) {
+                    wrText = getWr(SpeedrunApi.Game.BUG_FABLES, BugFablesCategory.ANY_DLL);
+                } else {
+                    wrText = getWr(SpeedrunApi.Game.BUG_FABLES, BugFablesCategory.ANY_PERCENT);
+                }
+                break;
             case GAME_ID_SUNSHINE:
                 if (streamTitle.contains("any%")) {
                     wrText = getWr(SpeedrunApi.Game.SUNSHINE, SunshineCategory.ANY_PERCENT);
