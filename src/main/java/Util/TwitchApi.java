@@ -59,26 +59,20 @@ public class TwitchApi {
     }
     
     public List<Follow> getFollowers(String userId) throws HystrixRuntimeException {
-        FollowList followList = twitchClient.getHelix().getFollowers(
-                Settings.getTwitchChannelAuthToken(),
-                null,
-                userId,
-                null,
-                100
-        ).execute();
-        
-        List<Follow> followsOutput = new ArrayList<>(followList.getFollows());
-        
-        while (!followList.getFollows().isEmpty()) {
-            followList = twitchClient.getHelix().getFollowers(
+        String cursor = null;
+        List<Follow> followsOutput = new ArrayList<>();
+
+        do {
+            FollowList followList = twitchClient.getHelix().getFollowers(
                     Settings.getTwitchChannelAuthToken(),
                     null,
                     userId,
-                    followList.getPagination().getCursor(),
+                    cursor,
                     100
             ).execute();
+            cursor = followList.getPagination().getCursor();
             followsOutput.addAll(followList.getFollows());
-        }
+        } while (cursor != null);
         return followsOutput;
     }
     
@@ -95,25 +89,20 @@ public class TwitchApi {
     }
 
     public List<Moderator> getMods(String userId) throws HystrixRuntimeException {
-        ModeratorList moderatorList = twitchClient.getHelix().getModerators(
-                Settings.getTwitchChannelAuthToken(),
-                userId,
-                null,
-                null
-        ).execute();
+        String cursor = null;
+        List<Moderator> modsOutput = new ArrayList<>();
 
-        //I have no idea why it's called getSubscriptions and not getModerators
-        List<Moderator> modsOutput = new ArrayList<>(moderatorList.getSubscriptions());
-
-        while (!moderatorList.getSubscriptions().isEmpty() && moderatorList.getPagination().getCursor() != null) {
-            moderatorList = twitchClient.getHelix().getModerators(
+        do {
+            ModeratorList moderatorList = twitchClient.getHelix().getModerators(
                     Settings.getTwitchChannelAuthToken(),
                     userId,
                     null,
-                    moderatorList.getPagination().getCursor()
+                    cursor
             ).execute();
+            cursor = moderatorList.getPagination().getCursor();
+            //I have no idea why it's called getSubscriptions and not getModerators
             modsOutput.addAll(moderatorList.getSubscriptions());
-        }
+        } while (cursor != null);
         return modsOutput;
     }
     
@@ -135,26 +124,20 @@ public class TwitchApi {
     }
 
     public List<Subscription> getSubList(String userId) throws HystrixRuntimeException {
-        SubscriptionList subscriptionList = twitchClient.getHelix().getSubscriptions(
-                Settings.getTwitchChannelAuthToken(),
-                userId,
-                null,
-                null,
-                100
-        ).execute();
+        String cursor = null;
+        List<Subscription> subscriptionsOutput = new ArrayList<>();
 
-        List<Subscription> subscriptionsOutput = new ArrayList<>(subscriptionList.getSubscriptions());
-
-        while (!subscriptionList.getSubscriptions().isEmpty()) {
-            subscriptionList = twitchClient.getHelix().getSubscriptions(
+        do {
+            SubscriptionList subscriptionList = twitchClient.getHelix().getSubscriptions(
                     Settings.getTwitchChannelAuthToken(),
                     userId,
-                    subscriptionList.getPagination().getCursor(),
+                    cursor,
                     null,
                     100
             ).execute();
+            cursor = subscriptionList.getPagination().getCursor();
             subscriptionsOutput.addAll(subscriptionList.getSubscriptions());
-        }
+        } while (cursor != null);
         return subscriptionsOutput;
     }
     
