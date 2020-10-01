@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public abstract class CommandBase implements TwirkListener {
     
@@ -31,12 +33,15 @@ public abstract class CommandBase implements TwirkListener {
     private final Set<String> commandPattern;
     private final CommandType commandType;
     private final int cooldownLength;
+
+    final ScheduledExecutorService scheduler;
     
     private final TwitchUserLevel.USER_LEVEL minPrivilege;
     private boolean coolingDown;
 
-    protected CommandBase(CommandType commandType) {
+    protected CommandBase(CommandType commandType, ScheduledExecutorService scheduler) {
         this.commandType = commandType;
+        this.scheduler = scheduler;
         commandPattern = compileCommandPattern();
         minPrivilege = getMinUserPrivilege();
         cooldownLength = getCooldownLength();
@@ -106,9 +111,9 @@ public abstract class CommandBase implements TwirkListener {
             return;
         }
         coolingDown = true;
-        Timer cooldownTimer = new Timer(cooldownLength, e -> coolingDown = false);
-        cooldownTimer.setRepeats(false);
-        cooldownTimer.start();
+        scheduler.schedule(() -> {
+            coolingDown = false;
+        }, cooldownLength, TimeUnit.MILLISECONDS);
     }
 
     public abstract String getCommandWords();

@@ -27,6 +27,7 @@ public class ScheduledMessageController {
     
     private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
+    private final ScheduledExecutorService scheduler;
     private final User botUser;
     private final int intervalLength;
     
@@ -39,9 +40,16 @@ public class ScheduledMessageController {
      * @param twirk chat interface
      * @param intervalLength minutes between posts
      */
-    public ScheduledMessageController(TwirkInterface twirk, TwitchApi twitchApi, User botUser, int intervalLength) {
+    public ScheduledMessageController(
+            TwirkInterface twirk,
+            TwitchApi twitchApi,
+            ScheduledExecutorService scheduler,
+            User botUser,
+            int intervalLength
+    ) {
         this.twirk = twirk;
         this.twitchApi = twitchApi;
+        this.scheduler = scheduler;
         this.botUser = botUser;
         this.intervalLength = intervalLength;
         running = false;
@@ -109,8 +117,7 @@ public class ScheduledMessageController {
         int minutesToAdd = intervalLength - (currentMinute % intervalLength);
         LocalDateTime nextInterval = now.plusMinutes(minutesToAdd);
 
-        ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
-        ses.schedule(this::socialLoop, now.until(nextInterval, ChronoUnit.MILLIS), TimeUnit.MILLISECONDS);
+        scheduler.schedule(this::socialLoop, now.until(nextInterval, ChronoUnit.MILLIS), TimeUnit.MILLISECONDS);
     }
 
     private class AnyMessageListener implements TwirkListener {

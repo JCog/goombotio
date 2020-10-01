@@ -12,31 +12,41 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class FollowLogger {
     private static final String FILENAME = "follows.log";
     private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    private static final int INTERVAL = 5 * 60 * 1000; //5 minutes
-    
-    private final Timer timer = new Timer();
+    private static final int INTERVAL = 5; //minutes
+
     private final WatchTimeDb watchTimeDb = WatchTimeDb.getInstance();
     private final TwitchApi twitchApi;
     private final StreamTracker streamTracker;
     private final User streamerUser;
+    private final ScheduledExecutorService scheduler;
     
     private HashSet<String> oldFollowerIdList;
     private PrintWriter writer;
+    private ScheduledFuture<?> scheduledFuture;
     
-    public FollowLogger(TwitchApi twitchApi, StreamTracker streamTracker, User streamerUser) {
+    public FollowLogger(
+            TwitchApi twitchApi,
+            StreamTracker streamTracker,
+            User streamerUser,
+            ScheduledExecutorService scheduler
+    ) {
         this.twitchApi = twitchApi;
         this.streamTracker = streamTracker;
         this.streamerUser = streamerUser;
+        this.scheduler = scheduler;
         try {
             oldFollowerIdList = fetchFollowerIds();
         }
         catch (HystrixRuntimeException e) {
             e.printStackTrace();
-            System.out.println(String.format("Error retrieving initial follower list. Trying again in %dms", INTERVAL));
+            System.out.println(String.format("Error retrieving initial follower list. Trying again in %dmin", INTERVAL));
             oldFollowerIdList = null;
         }
 
@@ -54,7 +64,7 @@ public class FollowLogger {
     }
     
     public void start() {
-        timer.schedule(new TimerTask() {
+        scheduledFuture = scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 HashSet<String> updatedFollowerIds;
@@ -140,11 +150,11 @@ public class FollowLogger {
                 writer.flush();
                 oldFollowerIdList = updatedFollowerIds;
             }
-        }, 0, INTERVAL);
+        }, 0, INTERVAL, TimeUnit.MINUTES);
     }
     
     public void stop() {
-        timer.cancel();
+        scheduledFuture.cancel(false);
         writer.close();
     }
     

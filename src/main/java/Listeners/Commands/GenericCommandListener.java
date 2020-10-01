@@ -11,8 +11,9 @@ import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.User;
 
 import java.util.HashSet;
-import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GenericCommandListener extends CommandBase {
 
@@ -25,8 +26,13 @@ public class GenericCommandListener extends CommandBase {
     private final HashSet<String> activeCooldowns = new HashSet<>();
     
 
-    public GenericCommandListener(TwirkInterface twirk, TwitchApi twitchApi, User streamerUser) {
-        super(CommandType.GENERIC_COMMAND);
+    public GenericCommandListener(
+            ScheduledExecutorService scheduler,
+            TwirkInterface twirk,
+            TwitchApi twitchApi,
+            User streamerUser
+    ) {
+        super(CommandType.GENERIC_COMMAND, scheduler);
         this.twirk = twirk;
         this.commandParser = new CommandParser(twitchApi, streamerUser);
     }
@@ -73,12 +79,12 @@ public class GenericCommandListener extends CommandBase {
         }
         
         activeCooldowns.add(commandItem.getId());
-        new Timer().schedule(new TimerTask() {
+        scheduler.schedule(new TimerTask() {
             @Override
             public void run() {
                 activeCooldowns.remove(commandItem.getId());
             }
-        }, commandItem.getCooldown());
+        }, commandItem.getCooldown(), TimeUnit.MILLISECONDS);
     }
     
     private boolean cooldownActive(CommandItem commandItem) {

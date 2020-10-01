@@ -8,8 +8,8 @@ import com.gikk.twirk.types.users.TwitchUser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
@@ -17,12 +17,13 @@ import static java.lang.System.out;
 public class SubListener implements TwirkListener {
     
     private final TwirkInterface twirk;
+    private final ScheduledExecutorService scheduler;
+    private final HashMap<String, Boolean> subTimersActive;
+    private final HashMap<String, ArrayList<String>> giftedSubs;
     
-    private HashMap<String, Boolean> subTimersActive;
-    private HashMap<String, ArrayList<String>> giftedSubs;
-    
-    public SubListener(TwirkInterface twirk){
+    public SubListener(TwirkInterface twirk, ScheduledExecutorService scheduler){
         this.twirk = twirk;
+        this.scheduler = scheduler;
         subTimersActive = new HashMap<>();
         giftedSubs = new HashMap<>();
     }
@@ -41,17 +42,17 @@ public class SubListener implements TwirkListener {
                 
                 if (subTimersActive.get(gifterName) == null || !subTimersActive.get(gifterName)) {
                     subTimersActive.put(gifterName, true);
-                    new Timer().schedule(new TimerTask() {
+                    scheduler.schedule(new TimerTask() {
                         
                         @Override
                         public void run() {
                             int subCount = giftedSubs.get(gifterName).size();
                             try {
-                                TimeUnit.MILLISECONDS.sleep(500);
+                                TimeUnit.SECONDS.sleep(1);
                                 int updatedSubCount = giftedSubs.get(gifterName).size();
                                 while (subCount != updatedSubCount) {
                                     subCount = updatedSubCount;
-                                    TimeUnit.MILLISECONDS.sleep(500);
+                                    TimeUnit.SECONDS.sleep(1);
                                     updatedSubCount = giftedSubs.get(gifterName).size();
                                 }
                             } catch (InterruptedException e) {
@@ -67,7 +68,7 @@ public class SubListener implements TwirkListener {
                             giftedSubs.remove(gifterName);
                             subTimersActive.put(gifterName, false);
                         }
-                    }, 0);
+                    }, 0, TimeUnit.SECONDS);
                 }
             }
             else {

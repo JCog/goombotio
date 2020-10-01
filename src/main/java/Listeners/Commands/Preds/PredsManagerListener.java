@@ -13,6 +13,8 @@ import com.github.twitch4j.helix.domain.Game;
 import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 import static java.lang.System.out;
 
 public class PredsManagerListener extends CommandBase {
@@ -27,8 +29,13 @@ public class PredsManagerListener extends CommandBase {
     
     private PredsManagerBase predsManager;
 
-    public PredsManagerListener(TwirkInterface twirk, TwitchApi twitchApi, PredsGuessListener predsGuessListener) {
-        super(CommandType.PREFIX_COMMAND);
+    public PredsManagerListener(
+            ScheduledExecutorService scheduler,
+            TwirkInterface twirk,
+            TwitchApi twitchApi,
+            PredsGuessListener predsGuessListener
+    ) {
+        super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
         this.twitchApi = twitchApi;
         this.predsGuessListener = predsGuessListener;

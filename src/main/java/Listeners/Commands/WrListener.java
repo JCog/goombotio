@@ -10,6 +10,8 @@ import com.github.twitch4j.helix.domain.Game;
 import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 import static APIs.SpeedrunApi.*;
 
 public class WrListener extends CommandBase {
@@ -23,8 +25,8 @@ public class WrListener extends CommandBase {
     private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
 
-    public WrListener(TwirkInterface twirk, TwitchApi twitchApi) {
-        super(CommandType.PREFIX_COMMAND);
+    public WrListener(ScheduledExecutorService scheduler, TwirkInterface twirk, TwitchApi twitchApi) {
+        super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
         this.twitchApi = twitchApi;
     }

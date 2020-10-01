@@ -10,6 +10,7 @@ import com.gikk.twirk.types.users.TwitchUser;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class WatchTimeListener extends CommandBase {
@@ -21,8 +22,8 @@ public class WatchTimeListener extends CommandBase {
     private final StreamTracker streamTracker;
     private final WatchTimeDb watchTimeDb;
     
-    public WatchTimeListener(TwirkInterface twirk, StreamTracker streamTracker) {
-        super(CommandType.PREFIX_COMMAND);
+    public WatchTimeListener(ScheduledExecutorService scheduler, TwirkInterface twirk, StreamTracker streamTracker) {
+        super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
         this.streamTracker = streamTracker;
         watchTimeDb = WatchTimeDb.getInstance();

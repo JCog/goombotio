@@ -8,6 +8,7 @@ import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 
 import java.util.ArrayList;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class MinecraftListener extends CommandBase {
     private static final String PATTERN = "!minecraft";
@@ -16,8 +17,8 @@ public class MinecraftListener extends CommandBase {
     private final MinecraftUserDb minecraftUserDb = MinecraftUserDb.getInstance();
     private final TwirkInterface twirk;
 
-    public MinecraftListener(TwirkInterface twirk) {
-        super(CommandType.PREFIX_COMMAND);
+    public MinecraftListener(ScheduledExecutorService scheduler, TwirkInterface twirk) {
+        super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
     }
 

@@ -9,6 +9,7 @@ import com.gikk.twirk.types.users.TwitchUser;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class QuoteListener extends CommandBase {
     
@@ -25,8 +26,8 @@ public class QuoteListener extends CommandBase {
     private final QuoteDb quoteDb;
     private final Random random;
     
-    public QuoteListener(TwirkInterface twirk) {
-        super(CommandType.PREFIX_COMMAND);
+    public QuoteListener(ScheduledExecutorService scheduler, TwirkInterface twirk) {
+        super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
         quoteDb = QuoteDb.getInstance();
         random = new Random();

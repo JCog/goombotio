@@ -6,6 +6,8 @@ import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 public class ScheduledMessageManagerListener extends CommandBase {
     private final String PATTERN = "!scheduled";
     
@@ -18,8 +20,8 @@ public class ScheduledMessageManagerListener extends CommandBase {
         DELETE
     }
     
-    public ScheduledMessageManagerListener(TwirkInterface twirk) {
-        super(CommandType.PREFIX_COMMAND);
+    public ScheduledMessageManagerListener(ScheduledExecutorService scheduler, TwirkInterface twirk) {
+        super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
     }
     

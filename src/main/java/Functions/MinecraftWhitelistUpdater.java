@@ -18,26 +18,31 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class MinecraftWhitelistUpdater {
     private static final String FILENAME = "whitelist.json";
-    private static final int INTERVAL = 60 * 1000;
+    private static final int INTERVAL = 1; //minutes
 
     private final JSch jsch = new JSch();
     private final MinecraftUserDb minecraftUserDb = MinecraftUserDb.getInstance();
-    private final Timer timer = new Timer();
     private final TwitchApi twitchApi;
     private final User streamerUser;
+    private final ScheduledExecutorService scheduler;
 
-    public MinecraftWhitelistUpdater(TwitchApi twitchApi, User streamerUser) {
+    private ScheduledFuture<?> scheduledFuture;
+
+    public MinecraftWhitelistUpdater(TwitchApi twitchApi, User streamerUser, ScheduledExecutorService scheduler) {
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
+        this.scheduler = scheduler;
     }
 
     public void start() {
-        timer.schedule(new TimerTask() {
+        scheduledFuture = scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 JSONArray currentWhitelist = readInWhitelist();
@@ -54,11 +59,11 @@ public class MinecraftWhitelistUpdater {
                     updateRemoteWhitelist();
                 }
             }
-        }, 0, INTERVAL);
+        }, 0, INTERVAL, TimeUnit.MINUTES);
     }
 
     public void stop() {
-        timer.cancel();
+        scheduledFuture.cancel(false);
     }
 
     private JSONArray readInWhitelist() {

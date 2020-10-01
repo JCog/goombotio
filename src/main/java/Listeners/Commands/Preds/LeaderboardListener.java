@@ -14,6 +14,7 @@ import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.util.ArrayList;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class LeaderboardListener extends CommandBase {
     private static final String PREDS_MESSAGE_PAPE = "Guess the badge locations in the badge shop! Get 1 point for one badge (or if you have them all but in the wrong locations), 5 for two badges, and 20 if you get all three correct! Use !leaderboard to see the top scores this month and !points to see how many points you have. If you get all three and aren't subscribed to the channel, JCog will gift you a sub, and at the end of every month, the top five scorers will be given a VIP badge for the next month, so get guessing!";
@@ -33,8 +34,8 @@ public class LeaderboardListener extends CommandBase {
     
     private PredsLeaderboard leaderboard;
 
-    public LeaderboardListener(TwirkInterface twirk, TwitchApi twitchApi) {
-        super(CommandType.PREFIX_COMMAND);
+    public LeaderboardListener(ScheduledExecutorService scheduler, TwirkInterface twirk, TwitchApi twitchApi) {
+        super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
         this.twitchApi = twitchApi;
         updateLeaderboardType();

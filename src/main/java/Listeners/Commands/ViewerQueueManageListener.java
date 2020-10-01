@@ -8,6 +8,7 @@ import com.gikk.twirk.types.users.TwitchUser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static java.lang.System.out;
 
@@ -21,8 +22,12 @@ public class ViewerQueueManageListener extends CommandBase {
     private final ViewerQueueManager viewerQueueManager;
     private final ViewerQueueJoinListener joinListener;
     
-    public ViewerQueueManageListener(ViewerQueueManager viewerQueueManager, ViewerQueueJoinListener joinListener) {
-        super(CommandType.EXACT_MATCH_COMMAND);
+    public ViewerQueueManageListener(
+            ScheduledExecutorService scheduler,
+            ViewerQueueManager viewerQueueManager,
+            ViewerQueueJoinListener joinListener
+    ) {
+        super(CommandType.EXACT_MATCH_COMMAND, scheduler);
         this.viewerQueueManager = viewerQueueManager;
         this.joinListener = joinListener;
     }

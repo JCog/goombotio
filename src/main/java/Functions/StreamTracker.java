@@ -11,27 +11,36 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Scanner;
-import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class StreamTracker {
     private static final String BLACKLIST_FILENAME = "blacklist.txt";
-    private static final int INTERVAL = 60 * 1000;
-    
-    private final Timer timer = new Timer();
+    private static final int INTERVAL = 1; //minutes
+
     private final HashSet<String> blacklist = blacklistInit();
     
     private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
     private final User streamerUser;
+    private final ScheduledExecutorService scheduler;
     private final CloudListener cloudListener;
     
     private StreamData streamData;
+    private ScheduledFuture<?> scheduledFuture;
     
-    public StreamTracker(TwirkInterface twirk, TwitchApi twitchApi, User streamerUser, CloudListener cloudListener) {
+    public StreamTracker(TwirkInterface twirk,
+                         TwitchApi twitchApi,
+                         User streamerUser,
+                         ScheduledExecutorService scheduler,
+                         CloudListener cloudListener
+    ) {
         this.twirk = twirk;
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
+        this.scheduler = scheduler;
         this.cloudListener = cloudListener;
         
         streamData = null;
@@ -39,7 +48,7 @@ public class StreamTracker {
     
     public void start() {
         
-        timer.schedule(new TimerTask() {
+        scheduledFuture = scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 Stream stream;
@@ -76,11 +85,11 @@ public class StreamTracker {
                     }
                 }
             }
-        }, 0, INTERVAL);
+        }, 0, INTERVAL, TimeUnit.MINUTES);
     }
     
     public void stop() {
-        timer.cancel();
+        scheduledFuture.cancel(false);
         if (streamData != null) {
             streamData.endStream();
             ReportBuilder.generateReport(streamData);

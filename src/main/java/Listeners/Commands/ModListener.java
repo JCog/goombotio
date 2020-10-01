@@ -5,13 +5,15 @@ import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 public class ModListener extends CommandBase {
 
     private final static String PATTERN = "crashes paper mario";
     private final TwirkInterface twirk;
 
-    public ModListener(TwirkInterface twirk) {
-        super(CommandType.CONTENT_COMMAND);
+    public ModListener(ScheduledExecutorService scheduler, TwirkInterface twirk) {
+        super(CommandType.CONTENT_COMMAND, scheduler);
         this.twirk = twirk;
     }
 

@@ -9,6 +9,7 @@ import com.gikk.twirk.types.users.TwitchUser;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static Util.TwitchUserLevel.USER_LEVEL;
 
@@ -28,8 +29,8 @@ public class CommandManagerListener extends CommandBase {
         DETAILS
     }
     
-    public CommandManagerListener(TwirkInterface twirk) {
-        super(CommandType.PREFIX_COMMAND);
+    public CommandManagerListener(ScheduledExecutorService scheduler, TwirkInterface twirk) {
+        super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
     }
     
