@@ -23,12 +23,12 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    implementation "com.github.gikkman:Java-Twirk:0.6.1"
+    implementation "com.github.gikkman:Java-Twirk:0.6.2"
     implementation "org.mongodb:mongodb-driver-sync:4.1.0"
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.google.code.gson:gson:2.8.5'
     compile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.25'
-    compile group: 'com.github.twitch4j', name: 'twitch4j', version: '1.0.0-alpha.20'
+    compile group: 'com.github.twitch4j', name: 'twitch4j', version: '1.1.2'
     compile group: 'org.twitter4j', name: 'twitter4j-core', version: '4.0.7'
     compile group: 'org.ini4j', name: 'ini4j', version: '0.5.4'
     compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'

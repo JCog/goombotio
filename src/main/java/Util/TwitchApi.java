@@ -100,8 +100,7 @@ public class TwitchApi {
                     cursor
             ).execute();
             cursor = moderatorList.getPagination().getCursor();
-            //I have no idea why it's called getSubscriptions and not getModerators
-            modsOutput.addAll(moderatorList.getSubscriptions());
+            modsOutput.addAll(moderatorList.getModerators());
         } while (cursor != null);
         return modsOutput;
     }
@@ -112,7 +111,6 @@ public class TwitchApi {
                 "",
                 "",
                 1,
-                null,
                 null,
                 null,
                 null,

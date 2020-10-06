@@ -220,6 +220,7 @@ public class CommandParser {
         }
 
         if(follow != null) {
+            //TODO: convert to getFollowedAtInstant() - https://stackoverflow.com/questions/32437550/whats-the-difference-between-instant-and-localdatetime
             LocalDate followDate = follow.getFollowedAt().toLocalDate();
             LocalDate today = LocalDate.now();
             Period period = Period.between(followDate, today);
