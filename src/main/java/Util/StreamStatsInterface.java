@@ -3,6 +3,7 @@ package Util;
 import Database.Stats.StreamStatsDb;
 import Database.Stats.WatchTimeDb;
 import com.github.twitch4j.helix.domain.User;
+import com.jcog.utils.TwitchApi;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.util.*;

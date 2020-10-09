@@ -2,12 +2,11 @@ package Listeners.Commands;
 
 import APIs.SpeedrunApi;
 import Util.TwirkInterface;
-import Util.TwitchApi;
 import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
-import com.github.twitch4j.helix.domain.Game;
 import com.github.twitch4j.helix.domain.Stream;
+import com.jcog.utils.TwitchApi;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.util.concurrent.ScheduledExecutorService;

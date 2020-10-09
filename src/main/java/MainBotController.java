@@ -9,11 +9,9 @@ import Listeners.Events.*;
 import Util.ChatLogger;
 import Util.Settings;
 import Util.TwirkInterface;
-import Util.TwitchApi;
 import com.gikk.twirk.events.TwirkListener;
-import com.github.twitch4j.TwitchClient;
-import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.helix.domain.User;
+import com.jcog.utils.TwitchApi;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
@@ -34,12 +32,11 @@ public class MainBotController {
     private final Twitter twitter = getTwitterInstance();
     private final DiscordBotController discordBotController = DiscordBotController.getInstance();
     private final ChatLogger chatLogger = new ChatLogger();
-    private final TwitchClient
-            twitchClient = TwitchClientBuilder.builder()
-            .withEnableHelix(true)
-            .withClientId(Settings.getTwitchChannelClientId())
-            .build();
-    private final TwitchApi twitchApi = new TwitchApi(twitchClient);
+    private final TwitchApi twitchApi = new TwitchApi(
+            Settings.getTwitchStream(),
+            Settings.getTwitchChannelAuthToken(),
+            Settings.getTwitchChannelClientId()
+    );
     private final User botUser = twitchApi.getUserByUsername(Settings.getTwitchUsername());
     private final User streamerUser = twitchApi.getUserByUsername(Settings.getTwitchStream());
     private final TwirkInterface twirk = new TwirkInterface(chatLogger, botUser);
@@ -99,7 +96,7 @@ public class MainBotController {
         scheduledMessageController.stop();
         followLogger.stop();
         chatLogger.close();
-        twitchClient.close();
+        twitchApi.close();
         twirk.close();
         discordBotController.close();
         GoombotioDb.getInstance().close();

@@ -2,8 +2,8 @@ package Functions;
 
 import Database.Stats.StreamStatsDb;
 import Database.Stats.WatchTimeDb;
-import Util.TwitchApi;
 import com.github.twitch4j.helix.domain.User;
+import com.jcog.utils.TwitchApi;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.util.*;

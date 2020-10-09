@@ -4,11 +4,11 @@ import Database.Entries.CommandItem;
 import Database.Misc.CommandDb;
 import Util.CommandParser;
 import Util.TwirkInterface;
-import Util.TwitchApi;
 import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.User;
+import com.jcog.utils.TwitchApi;
 
 import java.util.HashSet;
 import java.util.TimerTask;

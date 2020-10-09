@@ -3,9 +3,9 @@ package Functions;
 import Listeners.Events.CloudListener;
 import Util.ReportBuilder;
 import Util.TwirkInterface;
-import Util.TwitchApi;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
+import com.jcog.utils.TwitchApi;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.io.File;
