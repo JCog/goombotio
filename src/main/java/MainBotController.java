@@ -129,6 +129,7 @@ public class MainBotController {
         twirk.addIrcListener(getOnDisconnectListener(twirk));
 
         // Command Listeners
+        twirk.addIrcListener(new BitWarResetListener(scheduler, twirk, dbManager));
         twirk.addIrcListener(new CommandManagerListener(scheduler, twirk, dbManager));
         twirk.addIrcListener(new GenericCommandListener(scheduler, twirk, dbManager, twitchApi, streamerUser));
         //twirk.addIrcListener(new ModListener(scheduler, twirk));
@@ -144,6 +145,7 @@ public class MainBotController {
         twirk.addIrcListener(new WrListener(scheduler, twirk, twitchApi));
 
         // General Listeners
+        twirk.addIrcListener(new BitListener(twirk, dbManager));
         twirk.addIrcListener(new ChatLoggerListener(chatLogger));
         twirk.addIrcListener(cloudListener);
         twirk.addIrcListener(new EmoteListener(dbManager));
