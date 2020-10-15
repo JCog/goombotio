@@ -65,7 +65,7 @@ public class CommandManagerListener extends CommandBase {
         }
 
         if (twirk.getCommandPatterns().contains(idString.toLowerCase())) {
-            showError(String.format("%s is a reserved command id and cannot be modified", idString));
+            showError(String.format("\"%s\" is a reserved command id and cannot be modified", idString));
             return;
         }
 
@@ -164,12 +164,17 @@ public class CommandManagerListener extends CommandBase {
                 break;
             case DETAILS:
                 CommandItem commandItem = commandDb.getCommandItem(idString);
+                if (commandItem == null) {
+                    showError(String.format("unknown command \"%s\"", idString));
+                    return;
+                }
                 twirk.channelMessage(String.format(
                         "\"%s\" -ul=%s -cd=%d",
                         commandItem.getMessage(),
                         commandItem.getPermission(),
                         commandItem.getCooldown()
                 ));
+                break;
         }
     }
 
