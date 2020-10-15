@@ -129,6 +129,9 @@ public class WrListener extends CommandBase {
                 else if (streamTitle.contains("100%")) {
                     wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.HUNDO);
                 }
+                else if (streamTitle.contains("reverse") && streamTitle.contains("all cards")) {
+                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.REVERSE_ALL_CARDS);
+                }
                 else if (streamTitle.contains("pig") || streamTitle.contains("\uD83D\uDC37") || streamTitle.contains("oink")) {
                     wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.PIGGIES);
                 }
@@ -141,16 +144,13 @@ public class WrListener extends CommandBase {
                 else if (streamTitle.contains("soapcake") || streamTitle.contains("soap cake")) {
                     wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.SOAP_CAKE);
                 }
-                else if (streamTitle.contains("reverse") && streamTitle.contains("all cards")) {
-                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.REVERSE_ALL_CARDS);
-                }
                 else if (streamTitle.contains("mailman") || streamTitle.contains("amazon prime")) {
                     wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.MAILMAN);
                 }
                 break;
             case GAME_ID_TTYD:
-                if (streamTitle.contains("any%") && (streamTitle.contains("japanese") || streamTitle.contains("jp"))) {
-                    wrText = getWr(SpeedrunApi.Game.TTYD, TtydCategory.ANY_PERCENT_JP);
+                if (streamTitle.contains("any%")) {
+                    wrText = getWr(SpeedrunApi.Game.TTYD, TtydCategory.ANY_PERCENT);
                 }
                 else if (streamTitle.contains("crystal stars")) {
                     wrText = getWr(SpeedrunApi.Game.TTYD, TtydCategory.ALL_CRYSTAL_STARS);

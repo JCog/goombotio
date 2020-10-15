@@ -40,7 +40,7 @@ public class PapePredsManager extends PredsManagerBase {
      * @param twirk twirk for chat
      */
     public PapePredsManager(TwirkInterface twirk, DbManager dbManager) {
-        super(twirk, dbManager);
+        super(twirk);
         this.dbManager = dbManager;
     }
 

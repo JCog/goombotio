@@ -28,7 +28,7 @@ public class SunshinePredsManager extends PredsManagerBase {
     private final DbManager dbManager;
 
     public SunshinePredsManager(TwirkInterface twirk, DbManager dbManager) {
-        super(twirk, dbManager);
+        super(twirk);
         this.dbManager = dbManager;
     }
 

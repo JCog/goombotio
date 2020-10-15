@@ -15,53 +15,6 @@ public class SpeedrunApi extends BaseAPI {
 
     private static final String TEST_URL = "https://www.speedrun.com/api/v1/leaderboards/o1y9wo6q/category/7dgrrxk4?top=1";
 
-    private static final String GAME_BUG_FABLES = "bug_fables/";
-    private static final String GAME_SUNSHINE = "sms/";
-    private static final String GAME_PAPER_MARIO = "pm64/";
-    private static final String GAME_PAPER_MARIO_MEMES = "pmariomemes/";
-    private static final String GAME_TTYD = "ttyd/";
-
-    private static final String CAT_BUG_FABLES_ANY_PERCENT = "any";
-    private static final String CAT_BUG_FABLES_100 = "100";
-    private static final String CAT_BUG_FABLES_GLITCHLESS = "any_glitchless";
-    private static final String CAT_BUG_FABLES_ALL_BOSSES = "all_bosses";
-    private static final String CAT_BUG_FABLES_ALL_CHAPTERS = "all_chapters";
-    private static final String CAT_BUG_FABLES_ANY_MYSTERY = "any_mystery";
-    private static final String CAT_BUG_FABLES_ANY_ALL_CODES = "any_all_codes";
-    private static final String CAT_BUG_FABLES_ANY_DLL = "any_dll";
-
-    private static final String CAT_SUNSHINE_ANY_PERCENT = "any";
-    private static final String CAT_SUNSHINE_ALL_EPISODES = "all_episodes";
-    private static final String CAT_SUNSHINE_SHINES_79 = "79_shines";
-    private static final String CAT_SUNSHINE_SHINES_96 = "96_shines";
-    private static final String CAT_SUNSHINE_SHINES_120 = "120_shines";
-
-    private static final String CAT_PAPE_ANY_PERCENT = "any";
-    private static final String CAT_PAPE_ANY_NO_PW = "any_no_pw";
-    private static final String CAT_PAPE_ALL_CARDS = "all_cards";
-    private static final String CAT_PAPE_ALL_BOSSES = "all_bosses";
-    private static final String CAT_PAPE_GLITCHLESS = "glitchless";
-    private static final String CAT_PAPE_100 = "100";
-
-    private static final String CAT_PAPE_MEMES_PIGGIES = "5_golden_lil_oinks";
-    private static final String CAT_PAPE_MEMES_ALL_BLOOPS = "all_bloops";
-    private static final String CAT_PAPE_MEMES_ANY_NO_RNG = "any_no_rng";
-    private static final String CAT_PAPE_MEMES_BEAT_CHAPTER_1 = "beat_chapter_1";
-    private static final String CAT_PAPE_MEMES_SOAP_CAKE = "soapcake";
-    private static final String CAT_PAPE_MEMES_REVERSE_ALL_CARDS = "reverse_all_cards";
-    private static final String CAT_PAPE_MEMES_MAILMAN = "mailman";
-
-    private static final String CAT_TTYD_ANY_PERCENT = "any";
-    private static final String CAT_TTYD_ALL_CRYSTAL_STARS = "all_crystal_stars";
-    private static final String CAT_TTYD_100 = "100";
-    private static final String CAT_TTYD_GLITCHLESS = "glitchless";
-    private static final String CAT_TTYD_ALL_COLLECTIBLES = "all_collectibles";
-    private static final String CAT_TTYD_MAX_UPGRADES = "max_upgrades";
-
-    private static final String PLATFORM_PAPE_PLATFORM_N64 = "n64";
-    private static final String PLATFORM_PAPE_PLATFORM_WII = "wiivc";
-    private static final String PLATFORM_PAPE_PLATFORM_WII_U = "wiiuvc";
-
     private static final String DATA_KEY = "data";
     private static final String RUNS_KEY = "runs";
     private static final String RUN_KEY = "run";
@@ -75,73 +28,158 @@ public class SpeedrunApi extends BaseAPI {
     private static final String ERROR_MESSAGE = "The SRC certificate has expired. Tell @JCog to fix it. :)";
 
     public enum Game {
-        BUG_FABLES,
-        SUNSHINE,
-        PAPER_MARIO,
-        PAPER_MARIO_MEMES,
-        TTYD
+        BUG_FABLES("bug_fables/"),
+        SUNSHINE("sms/"),
+        PAPER_MARIO("pm64/"),
+        PAPER_MARIO_MEMES("pm64memes/"),
+        TTYD("ttyd/");
+
+        private final String uri;
+
+        Game(String uri) {
+            this.uri = uri;
+        }
+
+        public String getUri() {
+            return uri;
+        }
     }
 
     public enum BugFablesCategory {
-        ANY_PERCENT,
-        HUNDO,
-        GLITCHLESS,
-        ALL_BOSSES,
-        ALL_CHAPTERS,
-        ANY_MYSTERY,
-        ANY_ALL_CODES,
-        ANY_DLL
+        ANY_PERCENT("Any%", "any"),
+        HUNDO("100%", "100"),
+        GLITCHLESS("Any% Glitchless", "any_glitchless"),
+        ALL_BOSSES("All Bosses", "all_bosses"),
+        ALL_CHAPTERS("All Chapters", "all_chapters"),
+        ANY_MYSTERY("Any% MYSTERY?", "any_mystery"),
+        ANY_ALL_CODES("Any% All Codes", "any_all_codes"),
+        ANY_DLL("Any% dll", "any_dll");
+
+        private final String name;
+        private final String uri;
+
+        BugFablesCategory(String name, String uri) {
+            this.name = name;
+            this.uri = uri;
+        }
+
+        public String getUri() {
+            return uri;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
     public enum SunshineCategory {
-        ANY_PERCENT,
-        ALL_EPISODES,
-        SHINES_79,
-        SHINES_96,
-        SHINES_120
+        ANY_PERCENT("Any%", "any"),
+        ALL_EPISODES("All Episodes", "all_episodes"),
+        SHINES_79("79 Shines", "79_shines"),
+        SHINES_96("96 Shines", "96_shines"),
+        SHINES_120("120 Shines", "120_shines");
+
+        private final String name;
+        private final String uri;
+
+        SunshineCategory(String name, String uri) {
+            this.name = name;
+            this.uri = uri;
+        }
+
+        public String getUri() {
+            return uri;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
     public enum PapeCategory {
-        ANY_PERCENT,
-        ANY_PERCENT_NO_PW,
-        ALL_CARDS,
-        ALL_BOSSES,
-        GLITCHLESS,
-        HUNDO,
-        PIGGIES,
-        ALL_BLOOPS,
-        ANY_NO_RNG,
-        BEAT_CHAPTER_1,
-        SOAP_CAKE,
-        REVERSE_ALL_CARDS,
-        MAILMAN
+        ANY_PERCENT("Any%", "any"),
+        ANY_PERCENT_NO_PW("Any% (No PW)", "any_no_pw"),
+        ALL_CARDS("All Cards", "all_cards"),
+        ALL_BOSSES("All Bosses", "all_bosses"),
+        GLITCHLESS("Glitchless", "glitchless"),
+        REVERSE_ALL_CARDS("Reverse All Cards", "reverse_all_cards"),
+        HUNDO("100%", "100"),
+        PIGGIES("5 Golden Lil' Oinks", "5_golden_lil_oinks"),
+        ALL_BLOOPS("All Bloops", "all_bloops"),
+        ANY_NO_RNG("Any% No RNG", "any_no_rng"),
+        BEAT_CHAPTER_1("Beat Chapter 1", "beat_chapter_1"),
+        SOAP_CAKE("Soap Cake", "soapcake"),
+        MAILMAN("Mailman%", "mailman");
+
+        private final String name;
+        private final String uri;
+
+        PapeCategory(String name, String uri) {
+            this.name = name;
+            this.uri = uri;
+        }
+
+        public String getUri() {
+            return uri;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
     public enum TtydCategory {
-        ANY_PERCENT_JP,
-        ANY_PERCENT_US_PAL,
-        ALL_CRYSTAL_STARS,
-        HUNDO,
-        GLITCHLESS,
-        ALL_COLLECTIBLES,
-        MAX_UPGRADES
+        ANY_PERCENT("Any%", "any"),
+        ALL_CRYSTAL_STARS("All Crystal Stars", "all_crystal_stars"),
+        GLITCHLESS("Glitchless", "glitchless"),
+        HUNDO("100%", "100"),
+        ALL_COLLECTIBLES("All Collectibles", "all_collectibles"),
+        MAX_UPGRADES("Max Upgrades", "max_upgrades");
+
+        private final String name;
+        private final String uri;
+
+        TtydCategory(String name, String uri) {
+            this.name = name;
+            this.uri = uri;
+        }
+
+        public String getUri() {
+            return uri;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
     public enum PapePlatform {
-        N64,
-        WII,
-        WIIU
+        N64("n64"),
+        WII("wiivc"),
+        WIIU("wiiuvc");
+
+        private final String uri;
+
+        PapePlatform(String uri) {
+            this.uri = uri;
+        }
+
+        public String getUri() {
+            return uri;
+        }
     }
 
     public static boolean certificateIsUpToDate() {
         return submitRequest(TEST_URL) != null;
     }
 
-    //TODO: this needs polymorphism BADLY
-
     public static String getWr(Game game, BugFablesCategory category) {
-        String gameString = getGameUrlString(game);
-        String categoryString = getCategoryUrlString(category);
+        String gameString = game.getUri();
+        String categoryString = category.getUri();
 
         String json = getWrJson(gameString, categoryString);
         if (json == null) {
@@ -152,12 +190,12 @@ public class SpeedrunApi extends BaseAPI {
 
         String name = getUsernameFromId(playerId);
         String time = getTimeString(seconds);
-        return String.format("The Bug Fables %s WR is %s by %s", getCategoryString(category), time, name);
+        return String.format("The Bug Fables %s WR is %s by %s", category.toString(), time, name);
     }
 
     public static String getWr(Game game, SunshineCategory category) {
-        String gameString = getGameUrlString(game);
-        String categoryString = getCategoryUrlString(category);
+        String gameString = game.getUri();
+        String categoryString = category.getUri();
 
         String json = getWrJson(gameString, categoryString);
         if (json == null) {
@@ -168,7 +206,7 @@ public class SpeedrunApi extends BaseAPI {
 
         String name = getUsernameFromId(playerId);
         String time = getTimeString(seconds);
-        return String.format("The Super Mario Sunshine %s WR is %s by %s", getCategoryString(category), time, name);
+        return String.format("The Super Mario Sunshine %s WR is %s by %s", category.toString(), time, name);
     }
 
     /**
@@ -180,8 +218,8 @@ public class SpeedrunApi extends BaseAPI {
      * @return formatted string containing WR(s)
      */
     public static String getWr(Game game, TtydCategory category) {
-        String gameString = getGameUrlString(game);
-        String categoryString = getCategoryUrlString(category);
+        String gameString = game.getUri();
+        String categoryString = category.getUri();
 
         String json = getWrJson(gameString, categoryString);
         if (json == null) {
@@ -192,7 +230,7 @@ public class SpeedrunApi extends BaseAPI {
 
         String name = getUsernameFromId(playerId);
         String time = getTimeString(seconds);
-        return String.format("The TTYD %s WR is %s by %s", getCategoryString(category), time, name);
+        return String.format("The TTYD %s WR is %s by %s", category.toString(), time, name);
     }
 
     /**
@@ -204,8 +242,8 @@ public class SpeedrunApi extends BaseAPI {
      * @return formatted string containing WR(s)
      */
     public static String getWr(Game game, PapeCategory category) {
-        String gameString = getGameUrlString(game);
-        String categoryString = getCategoryUrlString(category);
+        String gameString = game.getUri();
+        String categoryString = category.getUri();
 
         String allJson = getWrJson(gameString, categoryString);
         if (allJson == null) {
@@ -219,7 +257,7 @@ public class SpeedrunApi extends BaseAPI {
 
 
         if (game.equals(Game.PAPER_MARIO)) {
-            String n64 = getPapePlatformUrlString(PapePlatform.N64);
+            String n64 = PapePlatform.N64.getUri();
 
             String n64Json = getWrJson(gameString, categoryString, n64);
             String n64PlayerId = getPlayerIdFromJson(n64Json);
@@ -230,10 +268,10 @@ public class SpeedrunApi extends BaseAPI {
             String n64Name = getUsernameFromId(n64PlayerId);
 
 
-            return String.format("The Paper Mario %s WRs are %s by %s overall and %s by %s on N64.", getCategoryString(category), allTime, allName, n64Time, n64Name);
+            return String.format("The Paper Mario %s WRs are %s by %s overall and %s by %s on N64.", category.toString(), allTime, allName, n64Time, n64Name);
         }
         else {
-            return String.format("The Paper Mario %s WR is %s by %s", getCategoryString(category), allTime, allName);
+            return String.format("The Paper Mario %s WR is %s by %s", category.toString(), allTime, allName);
         }
     }
 
@@ -303,220 +341,6 @@ public class SpeedrunApi extends BaseAPI {
         }
     }
 
-    private static String getCategoryString(BugFablesCategory category) {
-        switch (category) {
-            case ANY_PERCENT:
-                return "Any%";
-            case HUNDO:
-                return "100%";
-            case GLITCHLESS:
-                return "Any% Glitchless";
-            case ALL_BOSSES:
-                return "All Bosses";
-            case ALL_CHAPTERS:
-                return "All Chapters";
-            case ANY_MYSTERY:
-                return "Any% MYSTERY?";
-            case ANY_ALL_CODES:
-                return "Any% All Codes";
-            case ANY_DLL:
-                return "Any% dll";
-            default:
-                return "Any%";
-        }
-    }
-
-    private static String getCategoryString(SunshineCategory category) {
-        switch (category) {
-            case ANY_PERCENT:
-                return "Any%";
-            case ALL_EPISODES:
-                return "All Episodes";
-            case SHINES_79:
-                return "79 Shines";
-            case SHINES_96:
-                return "96 Shines";
-            case SHINES_120:
-                return "120 Shines";
-            default:
-                return "Any%";
-        }
-    }
-
-    private static String getCategoryString(PapeCategory category) {
-        switch (category) {
-            case ANY_PERCENT:
-                return "Any%";
-            case ANY_PERCENT_NO_PW:
-                return "Any% (No PW)";
-            case ALL_CARDS:
-                return "All Cards";
-            case ALL_BOSSES:
-                return "All Bosses";
-            case GLITCHLESS:
-                return "Glitchless";
-            case HUNDO:
-                return "100%";
-            case PIGGIES:
-                return "5 Golden Lil' Oinks";
-            case ALL_BLOOPS:
-                return "All Bloops";
-            case ANY_NO_RNG:
-                return "Any% No RNG";
-            case BEAT_CHAPTER_1:
-                return "Beat Chapter 1";
-            case SOAP_CAKE:
-                return "Soap Cake";
-            case REVERSE_ALL_CARDS:
-                return "Reverse All Cards";
-            case MAILMAN:
-                return "MailMan%";
-            default:
-                return "Any%";
-        }
-    }
-
-    private static String getCategoryString(TtydCategory category) {
-        switch (category) {
-            case ANY_PERCENT_JP:
-                return "Any% Japanese";
-            case ALL_CRYSTAL_STARS:
-                return "All Crystal Stars";
-            case HUNDO:
-                return "100%";
-            case GLITCHLESS:
-                return "Glitchless";
-            case ALL_COLLECTIBLES:
-                return "All Collectibles";
-            case MAX_UPGRADES:
-                return "Max Upgrades";
-            default:
-                return "Any% Japanese";
-        }
-    }
-
-    private static String getGameUrlString(Game game) {
-        switch (game) {
-            case BUG_FABLES:
-                return GAME_BUG_FABLES;
-            case SUNSHINE:
-                return GAME_SUNSHINE;
-            case PAPER_MARIO:
-                return GAME_PAPER_MARIO;
-            case PAPER_MARIO_MEMES:
-                return GAME_PAPER_MARIO_MEMES;
-            case TTYD:
-                return GAME_TTYD;
-            default:
-                return GAME_PAPER_MARIO;
-        }
-    }
-
-    private static String getCategoryUrlString(BugFablesCategory category) {
-        switch (category) {
-            case ANY_PERCENT:
-                return CAT_BUG_FABLES_ANY_PERCENT;
-            case HUNDO:
-                return CAT_BUG_FABLES_100;
-            case GLITCHLESS:
-                return CAT_BUG_FABLES_GLITCHLESS;
-            case ALL_BOSSES:
-                return CAT_BUG_FABLES_ALL_BOSSES;
-            case ALL_CHAPTERS:
-                return CAT_BUG_FABLES_ALL_CHAPTERS;
-            case ANY_MYSTERY:
-                return CAT_BUG_FABLES_ANY_MYSTERY;
-            case ANY_ALL_CODES:
-                return CAT_BUG_FABLES_ANY_ALL_CODES;
-            case ANY_DLL:
-                return CAT_BUG_FABLES_ANY_DLL;
-            default:
-                return CAT_BUG_FABLES_ANY_PERCENT;
-        }
-    }
-
-    private static String getCategoryUrlString(SunshineCategory category) {
-        switch (category) {
-            case ANY_PERCENT:
-                return CAT_SUNSHINE_ANY_PERCENT;
-            case ALL_EPISODES:
-                return CAT_SUNSHINE_ALL_EPISODES;
-            case SHINES_79:
-                return CAT_SUNSHINE_SHINES_79;
-            case SHINES_96:
-                return CAT_SUNSHINE_SHINES_96;
-            case SHINES_120:
-                return CAT_SUNSHINE_SHINES_120;
-            default:
-                return CAT_SUNSHINE_ANY_PERCENT;
-        }
-    }
-
-    private static String getCategoryUrlString(PapeCategory category) {
-        switch (category) {
-            case ANY_PERCENT:
-                return CAT_PAPE_ANY_PERCENT;
-            case ANY_PERCENT_NO_PW:
-                return CAT_PAPE_ANY_NO_PW;
-            case ALL_CARDS:
-                return CAT_PAPE_ALL_CARDS;
-            case ALL_BOSSES:
-                return CAT_PAPE_ALL_BOSSES;
-            case GLITCHLESS:
-                return CAT_PAPE_GLITCHLESS;
-            case HUNDO:
-                return CAT_PAPE_100;
-            case PIGGIES:
-                return CAT_PAPE_MEMES_PIGGIES;
-            case ALL_BLOOPS:
-                return CAT_PAPE_MEMES_ALL_BLOOPS;
-            case ANY_NO_RNG:
-                return CAT_PAPE_MEMES_ANY_NO_RNG;
-            case BEAT_CHAPTER_1:
-                return CAT_PAPE_MEMES_BEAT_CHAPTER_1;
-            case SOAP_CAKE:
-                return CAT_PAPE_MEMES_SOAP_CAKE;
-            case REVERSE_ALL_CARDS:
-                return CAT_PAPE_MEMES_REVERSE_ALL_CARDS;
-            case MAILMAN:
-                return CAT_PAPE_MEMES_MAILMAN;
-            default:
-                return CAT_PAPE_ANY_PERCENT;
-        }
-    }
-
-    private static String getCategoryUrlString(TtydCategory category) {
-        switch (category) {
-            case ANY_PERCENT_JP:
-                return CAT_TTYD_ANY_PERCENT;
-            case ALL_CRYSTAL_STARS:
-                return CAT_TTYD_ALL_CRYSTAL_STARS;
-            case HUNDO:
-                return CAT_TTYD_100;
-            case GLITCHLESS:
-                return CAT_TTYD_GLITCHLESS;
-            case ALL_COLLECTIBLES:
-                return CAT_TTYD_ALL_COLLECTIBLES;
-            case MAX_UPGRADES:
-                return CAT_TTYD_MAX_UPGRADES;
-            default:
-                return CAT_TTYD_ANY_PERCENT;
-        }
-    }
-
-    private static String getPapePlatformUrlString(PapePlatform platform) {
-        switch (platform) {
-            case N64:
-                return PLATFORM_PAPE_PLATFORM_N64;
-            case WII:
-                return PLATFORM_PAPE_PLATFORM_WII;
-            case WIIU:
-                return PLATFORM_PAPE_PLATFORM_WII_U;
-            default:
-                return PLATFORM_PAPE_PLATFORM_N64;
-        }
-    }
-
     private static String getWrJson(String game, String category, String platform) {
         String url = buildWrUrl(game, category, platform);
         return submitRequest(url);
@@ -538,6 +362,4 @@ public class SpeedrunApi extends BaseAPI {
     private static String buildWrUrl(String game, String category) {
         return BASE_URL + LEADERBOARDS + game + "category/" + category + "?top=1";
     }
-
-
 }

@@ -7,7 +7,7 @@ import okhttp3.Response;
 import java.io.IOException;
 import java.util.Objects;
 
-public class BaseAPI {
+public abstract class BaseAPI {
     protected static final OkHttpClient client = new OkHttpClient();
 
     protected static String submitRequest(String url) {
