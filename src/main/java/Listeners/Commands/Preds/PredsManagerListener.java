@@ -5,11 +5,12 @@ import Functions.Preds.PredsManagerBase;
 import Functions.Preds.SunshinePredsManager;
 import Listeners.Commands.CommandBase;
 import Util.TwirkInterface;
-import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Stream;
 import com.jcog.utils.TwitchApi;
+import com.jcog.utils.TwitchUserLevel;
+import com.jcog.utils.database.DbManager;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,21 +22,24 @@ public class PredsManagerListener extends CommandBase {
     private final static String PATTERN = "!preds";
     private static final String GAME_ID_SUNSHINE = "6086";
     private static final String GAME_ID_PAPER_MARIO = "18231";
-    
+
     private final TwirkInterface twirk;
+    private final DbManager dbManager;
     private final TwitchApi twitchApi;
     private final PredsGuessListener predsGuessListener;
-    
+
     private PredsManagerBase predsManager;
 
     public PredsManagerListener(
             ScheduledExecutorService scheduler,
             TwirkInterface twirk,
+            DbManager dbManager,
             TwitchApi twitchApi,
             PredsGuessListener predsGuessListener
     ) {
         super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
+        this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.predsGuessListener = predsGuessListener;
         predsManager = null;
@@ -74,10 +78,10 @@ public class PredsManagerListener extends CommandBase {
                 gameId = stream.getGameId();
             }
             if (gameId.equals(GAME_ID_PAPER_MARIO)) {
-                predsManager = new PapePredsManager(twirk);
+                predsManager = new PapePredsManager(twirk, dbManager);
             }
             else if (gameId.equals(GAME_ID_SUNSHINE)) {
-                predsManager = new SunshinePredsManager(twirk);
+                predsManager = new SunshinePredsManager(twirk, dbManager);
             }
             else {
                 twirk.channelMessage("The current game is not compatible with preds.");

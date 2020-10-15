@@ -1,9 +1,10 @@
 package Util;
 
-import Database.Stats.StreamStatsDb;
-import Database.Stats.WatchTimeDb;
 import com.github.twitch4j.helix.domain.User;
 import com.jcog.utils.TwitchApi;
+import com.jcog.utils.database.DbManager;
+import com.jcog.utils.database.stats.StreamStatsDb;
+import com.jcog.utils.database.stats.WatchTimeDb;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.util.*;
@@ -15,18 +16,19 @@ public class StreamStatsInterface {
     private final StreamStatsDb streamStatsDb;
     private final WatchTimeDb watchTimeDb;
     private final TwitchApi twitchApi;
-    
+
     /**
      * Interface for saving and reading information about streams in a database
      */
-    public StreamStatsInterface(TwitchApi twitchApi){
-        streamStatsDb = StreamStatsDb.getInstance();
-        watchTimeDb = WatchTimeDb.getInstance();
+    public StreamStatsInterface(DbManager dbManager, TwitchApi twitchApi) {
+        streamStatsDb = dbManager.getStreamStatsDb();
+        watchTimeDb = dbManager.getWatchTimeDb();
         this.twitchApi = twitchApi;
     }
-    
+
     /**
      * Returns the average concurrent viewers watching the stream during the most recent stream.
+     *
      * @return average viewer count
      */
     public int getAverageViewers() {
@@ -40,9 +42,10 @@ public class StreamStatsInterface {
         }
         return sum / viewerCounts.size();
     }
-    
+
     /**
      * Returns the median concurrent viewers watching the stream during the most recent stream.
+     *
      * @return median viewer count
      */
     public int getMedianViewers() {
@@ -51,7 +54,7 @@ public class StreamStatsInterface {
         Collections.sort(viewersCounts);
         boolean isEven = viewersCounts.size() % 2 == 0;
         int middleIndex = viewersCounts.size() / 2;
-        
+
         if (viewersCounts.size() == 0) {
             return 0;
         }
@@ -64,9 +67,10 @@ public class StreamStatsInterface {
             return viewersCounts.get(middleIndex);
         }
     }
-    
+
     /**
      * Returns the maximum concurrent viewers watching the stream during the most recent stream.
+     *
      * @return average viewer count
      */
     public int getMaxViewers() {
@@ -77,57 +81,64 @@ public class StreamStatsInterface {
         }
         return max;
     }
-    
+
     /**
      * Returns the list of users who watched the most recent stream
+     *
      * @return user list
      */
     public List<String> getUserList() {
         return streamStatsDb.getUserList();
     }
-    
+
     /**
      * Returns the list of users who watched the most recent stream for the first time
+     *
      * @return new user list
      */
     public List<String> getNewUserList() {
         return streamStatsDb.getNewUserList();
     }
-    
+
     /**
      * Returns the list of users who watched the most recent stream and have also watched at least one prior stream
+     *
      * @return returning user list
      */
     public List<String> getReturningUserList() {
         return streamStatsDb.getReturningUserList();
     }
-    
+
     /**
      * Returns a map of the watchtime for each user from the most recent stream
+     *
      * @return user watch time map
      */
     public HashMap<String, Integer> getUserMinutesList() {
         return streamStatsDb.getUserMinutesList();
     }
-    
+
     /**
      * Returns the time the most recent stream started
+     *
      * @return start time
      */
     public Date getStartTime() {
         return streamStatsDb.getStreamStartTime();
     }
-    
+
     /**
      * Returns the time the most recent stream ended
+     *
      * @return end time
      */
     public Date getEndTime() {
         return streamStatsDb.getStreamEndTime();
     }
-    
+
     /**
      * Returns the time since the start of the stream in minutes
+     *
      * @return stream length in minutes
      */
     public int getStreamLength() {
@@ -136,13 +147,14 @@ public class StreamStatsInterface {
         if (startTime == null || endTime == null) {
             return 0;
         }
-        long duration  = endTime.getTime() - startTime.getTime();
+        long duration = endTime.getTime() - startTime.getTime();
         return Math.toIntExact(TimeUnit.MILLISECONDS.toMinutes(duration));
     }
-    
+
     /**
      * Retrieves a list of all viewers that joined chat during the most recent stream and orders them by how many followers
      * they have. Contains an expensive Twitch API call.
+     *
      * @return ArrayList of <username, followers>
      */
     public ArrayList<Map.Entry<String, Integer>> getTopFollowerCounts() {
@@ -173,27 +185,29 @@ public class StreamStatsInterface {
         followerCounts.sort(new SortMapDescending());
         return followerCounts;
     }
-    
+
     /**
      * Returns the average time since all users have first seen the stream as of the most recent stream in days
+     *
      * @return average viewer age in days
      */
     public int getAverageViewerAge() {
         int totalAge = 0;
         Date streamDate = simplifyDate(streamStatsDb.getStreamEndTime());
         List<String> usersMap = streamStatsDb.getUserList();
-        for(String name : usersMap) {
+        for (String name : usersMap) {
             Date firstSeen = watchTimeDb.getFirstSeenByUsername(name);
             int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(streamDate.getTime() - firstSeen.getTime(), TimeUnit.MILLISECONDS));
-        
+
             totalAge += ageDays;
         }
         return totalAge / usersMap.size();
     }
-    
+
     /**
      * Returns the average time since all users have first seen the stream as of the most recent stream, weighted by
      * time spent watching the most recent stream, in days
+     *
      * @return weighted average viewer age in days
      */
     public int getWeightedViewerAge() {
@@ -206,21 +220,21 @@ public class StreamStatsInterface {
             int minutes = entry.getValue() / 1000;
             Date firstSeen = watchTimeDb.getFirstSeenByUsername(name);
             int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(streamDate.getTime() - firstSeen.getTime(), TimeUnit.MILLISECONDS));
-            
+
             weightedAgeNumer += ageDays * minutes;
             weightedAgeDenom += minutes;
         }
         return weightedAgeNumer / weightedAgeDenom;
     }
-    
+
     private static class SortMapDescending implements Comparator<Map.Entry<String, Integer>> {
-        
+
         @Override
         public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
             return o2.getValue() - o1.getValue();
         }
     }
-    
+
     private static Date simplifyDate(Date date) {
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(date);

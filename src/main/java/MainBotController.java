@@ -1,5 +1,4 @@
 import APIs.SpeedrunApi;
-import Database.GoombotioDb;
 import Functions.*;
 import Listeners.Commands.*;
 import Listeners.Commands.Preds.LeaderboardListener;
@@ -12,6 +11,7 @@ import Util.TwirkInterface;
 import com.gikk.twirk.events.TwirkListener;
 import com.github.twitch4j.helix.domain.User;
 import com.jcog.utils.TwitchApi;
+import com.jcog.utils.database.DbManager;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
@@ -25,9 +25,18 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.System.out;
 
 public class MainBotController {
+    private static final String DB_NAME = "goombotio";
     private static final int SOCIAL_INTERVAL_LENGTH = 20;
     private static final int TIMER_THREAD_SIZE = 5;
 
+    private final DbManager dbManager = new DbManager(
+            Settings.getDbHost(),
+            Settings.getDbPort(),
+            DB_NAME,
+            Settings.getDbUser(),
+            Settings.getDbPassword(),
+            Settings.hasWritePermission()
+    );
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(TIMER_THREAD_SIZE);
     private final Twitter twitter = getTwitterInstance();
     private final DiscordBotController discordBotController = DiscordBotController.getInstance();
@@ -43,6 +52,7 @@ public class MainBotController {
     private final CloudListener cloudListener = new CloudListener(twirk);
     private final StreamTracker streamTracker = new StreamTracker(
             twirk,
+            dbManager,
             twitchApi,
             streamerUser,
             scheduler,
@@ -50,19 +60,27 @@ public class MainBotController {
     );
     private final ScheduledMessageController scheduledMessageController = new ScheduledMessageController(
             twirk,
+            dbManager,
             twitchApi,
             scheduler,
             botUser,
             SOCIAL_INTERVAL_LENGTH
     );
-    private final FollowLogger followLogger = new FollowLogger(twitchApi, streamTracker, streamerUser, scheduler);
-    private final ViewerQueueManager viewerQueueManager = new ViewerQueueManager(twirk);
+    private final FollowLogger followLogger = new FollowLogger(
+            dbManager,
+            twitchApi,
+            streamTracker,
+            streamerUser,
+            scheduler
+    );
+    private final ViewerQueueManager viewerQueueManager = new ViewerQueueManager(twirk, dbManager);
     private final MinecraftWhitelistUpdater minecraftWhitelistUpdater = new MinecraftWhitelistUpdater(
+            dbManager,
             twitchApi,
             streamerUser,
             scheduler
     );
-    
+
     public synchronized void run() {
         discordBotController.init();
         scheduledMessageController.start();
@@ -72,9 +90,9 @@ public class MainBotController {
         streamTracker.start();
         minecraftWhitelistUpdater.start();
         checkSrcCert();
-    
+
         out.println("Goombotio is ready.");
-        
+
         //main loop
         try {
             new ConsoleCommandListener(twirk, discordBotController).run();
@@ -89,53 +107,52 @@ public class MainBotController {
             }
         }
     }
-    
+
     public void closeAll() {
         minecraftWhitelistUpdater.stop();
         streamTracker.stop();
         scheduledMessageController.stop();
         followLogger.stop();
         chatLogger.close();
-        twitchApi.close();
         twirk.close();
         discordBotController.close();
-        GoombotioDb.getInstance().close();
+        dbManager.closeDb();
         scheduler.shutdown();
     }
-    
+
     private void addAllListeners() {
         //setup
         PredsGuessListener predsGuessListener = new PredsGuessListener();
         ViewerQueueJoinListener queueJoinListener = new ViewerQueueJoinListener(scheduler, viewerQueueManager);
-        
+
         //connection handling
         twirk.addIrcListener(getOnDisconnectListener(twirk));
-        
+
         // Command Listeners
-        twirk.addIrcListener(new CommandManagerListener(scheduler, twirk));
-        twirk.addIrcListener(new GenericCommandListener(scheduler, twirk, twitchApi, streamerUser));
+        twirk.addIrcListener(new CommandManagerListener(scheduler, twirk, dbManager));
+        twirk.addIrcListener(new GenericCommandListener(scheduler, twirk, dbManager, twitchApi, streamerUser));
         //twirk.addIrcListener(new ModListener(scheduler, twirk));
-        twirk.addIrcListener(new LeaderboardListener(scheduler, twirk, twitchApi));
-        twirk.addIrcListener(new MinecraftListener(scheduler, twirk));
-        twirk.addIrcListener(new QuoteListener(scheduler, twirk));
+        twirk.addIrcListener(new LeaderboardListener(scheduler, twirk, dbManager, twitchApi));
+        twirk.addIrcListener(new MinecraftListener(scheduler, twirk, dbManager));
+        twirk.addIrcListener(new QuoteListener(scheduler, twirk, dbManager));
         twirk.addIrcListener(predsGuessListener);
-        twirk.addIrcListener(new PredsManagerListener(scheduler, twirk, twitchApi, predsGuessListener));
+        twirk.addIrcListener(new PredsManagerListener(scheduler, twirk, dbManager, twitchApi, predsGuessListener));
         twirk.addIrcListener(queueJoinListener);
-        twirk.addIrcListener(new ScheduledMessageManagerListener(scheduler, twirk));
+        twirk.addIrcListener(new ScheduledMessageManagerListener(scheduler, twirk, dbManager));
         twirk.addIrcListener(new ViewerQueueManageListener(scheduler, viewerQueueManager, queueJoinListener));
-        twirk.addIrcListener(new WatchTimeListener(scheduler, twirk, streamTracker));
+        twirk.addIrcListener(new WatchTimeListener(scheduler, twirk, dbManager, streamTracker));
         twirk.addIrcListener(new WrListener(scheduler, twirk, twitchApi));
-    
+
         // General Listeners
         twirk.addIrcListener(new ChatLoggerListener(chatLogger));
         twirk.addIrcListener(cloudListener);
-        twirk.addIrcListener(new EmoteListener());
+        twirk.addIrcListener(new EmoteListener(dbManager));
         twirk.addIrcListener(new LinkListener(twirk, twitchApi, twitter));
         twirk.addIrcListener(new PyramidListener(twirk));
         twirk.addIrcListener(scheduledMessageController.getListener());
         twirk.addIrcListener(new SubListener(twirk, scheduler));
     }
-    
+
     private static TwirkListener getOnDisconnectListener(final TwirkInterface twirk) {
         return new TwirkListener() {
             @Override
@@ -149,20 +166,21 @@ public class MainBotController {
                             hour, minute, second));
                     try {
                         TimeUnit.SECONDS.sleep(10);
-                    } catch (InterruptedException e) {
+                    }
+                    catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 } while (!twirk.connect());
             }
         };
     }
-    
+
     private void checkSrcCert() {
         if (!SpeedrunApi.certificateIsUpToDate()) {
             out.println("UPDATE THE SPEEDRUN.COM CERTIFICATE");
         }
     }
-    
+
     private Twitter getTwitterInstance() {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true)

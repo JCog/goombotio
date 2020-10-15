@@ -1,30 +1,29 @@
 package Functions.Preds;
 
-import Database.Preds.PredsLeaderboard;
-import Database.Preds.SpeedySpinLeaderboard;
 import Util.TwirkInterface;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.jcog.utils.database.DbManager;
+import com.jcog.utils.database.preds.PredsLeaderboardDb;
 
 import java.util.*;
 
 import static java.lang.System.out;
 
-public class PapePredsManager extends PredsManagerBase{
-    
+public class PapePredsManager extends PredsManagerBase {
+
     private static final String DISCORD_CHANNEL_MONTHLY = "pape-preds-monthly";
     private static final String DISCORD_CHANNEL_ALL_TIME = "pape-preds-all-time";
     private static final int POINTS_3 = 20;
     private static final int POINTS_2 = 5;
     private static final int POINTS_1 = 1;
     private static final int POINTS_WRONG_ORDER = 1;
-    
     private static final Set<String> BADGE_CHOICES = new HashSet<>(Arrays.asList(
             "badspin1",
             "badspin2",
             "badspin3",
             "spoodlyspun"
     ));
-    
+
     public enum Badge {
         BAD_SPIN1,
         BAD_SPIN2,
@@ -33,22 +32,26 @@ public class PapePredsManager extends PredsManagerBase{
     }
 
     private final HashMap<TwitchUser, ArrayList<Badge>> predictionList = new HashMap<>();
-    
+    private final DbManager dbManager;
+
     /**
      * Manages the !preds Twitch chat game.
+     *
      * @param twirk twirk for chat
      */
-    public PapePredsManager(TwirkInterface twirk) {
-        super(twirk);
+    public PapePredsManager(TwirkInterface twirk, DbManager dbManager) {
+        super(twirk, dbManager);
+        this.dbManager = dbManager;
     }
-    
+
     /**
      * Submits a prediction for the badge order of the badge shop. All three badges should be unique. If the user has
      * already has a recorded prediction, the old one is removed and replaced with the current one.
-     * @param user user making the prediction
-     * @param first left badge
+     *
+     * @param user   user making the prediction
+     * @param first  left badge
      * @param second middle badge
-     * @param third right badge
+     * @param third  right badge
      */
     private void makePrediction(TwitchUser user, Badge first, Badge second, Badge third) {
         if (enabled) {
@@ -61,7 +64,7 @@ public class PapePredsManager extends PredsManagerBase{
             //from the same user will overwrite the first one. I should probably use the id as a key, but then I don't
             //have easy access to the user object. TODO: fix this
             Iterator<Map.Entry<TwitchUser, ArrayList<Badge>>> it = predictionList.entrySet().iterator();
-            while(it.hasNext()) {
+            while (it.hasNext()) {
                 if (it.next().getKey().getUserID() == user.getUserID()) {
                     it.remove();
                     break;
@@ -70,7 +73,7 @@ public class PapePredsManager extends PredsManagerBase{
             predictionList.put(user, prediction);
         }
     }
-    
+
     /**
      * Given the three correct badges, sets the game to an ended state, determines and records points won, and sends a
      * message to the chat to let them know who, if anyone, got all three correct, as well as the current monthly
@@ -111,16 +114,16 @@ public class PapePredsManager extends PredsManagerBase{
         updateDiscordMonthlyPoints();
         updateDiscordAllTimePoints();
     }
-    
+
     @Override
     public String getAnswerRegex() {
         return "[1-4]{3}";
     }
-    
+
     @Override
     public void makePredictionIfValid(TwitchUser user, String message) {
         String[] split = message.split("\\s");
-    
+
         if (split.length == 3) {
             //using FFZ emotes
             ArrayList<String> badgeGuess = new ArrayList<>();
@@ -129,7 +132,7 @@ public class PapePredsManager extends PredsManagerBase{
                     badgeGuess.add(word.toLowerCase());
                 }
             }
-    
+
             if (badgeGuess.size() == 3) {
                 makePrediction(
                         user,
@@ -150,26 +153,26 @@ public class PapePredsManager extends PredsManagerBase{
                     badgeGuess.add(guess);
                 }
             }
-    
+
             if (badgeGuess.size() == 3) {
                 Badge badge1 = intToBadge(badgeGuess.get(0));
                 Badge badge2 = intToBadge(badgeGuess.get(1));
                 Badge badge3 = intToBadge(badgeGuess.get(2));
-        
+
                 makePrediction(user, badge1, badge2, badge3);
-        
+
                 System.out.println(String.format("%s has predicted %s %s %s", user.getUserName(),
                         badgeToString(badge1), badgeToString(badge2), badgeToString(badge3)));
             }
         }
     }
-    
+
     private ArrayList<String> getWinners(Badge leftAnswer, Badge middleAnswer, Badge rightAnswer) {
         Set<Badge> answerSet = new HashSet<>();
         answerSet.add(leftAnswer);
         answerSet.add(middleAnswer);
         answerSet.add(rightAnswer);
-        
+
         ArrayList<String> winners = new ArrayList<>();
         for (Map.Entry<TwitchUser, ArrayList<Badge>> pred : predictionList.entrySet()) {
             TwitchUser user = pred.getKey();
@@ -208,22 +211,22 @@ public class PapePredsManager extends PredsManagerBase{
         }
         return winners;
     }
-    
+
     @Override
-    protected PredsLeaderboard getLeaderboardType() {
-        return SpeedySpinLeaderboard.getInstance();
+    protected PredsLeaderboardDb getLeaderboardType() {
+        return dbManager.getSpeedySpinLeaderboardDb();
     }
-    
+
     @Override
     protected String getMonthlyChannelName() {
         return DISCORD_CHANNEL_MONTHLY;
     }
-    
+
     @Override
     protected String getAllTimeChannelName() {
         return DISCORD_CHANNEL_ALL_TIME;
     }
-    
+
     @Override
     protected String getStartMessage() {
         return "/me Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 " +
@@ -231,10 +234,11 @@ public class PapePredsManager extends PredsManagerBase{
                 "show up in the badge shop! If you get all three right and don't have a sub, you'll win one! Type " +
                 "!preds to learn more.";
     }
-    
+
     /**
      * Converts a {@link Badge} to a {@link String}
-      * @param badge badge to convert to String
+     *
+     * @param badge badge to convert to String
      * @return String for Badge
      */
     public static String badgeToString(Badge badge) {
@@ -249,9 +253,10 @@ public class PapePredsManager extends PredsManagerBase{
                 return "SpoodlySpun";
         }
     }
-    
+
     /**
      * Converts a {@link String} to a {@link Badge}. Returns null if no match exists
+     *
      * @param badge badge in String form to convert
      * @return Badge or null
      */
@@ -269,9 +274,10 @@ public class PapePredsManager extends PredsManagerBase{
                 return null;
         }
     }
-    
+
     /**
      * Converts an int to a {@link Badge}. Returns null if no match exists
+     *
      * @param badge badge in int form to convert
      * @return Badge or null
      */

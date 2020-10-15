@@ -1,12 +1,13 @@
 package Functions;
 
-import Database.Entries.MinecraftUser;
-import Database.Misc.MinecraftUserDb;
 import Util.FileWriter;
 import Util.Settings;
 import com.github.twitch4j.helix.domain.Subscription;
 import com.github.twitch4j.helix.domain.User;
 import com.jcog.utils.TwitchApi;
+import com.jcog.utils.database.DbManager;
+import com.jcog.utils.database.entries.MinecraftUser;
+import com.jcog.utils.database.misc.MinecraftUserDb;
 import com.jcraft.jsch.*;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.json.simple.JSONArray;
@@ -28,17 +29,18 @@ public class MinecraftWhitelistUpdater {
     private static final int INTERVAL = 1; //minutes
 
     private final JSch jsch = new JSch();
-    private final MinecraftUserDb minecraftUserDb = MinecraftUserDb.getInstance();
+    private final MinecraftUserDb minecraftUserDb;
     private final TwitchApi twitchApi;
     private final User streamerUser;
     private final ScheduledExecutorService scheduler;
 
     private ScheduledFuture<?> scheduledFuture;
 
-    public MinecraftWhitelistUpdater(TwitchApi twitchApi, User streamerUser, ScheduledExecutorService scheduler) {
+    public MinecraftWhitelistUpdater(DbManager dbManager, TwitchApi twitchApi, User streamerUser, ScheduledExecutorService scheduler) {
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
         this.scheduler = scheduler;
+        minecraftUserDb = dbManager.getMinecraftUserDb();
     }
 
     public void start() {

@@ -1,9 +1,9 @@
 package Listeners.Commands;
 
 import Functions.ViewerQueueManager;
-import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.jcog.utils.TwitchUserLevel;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,15 +13,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import static java.lang.System.out;
 
 public class ViewerQueueManageListener extends CommandBase {
-    
+
     private static final String START = "!startqueue";
     private static final String END = "!endqueue";
     private static final String NEXT = "!next";
     private static final String MESSAGE_FILENAME = "src/main/resources/viewer_queue_message.txt";
-    
+
     private final ViewerQueueManager viewerQueueManager;
     private final ViewerQueueJoinListener joinListener;
-    
+
     public ViewerQueueManageListener(
             ScheduledExecutorService scheduler,
             ViewerQueueManager viewerQueueManager,
@@ -31,22 +31,22 @@ public class ViewerQueueManageListener extends CommandBase {
         this.viewerQueueManager = viewerQueueManager;
         this.joinListener = joinListener;
     }
-    
+
     @Override
     public String getCommandWords() {
         return String.join("|", START, END, NEXT);
     }
-    
+
     @Override
     protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
         return TwitchUserLevel.USER_LEVEL.BROADCASTER;
     }
-    
+
     @Override
     protected int getCooldownLength() {
         return 0;
     }
-    
+
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         switch (command) {
@@ -55,11 +55,12 @@ public class ViewerQueueManageListener extends CommandBase {
                 Scanner sc;
                 try {
                     sc = new Scanner(file);
-                } catch (FileNotFoundException e) {
+                }
+                catch (FileNotFoundException e) {
                     out.println("Error reading file");
                     return;
                 }
-                
+
                 String whisper;
                 if (sc.hasNext()) {
                     whisper = sc.next();
@@ -68,7 +69,7 @@ public class ViewerQueueManageListener extends CommandBase {
                     out.println("Error getting message");
                     return;
                 }
-    
+
                 int count;
                 if (sc.hasNextInt()) {
                     count = sc.nextInt();
@@ -81,12 +82,12 @@ public class ViewerQueueManageListener extends CommandBase {
                 viewerQueueManager.startNewSession(count, whisper);
                 joinListener.start();
                 break;
-                
+
             case END:
                 viewerQueueManager.closeCurrentSession();
                 joinListener.stop();
                 break;
-                
+
             case NEXT:
                 viewerQueueManager.getNext();
         }

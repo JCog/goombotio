@@ -1,10 +1,11 @@
 package Functions;
 
-import Database.Entries.ViewerQueueEntry;
-import Database.Misc.ViewerQueueDb;
 import Util.TwirkInterface;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.google.common.collect.ComparisonChain;
+import com.jcog.utils.database.DbManager;
+import com.jcog.utils.database.entries.ViewerQueueEntry;
+import com.jcog.utils.database.misc.ViewerQueueDb;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -13,22 +14,22 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.System.out;
 
 public class ViewerQueueManager {
-    
+
     private final TwirkInterface twirk;
     private final ViewerQueueDb viewerQueueDb;
     private ArrayList<ViewerQueueEntry> viewers;
     private int position;
     private int requestedCount;
     private String message;
-    
-    public ViewerQueueManager(TwirkInterface twirk) {
+
+    public ViewerQueueManager(TwirkInterface twirk, DbManager dbManager) {
         this.twirk = twirk;
-        viewerQueueDb = ViewerQueueDb.getInstance();
+        viewerQueueDb = dbManager.getViewerQueueDb();
         viewers = new ArrayList<>();
         position = 0;
         message = "";
     }
-    
+
     public void startNewSession(int count, String message) {
         viewers = new ArrayList<>();
         viewerQueueDb.incrementSessionId();
@@ -38,7 +39,7 @@ public class ViewerQueueManager {
         out.println("Starting viewer queue");
         this.message = message;
     }
-    
+
     public void addViewer(TwitchUser twitchUser) {
         for (ViewerQueueEntry entry : viewers) {
             if (entry.id == twitchUser.getUserID()) {
@@ -52,7 +53,7 @@ public class ViewerQueueManager {
         viewers.add(entry);
         out.println(String.format("%s joined the queue", entry.username));
     }
-    
+
     public void closeCurrentSession() {
         viewers.sort(new ViewersComparator());
         printQueue();
@@ -76,14 +77,15 @@ public class ViewerQueueManager {
                 getNext();
                 try {
                     TimeUnit.MILLISECONDS.sleep(1000);
-                } catch (InterruptedException e) {
+                }
+                catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         });
         thread.start();
     }
-    
+
     public void getNext() {
         if (position < viewers.size()) {
             ViewerQueueEntry nextUser = viewers.get(position);
@@ -93,7 +95,7 @@ public class ViewerQueueManager {
             out.println("inviting " + nextUser.username);
         }
     }
-    
+
     private void printQueue() {
         out.println("Sorted queue:");
         out.println("(Username, ID, Subbed, Attempts, Total Sessions, Last Session ID)");
@@ -101,9 +103,9 @@ public class ViewerQueueManager {
             out.println(String.format("%d. %s", i + 1, viewers.get(i).toString()));
         }
     }
-    
+
     private static class ViewersComparator implements Comparator<ViewerQueueEntry> {
-    
+
         @Override
         public int compare(ViewerQueueEntry viewer1, ViewerQueueEntry viewer2) {
             return ComparisonChain.start()

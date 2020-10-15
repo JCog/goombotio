@@ -1,9 +1,10 @@
 package Functions;
 
-import Database.Stats.WatchTimeDb;
 import com.github.twitch4j.helix.domain.Follow;
 import com.github.twitch4j.helix.domain.User;
 import com.jcog.utils.TwitchApi;
+import com.jcog.utils.database.DbManager;
+import com.jcog.utils.database.stats.WatchTimeDb;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.io.BufferedWriter;
@@ -21,17 +22,18 @@ public class FollowLogger {
     private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final int INTERVAL = 5; //minutes
 
-    private final WatchTimeDb watchTimeDb = WatchTimeDb.getInstance();
+    private final WatchTimeDb watchTimeDb;
     private final TwitchApi twitchApi;
     private final StreamTracker streamTracker;
     private final User streamerUser;
     private final ScheduledExecutorService scheduler;
-    
+
     private HashSet<String> oldFollowerIdList;
     private PrintWriter writer;
     private ScheduledFuture<?> scheduledFuture;
-    
+
     public FollowLogger(
+            DbManager dbManager,
             TwitchApi twitchApi,
             StreamTracker streamTracker,
             User streamerUser,
@@ -41,6 +43,7 @@ public class FollowLogger {
         this.streamTracker = streamTracker;
         this.streamerUser = streamerUser;
         this.scheduler = scheduler;
+        watchTimeDb = dbManager.getWatchTimeDb();
         try {
             oldFollowerIdList = fetchFollowerIds();
         }
@@ -62,7 +65,7 @@ public class FollowLogger {
         BufferedWriter bw = new BufferedWriter(fw);
         writer = new PrintWriter(bw);
     }
-    
+
     public void start() {
         scheduledFuture = scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -152,12 +155,12 @@ public class FollowLogger {
             }
         }, 0, INTERVAL, TimeUnit.MINUTES);
     }
-    
+
     public void stop() {
         scheduledFuture.cancel(false);
         writer.close();
     }
-    
+
     private HashSet<String> fetchFollowerIds() throws HystrixRuntimeException {
         List<Follow> followers = twitchApi.getFollowers(streamerUser.getId());
         HashSet<String> followerIds = new HashSet<>();
@@ -166,7 +169,7 @@ public class FollowLogger {
         }
         return followerIds;
     }
-    
+
     private ArrayList<String> getNewFollowers(HashSet<String> updatedFollowerIdList) {
         ArrayList<String> newFollowerIds = new ArrayList<>();
         for (String followerId : updatedFollowerIdList) {
@@ -176,7 +179,7 @@ public class FollowLogger {
         }
         return newFollowerIds;
     }
-    
+
     private ArrayList<String> getUnfollowers(HashSet<String> updatedFollowerIdList) {
         ArrayList<String> unfollowerIds = new ArrayList<>();
         for (String followerId : oldFollowerIdList) {
@@ -186,7 +189,7 @@ public class FollowLogger {
         }
         return unfollowerIds;
     }
-    
+
     private String getDateString() {
         SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT);
         return sdf.format(new Date());

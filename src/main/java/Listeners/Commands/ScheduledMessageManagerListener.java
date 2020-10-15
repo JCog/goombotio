@@ -1,45 +1,47 @@
 package Listeners.Commands;
 
-import Database.Misc.SocialSchedulerDb;
 import Util.TwirkInterface;
-import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.jcog.utils.TwitchUserLevel;
+import com.jcog.utils.database.DbManager;
+import com.jcog.utils.database.misc.SocialSchedulerDb;
 
 import java.util.concurrent.ScheduledExecutorService;
 
 public class ScheduledMessageManagerListener extends CommandBase {
     private final String PATTERN = "!scheduled";
-    
-    private final SocialSchedulerDb socialSchedulerDb = SocialSchedulerDb.getInstance();
+
+    private final SocialSchedulerDb socialSchedulerDb;
     private final TwirkInterface twirk;
-    
+
     private enum FUNCTION {
         ADD,
         EDIT,
         DELETE
     }
-    
-    public ScheduledMessageManagerListener(ScheduledExecutorService scheduler, TwirkInterface twirk) {
+
+    public ScheduledMessageManagerListener(ScheduledExecutorService scheduler, TwirkInterface twirk, DbManager dbManager) {
         super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
+        socialSchedulerDb = dbManager.getSocialSchedulerDb();
     }
-    
+
     @Override
     public String getCommandWords() {
         return PATTERN;
     }
-    
+
     @Override
     protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
         return TwitchUserLevel.USER_LEVEL.MOD;
     }
-    
+
     @Override
     protected int getCooldownLength() {
         return 0;
     }
-    
+
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         String[] messageSplit = message.getContent().split("\\s", 4);
@@ -47,14 +49,14 @@ public class ScheduledMessageManagerListener extends CommandBase {
             showError("missing arguments");
             return;
         }
-        
+
         String typeString = messageSplit[1];
         String idString = messageSplit[2];
         if (!isValidId(idString)) {
             showError("invalid message ID");
             return;
         }
-        
+
         String content = null;
         try {
             int start = messageSplit[3].indexOf('"');
@@ -68,17 +70,18 @@ public class ScheduledMessageManagerListener extends CommandBase {
                 showError("unbalanced quotation mark");
                 return;
             }
-        } catch (IndexOutOfBoundsException e) {
+        }
+        catch (IndexOutOfBoundsException e) {
             //do nothing
         }
         boolean hasContent = content != null && !content.isEmpty();
-        
+
         FUNCTION type = getFunction(typeString);
         if (type == null) {
             showError("invalid function");
             return;
         }
-    
+
         switch (type) {
             case ADD:
                 if (!hasContent) {
@@ -99,11 +102,11 @@ public class ScheduledMessageManagerListener extends CommandBase {
                 break;
         }
     }
-    
+
     private void showError(String error) {
         twirk.channelMessage(String.format("ERROR: %s", error));
     }
-    
+
     private FUNCTION getFunction(String function) {
         switch (function) {
             case "add":
@@ -116,7 +119,7 @@ public class ScheduledMessageManagerListener extends CommandBase {
                 return null;
         }
     }
-    
+
     private boolean isValidId(String id) {
         return id.matches("[a-zA-Z0-9]+");
     }

@@ -1,9 +1,9 @@
 package Listeners.Commands;
 
 import Util.TwirkInterface;
-import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.jcog.utils.TwitchUserLevel;
 
 import java.util.concurrent.ScheduledExecutorService;
 

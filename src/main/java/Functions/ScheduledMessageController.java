@@ -1,7 +1,5 @@
 package Functions;
 
-import Database.Entries.ScheduledMessage;
-import Database.Misc.SocialSchedulerDb;
 import Util.TwirkInterface;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
@@ -9,6 +7,9 @@ import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.jcog.utils.TwitchApi;
+import com.jcog.utils.database.DbManager;
+import com.jcog.utils.database.entries.ScheduledMessage;
+import com.jcog.utils.database.misc.SocialSchedulerDb;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.time.LocalDateTime;
@@ -20,27 +21,29 @@ import java.util.concurrent.TimeUnit;
 
 public class ScheduledMessageController {
 
-    private final SocialSchedulerDb socialSchedulerDb = SocialSchedulerDb.getInstance();
     private final AnyMessageListener anyMessageListener = new AnyMessageListener();
     private final Random random = new Random();
-    
+
+    private final SocialSchedulerDb socialSchedulerDb;
     private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
     private final ScheduledExecutorService scheduler;
     private final User botUser;
     private final int intervalLength;
-    
+
     private boolean running;
     private boolean activeChat;
     private String previousId = "";
-    
+
     /**
      * Schedules random social media plugs on a set interval
-     * @param twirk chat interface
+     *
+     * @param twirk          chat interface
      * @param intervalLength minutes between posts
      */
     public ScheduledMessageController(
             TwirkInterface twirk,
+            DbManager dbManager,
             TwitchApi twitchApi,
             ScheduledExecutorService scheduler,
             User botUser,
@@ -51,10 +54,11 @@ public class ScheduledMessageController {
         this.scheduler = scheduler;
         this.botUser = botUser;
         this.intervalLength = intervalLength;
+        socialSchedulerDb = dbManager.getSocialSchedulerDb();
         running = false;
         activeChat = false;
     }
-    
+
     /**
      * Starts SocialScheduler. One random message every interval, and only if a chat message has been posted in the
      * current interval to prevent bot spam with an inactive chat
@@ -63,14 +67,14 @@ public class ScheduledMessageController {
         running = true;
         scheduleSocialMessages();
     }
-    
+
     /**
      * Stops SocialScheduler
      */
     public void stop() {
         running = false;
     }
-    
+
     public AnyMessageListener getListener() {
         return anyMessageListener;
     }
@@ -93,7 +97,7 @@ public class ScheduledMessageController {
             activeChat = false;
         }
     }
-    
+
     private void postRandomMsg() {
         //there's definitely a more memory-efficient way to do this, but eh
         ArrayList<ScheduledMessage> choices = new ArrayList<>();
@@ -104,7 +108,7 @@ public class ScheduledMessageController {
                 }
             }
         }
-        
+
         int selection = random.nextInt(choices.size());
         twirk.channelMessage(choices.get(selection).getMessage());
         previousId = choices.get(selection).getId();

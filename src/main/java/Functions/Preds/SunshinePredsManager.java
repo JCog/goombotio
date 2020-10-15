@@ -1,9 +1,9 @@
 package Functions.Preds;
 
-import Database.Preds.PredsLeaderboard;
-import Database.Preds.SunshineTimerLeaderboard;
 import Util.TwirkInterface;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.jcog.utils.database.DbManager;
+import com.jcog.utils.database.preds.PredsLeaderboardDb;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,41 +23,43 @@ public class SunshinePredsManager extends PredsManagerBase {
     private static final int HUND_1_SECOND = 100;
     private static final int HUND_5_SECONDS = 5 * 100;
     private static final int HUND_10_SECONDS = 10 * 100;
-    
+
     private final HashMap<Long, TimeGuess> predictionList = new HashMap<>();
-    
-    public SunshinePredsManager(TwirkInterface twirk) {
-        super(twirk);
+    private final DbManager dbManager;
+
+    public SunshinePredsManager(TwirkInterface twirk, DbManager dbManager) {
+        super(twirk, dbManager);
+        this.dbManager = dbManager;
     }
-    
+
     @Override
-    protected PredsLeaderboard getLeaderboardType() {
-        return SunshineTimerLeaderboard.getInstance();
+    protected PredsLeaderboardDb getLeaderboardType() {
+        return dbManager.getSunshineTimerLeaderboardDb();
     }
-    
+
     @Override
     protected String getMonthlyChannelName() {
         return DISCORD_CHANNEL_MONTHLY;
     }
-    
+
     @Override
     protected String getAllTimeChannelName() {
         return DISCORD_CHANNEL_ALL_TIME;
     }
-    
+
     @Override
     protected String getStartMessage() {
         return START_MESSAGE;
     }
-    
+
     public boolean isActive() {
         return enabled;
     }
-    
+
     public boolean isWaitingForAnswer() {
         return waitingForAnswer;
     }
-    
+
     //submit the correct answer, calculate points, end game
     @Override
     public void submitPredictions(String answer) {
@@ -66,11 +68,11 @@ public class SunshinePredsManager extends PredsManagerBase {
         outcome -= minutes * 10000;
         int seconds = outcome / 100;
         outcome -= seconds * 100;
-    
+
         int hundredths = outcome + (seconds * 100) + (minutes * 60 * 100);
         enabled = false;
         waitingForAnswer = false;
-    
+
         ArrayList<String> winners = getWinners(hundredths);
         StringBuilder message = new StringBuilder();
         if (winners.size() == 0) {
@@ -128,7 +130,7 @@ public class SunshinePredsManager extends PredsManagerBase {
         }
         message.append(" • ");
         message.append(buildMonthlyLeaderboardString());
-        
+
         twirk.channelCommmand(String.format(
                 "/me The correct answer is %s - %s",
                 formatHundredths(hundredths),
@@ -137,12 +139,12 @@ public class SunshinePredsManager extends PredsManagerBase {
         updateDiscordMonthlyPoints();
         updateDiscordAllTimePoints();
     }
-    
+
     @Override
     public String getAnswerRegex() {
         return "[0-9]{5}";
     }
-    
+
     @Override
     public void makePredictionIfValid(TwitchUser user, String message) {
         String guess = message.replaceAll("[^0-9]", "");
@@ -155,7 +157,7 @@ public class SunshinePredsManager extends PredsManagerBase {
             int seconds = Integer.parseInt(guess.substring(1, 3));
             int hundredths = Integer.parseInt(guess.substring(3, 5)) + (seconds * 100) + (minutes * 60 * 100);
             System.out.println(String.format("%s has predicted %d hundredths", user.getDisplayName(), hundredths));
-    
+
             if (predictionList.containsKey(user.getUserID())) {
                 predictionList.remove(user.getUserID());
                 out.println(String.format("Replacing duplicate guess by %s", user.getDisplayName()));
@@ -163,7 +165,7 @@ public class SunshinePredsManager extends PredsManagerBase {
             predictionList.put(user.getUserID(), new TimeGuess(user, hundredths));
         }
     }
-    
+
     private ArrayList<String> getWinners(int answer) {
         ArrayList<String> winners = new ArrayList<>();
         for (Map.Entry<Long, TimeGuess> longTimeGuessEntry : predictionList.entrySet()) {
@@ -208,7 +210,7 @@ public class SunshinePredsManager extends PredsManagerBase {
         }
         return winners;
     }
-    
+
     //returns the closest guess, multiple if there are ties
     private ArrayList<TimeGuess> getClosestGuesses(int answer) {
         int minDifference = -1;
@@ -224,7 +226,7 @@ public class SunshinePredsManager extends PredsManagerBase {
                 }
             }
         }
-    
+
         ArrayList<TimeGuess> output = new ArrayList<>();
         for (Map.Entry<Long, TimeGuess> longTimeGuessEntry : predictionList.entrySet()) {
             TimeGuess guess = longTimeGuessEntry.getValue();
@@ -240,7 +242,7 @@ public class SunshinePredsManager extends PredsManagerBase {
         }
         return output;
     }
-    
+
     //takes in hundredths, outputs seconds e.g. 5.02
     private String formatDifference(int answer, int guess) {
         int difference = Math.abs(answer - guess);
@@ -248,7 +250,7 @@ public class SunshinePredsManager extends PredsManagerBase {
         int hundredths = difference % 100;
         return String.format("%d.%02d", seconds, hundredths);
     }
-    
+
     private String formatHundredths(int hundredths) {
         int minutes = hundredths / (100 * 60);
         hundredths -= minutes * (100 * 60);
@@ -256,11 +258,11 @@ public class SunshinePredsManager extends PredsManagerBase {
         hundredths -= seconds * 100;
         return String.format("%d:%02d:%02d", minutes, seconds, hundredths);
     }
-    
+
     private static class TimeGuess {
         public TwitchUser twitchUser;
         public int hundredths;
-        
+
         public TimeGuess(TwitchUser twitchUser, int hundredths) {
             this.twitchUser = twitchUser;
             this.hundredths = hundredths;

@@ -1,13 +1,14 @@
 package Util;
 
-import Database.Entries.CommandItem;
-import Database.Misc.CommandDb;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Follow;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.jcog.utils.TwitchApi;
+import com.jcog.utils.database.DbManager;
+import com.jcog.utils.database.entries.CommandItem;
+import com.jcog.utils.database.misc.CommandDb;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -31,7 +32,7 @@ public class CommandParser {
     private static final String ERROR_INVALID_RANGE = "-invalid range\"%s\"-";
     private static final String ERROR_BAD_ENTRY = "-bad entry-";
     private static final String ERROR_INVALID_WEIGHT = "-invalid weight-";
-    
+
     private static final String TYPE_ARG = "arg";
     private static final String TYPE_CHANNEL = "channel";
     private static final String TYPE_COUNT = "count";
@@ -45,18 +46,19 @@ public class CommandParser {
     private static final String TYPE_WEIGHT = "weight";
 
     private static final OkHttpClient client = new OkHttpClient();
-    
-    private final CommandDb commandDb = CommandDb.getInstance();
+
     private final Random random = new Random();
-    
+
+    private final CommandDb commandDb;
     private final TwitchApi twitchApi;
     private final User streamerUser;
-    
-    public CommandParser(TwitchApi twitchApi, User streamerUser) {
+
+    public CommandParser(DbManager dbManager, TwitchApi twitchApi, User streamerUser) {
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
+        commandDb = dbManager.getCommandDb();
     }
-    
+
     public String parse(CommandItem commandItem, TwitchUser user, TwitchMessage twitchMessage) {
         String output = commandItem.getMessage();
         String expression = getNextExpression(output);
@@ -70,7 +72,7 @@ public class CommandParser {
         }
         return output;
     }
-    
+
     private String evaluateExpression(String expression, CommandItem commandItem,
                                       TwitchUser user, TwitchMessage twitchMessage) {
         String[] split = expression.split(" ", 2);
@@ -85,14 +87,15 @@ public class CommandParser {
                 int arg;
                 try {
                     arg = Integer.parseInt(content) + 1;
-                } catch (NumberFormatException e) {
+                }
+                catch (NumberFormatException e) {
                     return String.format(ERROR_BAD_ARG_NUM_FORMAT, content);
                 }
-        
+
                 if (arg < 0) {
                     return String.format(ERROR_BAD_ARG_NUM_FORMAT, content);
                 }
-                else  if (arguments.length > arg) {
+                else if (arguments.length > arg) {
                     return arguments[arg];
                 }
                 else {
@@ -127,7 +130,8 @@ public class CommandParser {
                 try {
                     low = Integer.parseInt(rangeSplit[0]);
                     high = Integer.parseInt(rangeSplit[1]);
-                } catch (NumberFormatException e) {
+                }
+                catch (NumberFormatException e) {
                     return String.format(ERROR_INVALID_RANGE, content);
                 }
                 if (low >= high) {
@@ -198,7 +202,7 @@ public class CommandParser {
                 return ERROR;
         }
     }
-    
+
     private String getFollowAgeString(String userName) {
         User user;
         try {
@@ -220,7 +224,7 @@ public class CommandParser {
             return String.format("Error retrieving follow age for %s", userName);
         }
 
-        if(follow != null) {
+        if (follow != null) {
             //TODO: convert to getFollowedAtInstant() - https://stackoverflow.com/questions/32437550/whats-the-difference-between-instant-and-localdatetime
             LocalDate followDate = follow.getFollowedAt().toLocalDate();
             LocalDate today = LocalDate.now();
@@ -258,7 +262,7 @@ public class CommandParser {
             );
         }
     }
-    
+
     private static String getNextExpression(String input) {
         try {
             for (int i = 0; i < input.length(); i++) {
@@ -290,23 +294,25 @@ public class CommandParser {
         }
         return "";
     }
-    
+
     private static String submitRequest(String url) {
         Request request;
         try {
             request = new Request.Builder()
                     .url(url)
                     .build();
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e) {
             return ERROR_URL;
         }
         try (Response response = client.newCall(request).execute()) {
             return Objects.requireNonNull(response.body()).string();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             return ERROR_URL_RETRIEVAL;
         }
     }
-    
+
     private static String getTimeString(long seconds) {
         long hours = TimeUnit.SECONDS.toHours(seconds);
         seconds -= TimeUnit.HOURS.toSeconds(hours);
@@ -315,7 +321,7 @@ public class CommandParser {
         if (hours > 0) {
             return String.format("%d hours, %d minutes, %d seconds", hours, minutes, seconds);
         }
-        else if (minutes > 0){
+        else if (minutes > 0) {
             return String.format("%d minutes, %d seconds", minutes, seconds);
         }
         else {

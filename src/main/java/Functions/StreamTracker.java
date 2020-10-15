@@ -6,6 +6,7 @@ import Util.TwirkInterface;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.jcog.utils.TwitchApi;
+import com.jcog.utils.database.DbManager;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.io.File;
@@ -21,33 +22,36 @@ public class StreamTracker {
     private static final int INTERVAL = 1; //minutes
 
     private final HashSet<String> blacklist = blacklistInit();
-    
+
     private final TwirkInterface twirk;
+    private final DbManager dbManager;
     private final TwitchApi twitchApi;
     private final User streamerUser;
     private final ScheduledExecutorService scheduler;
     private final CloudListener cloudListener;
-    
+
     private StreamData streamData;
     private ScheduledFuture<?> scheduledFuture;
-    
+
     public StreamTracker(TwirkInterface twirk,
+                         DbManager dbManager,
                          TwitchApi twitchApi,
                          User streamerUser,
                          ScheduledExecutorService scheduler,
                          CloudListener cloudListener
     ) {
         this.twirk = twirk;
+        this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
         this.scheduler = scheduler;
         this.cloudListener = cloudListener;
-        
+
         streamData = null;
     }
-    
+
     public void start() {
-        
+
         scheduledFuture = scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -71,7 +75,7 @@ public class StreamTracker {
                         return;
                     }
                     if (streamData == null) {
-                        streamData = new StreamData(twitchApi, streamerUser);
+                        streamData = new StreamData(dbManager, twitchApi, streamerUser);
                         cloudListener.reset();
                     }
                     streamData.updateUsersMinutes(usersOnline);
@@ -80,23 +84,23 @@ public class StreamTracker {
                 else {
                     if (streamData != null) {
                         streamData.endStream();
-                        ReportBuilder.generateReport(streamData);
+                        ReportBuilder.generateReport(dbManager, streamData);
                         streamData = null;
                     }
                 }
             }
         }, 0, INTERVAL, TimeUnit.MINUTES);
     }
-    
+
     public void stop() {
         scheduledFuture.cancel(false);
         if (streamData != null) {
             streamData.endStream();
-            ReportBuilder.generateReport(streamData);
+            ReportBuilder.generateReport(dbManager, streamData);
             streamData = null;
         }
     }
-    
+
     //returns the length of time the given user has been watching the stream, 0 if there's no stream
     public int getViewerMinutes(String username) {
         if (streamData == null) {
@@ -106,13 +110,13 @@ public class StreamTracker {
             return streamData.getViewerMinutes(username);
         }
     }
-    
+
     private HashSet<String> blacklistInit() {
         HashSet<String> blacklist = new HashSet<>();
         try {
             File file = new File(BLACKLIST_FILENAME);
             Scanner sc = new Scanner(file);
-            while(sc.hasNextLine()) {
+            while (sc.hasNextLine()) {
                 blacklist.add(sc.nextLine());
             }
             sc.close();
@@ -120,7 +124,7 @@ public class StreamTracker {
         catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         System.out.println(String.format("Loaded blacklist with %d entries", blacklist.size()));
         return blacklist;
     }

@@ -1,11 +1,12 @@
 package Listeners.Commands;
 
-import Database.Stats.WatchTimeDb;
 import Functions.StreamTracker;
 import Util.TwirkInterface;
-import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.jcog.utils.TwitchUserLevel;
+import com.jcog.utils.database.DbManager;
+import com.jcog.utils.database.stats.WatchTimeDb;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -14,36 +15,41 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class WatchTimeListener extends CommandBase {
-    
+
     private static final String PATTERN = "!watchtime";
     private static final Date CUTOFF_DATE = generateCutoffDate();
-    
+
     private final TwirkInterface twirk;
     private final StreamTracker streamTracker;
     private final WatchTimeDb watchTimeDb;
-    
-    public WatchTimeListener(ScheduledExecutorService scheduler, TwirkInterface twirk, StreamTracker streamTracker) {
+
+    public WatchTimeListener(
+            ScheduledExecutorService scheduler,
+            TwirkInterface twirk,
+            DbManager dbManager,
+            StreamTracker streamTracker
+    ) {
         super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
         this.streamTracker = streamTracker;
-        watchTimeDb = WatchTimeDb.getInstance();
+        watchTimeDb = dbManager.getWatchTimeDb();
     }
-    
+
     @Override
     public String getCommandWords() {
         return PATTERN;
     }
-    
+
     @Override
     protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
         return TwitchUserLevel.USER_LEVEL.DEFAULT;
     }
-    
+
     @Override
     protected int getCooldownLength() {
         return 0;
     }
-    
+
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         StringBuilder output = new StringBuilder();
@@ -58,7 +64,7 @@ public class WatchTimeListener extends CommandBase {
         }
         twirk.channelMessage(output.toString());
     }
-    
+
     private static String getTimeString(long minutes) {
         long days = TimeUnit.MINUTES.toDays(minutes);
         minutes -= TimeUnit.DAYS.toMinutes(days);
@@ -74,12 +80,12 @@ public class WatchTimeListener extends CommandBase {
             return String.format("%d minutes", minutes);
         }
     }
-    
+
     //watchdata has been tracked since the cutoff date
     private boolean isOldViewer(TwitchUser user) {
         return watchTimeDb.getFirstSeenById(user.getUserID()).compareTo(CUTOFF_DATE) < 0;
     }
-    
+
     //August 30, 2019
     private static Date generateCutoffDate() {
         Calendar date = new GregorianCalendar();

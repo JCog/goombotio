@@ -1,11 +1,10 @@
 package Listeners.Commands;
 
-import Util.TwitchUserLevel;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.jcog.utils.TwitchUserLevel;
 
-import javax.swing.*;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
@@ -14,9 +13,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public abstract class CommandBase implements TwirkListener {
-    
+
     private static final char GENERIC_COMMAND_CHAR = '!';
-    
+
     /*
     PREFIX_COMMAND: command (first "word") matches exactly
     CONTENT_COMMAND: message contains pattern
@@ -35,7 +34,7 @@ public abstract class CommandBase implements TwirkListener {
     private final int cooldownLength;
 
     final ScheduledExecutorService scheduler;
-    
+
     private final TwitchUserLevel.USER_LEVEL minPrivilege;
     private boolean coolingDown;
 
@@ -51,7 +50,7 @@ public abstract class CommandBase implements TwirkListener {
     @Override
     public void onPrivMsg(TwitchUser sender, TwitchMessage message) {
         String exactContent = message.getContent().trim();
-        if(exactContent.length() == 0) {
+        if (exactContent.length() == 0) {
             return;
         }
         String content = message.getContent().toLowerCase(Locale.ENGLISH).trim();
@@ -59,7 +58,7 @@ public abstract class CommandBase implements TwirkListener {
         String command = split[0];
         char firstChar = content.charAt(0);
 
-        if( !coolingDown && TwitchUserLevel.getUserLevel(sender).value >= minPrivilege.value ) {
+        if (!coolingDown && TwitchUserLevel.getUserLevel(sender).value >= minPrivilege.value) {
             switch (commandType) {
                 case PREFIX_COMMAND:
                     for (String pattern : commandPattern) {
@@ -70,7 +69,7 @@ public abstract class CommandBase implements TwirkListener {
                         }
                     }
                     break;
-    
+
                 case CONTENT_COMMAND:
                     for (String pattern : commandPattern) {
                         if (content.contains(pattern)) {
@@ -80,7 +79,7 @@ public abstract class CommandBase implements TwirkListener {
                         }
                     }
                     break;
-    
+
                 case EXACT_MATCH_COMMAND:
                     for (String pattern : commandPattern) {
                         if (exactContent.equals(pattern)) {

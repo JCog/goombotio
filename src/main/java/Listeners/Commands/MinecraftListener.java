@@ -1,11 +1,12 @@
 package Listeners.Commands;
 
 import APIs.MinecraftApi;
-import Database.Misc.MinecraftUserDb;
 import Util.TwirkInterface;
-import Util.TwitchUserLevel;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.jcog.utils.TwitchUserLevel;
+import com.jcog.utils.database.DbManager;
+import com.jcog.utils.database.misc.MinecraftUserDb;
 
 import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,12 +15,13 @@ public class MinecraftListener extends CommandBase {
     private static final String PATTERN = "!minecraft";
     private static final String GENERIC_MESSAGE = "We have a Minecraft server for subs! To join, register your Minecraft username by typing \"!minecraft <username>\" in the chat and you'll automatically be added to the whitelist if you're subbed to the channel. Then, add a new server with the address \"minecraft.jcoggers.com\". Have fun! PunchTrees";
 
-    private final MinecraftUserDb minecraftUserDb = MinecraftUserDb.getInstance();
+    private final MinecraftUserDb minecraftUserDb;
     private final TwirkInterface twirk;
 
-    public MinecraftListener(ScheduledExecutorService scheduler, TwirkInterface twirk) {
+    public MinecraftListener(ScheduledExecutorService scheduler, TwirkInterface twirk, DbManager dbManager) {
         super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
+        minecraftUserDb = dbManager.getMinecraftUserDb();
     }
 
     @Override
