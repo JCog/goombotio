@@ -35,6 +35,7 @@ public class CommandParser {
 
     private static final String TYPE_ARG = "arg";
     private static final String TYPE_CHANNEL = "channel";
+    private static final String TYPE_CHOOSE = "choose";
     private static final String TYPE_COUNT = "count";
     private static final String TYPE_FOLLOW_AGE = "followage";
     private static final String TYPE_QUERY = "query";
@@ -43,7 +44,7 @@ public class CommandParser {
     private static final String TYPE_UPTIME = "uptime";
     private static final String TYPE_URL_FETCH = "urlfetch";
     private static final String TYPE_USER_ID = "userid";
-    private static final String TYPE_WEIGHT = "weight";
+    private static final String TYPE_WEIGHTED = "weighted";
 
     private static final OkHttpClient client = new OkHttpClient();
 
@@ -83,7 +84,7 @@ public class CommandParser {
             content = split[1];
         }
         switch (type) {
-            case TYPE_ARG:
+            case TYPE_ARG: {
                 int arg;
                 try {
                     arg = Integer.parseInt(content) + 1;
@@ -101,26 +102,35 @@ public class CommandParser {
                 else {
                     return "";
                 }
-            case TYPE_CHANNEL:
+            }
+            case TYPE_CHANNEL: {
                 return streamerUser.getLogin();
-            case TYPE_COUNT:
+            }
+            case TYPE_CHOOSE: {
+                String[] entries = content.split("\\|");
+                return entries[random.nextInt(entries.length)];
+            }
+            case TYPE_COUNT: {
                 commandDb.incrementCount(commandItem.getId());
                 return Integer.toString(commandItem.getCount() + 1);
-            case TYPE_FOLLOW_AGE:
+            }
+            case TYPE_FOLLOW_AGE: {
                 if (content.split(" ").length == 1) {
                     return getFollowAgeString(content);
                 }
                 else {
                     return ERROR;
                 }
-            case TYPE_QUERY:
+            }
+            case TYPE_QUERY: {
                 if (arguments.length > 1) {
                     return twitchMessage.getContent().split(" ", 2)[1];
                 }
                 else {
                     return "";
                 }
-            case TYPE_RAND:
+            }
+            case TYPE_RAND: {
                 String[] rangeSplit = content.split(",");
                 if (rangeSplit.length != 2) {
                     return String.format(ERROR_INVALID_RANGE, content);
@@ -139,14 +149,16 @@ public class CommandParser {
                 }
                 int randomOutput = random.nextInt(high - low + 1) + low;
                 return Integer.toString(randomOutput);
-            case TYPE_TOUSER:
+            }
+            case TYPE_TOUSER: {
                 if (arguments.length > 1) {
                     return arguments[1];
                 }
                 else {
                     return user.getUserName();
                 }
-            case TYPE_UPTIME:
+            }
+            case TYPE_UPTIME: {
                 Stream stream;
                 try {
                     stream = twitchApi.getStream();
@@ -161,11 +173,14 @@ public class CommandParser {
                 else {
                     return getTimeString(stream.getUptime().toMillis() / 1000);
                 }
-            case TYPE_URL_FETCH:
+            }
+            case TYPE_URL_FETCH: {
                 return submitRequest(content);
-            case TYPE_USER_ID:
+            }
+            case TYPE_USER_ID: {
                 return Long.toString(user.getUserID());
-            case TYPE_WEIGHT:
+            }
+            case TYPE_WEIGHTED: {
                 String[] entries = content.split("\\|");
                 ArrayList<Integer> weights = new ArrayList<>();
                 ArrayList<String> messages = new ArrayList<>();
@@ -198,8 +213,10 @@ public class CommandParser {
                     }
                 }
                 return ERROR;
-            default:
+            }
+            default: {
                 return ERROR;
+            }
         }
     }
 

@@ -76,7 +76,7 @@ public class FollowLogger {
                 }
                 catch (HystrixRuntimeException e) {
                     e.printStackTrace();
-                    System.out.println(String.format("Error retrieving updated follower list. Trying again in %dms", INTERVAL));
+                    System.out.println(String.format("Error retrieving updated follower list. Trying again in %dmin", INTERVAL));
                     return;
                 }
                 if (oldFollowerIdList == null) {
