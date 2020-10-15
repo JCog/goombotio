@@ -31,7 +31,7 @@ public class PapePredsManager extends PredsManagerBase {
         SPOODLY_SPUN
     }
 
-    private final HashMap<TwitchUser, ArrayList<Badge>> predictionList = new HashMap<>();
+    private final HashMap<Long, PapePredsObject> predictionList = new HashMap<>();
     private final DbManager dbManager;
 
     /**
@@ -42,36 +42,6 @@ public class PapePredsManager extends PredsManagerBase {
     public PapePredsManager(TwirkInterface twirk, DbManager dbManager) {
         super(twirk, dbManager);
         this.dbManager = dbManager;
-    }
-
-    /**
-     * Submits a prediction for the badge order of the badge shop. All three badges should be unique. If the user has
-     * already has a recorded prediction, the old one is removed and replaced with the current one.
-     *
-     * @param user   user making the prediction
-     * @param first  left badge
-     * @param second middle badge
-     * @param third  right badge
-     */
-    private void makePrediction(TwitchUser user, Badge first, Badge second, Badge third) {
-        if (enabled) {
-            ArrayList<Badge> prediction = new ArrayList<>();
-            prediction.add(first);
-            prediction.add(second);
-            prediction.add(third);
-
-            //apparently every user object is unique even if it's the same user, so you can't assume a 2nd prediction
-            //from the same user will overwrite the first one. I should probably use the id as a key, but then I don't
-            //have easy access to the user object. TODO: fix this
-            Iterator<Map.Entry<TwitchUser, ArrayList<Badge>>> it = predictionList.entrySet().iterator();
-            while (it.hasNext()) {
-                if (it.next().getKey().getUserID() == user.getUserID()) {
-                    it.remove();
-                    break;
-                }
-            }
-            predictionList.put(user, prediction);
-        }
     }
 
     /**
@@ -134,12 +104,12 @@ public class PapePredsManager extends PredsManagerBase {
             }
 
             if (badgeGuess.size() == 3) {
-                makePrediction(
+                predictionList.put(user.getUserID(), new PapePredsObject(
                         user,
                         stringToBadge(badgeGuess.get(0)),
                         stringToBadge(badgeGuess.get(1)),
                         stringToBadge(badgeGuess.get(2))
-                );
+                ));
                 System.out.println(String.format("%s has predicted %s %s %s",
                         user.getUserName(), badgeGuess.get(0), badgeGuess.get(1), badgeGuess.get(2)));
             }
@@ -159,7 +129,7 @@ public class PapePredsManager extends PredsManagerBase {
                 Badge badge2 = intToBadge(badgeGuess.get(1));
                 Badge badge3 = intToBadge(badgeGuess.get(2));
 
-                makePrediction(user, badge1, badge2, badge3);
+                predictionList.put(user.getUserID(), new PapePredsObject(user, badge1, badge2, badge3));
 
                 System.out.println(String.format("%s has predicted %s %s %s", user.getUserName(),
                         badgeToString(badge1), badgeToString(badge2), badgeToString(badge3)));
@@ -174,18 +144,18 @@ public class PapePredsManager extends PredsManagerBase {
         answerSet.add(rightAnswer);
 
         ArrayList<String> winners = new ArrayList<>();
-        for (Map.Entry<TwitchUser, ArrayList<Badge>> pred : predictionList.entrySet()) {
-            TwitchUser user = pred.getKey();
-            Badge leftGuess = pred.getValue().get(0);
-            Badge middleGuess = pred.getValue().get(1);
-            Badge rightGuess = pred.getValue().get(2);
+        for (PapePredsObject pred : predictionList.values()) {
+            TwitchUser user = pred.getTwitchUser();
+            Badge leftGuess = pred.getLeft();
+            Badge middleGuess = pred.getMiddle();
+            Badge rightGuess = pred.getRight();
             Set<Badge> guessSet = new HashSet<>();
             guessSet.add(leftGuess);
             guessSet.add(middleGuess);
             guessSet.add(rightGuess);
 
             if (leftGuess == leftAnswer && middleGuess == middleAnswer && rightGuess == rightAnswer) {
-                winners.add(pred.getKey().getDisplayName());
+                winners.add(user.getDisplayName());
                 leaderboard.addPointsAndWins(user, POINTS_3, 1);
                 out.println(String.format("%s guessed 3 correctly. Adding %d points and a win.", user.getDisplayName(),
                         POINTS_3));
