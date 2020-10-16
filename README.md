@@ -60,7 +60,7 @@ When adding and editing commands, you can also specify the minimum user level re
 
 `!command_name` / `command response` is the same as above.
 
-`cooldown` is the minimum number of miliseconds between command uses.
+`cooldown` is the minimum number of seconds between command uses.
 
 `userlevel` is the minimum user level required to use the command, as specified below
 
