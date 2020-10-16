@@ -13,7 +13,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import util.FileWriter;
-import util.Settings;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -33,13 +32,30 @@ public class MinecraftWhitelistUpdater {
     private final TwitchApi twitchApi;
     private final User streamerUser;
     private final ScheduledExecutorService scheduler;
+    private final String server;
+    private final String user;
+    private final String password;
+    private final String whitelistLocation;
 
     private ScheduledFuture<?> scheduledFuture;
 
-    public MinecraftWhitelistUpdater(DbManager dbManager, TwitchApi twitchApi, User streamerUser, ScheduledExecutorService scheduler) {
+    public MinecraftWhitelistUpdater(
+            DbManager dbManager,
+            TwitchApi twitchApi,
+            User streamerUser,
+            ScheduledExecutorService scheduler,
+            String server,
+            String user,
+            String password,
+            String whitelistLocation
+    ) {
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
         this.scheduler = scheduler;
+        this.server = server;
+        this.user = user;
+        this.password = password;
+        this.whitelistLocation = whitelistLocation;
         minecraftUserDb = dbManager.getMinecraftUserDb();
     }
 
@@ -132,11 +148,6 @@ public class MinecraftWhitelistUpdater {
     }
 
     private void updateRemoteWhitelist() {
-        String server = Settings.getMinecraftServer();
-        String user = Settings.getMinecraftUser();
-        String password = Settings.getMinecraftPassword();
-        String whitelistLocation = Settings.getMinecraftWhitelistLocation();
-
         Session session;
         try {
             session = jsch.getSession(user, server);

@@ -28,26 +28,35 @@ public class MainBotController {
     private static final int SOCIAL_INTERVAL_LENGTH = 20;
     private static final int TIMER_THREAD_SIZE = 5;
 
+    private final Settings settings = new Settings();
     private final DbManager dbManager = new DbManager(
-            Settings.getDbHost(),
-            Settings.getDbPort(),
+            settings.getDbHost(),
+            settings.getDbPort(),
             DB_NAME,
-            Settings.getDbUser(),
-            Settings.getDbPassword(),
-            Settings.hasWritePermission()
+            settings.getDbUser(),
+            settings.getDbPassword(),
+            settings.hasWritePermission()
     );
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(TIMER_THREAD_SIZE);
     private final Twitter twitter = getTwitterInstance();
     private final DiscordBotController discordBotController = DiscordBotController.getInstance();
     private final ChatLogger chatLogger = new ChatLogger();
     private final TwitchApi twitchApi = new TwitchApi(
-            Settings.getTwitchStream(),
-            Settings.getTwitchChannelAuthToken(),
-            Settings.getTwitchChannelClientId()
+            settings.getTwitchStream(),
+            settings.getTwitchChannelAuthToken(),
+            settings.getTwitchChannelClientId()
     );
-    private final User botUser = twitchApi.getUserByUsername(Settings.getTwitchUsername());
-    private final User streamerUser = twitchApi.getUserByUsername(Settings.getTwitchStream());
-    private final TwirkInterface twirk = new TwirkInterface(chatLogger, botUser);
+    private final User botUser = twitchApi.getUserByUsername(settings.getTwitchUsername());
+    private final User streamerUser = twitchApi.getUserByUsername(settings.getTwitchStream());
+    private final TwirkInterface twirk = new TwirkInterface(
+            chatLogger,
+            botUser,
+            settings.getTwitchChannel(),
+            settings.getTwitchUsername(),
+            settings.getTwitchBotOauth(),
+            settings.isSilentMode(),
+            settings.isVerboseLogging()
+    );
     private final CloudListener cloudListener = new CloudListener(twirk);
     private final StreamTracker streamTracker = new StreamTracker(
             twirk,
@@ -77,11 +86,15 @@ public class MainBotController {
             dbManager,
             twitchApi,
             streamerUser,
-            scheduler
+            scheduler,
+            settings.getMinecraftServer(),
+            settings.getMinecraftUser(),
+            settings.getMinecraftPassword(),
+            settings.getMinecraftWhitelistLocation()
     );
 
     public synchronized void run() {
-        discordBotController.init();
+        discordBotController.init(settings.getDiscordToken());
         scheduledMessageController.start();
         followLogger.start();
         addAllListeners();
@@ -147,7 +160,7 @@ public class MainBotController {
         twirk.addIrcListener(new ChatLoggerListener(chatLogger));
         twirk.addIrcListener(cloudListener);
         twirk.addIrcListener(new EmoteListener(dbManager));
-        twirk.addIrcListener(new LinkListener(twirk, twitchApi, twitter));
+        twirk.addIrcListener(new LinkListener(twirk, twitchApi, twitter, settings.getYoutubeApiKey()));
         twirk.addIrcListener(new PyramidListener(twirk));
         twirk.addIrcListener(scheduledMessageController.getListener());
         twirk.addIrcListener(new SubListener(twirk, scheduler));
@@ -178,10 +191,10 @@ public class MainBotController {
     private Twitter getTwitterInstance() {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true)
-                .setOAuthConsumerKey(Settings.getTwitterConsumerKey())
-                .setOAuthConsumerSecret(Settings.getTwitterConsumerSecret())
-                .setOAuthAccessToken(Settings.getTwitterAccessToken())
-                .setOAuthAccessTokenSecret(Settings.getTwitterAccessTokenSecret());
+                .setOAuthConsumerKey(settings.getTwitterConsumerKey())
+                .setOAuthConsumerSecret(settings.getTwitterConsumerSecret())
+                .setOAuthAccessToken(settings.getTwitterAccessToken())
+                .setOAuthAccessTokenSecret(settings.getTwitterAccessTokenSecret());
         TwitterFactory tf = new TwitterFactory(cb.build());
         return tf.getInstance();
     }

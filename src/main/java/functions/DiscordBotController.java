@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.exceptions.VerificationLevelException;
-import util.Settings;
 
 import javax.security.auth.login.LoginException;
 
@@ -23,10 +22,10 @@ public class DiscordBotController {
         return dbc;
     }
 
-    public void init() {
+    public void init(String token) {
         try {
             JDABuilder builder = new JDABuilder(AccountType.BOT);
-            builder.setToken(Settings.getDiscordToken());
+            builder.setToken(token);
             jda = builder.build().awaitReady();
             out.println("Goombotio login to Discord successful.");
         }

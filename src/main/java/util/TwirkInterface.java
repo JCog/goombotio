@@ -14,12 +14,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class TwirkInterface {
-    private final String channel = Settings.getTwitchChannel();
-    private final String nick = Settings.getTwitchUsername();
-    private final String oauth = Settings.getTwitchBotOauth();
-    private final Boolean silent = Settings.isSilentMode();
-    private final Boolean verbose = Settings.isVerboseLogging();
     private final HashSet<TwirkListener> twirkListeners = new HashSet<>();
+    private final String channel;
+    private final String nick;
+    private final String oauth;
+    private final Boolean silent;
+    private final Boolean verbose;
 
     private final String botDisplayName;
     private final long botId;
@@ -27,8 +27,21 @@ public class TwirkInterface {
 
     private Twirk twirk;
 
-    public TwirkInterface(ChatLogger chatLogger, User botUser) {
+    public TwirkInterface(
+            ChatLogger chatLogger,
+            User botUser,
+            String channel,
+            String nick,
+            String oauth,
+            Boolean silent,
+            Boolean verbose
+    ) {
         this.chatLogger = chatLogger;
+        this.channel = channel;
+        this.nick = nick;
+        this.oauth = oauth;
+        this.silent = silent;
+        this.verbose = verbose;
         botDisplayName = botUser.getDisplayName();
         botId = Long.parseLong(botUser.getId());
     }
@@ -36,7 +49,7 @@ public class TwirkInterface {
     /**
      * Sends a message to twitch chat if the first non-whitespace character is not '/' to prevent commands
      *
-     * @param line
+     * @param line message to send
      */
     public void channelMessage(String line) {
         String output = line.trim();

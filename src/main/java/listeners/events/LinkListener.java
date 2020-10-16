@@ -13,7 +13,6 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import util.Settings;
 import util.TwirkInterface;
 
 import java.text.NumberFormat;
@@ -36,10 +35,10 @@ public class LinkListener implements TwirkListener {
     private final Twitter twitter;
     private final String youtubeApiKey;
 
-    public LinkListener(TwirkInterface twirk, TwitchApi twitchApi, Twitter twitter) {
+    public LinkListener(TwirkInterface twirk, TwitchApi twitchApi, Twitter twitter, String youtubeApiKey) {
         this.twirk = twirk;
         this.twitchApi = twitchApi;
-        this.youtubeApiKey = Settings.getYoutubeApiKey();
+        this.youtubeApiKey = youtubeApiKey;
         this.twitter = twitter;
     }
 
