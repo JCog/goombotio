@@ -56,8 +56,7 @@ public class GenericCommandListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        CommandItem commandItem = commandDb.getCommandItem(command);
-        if (message.getContent().matches(".*\\$\\(.*\\).*")) {
+        if (message.getContent().matches(".*\\$\\(.*\\).*") && !isReservedCommand(command)) {
             System.out.println(String.format(
                     "Ignoring user (%s) attempt at custom variable: %s",
                     sender.getDisplayName(),
@@ -65,6 +64,8 @@ public class GenericCommandListener extends CommandBase {
             ));
             return;
         }
+
+        CommandItem commandItem = commandDb.getCommandItem(command);
         if (commandItem != null && userHasPermission(sender, commandItem) && !cooldownActive(commandItem)) {
             twirk.channelMessage(commandParser.parse(commandItem, sender, message));
             startCooldown(commandItem);
@@ -91,5 +92,9 @@ public class GenericCommandListener extends CommandBase {
 
     private boolean cooldownActive(CommandItem commandItem) {
         return activeCooldowns.contains(commandItem.getId());
+    }
+
+    private boolean isReservedCommand(String commandId) {
+        return twirk.getReservedCommandPatterns().contains(commandId);
     }
 }

@@ -82,7 +82,7 @@ public class TwirkInterface {
         sendMessage(output);
     }
 
-    public Set<String> getCommandPatterns() {
+    public Set<String> getReservedCommandPatterns() {
         HashSet<String> commands = new HashSet<>();
         for (TwirkListener listener : twirkListeners) {
             if (CommandBase.class.isAssignableFrom(listener.getClass()) && listener.getClass() != GenericCommandListener.class) {
