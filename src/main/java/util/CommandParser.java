@@ -17,6 +17,7 @@ import okhttp3.Response;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
@@ -242,8 +243,7 @@ public class CommandParser {
         }
 
         if (follow != null) {
-            //TODO: convert to getFollowedAtInstant() - https://stackoverflow.com/questions/32437550/whats-the-difference-between-instant-and-localdatetime
-            LocalDate followDate = follow.getFollowedAt().toLocalDate();
+            LocalDate followDate = follow.getFollowedAtInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             LocalDate today = LocalDate.now();
             Period period = Period.between(followDate, today);
             int years = period.getYears();
