@@ -16,7 +16,7 @@ public class CommandManagerListener extends CommandBase {
     private final static String PATTERN = "!commands";
     private final static String USER_LEVEL_TAG = "-ul=";
     private final static String COOLDOWN_TAG = "-cd=";
-    private final static long DEFAULT_COOLDOWN = 2 * 1000;
+    private final static long DEFAULT_COOLDOWN = 2; // seconds
 
     private final CommandDb commandDb;
     private final TwirkInterface twirk;

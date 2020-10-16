@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
-    implementation group: 'com.github.JCog', name: 'gb-utils', version: 'v1.3.0'
+    implementation group: 'com.github.JCog', name: 'gb-utils', version: 'v1.3.1'
     implementation group: 'com.github.gikkman', name: 'Java-Twirk', version: '0.6.2'
     implementation group: 'org.mongodb', name: 'mongodb-driver-sync', version: '4.1.0'
     implementation group: 'com.squareup.retrofit2', name: 'retrofit', version: '2.4.0'

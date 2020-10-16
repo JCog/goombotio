@@ -86,7 +86,7 @@ public class GenericCommandListener extends CommandBase {
             public void run() {
                 activeCooldowns.remove(commandItem.getId());
             }
-        }, commandItem.getCooldown(), TimeUnit.MILLISECONDS);
+        }, commandItem.getCooldown(), TimeUnit.SECONDS);
     }
 
     private boolean cooldownActive(CommandItem commandItem) {
