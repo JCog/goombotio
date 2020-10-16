@@ -27,7 +27,7 @@ public class LinkListener implements TwirkListener {
 
     private static final Pattern clipPattern = Pattern.compile(URL_START + "(?:www\\.|clips\\.)?twitch\\.tv/(?:[a-zA-Z0-9_]+/clip/)?([a-zA-Z]+)" + URL_END);
     private static final Pattern videoPattern = Pattern.compile(URL_START + "(?:www\\.)?twitch\\.tv/videos/([0-9]+)" + URL_END);
-    private static final Pattern youtubePattern = Pattern.compile(URL_START + "(?:www\\.)?(?:youtube\\.com/watch\\?v=|youtu\\.be/)([a-zA-Z0-9_\\-]+)" + URL_END);
+    private static final Pattern youtubePattern = Pattern.compile(URL_START + "(?:www\\.)?(?:youtube\\.com/watch\\?[a-zA-Z0-9_=&]*v=|youtu\\.be/)([a-zA-Z0-9_\\-]+)" + URL_END);
     private static final Pattern tweetPattern = Pattern.compile(URL_START + "(?:www\\.)?(?:twitter\\.com/[a-zA-Z0-9_]+/status/)([0-9]+)" + URL_END);
 
     private final TwirkInterface twirk;
