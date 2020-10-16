@@ -10,40 +10,12 @@ public class Settings {
 
     /////////////////////  TAGS  /////////////////////
     private static final String GENERAL_CAT_TAG = "general";
-    private static final String GENERAL_VERBOSE_LOGGING_TAG = "verboseLogging";
-    private static final String GENERAL_SILENT_MODE_TAG = "silentMode";
-    private static final String GENERAL_WRITE_PERMISSION_TAG = "writePermission";
-
     private static final String DB_CAT_TAG = "database";
-    private static final String DB_HOST_TAG = "host";
-    private static final String DB_PORT_TAG = "port";
-    private static final String DB_USER_TAG = "user";
-    private static final String DB_PASSWORD_TAG = "password";
-
     private static final String TWITCH_CAT_TAG = "twitch";
-    private static final String TWITCH_STREAM_TAG = "stream";
-    private static final String TWITCH_USERNAME_TAG = "username";
-    private static final String TWITCH_CHANNEL_AUTH_TOKEN_TAG = "channelAuthToken";
-    private static final String TWITCH_CHANNEL_CLIENT_ID_TAG = "channelClientId";
-    private static final String TWITCH_BOT_AUTH_TOKEN_TAG = "botAuthToken";
-
     private static final String DISCORD_CAT_TAG = "discord";
-    private static final String DISCORD_TOKEN_TAG = "token";
-
     private static final String YOUTUBE_CAT_TAG = "youtube";
-    private static final String YOUTUBE_API_KEY_TAG = "apiKey";
-
     private static final String TWITTER_CAT_TAG = "twitter";
-    private static final String TWITTER_CONSUMER_KEY_TAG = "consumerKey";
-    private static final String TWITTER_CONSUMER_SECRET_TAG = "consumerSecret";
-    private static final String TWITTER_ACCESS_TOKEN_TAG = "accessToken";
-    private static final String TWITTER_ACCESS_TOKEN_SECRET_TAG = "accessTokenSecret";
-
     private static final String MINECRAFT_CAT_TAG = "minecraft";
-    private static final String MINECRAFT_SERVER_TAG = "server";
-    private static final String MINECRAFT_USER_TAG = "user";
-    private static final String MINECRAFT_PASSWORD_TAG = "password";
-    private static final String MINECRAFT_WHITELIST_LOCATION_TAG = "whitelistLocation";
 
     /////////////////////  VARS  /////////////////////
     private static boolean VERBOSE_LOGGING;
@@ -88,34 +60,34 @@ public class Settings {
             return;
         }
 
-        VERBOSE_LOGGING = ini.get(GENERAL_CAT_TAG, GENERAL_VERBOSE_LOGGING_TAG, boolean.class);
-        SILENT_MODE = ini.get(GENERAL_CAT_TAG, GENERAL_SILENT_MODE_TAG, boolean.class);
-        WRITE_PERMISSION = ini.get(GENERAL_CAT_TAG, GENERAL_WRITE_PERMISSION_TAG, boolean.class);
+        VERBOSE_LOGGING = ini.get(GENERAL_CAT_TAG, "verboseLogging", boolean.class);
+        SILENT_MODE = ini.get(GENERAL_CAT_TAG, "silentMode", boolean.class);
+        WRITE_PERMISSION = ini.get(GENERAL_CAT_TAG, "writePermission", boolean.class);
 
-        DB_HOST = ini.get(DB_CAT_TAG, DB_HOST_TAG);
-        DB_PORT = ini.get(DB_CAT_TAG, DB_PORT_TAG, int.class);
-        DB_USER = ini.get(DB_CAT_TAG, DB_USER_TAG);
-        DB_PASSWORD = ini.get(DB_CAT_TAG, DB_PASSWORD_TAG);
+        DB_HOST = ini.get(DB_CAT_TAG, "host");
+        DB_PORT = ini.get(DB_CAT_TAG, "port", int.class);
+        DB_USER = ini.get(DB_CAT_TAG, "user");
+        DB_PASSWORD = ini.get(DB_CAT_TAG, "password");
 
-        TWITCH_STREAM = ini.get(TWITCH_CAT_TAG, TWITCH_STREAM_TAG);
-        TWITCH_USERNAME = ini.get(TWITCH_CAT_TAG, TWITCH_USERNAME_TAG);
-        TWITCH_CHANNEL_AUTH_TOKEN = ini.get(TWITCH_CAT_TAG, TWITCH_CHANNEL_AUTH_TOKEN_TAG);
-        TWITCH_CHANNEL_CLIENT_ID = ini.get(TWITCH_CAT_TAG, TWITCH_CHANNEL_CLIENT_ID_TAG);
-        TWITCH_BOT_AUTH_TOKEN = ini.get(TWITCH_CAT_TAG, TWITCH_BOT_AUTH_TOKEN_TAG);
+        TWITCH_STREAM = ini.get(TWITCH_CAT_TAG, "stream");
+        TWITCH_USERNAME = ini.get(TWITCH_CAT_TAG, "username");
+        TWITCH_CHANNEL_AUTH_TOKEN = ini.get(TWITCH_CAT_TAG, "channelAuthToken");
+        TWITCH_CHANNEL_CLIENT_ID = ini.get(TWITCH_CAT_TAG, "channelClientId");
+        TWITCH_BOT_AUTH_TOKEN = ini.get(TWITCH_CAT_TAG, "botAuthToken");
 
-        DISCORD_TOKEN = ini.get(DISCORD_CAT_TAG, DISCORD_TOKEN_TAG);
+        DISCORD_TOKEN = ini.get(DISCORD_CAT_TAG, "token");
 
-        YOUTUBE_API_KEY = ini.get(YOUTUBE_CAT_TAG, YOUTUBE_API_KEY_TAG);
+        YOUTUBE_API_KEY = ini.get(YOUTUBE_CAT_TAG, "apiKey");
 
-        TWITTER_CONSUMER_KEY = ini.get(TWITTER_CAT_TAG, TWITTER_CONSUMER_KEY_TAG);
-        TWITTER_CONSUMER_SECRET = ini.get(TWITTER_CAT_TAG, TWITTER_CONSUMER_SECRET_TAG);
-        TWITTER_ACCESS_TOKEN = ini.get(TWITTER_CAT_TAG, TWITTER_ACCESS_TOKEN_TAG);
-        TWITTER_ACCESS_TOKEN_SECRET = ini.get(TWITTER_CAT_TAG, TWITTER_ACCESS_TOKEN_SECRET_TAG);
+        TWITTER_CONSUMER_KEY = ini.get(TWITTER_CAT_TAG, "consumerKey");
+        TWITTER_CONSUMER_SECRET = ini.get(TWITTER_CAT_TAG, "consumerSecret");
+        TWITTER_ACCESS_TOKEN = ini.get(TWITTER_CAT_TAG, "accessToken");
+        TWITTER_ACCESS_TOKEN_SECRET = ini.get(TWITTER_CAT_TAG, "accessTokenSecret");
 
-        MINECRAFT_SERVER = ini.get(MINECRAFT_CAT_TAG, MINECRAFT_SERVER_TAG);
-        MINECRAFT_USER = ini.get(MINECRAFT_CAT_TAG, MINECRAFT_USER_TAG);
-        MINECRAFT_PASSWORD = ini.get(MINECRAFT_CAT_TAG, MINECRAFT_PASSWORD_TAG);
-        MINECRAFT_WHITELIST_LOCATION = ini.get(MINECRAFT_CAT_TAG, MINECRAFT_WHITELIST_LOCATION_TAG);
+        MINECRAFT_SERVER = ini.get(MINECRAFT_CAT_TAG, "server");
+        MINECRAFT_USER = ini.get(MINECRAFT_CAT_TAG, "user");
+        MINECRAFT_PASSWORD = ini.get(MINECRAFT_CAT_TAG, "password");
+        MINECRAFT_WHITELIST_LOCATION = ini.get(MINECRAFT_CAT_TAG, "whitelistLocation");
     }
 
     public static boolean isVerboseLogging() {
