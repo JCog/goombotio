@@ -27,25 +27,36 @@ public class SpeedrunApi extends BaseAPI {
 
     private static final String ERROR_MESSAGE = "The SRC certificate has expired. Tell @JCog to fix it. :)";
 
-    public enum Game {
-        BUG_FABLES("bug_fables/"),
-        SUNSHINE("sms/"),
-        PAPER_MARIO("pm64/"),
-        PAPER_MARIO_MEMES("pm64memes/"),
-        TTYD("ttyd/");
+    interface Category {
+        String getUri();
+    }
 
+    public enum Game {
+        BUG_FABLES("Bug Fables", "bug_fables/"),
+        SUNSHINE("Super Mario Sunshine", "sms/"),
+        PAPER_MARIO("Paper Mario", "pm64/"),
+        PAPER_MARIO_MEMES("Paper Mario", "pm64memes/"),
+        TTYD("Paper Mario: The Thousand-Year Door", "ttyd/");
+
+        private final String name;
         private final String uri;
 
-        Game(String uri) {
+        Game(String name, String uri) {
+            this.name = name;
             this.uri = uri;
         }
 
         public String getUri() {
             return uri;
         }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
-    public enum BugFablesCategory {
+    public enum BugFablesCategory implements Category {
         ANY_PERCENT("Any%", "any"),
         HUNDO("100%", "100"),
         GLITCHLESS("Any% Glitchless", "any_glitchless"),
@@ -73,7 +84,7 @@ public class SpeedrunApi extends BaseAPI {
         }
     }
 
-    public enum SunshineCategory {
+    public enum SunshineCategory implements Category {
         ANY_PERCENT("Any%", "any"),
         ALL_EPISODES("All Episodes", "all_episodes"),
         SHINES_79("79 Shines", "79_shines"),
@@ -98,7 +109,7 @@ public class SpeedrunApi extends BaseAPI {
         }
     }
 
-    public enum PapeCategory {
+    public enum PapeCategory implements Category {
         ANY_PERCENT("Any%", "any"),
         ANY_PERCENT_NO_PW("Any% (No PW)", "any_no_pw"),
         ALL_CARDS("All Cards", "all_cards"),
@@ -131,7 +142,7 @@ public class SpeedrunApi extends BaseAPI {
         }
     }
 
-    public enum TtydCategory {
+    public enum TtydCategory implements Category {
         ANY_PERCENT("Any%", "any"),
         ALL_CRYSTAL_STARS("All Crystal Stars", "all_crystal_stars"),
         GLITCHLESS("Glitchless", "glitchless"),
@@ -157,14 +168,14 @@ public class SpeedrunApi extends BaseAPI {
         }
     }
 
-    public enum PapePlatform {
+    public enum Platform {
         N64("n64"),
         WII("wiivc"),
         WIIU("wiiuvc");
 
         private final String uri;
 
-        PapePlatform(String uri) {
+        Platform(String uri) {
             this.uri = uri;
         }
 
@@ -177,7 +188,7 @@ public class SpeedrunApi extends BaseAPI {
         return submitRequest(TEST_URL) != null;
     }
 
-    public static String getWr(Game game, BugFablesCategory category) {
+    public static String getWr(Game game, Category category) {
         String gameString = game.getUri();
         String categoryString = category.getUri();
 
@@ -190,47 +201,7 @@ public class SpeedrunApi extends BaseAPI {
 
         String name = getUsernameFromId(playerId);
         String time = getTimeString(seconds);
-        return String.format("The Bug Fables %s WR is %s by %s", category.toString(), time, name);
-    }
-
-    public static String getWr(Game game, SunshineCategory category) {
-        String gameString = game.getUri();
-        String categoryString = category.getUri();
-
-        String json = getWrJson(gameString, categoryString);
-        if (json == null) {
-            return ERROR_MESSAGE;
-        }
-        String playerId = getPlayerIdFromJson(json);
-        long seconds = getRunTimeFromJson(json);
-
-        String name = getUsernameFromId(playerId);
-        String time = getTimeString(seconds);
-        return String.format("The Super Mario Sunshine %s WR is %s by %s", category.toString(), time, name);
-    }
-
-    /**
-     * Retrieves the current world records for the category specified. Game and
-     * category must match.
-     *
-     * @param game     main or extension leaderboard
-     * @param category speedrunning category
-     * @return formatted string containing WR(s)
-     */
-    public static String getWr(Game game, TtydCategory category) {
-        String gameString = game.getUri();
-        String categoryString = category.getUri();
-
-        String json = getWrJson(gameString, categoryString);
-        if (json == null) {
-            return ERROR_MESSAGE;
-        }
-        String playerId = getPlayerIdFromJson(json);
-        long seconds = getRunTimeFromJson(json);
-
-        String name = getUsernameFromId(playerId);
-        String time = getTimeString(seconds);
-        return String.format("The TTYD %s WR is %s by %s", category.toString(), time, name);
+        return String.format("The %s %s WR is %s by %s", game.toString(), category.toString(), time, name);
     }
 
     /**
@@ -241,7 +212,7 @@ public class SpeedrunApi extends BaseAPI {
      * @param category speedrunning category
      * @return formatted string containing WR(s)
      */
-    public static String getWr(Game game, PapeCategory category) {
+    public static String getPapeWr(Game game, PapeCategory category) {
         String gameString = game.getUri();
         String categoryString = category.getUri();
 
@@ -257,7 +228,7 @@ public class SpeedrunApi extends BaseAPI {
 
 
         if (game.equals(Game.PAPER_MARIO)) {
-            String n64 = PapePlatform.N64.getUri();
+            String n64 = Platform.N64.getUri();
 
             String n64Json = getWrJson(gameString, categoryString, n64);
             String n64PlayerId = getPlayerIdFromJson(n64Json);

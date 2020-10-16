@@ -109,43 +109,43 @@ public class WrListener extends CommandBase {
                 break;
             case GAME_ID_PAPER_MARIO:
                 if (streamTitle.contains("any% (no peach warp)") || streamTitle.contains("any% (no pw)")) {
-                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ANY_PERCENT_NO_PW);
+                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ANY_PERCENT_NO_PW);
                 }
                 else if (streamTitle.contains("any% no rng") || streamTitle.contains("any% (no rng)")) {
-                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.ANY_NO_RNG);
+                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.ANY_NO_RNG);
                 }
                 else if (streamTitle.contains("any%")) {
-                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ANY_PERCENT);
+                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ANY_PERCENT);
                 }
                 else if (streamTitle.contains("all cards") && !streamTitle.contains("reverse")) {
-                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ALL_CARDS);
+                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ALL_CARDS);
                 }
                 else if (streamTitle.contains("all bosses")) {
-                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ALL_BOSSES);
+                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ALL_BOSSES);
                 }
                 else if (streamTitle.contains("glitchless")) {
-                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.GLITCHLESS);
+                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.GLITCHLESS);
                 }
                 else if (streamTitle.contains("100%")) {
-                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.HUNDO);
+                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.HUNDO);
                 }
                 else if (streamTitle.contains("reverse") && streamTitle.contains("all cards")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.REVERSE_ALL_CARDS);
+                    wrText = getPapeWr(Game.PAPER_MARIO, PapeCategory.REVERSE_ALL_CARDS);
                 }
                 else if (streamTitle.contains("pig") || streamTitle.contains("\uD83D\uDC37") || streamTitle.contains("oink")) {
-                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.PIGGIES);
+                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.PIGGIES);
                 }
                 else if (streamTitle.contains("all bloops")) {
-                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.ALL_BLOOPS);
+                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.ALL_BLOOPS);
                 }
                 else if (streamTitle.contains("chapter 1")) {
-                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.BEAT_CHAPTER_1);
+                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.BEAT_CHAPTER_1);
                 }
                 else if (streamTitle.contains("soapcake") || streamTitle.contains("soap cake")) {
-                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.SOAP_CAKE);
+                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.SOAP_CAKE);
                 }
                 else if (streamTitle.contains("mailman") || streamTitle.contains("amazon prime")) {
-                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.MAILMAN);
+                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.MAILMAN);
                 }
                 break;
             case GAME_ID_TTYD:
