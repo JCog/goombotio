@@ -1,4 +1,3 @@
-import api.SpeedrunApi;
 import com.gikk.twirk.events.TwirkListener;
 import com.github.twitch4j.helix.domain.User;
 import com.jcog.utils.TwitchApi;
@@ -89,7 +88,6 @@ public class MainBotController {
         twirk.connect();
         streamTracker.start();
         minecraftWhitelistUpdater.start();
-        checkSrcCert();
 
         out.println("Goombotio is ready.");
 
@@ -175,12 +173,6 @@ public class MainBotController {
                 } while (!twirk.connect());
             }
         };
-    }
-
-    private void checkSrcCert() {
-        if (!SpeedrunApi.certificateIsUpToDate()) {
-            out.println("UPDATE THE SPEEDRUN.COM CERTIFICATE");
-        }
     }
 
     private Twitter getTwitterInstance() {

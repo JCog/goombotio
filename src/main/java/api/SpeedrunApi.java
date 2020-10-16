@@ -13,8 +13,6 @@ public class SpeedrunApi extends BaseAPI {
     private static final String LEADERBOARDS = "leaderboards/";
     private static final String USERS = "users/";
 
-    private static final String TEST_URL = "https://www.speedrun.com/api/v1/leaderboards/o1y9wo6q/category/7dgrrxk4?top=1";
-
     private static final String DATA_KEY = "data";
     private static final String RUNS_KEY = "runs";
     private static final String RUN_KEY = "run";
@@ -169,25 +167,35 @@ public class SpeedrunApi extends BaseAPI {
     }
 
     public enum Platform {
-        N64("n64"),
-        WII("wiivc"),
-        WIIU("wiiuvc");
+        N64("N64", "n64"),
+        WII("Wii VC", "wiivc"),
+        WIIU("Wii U VC", "wiiuvc");
 
+        private final String name;
         private final String uri;
 
-        Platform(String uri) {
+        Platform(String name, String uri) {
+            this.name = name;
             this.uri = uri;
         }
 
         public String getUri() {
             return uri;
         }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
-    public static boolean certificateIsUpToDate() {
-        return submitRequest(TEST_URL) != null;
-    }
-
+    /**
+     * Retrieves the world records for the category specified. Game and category must match.
+     *
+     * @param game     main or extension leaderboard
+     * @param category speedrunning category
+     * @return formatted string containing WR(s)
+     */
     public static String getWr(Game game, Category category) {
         String gameString = game.getUri();
         String categoryString = category.getUri();
@@ -205,16 +213,18 @@ public class SpeedrunApi extends BaseAPI {
     }
 
     /**
-     * Retrieves the current N64 and overall world records for the category specified. Game (main/extension) and
-     * category must match.
+     * Retrieves the platform and overall world records for the category specified. Game, category, and platform must
+     * match.
      *
      * @param game     main or extension leaderboard
      * @param category speedrunning category
+     * @param platform console to check in addition to overall WR
      * @return formatted string containing WR(s)
      */
-    public static String getPapeWr(Game game, PapeCategory category) {
+    public static String getWr(Game game, Category category, Platform platform) {
         String gameString = game.getUri();
         String categoryString = category.getUri();
+        String platformString = platform.getUri();
 
         String allJson = getWrJson(gameString, categoryString);
         if (allJson == null) {
@@ -226,25 +236,28 @@ public class SpeedrunApi extends BaseAPI {
         String allName = getUsernameFromId(allPlayerId);
         String allTime = getTimeString(allSeconds);
 
+        String n64Json = getWrJson(gameString, categoryString, platformString);
+        String n64PlayerId = getPlayerIdFromJson(n64Json);
 
-        if (game.equals(Game.PAPER_MARIO)) {
-            String n64 = Platform.N64.getUri();
+        long n64Seconds = getRunTimeFromJson(n64Json);
+        String platformTime = getTimeString(n64Seconds);
 
-            String n64Json = getWrJson(gameString, categoryString, n64);
-            String n64PlayerId = getPlayerIdFromJson(n64Json);
-
-            long n64Seconds = getRunTimeFromJson(n64Json);
-            String n64Time = getTimeString(n64Seconds);
-
-            String n64Name = getUsernameFromId(n64PlayerId);
+        String platformName = getUsernameFromId(n64PlayerId);
 
 
-            return String.format("The Paper Mario %s WRs are %s by %s overall and %s by %s on N64.", category.toString(), allTime, allName, n64Time, n64Name);
-        }
-        else {
-            return String.format("The Paper Mario %s WR is %s by %s", category.toString(), allTime, allName);
-        }
+        return String.format(
+                "The %s %s WRs are %s by %s overall and %s by %s on %s.",
+                game.toString(),
+                category.toString(),
+                allTime,
+                allName,
+                platformTime,
+                platformName,
+                platform.toString()
+        );
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private static String getPlayerIdFromJson(String json) {
         JSONParser jsonParser = new JSONParser();

@@ -109,43 +109,43 @@ public class WrListener extends CommandBase {
                 break;
             case GAME_ID_PAPER_MARIO:
                 if (streamTitle.contains("any% (no peach warp)") || streamTitle.contains("any% (no pw)")) {
-                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ANY_PERCENT_NO_PW);
+                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ANY_PERCENT_NO_PW, Platform.N64);
                 }
                 else if (streamTitle.contains("any% no rng") || streamTitle.contains("any% (no rng)")) {
-                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.ANY_NO_RNG);
+                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.ANY_NO_RNG, Platform.N64);
                 }
                 else if (streamTitle.contains("any%")) {
-                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ANY_PERCENT);
+                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ANY_PERCENT, Platform.N64);
                 }
                 else if (streamTitle.contains("all cards") && !streamTitle.contains("reverse")) {
-                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ALL_CARDS);
+                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ALL_CARDS, Platform.N64);
                 }
                 else if (streamTitle.contains("all bosses")) {
-                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ALL_BOSSES);
+                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.ALL_BOSSES, Platform.N64);
                 }
                 else if (streamTitle.contains("glitchless")) {
-                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.GLITCHLESS);
+                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.GLITCHLESS, Platform.N64);
                 }
                 else if (streamTitle.contains("100%")) {
-                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.HUNDO);
+                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO, PapeCategory.HUNDO, Platform.N64);
                 }
                 else if (streamTitle.contains("reverse") && streamTitle.contains("all cards")) {
-                    wrText = getPapeWr(Game.PAPER_MARIO, PapeCategory.REVERSE_ALL_CARDS);
+                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.REVERSE_ALL_CARDS, Platform.N64);
                 }
                 else if (streamTitle.contains("pig") || streamTitle.contains("\uD83D\uDC37") || streamTitle.contains("oink")) {
-                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.PIGGIES);
+                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.PIGGIES);
                 }
                 else if (streamTitle.contains("all bloops")) {
-                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.ALL_BLOOPS);
+                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.ALL_BLOOPS);
                 }
                 else if (streamTitle.contains("chapter 1")) {
-                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.BEAT_CHAPTER_1);
+                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.BEAT_CHAPTER_1);
                 }
                 else if (streamTitle.contains("soapcake") || streamTitle.contains("soap cake")) {
-                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.SOAP_CAKE);
+                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.SOAP_CAKE);
                 }
                 else if (streamTitle.contains("mailman") || streamTitle.contains("amazon prime")) {
-                    wrText = getPapeWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.MAILMAN);
+                    wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.MAILMAN);
                 }
                 break;
             case GAME_ID_TTYD:
