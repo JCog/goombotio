@@ -26,14 +26,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CommandParser {
+    private static final int EVAL_LIMIT = 10;
+
     private static final String ERROR = "ERROR";
+    private static final String ERROR_EVAL_LIMIT_EXCEEDED = "-parse limit exceeded, probably stuck in an endless loop-";
+    private static final String ERROR_MISSING_ARGUMENT = "-missing argument-";
+    private static final String ERROR_COMMAND_DNE = "-command \"%s\" does not exist-";
     private static final String ERROR_URL = "-bad url-";
-    private static final String ERROR_URL_RETRIEVAL = "unable to retrieve result from url";
+    private static final String ERROR_URL_RETRIEVAL = "-unable to retrieve result from url-";
     private static final String ERROR_BAD_ARG_NUM_FORMAT = "-bad argument number \"%s\"-";
     private static final String ERROR_INVALID_RANGE = "-invalid range\"%s\"-";
     private static final String ERROR_BAD_ENTRY = "-bad entry-";
     private static final String ERROR_INVALID_WEIGHT = "-invalid weight-";
 
+    private static final String TYPE_ALIAS = "alias";
     private static final String TYPE_ARG = "arg";
     private static final String TYPE_CHANNEL = "channel";
     private static final String TYPE_CHOOSE = "choose";
@@ -64,13 +70,18 @@ public class CommandParser {
     public String parse(CommandItem commandItem, TwitchUser user, TwitchMessage twitchMessage) {
         String output = commandItem.getMessage();
         String expression = getNextExpression(output);
+        int evalCount = 0;
         while (!expression.isEmpty()) {
+            if (evalCount == EVAL_LIMIT) {
+                return ERROR_EVAL_LIMIT_EXCEEDED;
+            }
             String replacement = evaluateExpression(expression, commandItem, user, twitchMessage);
             output = output.replaceFirst(
                     Pattern.quote("$(" + expression + ")"),
                     Matcher.quoteReplacement(replacement)
             );
             expression = getNextExpression(output);
+            evalCount++;
         }
         return output;
     }
@@ -85,6 +96,19 @@ public class CommandParser {
             content = split[1];
         }
         switch (type) {
+            case TYPE_ALIAS: {
+                if (content.isEmpty()) {
+                    return ERROR_MISSING_ARGUMENT;
+                }
+
+                String commandId = content.split(" ", 2)[0];
+                CommandItem aliasCommand = commandDb.getCommandItem(commandId);
+                if (aliasCommand == null) {
+                    return String.format(ERROR_COMMAND_DNE, commandId);
+                }
+
+                return aliasCommand.getMessage();
+            }
             case TYPE_ARG: {
                 int arg;
                 try {
@@ -108,6 +132,9 @@ public class CommandParser {
                 return streamerUser.getLogin();
             }
             case TYPE_CHOOSE: {
+                if (content.isEmpty()) {
+                    return ERROR_MISSING_ARGUMENT;
+                }
                 String[] entries = content.split("\\|");
                 return entries[random.nextInt(entries.length)];
             }
