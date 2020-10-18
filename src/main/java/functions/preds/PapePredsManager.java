@@ -32,7 +32,6 @@ public class PapePredsManager extends PredsManagerBase {
     }
 
     private final HashMap<Long, PapePredsObject> predictionList = new HashMap<>();
-    private final DbManager dbManager;
 
     /**
      * Manages the !preds Twitch chat game.
@@ -40,8 +39,7 @@ public class PapePredsManager extends PredsManagerBase {
      * @param twirk twirk for chat
      */
     public PapePredsManager(TwirkInterface twirk, DbManager dbManager) {
-        super(twirk);
-        this.dbManager = dbManager;
+        super(twirk, dbManager);
     }
 
     /**

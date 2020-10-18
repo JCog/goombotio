@@ -25,11 +25,9 @@ public class SunshinePredsManager extends PredsManagerBase {
     private static final int HUND_10_SECONDS = 10 * 100;
 
     private final HashMap<Long, TimeGuess> predictionList = new HashMap<>();
-    private final DbManager dbManager;
 
     public SunshinePredsManager(TwirkInterface twirk, DbManager dbManager) {
-        super(twirk);
-        this.dbManager = dbManager;
+        super(twirk, dbManager);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package functions.preds;
 
 import com.gikk.twirk.types.users.TwitchUser;
+import com.jcog.utils.database.DbManager;
 import com.jcog.utils.database.preds.PredsLeaderboardDb;
 import functions.DiscordBotController;
 import util.TwirkInterface;
@@ -23,13 +24,15 @@ public abstract class PredsManagerBase {
     private final DiscordBotController discord = DiscordBotController.getInstance();
 
     protected final TwirkInterface twirk;
+    protected final DbManager dbManager;
 
     protected boolean enabled;
     protected boolean waitingForAnswer;
 
-    protected PredsManagerBase(TwirkInterface twirk) {
-        leaderboard = getLeaderboardType();
+    protected PredsManagerBase(TwirkInterface twirk, DbManager dbManager) {
         this.twirk = twirk;
+        this.dbManager = dbManager;
+        leaderboard = getLeaderboardType();
     }
 
     /**
