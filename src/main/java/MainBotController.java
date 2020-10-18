@@ -57,6 +57,12 @@ public class MainBotController {
             settings.isSilentMode(),
             settings.isVerboseLogging()
     );
+    private final PubSub pubSub = (PubSub) new PubSub(
+            twirk,
+            dbManager,
+            streamerUser.getId(),
+            settings.getTwitchChannelAuthToken()
+    ).listenForBits();
     private final CloudListener cloudListener = new CloudListener(twirk);
     private final StreamTracker streamTracker = new StreamTracker(
             twirk,
@@ -125,6 +131,7 @@ public class MainBotController {
         scheduledMessageController.stop();
         followLogger.stop();
         chatLogger.close();
+        pubSub.close();
         twirk.close();
         discordBotController.close();
         dbManager.closeDb();
@@ -156,7 +163,6 @@ public class MainBotController {
         twirk.addIrcListener(new WrListener(scheduler, twirk, twitchApi));
 
         // General Listeners
-        twirk.addIrcListener(new BitListener(twirk, dbManager));
         twirk.addIrcListener(new ChatLoggerListener(chatLogger));
         twirk.addIrcListener(cloudListener);
         twirk.addIrcListener(new EmoteListener(dbManager));
