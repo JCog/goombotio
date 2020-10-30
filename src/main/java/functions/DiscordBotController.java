@@ -1,17 +1,19 @@
 package functions;
 
-import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
-import net.dv8tion.jda.api.exceptions.VerificationLevelException;
 
 import javax.security.auth.login.LoginException;
 
 import static java.lang.System.out;
 
 public class DiscordBotController {
+    private static final String INSUFFICIENT_PERMISSION_ERROR = "ERROR: insufficient write privileges in this channel";
+    private static final String ILLEGAL_ARGUMENT_ERROR = "ERROR: provided text is null, empty, or longer than 2000 characters";
+    private static final String UNSUPPORTED_OPERATION_ERROR = "ERROR: this is a private channel and both the currently logged in account and the target user are bots";
+
     private static DiscordBotController dbc = null;
     private JDA jda;
 
@@ -24,9 +26,7 @@ public class DiscordBotController {
 
     public void init(String token) {
         try {
-            JDABuilder builder = new JDABuilder(AccountType.BOT);
-            builder.setToken(token);
-            jda = builder.build().awaitReady();
+            jda = JDABuilder.createDefault(token).build().awaitReady();
             out.println("Goombotio login to Discord successful.");
         }
         catch (LoginException | InterruptedException e) {
@@ -53,16 +53,13 @@ public class DiscordBotController {
             channel.sendMessage(message).queue();
         }
         catch (InsufficientPermissionException e) {
-            out.println("ERROR: insufficient write privileges in this channel");
-        }
-        catch (VerificationLevelException e) {
-            out.println("ERROR: verification failed");
+            out.println(INSUFFICIENT_PERMISSION_ERROR);
         }
         catch (IllegalArgumentException e) {
-            out.println("ERROR: provided text is null, empty, or longer than 2000 characters");
+            out.println(ILLEGAL_ARGUMENT_ERROR);
         }
         catch (UnsupportedOperationException e) {
-            out.println("ERROR: this is a private channel and both the currently logged in account and the target user are bots");
+            out.println(UNSUPPORTED_OPERATION_ERROR);
         }
     }
 

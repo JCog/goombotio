@@ -34,7 +34,7 @@ dependencies {
     implementation group: 'org.ini4j', name: 'ini4j', version: '0.5.4'
     implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
     implementation group: 'com.jcraft', name: 'jsch', version: '0.1.54'
-    implementation group: 'net.dv8tion', name: 'JDA', version: '4.1.1_101'
+    implementation group: 'net.dv8tion', name: 'JDA', version: '4.2.0_168'
     implementation group: 'com.google.guava', name: 'guava', version: '16+'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.9.4'
 }
