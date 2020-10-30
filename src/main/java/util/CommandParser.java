@@ -49,6 +49,7 @@ public class CommandParser {
     private static final String TYPE_RAND = "rand";
     private static final String TYPE_TOUSER = "touser";
     private static final String TYPE_UPTIME = "uptime";
+    private static final String TYPE_USER = "user";
     private static final String TYPE_URL_FETCH = "urlfetch";
     private static final String TYPE_USER_ID = "userid";
     private static final String TYPE_WEIGHTED = "weighted";
@@ -183,7 +184,7 @@ public class CommandParser {
                     return arguments[1];
                 }
                 else {
-                    return user.getUserName();
+                    return user.getDisplayName();
                 }
             }
             case TYPE_UPTIME: {
@@ -204,6 +205,9 @@ public class CommandParser {
             }
             case TYPE_URL_FETCH: {
                 return submitRequest(content);
+            }
+            case TYPE_USER: {
+                return user.getDisplayName();
             }
             case TYPE_USER_ID: {
                 return Long.toString(user.getUserID());

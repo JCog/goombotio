@@ -77,20 +77,23 @@ Variables (and nested variables) can be used within command responses. All varia
 
 $(`variable` `argument`)
 
-* `alias` - returns the result of the command from `argument`. be careful as this does not respect the cooldown/permissions of the given command
-* `arg 0`, `arg 1`, etc. - arguments for user input after the command, split by spaces. arguments are zero-indexed. not to be confused with variable arguments.
-* `channel` - the streamer's username
-* `choose` - randomly selects a message from a `|` separated list in `argument`
-* `count` - the number of times this command has been called. does not increment unless this variable is used
-* `eval` - executes arbitrary javascript. be very careful not to call something with an infinite loop
-* `followage` - the length of time the user in `argument` has been following the channel
-* `query` - full user input that comes after the command
-* `rand` - returns a random integer. `argument` should be a comma-separated, inclusive range
-* `touser` - returns the same as `arg 0`, but if there are no user arguments, defaults to the user's username
-* `uptime` - the length of time the stream has been online
-* `urlfetch` - output from a remote url
-* `userid` - the twitch userId of the user
-* `weighted` - randomly selects a message from a `|` separated list in `argument`. Each message should start with a positive weight, followed by a space, then the message
+variable|description
+---:|---
+`alias`|returns the result of the command from `argument`. be careful as this does not respect the cooldown/permissions of the given command
+`arg 0`, `arg 1`, etc.|arguments for user input after the command, split by spaces. arguments are zero-indexed. not to be confused with variable arguments.
+`channel`|the streamer's username
+`choose`|randomly selects a message from a `|` separated list in `argument`
+`count`|the number of times this command has been called. does not increment unless this variable is used
+`eval`|executes arbitrary javascript. be very careful not to call something with an infinite loop
+`followage`|the length of time the user in `argument` has been following the channel
+`query`|full user input that comes after the command
+`rand`|returns a random integer. `argument` should be a comma-separated, inclusive range
+`touser`|returns the same as `arg 0`, but if there are no user arguments, defaults to the user's username
+`uptime`|the length of time the stream has been online
+`urlfetch`|output from a remote url
+`user`|the twitch username of the user
+`userid`|the twitch userId of the user
+`weighted`|randomly selects a message from a `|` separated list in `argument`. Each message should start with a positive weight, followed by a space, then the message
 
 ## Scheduled Messages
 The !scheduled command allows moderators to add, remove, and modify scheduled messages. Every 20 minutes, as long as there has been active chat, one message from the pool of messages is posted. The same message will never be posted twice in a row.
