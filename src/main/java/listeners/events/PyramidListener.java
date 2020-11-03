@@ -88,7 +88,7 @@ public class PyramidListener implements TwirkListener {
     }
 
     private void interruptPyramid() {
-        if (pattern.equals(INTERRUPT_EMOTE)) {
+        if (pattern.startsWith(INTERRUPT_EMOTE)) {
             twirk.channelMessage(TROLL_MESSAGE);
         }
         else {
