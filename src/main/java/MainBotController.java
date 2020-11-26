@@ -153,7 +153,7 @@ public class MainBotController {
         //twirk.addIrcListener(new ModListener(scheduler, twirk));
         twirk.addIrcListener(new LeaderboardListener(scheduler, twirk, dbManager, twitchApi));
         twirk.addIrcListener(new MinecraftListener(scheduler, twirk, dbManager));
-        twirk.addIrcListener(new QuoteListener(scheduler, twirk, dbManager));
+        twirk.addIrcListener(new QuoteListener(scheduler, twirk, dbManager, twitchApi));
         twirk.addIrcListener(predsGuessListener);
         twirk.addIrcListener(new PredsManagerListener(scheduler, twirk, dbManager, twitchApi, predsGuessListener));
         twirk.addIrcListener(queueJoinListener);
@@ -181,8 +181,12 @@ public class MainBotController {
                     int hour = date.get(Calendar.HOUR);
                     int minute = date.get(Calendar.MINUTE);
                     int second = date.get(Calendar.SECOND);
-                    out.println(String.format("%02d:%02d:%02d - Trying to connect again in 10 seconds",
-                            hour, minute, second));
+                    out.println(String.format(
+                            "%02d:%02d:%02d - Trying to connect again in 10 seconds",
+                            hour,
+                            minute,
+                            second
+                    ));
                     try {
                         TimeUnit.SECONDS.sleep(10);
                     }

@@ -2,6 +2,7 @@ package listeners.commands;
 
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.jcog.utils.TwitchApi;
 import com.jcog.utils.TwitchUserLevel;
 import com.jcog.utils.database.DbManager;
 import com.jcog.utils.database.entries.QuoteItem;
@@ -22,21 +23,30 @@ public class QuoteListener extends CommandBase {
     private static final String ERROR_MISSING_ARGUMENTS = "Missing argument(s)";
     private static final String ERROR_NO_MATCHING_QUOTES = "No matching quotes";
     private static final String ERROR_BAD_INDEX_FORMAT = "Unable to parse quote \"%s\"";
+    private static final String ERROR_NOT_LIVE = "VIPs can only add quotes while the stream is live";
 
     private final TwirkInterface twirk;
+    private final TwitchApi twitchApi;
     private final QuoteDb quoteDb;
     private final Random random;
 
-    public QuoteListener(ScheduledExecutorService scheduler, TwirkInterface twirk, DbManager dbManager) {
+    public QuoteListener(
+            ScheduledExecutorService scheduler,
+            TwirkInterface twirk,
+            DbManager dbManager,
+            TwitchApi twitchApi
+    ) {
         super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
+        this.twitchApi = twitchApi;
         quoteDb = dbManager.getQuoteDb();
         random = new Random();
     }
 
     @Override
     public String getCommandWords() {
-        return String.join("|",
+        return String.join(
+                "|",
                 PATTERN_QUOTE,
                 PATTERN_ADD_QUOTE,
                 PATTERN_DELETE_QUOTE,
@@ -57,6 +67,7 @@ public class QuoteListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
+        int userLevel = TwitchUserLevel.getUserLevel(sender).value;
         String[] messageSplit = message.getContent().trim().split(" ", 2);
         String content = "";
         if (messageSplit.length > 1) {
@@ -93,7 +104,12 @@ public class QuoteListener extends CommandBase {
                 }
                 break;
             case PATTERN_ADD_QUOTE:
-                if (TwitchUserLevel.getUserLevel(sender).value >= TwitchUserLevel.USER_LEVEL.MOD.value) {
+                if (userLevel >= TwitchUserLevel.USER_LEVEL.VIP.value) {
+                    //only allow VIPs to add quotes if the stream is live
+                    if (userLevel == TwitchUserLevel.USER_LEVEL.VIP.value && twitchApi.getStream() == null) {
+                        twirk.channelMessage(ERROR_NOT_LIVE);
+                        break;
+                    }
                     if (content.isEmpty()) {
                         twirk.channelMessage(ERROR_MISSING_ARGUMENTS);
                         break;
@@ -102,7 +118,7 @@ public class QuoteListener extends CommandBase {
                 }
                 break;
             case PATTERN_DELETE_QUOTE:
-                if (TwitchUserLevel.getUserLevel(sender).value >= TwitchUserLevel.USER_LEVEL.MOD.value) {
+                if (userLevel >= TwitchUserLevel.USER_LEVEL.MOD.value) {
                     if (content.isEmpty()) {
                         twirk.channelMessage(ERROR_MISSING_ARGUMENTS);
                         break;
@@ -119,7 +135,7 @@ public class QuoteListener extends CommandBase {
                 }
                 break;
             case PATTERN_EDIT_QUOTE:
-                if (TwitchUserLevel.getUserLevel(sender).value >= TwitchUserLevel.USER_LEVEL.MOD.value) {
+                if (userLevel >= TwitchUserLevel.USER_LEVEL.MOD.value) {
                     String[] editSplit = content.split(" ", 2);
                     if (editSplit.length != 2) {
                         twirk.channelMessage(ERROR_MISSING_ARGUMENTS);
