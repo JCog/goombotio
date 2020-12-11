@@ -51,7 +51,7 @@ public class MainBotController {
     private final TwirkInterface twirk = new TwirkInterface(
             chatLogger,
             botUser,
-            settings.getTwitchChannel(),
+            settings.getTwitchStream(),
             settings.getTwitchUsername(),
             settings.getTwitchBotOauth(),
             settings.isSilentMode(),
