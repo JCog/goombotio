@@ -172,7 +172,7 @@ public class LinkListener implements TwirkListener {
             return "";
         }
 
-        String user = tweet.getUser().getName();
+        String user = tweet.getUser().getScreenName();
         String content = tweet.getText().split(" https")[0];
         int retweets = tweet.getRetweetCount();
         int likes = tweet.getFavoriteCount();
