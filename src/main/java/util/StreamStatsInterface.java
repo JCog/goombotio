@@ -114,7 +114,7 @@ public class StreamStatsInterface {
      *
      * @return user watch time map
      */
-    public HashMap<String, Integer> getUserMinutesList() {
+    public HashMap<String,Integer> getUserMinutesList() {
         return streamStatsDb.getUserMinutesList();
     }
 
@@ -157,8 +157,8 @@ public class StreamStatsInterface {
      *
      * @return ArrayList of <username, followers>
      */
-    public ArrayList<Map.Entry<String, Integer>> getTopFollowerCounts() {
-        ArrayList<Map.Entry<String, Integer>> followerCounts = new ArrayList<>();
+    public ArrayList<Map.Entry<String,Integer>> getTopFollowerCounts() {
+        ArrayList<Map.Entry<String,Integer>> followerCounts = new ArrayList<>();
         List<User> userList;
         try {
             userList = twitchApi.getUserListByUsernames(streamStatsDb.getUserList());
@@ -197,7 +197,11 @@ public class StreamStatsInterface {
         List<String> usersMap = streamStatsDb.getUserList();
         for (String name : usersMap) {
             Date firstSeen = watchTimeDb.getFirstSeenByUsername(name);
-            int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(streamDate.getTime() - firstSeen.getTime(), TimeUnit.MILLISECONDS));
+            if (firstSeen == null) {
+                firstSeen = new Date();
+            }
+            int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(streamDate.getTime() - firstSeen.getTime(),
+                                                                TimeUnit.MILLISECONDS));
 
             totalAge += ageDays;
         }
@@ -214,12 +218,16 @@ public class StreamStatsInterface {
         int weightedAgeNumer = 0;
         int weightedAgeDenom = 0;
         Date streamDate = simplifyDate(streamStatsDb.getStreamEndTime());
-        Set<Map.Entry<String, Integer>> userMinutes = streamStatsDb.getUserMinutesList().entrySet();
-        for (Map.Entry<String, Integer> entry : userMinutes) {
+        Set<Map.Entry<String,Integer>> userMinutes = streamStatsDb.getUserMinutesList().entrySet();
+        for (Map.Entry<String,Integer> entry : userMinutes) {
             String name = entry.getKey();
             int minutes = entry.getValue() / 1000;
             Date firstSeen = watchTimeDb.getFirstSeenByUsername(name);
-            int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(streamDate.getTime() - firstSeen.getTime(), TimeUnit.MILLISECONDS));
+            if (firstSeen == null) {
+                firstSeen = new Date();
+            }
+            int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(streamDate.getTime() - firstSeen.getTime(),
+                                                                TimeUnit.MILLISECONDS));
 
             weightedAgeNumer += ageDays * minutes;
             weightedAgeDenom += minutes;
@@ -227,10 +235,10 @@ public class StreamStatsInterface {
         return weightedAgeNumer / weightedAgeDenom;
     }
 
-    private static class SortMapDescending implements Comparator<Map.Entry<String, Integer>> {
+    private static class SortMapDescending implements Comparator<Map.Entry<String,Integer>> {
 
         @Override
-        public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+        public int compare(Map.Entry<String,Integer> o1, Map.Entry<String,Integer> o2) {
             return o2.getValue() - o1.getValue();
         }
     }

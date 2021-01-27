@@ -49,7 +49,10 @@ public class FollowLogger {
         }
         catch (HystrixRuntimeException e) {
             e.printStackTrace();
-            System.out.println(String.format("Error retrieving initial follower list. Trying again in %dmin", INTERVAL));
+            System.out.println(String.format(
+                    "Error retrieving initial follower list. Trying again in %dmin",
+                    INTERVAL
+            ));
             oldFollowerIdList = null;
         }
 
@@ -76,7 +79,10 @@ public class FollowLogger {
                 }
                 catch (HystrixRuntimeException e) {
                     e.printStackTrace();
-                    System.out.println(String.format("Error retrieving updated follower list. Trying again in %dmin", INTERVAL));
+                    System.out.println(String.format(
+                            "Error retrieving updated follower list. Trying again in %dmin",
+                            INTERVAL
+                    ));
                     return;
                 }
                 if (oldFollowerIdList == null) {
@@ -93,7 +99,10 @@ public class FollowLogger {
                     }
                     catch (HystrixRuntimeException e) {
                         e.printStackTrace();
-                        System.out.println(String.format("error retrieving data for new follower with id %s", newFollowerId));
+                        System.out.println(String.format(
+                                "error retrieving data for new follower with id %s",
+                                newFollowerId
+                        ));
                         newFollowerUser = null;
                     }
                     long idLong = Long.parseLong(newFollowerId);
@@ -102,7 +111,7 @@ public class FollowLogger {
                                 "%s New follower: %s - First seen: %s - Watchtime: %d minutes\n",
                                 getDateString(),
                                 newFollowerUser.getDisplayName(),
-                                watchTimeDb.getFirstSeenById(idLong).toString(),
+                                dateToString(watchTimeDb.getFirstSeenById(idLong)),
                                 watchTimeDb.getMinutesById(idLong) + streamTracker.getViewerMinutes(newFollowerUser.getLogin())
                         ));
                     }
@@ -112,7 +121,7 @@ public class FollowLogger {
                                 "%s New follower (invalid state): %s - First seen: %s - Watchtime: %d minutes\n",
                                 getDateString(),
                                 name.isEmpty() ? "id: " + newFollowerId : name,
-                                watchTimeDb.getFirstSeenById(idLong).toString(),
+                                dateToString(watchTimeDb.getFirstSeenById(idLong)),
                                 watchTimeDb.getMinutesById(idLong)
                         ));
                     }
@@ -124,7 +133,10 @@ public class FollowLogger {
                     }
                     catch (HystrixRuntimeException e) {
                         e.printStackTrace();
-                        System.out.println(String.format("error retrieving data for unfollower with id %s", unfollowerId));
+                        System.out.println(String.format(
+                                "error retrieving data for unfollower with id %s",
+                                unfollowerId
+                        ));
                         unfollowerUser = null;
                     }
                     long idLong = Long.parseLong(unfollowerId);
@@ -133,8 +145,8 @@ public class FollowLogger {
                                 "%s Unfollower: %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",
                                 getDateString(),
                                 unfollowerUser.getDisplayName(),
-                                watchTimeDb.getFirstSeenById(idLong).toString(),
-                                watchTimeDb.getLastSeenById(idLong).toString(),
+                                dateToString(watchTimeDb.getFirstSeenById(idLong)),
+                                dateToString(watchTimeDb.getLastSeenById(idLong)),
                                 watchTimeDb.getMinutesById(idLong) + streamTracker.getViewerMinutes(unfollowerUser.getLogin())
                         ));
                     }
@@ -144,8 +156,8 @@ public class FollowLogger {
                                 "%s Unfollower (account deleted): %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",
                                 getDateString(),
                                 name.isEmpty() ? "id: " + unfollowerId : name,
-                                watchTimeDb.getFirstSeenById(idLong).toString(),
-                                watchTimeDb.getLastSeenById(idLong).toString(),
+                                dateToString(watchTimeDb.getFirstSeenById(idLong)),
+                                dateToString(watchTimeDb.getLastSeenById(idLong)),
                                 watchTimeDb.getMinutesById(idLong)
                         ));
                     }
@@ -193,5 +205,12 @@ public class FollowLogger {
     private String getDateString() {
         SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT);
         return sdf.format(new Date());
+    }
+
+    private String dateToString(Date date) {
+        if (date != null) {
+            return date.toString();
+        }
+        return "never";
     }
 }

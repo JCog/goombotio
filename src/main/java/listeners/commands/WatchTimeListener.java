@@ -83,7 +83,11 @@ public class WatchTimeListener extends CommandBase {
 
     //watchdata has been tracked since the cutoff date
     private boolean isOldViewer(TwitchUser user) {
-        return watchTimeDb.getFirstSeenById(user.getUserID()).compareTo(CUTOFF_DATE) < 0;
+        Date firstSeen = watchTimeDb.getFirstSeenById(user.getUserID());
+        if (firstSeen == null) {
+            return false;
+        }
+        return firstSeen.compareTo(CUTOFF_DATE) < 0;
     }
 
     //August 30, 2019
