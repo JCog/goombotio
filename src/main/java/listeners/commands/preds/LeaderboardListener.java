@@ -34,7 +34,10 @@ public class LeaderboardListener extends CommandBase {
 
     private PredsLeaderboardDb leaderboard;
 
-    public LeaderboardListener(ScheduledExecutorService scheduler, TwirkInterface twirk, DbManager dbManager, TwitchApi twitchApi) {
+    public LeaderboardListener(ScheduledExecutorService scheduler,
+                               TwirkInterface twirk,
+                               DbManager dbManager,
+                               TwitchApi twitchApi) {
         super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
         this.dbManager = dbManager;
@@ -45,11 +48,11 @@ public class LeaderboardListener extends CommandBase {
     @Override
     public String getCommandWords() {
         return String.join("|",
-                PATTERN_LEADERBOARD,
-                PATTERN_PREDS,
-                PATTERN_POINTS,
-                PATTERN_LEADERBOARD_ALL,
-                PATTERN_POINTS_ALL
+                           PATTERN_LEADERBOARD,
+                           PATTERN_PREDS,
+                           PATTERN_POINTS,
+                           PATTERN_LEADERBOARD_ALL,
+                           PATTERN_POINTS_ALL
         );
     }
 
@@ -101,7 +104,7 @@ public class LeaderboardListener extends CommandBase {
 
                 break;
         }
-        twirk.channelCommmand(chatMessage);
+        twirk.channelCommand(chatMessage);
     }
 
     private void updateLeaderboardType() {

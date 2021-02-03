@@ -130,7 +130,7 @@ public class SunshinePredsManager extends PredsManagerBase {
         message.append(" • ");
         message.append(buildMonthlyLeaderboardString());
 
-        twirk.channelCommmand(String.format(
+        twirk.channelCommand(String.format(
                 "/me The correct answer is %s - %s",
                 formatHundredths(hundredths),
                 message.toString()

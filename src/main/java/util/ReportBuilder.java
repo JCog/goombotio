@@ -28,8 +28,13 @@ public class ReportBuilder {
                 generateReportNewViewers(streamData) +
                 "\n\n" +
                 generateReportReturningViewers(streamData);
-        FileWriter.writeToFile(REPORT_LOCATION, filename, report);
-        out.printf("Output report to %s%s%n", REPORT_LOCATION, filename);
+        boolean successful = FileWriter.writeToFile(REPORT_LOCATION, filename, report);
+        if (successful) {
+            out.printf("Output report to %s%s%n", REPORT_LOCATION, filename);
+        }
+        else {
+            out.println("Error writing report to file");
+        }
     }
 
     private static String generateReportStats(StreamData streamData) {

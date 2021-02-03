@@ -58,7 +58,7 @@ public abstract class PredsManagerBase {
      */
     public void startGame() {
         enabled = true;
-        twirk.channelCommmand(START_MESSAGE);
+        twirk.channelCommand(START_MESSAGE);
     }
 
     /**
@@ -67,7 +67,7 @@ public abstract class PredsManagerBase {
      */
     public void waitForAnswer() {
         waitingForAnswer = true;
-        twirk.channelCommmand(STOP_MESSAGE);
+        twirk.channelCommand(STOP_MESSAGE);
     }
 
     public void endGame() {

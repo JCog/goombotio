@@ -70,7 +70,7 @@ public class TwirkInterface {
      *
      * @param line message to send
      */
-    public void channelCommmand(String line) {
+    public void channelCommand(String line) {
         String output = line.trim();
         if (output.isEmpty()) {
             return;

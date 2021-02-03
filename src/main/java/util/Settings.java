@@ -64,10 +64,6 @@ public class Settings {
         return ini.get(TWITCH_CAT_TAG, "channelClientId");
     }
 
-    public String getTwitchChannelOauth() {
-        return "oauth:" + getTwitchChannelAuthToken();
-    }
-
     public String getTwitchBotOauth() {
         return "oauth:" + ini.get(TWITCH_CAT_TAG, "botAuthToken");
     }

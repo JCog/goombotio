@@ -144,7 +144,10 @@ public class MinecraftWhitelistUpdater {
     }
 
     private void updateLocalWhitelist(JSONArray whitelist) {
-        FileWriter.writeToFile("", FILENAME, whitelist.toJSONString());
+        boolean successful = FileWriter.writeToFile("", FILENAME, whitelist.toJSONString());
+        if (!successful) {
+            System.out.println("Error writing Minecraft whitelist to file");
+        }
     }
 
     private void updateRemoteWhitelist() {

@@ -79,11 +79,11 @@ public class PapePredsManager extends PredsManagerBase {
         message.append(" • ");
         message.append(buildMonthlyLeaderboardString());
 
-        twirk.channelCommmand(String.format("/me The correct answer was %s %s %s - %s",
-                                            badgeToString(one),
-                                            badgeToString(two),
-                                            badgeToString(three),
-                                            message.toString()));
+        twirk.channelCommand(String.format("/me The correct answer was %s %s %s - %s",
+                                           badgeToString(one),
+                                           badgeToString(two),
+                                           badgeToString(three),
+                                           message.toString()));
         updateDiscordMonthlyPoints();
         updateDiscordAllTimePoints();
     }
