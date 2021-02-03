@@ -45,7 +45,7 @@ public class DiscordBotController {
             channel = jda.getTextChannelsByName(channelName, true).get(0);
         }
         catch (IndexOutOfBoundsException e) {
-            out.println(String.format("ERROR: discord channel \"#%s\" does not exist", channelName));
+            out.printf("ERROR: discord channel \"#%s\" does not exist%n", channelName);
             return;
         }
 

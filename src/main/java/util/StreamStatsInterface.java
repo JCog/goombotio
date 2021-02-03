@@ -177,7 +177,7 @@ public class StreamStatsInterface {
             }
             catch (HystrixRuntimeException e) {
                 e.printStackTrace();
-                out.println(String.format("Error retrieving follower count for %s", user.getDisplayName()));
+                out.printf("Error retrieving follower count for %s%n", user.getDisplayName());
                 continue;
             }
             followerCounts.add(new AbstractMap.SimpleEntry<>(name, followCount));

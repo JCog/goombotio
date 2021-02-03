@@ -182,12 +182,12 @@ public class MainBotController {
                     int hour = date.get(Calendar.HOUR);
                     int minute = date.get(Calendar.MINUTE);
                     int second = date.get(Calendar.SECOND);
-                    out.println(String.format(
-                            "%02d:%02d:%02d - Trying to connect again in 10 seconds",
+                    out.printf(
+                            "%02d:%02d:%02d - Trying to connect again in 10 seconds%n",
                             hour,
                             minute,
                             second
-                    ));
+                    );
                     try {
                         TimeUnit.SECONDS.sleep(10);
                     }

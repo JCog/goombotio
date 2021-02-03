@@ -10,7 +10,7 @@ import util.TwirkInterface;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class ScheduledMessageManagerListener extends CommandBase {
-    private final String PATTERN = "!scheduled";
+    private static final String PATTERN = "!scheduled";
 
     private final SocialSchedulerDb socialSchedulerDb;
     private final TwirkInterface twirk;
@@ -21,7 +21,9 @@ public class ScheduledMessageManagerListener extends CommandBase {
         DELETE
     }
 
-    public ScheduledMessageManagerListener(ScheduledExecutorService scheduler, TwirkInterface twirk, DbManager dbManager) {
+    public ScheduledMessageManagerListener(ScheduledExecutorService scheduler,
+                                           TwirkInterface twirk,
+                                           DbManager dbManager) {
         super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
         socialSchedulerDb = dbManager.getSocialSchedulerDb();
@@ -65,6 +67,7 @@ public class ScheduledMessageManagerListener extends CommandBase {
                 content = messageSplit[3].substring(start + 1, end);
             }
             else if (start == -1) { //no quotes
+                showError("no quotation marks");
             }
             else { //one quote mark
                 showError("unbalanced quotation mark");

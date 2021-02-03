@@ -63,7 +63,7 @@ public class ChatLogger {
             fw = new FileWriter(filename, true);
         }
         catch (IOException e) {
-            System.out.println(String.format("ERROR: IOException for filename \"%s\"", filename));
+            System.out.printf("ERROR: IOException for filename \"%s\"%n", filename);
             e.printStackTrace();
             return;
         }

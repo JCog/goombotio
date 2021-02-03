@@ -125,7 +125,7 @@ public class StreamTracker {
             e.printStackTrace();
         }
 
-        System.out.println(String.format("Loaded blacklist with %d entries", blacklist.size()));
+        System.out.printf("Loaded blacklist with %d entries%n", blacklist.size());
         return blacklist;
     }
 }

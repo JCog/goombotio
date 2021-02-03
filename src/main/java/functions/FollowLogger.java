@@ -49,10 +49,10 @@ public class FollowLogger {
         }
         catch (HystrixRuntimeException e) {
             e.printStackTrace();
-            System.out.println(String.format(
-                    "Error retrieving initial follower list. Trying again in %dmin",
+            System.out.printf(
+                    "Error retrieving initial follower list. Trying again in %dmin%n",
                     INTERVAL
-            ));
+            );
             oldFollowerIdList = null;
         }
 
@@ -61,7 +61,7 @@ public class FollowLogger {
             fw = new FileWriter(FILENAME, true);
         }
         catch (IOException e) {
-            System.out.println(String.format("ERROR: IOException for filename \"%s\"", FILENAME));
+            System.out.printf("ERROR: IOException for filename \"%s\"%n", FILENAME);
             e.printStackTrace();
             return;
         }
@@ -79,10 +79,10 @@ public class FollowLogger {
                 }
                 catch (HystrixRuntimeException e) {
                     e.printStackTrace();
-                    System.out.println(String.format(
-                            "Error retrieving updated follower list. Trying again in %dmin",
+                    System.out.printf(
+                            "Error retrieving updated follower list. Trying again in %dmin%n",
                             INTERVAL
-                    ));
+                    );
                     return;
                 }
                 if (oldFollowerIdList == null) {
@@ -99,10 +99,10 @@ public class FollowLogger {
                     }
                     catch (HystrixRuntimeException e) {
                         e.printStackTrace();
-                        System.out.println(String.format(
-                                "error retrieving data for new follower with id %s",
+                        System.out.printf(
+                                "error retrieving data for new follower with id %s%n",
                                 newFollowerId
-                        ));
+                        );
                         newFollowerUser = null;
                     }
                     long idLong = Long.parseLong(newFollowerId);
@@ -133,10 +133,10 @@ public class FollowLogger {
                     }
                     catch (HystrixRuntimeException e) {
                         e.printStackTrace();
-                        System.out.println(String.format(
-                                "error retrieving data for unfollower with id %s",
+                        System.out.printf(
+                                "error retrieving data for unfollower with id %s%n",
                                 unfollowerId
-                        ));
+                        );
                         unfollowerUser = null;
                     }
                     long idLong = Long.parseLong(unfollowerId);

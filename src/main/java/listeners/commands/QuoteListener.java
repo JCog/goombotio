@@ -74,7 +74,7 @@ public class QuoteListener extends CommandBase {
             content = messageSplit[1];
         }
         switch (command) {
-            case PATTERN_QUOTE:
+            case PATTERN_QUOTE: {
                 QuoteItem quote;
                 if (content.isEmpty()) {
                     long index = random.nextInt(quoteDb.getQuoteCount());
@@ -103,7 +103,8 @@ public class QuoteListener extends CommandBase {
                     twirk.channelMessage(quote.toString());
                 }
                 break;
-            case PATTERN_ADD_QUOTE:
+            }
+            case PATTERN_ADD_QUOTE: {
                 if (userLevel >= TwitchUserLevel.USER_LEVEL.VIP.value) {
                     //only allow VIPs to add quotes if the stream is live
                     if (userLevel == TwitchUserLevel.USER_LEVEL.VIP.value && twitchApi.getStream() == null) {
@@ -117,7 +118,8 @@ public class QuoteListener extends CommandBase {
                     twirk.channelMessage(quoteDb.addQuote(content, sender.getUserID(), true));
                 }
                 break;
-            case PATTERN_DELETE_QUOTE:
+            }
+            case PATTERN_DELETE_QUOTE: {
                 if (userLevel >= TwitchUserLevel.USER_LEVEL.MOD.value) {
                     if (content.isEmpty()) {
                         twirk.channelMessage(ERROR_MISSING_ARGUMENTS);
@@ -134,7 +136,8 @@ public class QuoteListener extends CommandBase {
                     twirk.channelMessage(quoteDb.deleteQuote(delIndex));
                 }
                 break;
-            case PATTERN_EDIT_QUOTE:
+            }
+            case PATTERN_EDIT_QUOTE: {
                 if (userLevel >= TwitchUserLevel.USER_LEVEL.MOD.value) {
                     String[] editSplit = content.split(" ", 2);
                     if (editSplit.length != 2) {
@@ -151,9 +154,15 @@ public class QuoteListener extends CommandBase {
                     }
                     twirk.channelMessage(quoteDb.editQuote(editIndex, editSplit[1], sender.getUserID()));
                 }
-            case PATTERN_LATEST_QUOTE:
-                quote = quoteDb.getQuote(quoteDb.getQuoteCount());
-                twirk.channelMessage(quote.toString());
+            }
+            case PATTERN_LATEST_QUOTE: {
+                QuoteItem quote = quoteDb.getQuote(quoteDb.getQuoteCount());
+                String output = "";
+                if (quote != null) {
+                    output = quote.toString();
+                }
+                twirk.channelMessage(output);
+            }
         }
     }
 

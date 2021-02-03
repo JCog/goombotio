@@ -17,21 +17,19 @@ public class ReportBuilder {
 
     public static void generateReport(DbManager dbManager, StreamData streamData) {
         out.println("Building report...");
-        StringBuilder report = new StringBuilder();
-
-        report.append("REPORT\n\n");
-        report.append(generateReportStats(streamData));
-        report.append("\n\n");
-        report.append(generateReportAllViewers(dbManager, streamData));
-        report.append("\n\n");
-        report.append(generateReportNewViewers(streamData));
-        report.append("\n\n");
-        report.append(generateReportReturningViewers(streamData));
 
         String filename = getReportFilename();
 
-        FileWriter.writeToFile(REPORT_LOCATION, filename, report.toString());
-        out.println(String.format("Output report to %s%s", REPORT_LOCATION, filename));
+        String report = "REPORT\n\n" +
+                generateReportStats(streamData) +
+                "\n\n" +
+                generateReportAllViewers(dbManager, streamData) +
+                "\n\n" +
+                generateReportNewViewers(streamData) +
+                "\n\n" +
+                generateReportReturningViewers(streamData);
+        FileWriter.writeToFile(REPORT_LOCATION, filename, report);
+        out.printf("Output report to %s%s%n", REPORT_LOCATION, filename);
     }
 
     private static String generateReportStats(StreamData streamData) {
@@ -56,7 +54,7 @@ public class ReportBuilder {
         StringBuilder allViewersReport = new StringBuilder();
 
         int allWatchTime = 0;
-        ArrayList<Map.Entry<String, Integer>> biggestViewers = streamData.getTopFollowerCounts();
+        ArrayList<Map.Entry<String,Integer>> biggestViewers = streamData.getTopFollowerCounts();
 
         allViewersReport.append("------ All Viewers ------\n");
         allViewersReport.append("Biggest Viewers:\n");
@@ -78,12 +76,12 @@ public class ReportBuilder {
             int followers = biggestViewers.get(i).getValue();
             int minutes = streamData.getViewerMinutes(name);
             allViewersReport.append(buildPaddedBiggestViewersString(index, name, followers, minutes,
-                    maxIndex, maxNameLength, maxFollowers, maxMinutes));
+                                                                    maxIndex, maxNameLength, maxFollowers, maxMinutes));
         }
 
         allViewersReport.append("\n");
 
-        HashMap<String, Integer> usersMap = streamData.getAllViewerMinutes();
+        HashMap<String,Integer> usersMap = streamData.getAllViewerMinutes();
         for (Integer value : usersMap.values()) {
             allWatchTime += value;
         }
@@ -96,11 +94,15 @@ public class ReportBuilder {
         int totalAge = 0;
         int weightedAgeNumer = 0;
         int weightedAgeDenom = 0;
-        for (Map.Entry<String, Integer> entry : usersMap.entrySet()) {
+        for (Map.Entry<String,Integer> entry : usersMap.entrySet()) {
             String name = entry.getKey();
             int minutes = entry.getValue();
             Date firstSeen = watchTimeDb.getFirstSeenByUsername(name);
-            int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(getDate().getTime() - firstSeen.getTime(), TimeUnit.MILLISECONDS));
+            if (firstSeen == null) {
+                firstSeen = getDate();
+            }
+            int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(getDate().getTime() - firstSeen.getTime(),
+                                                                TimeUnit.MILLISECONDS));
 
             totalAge += ageDays;
             weightedAgeNumer += ageDays * minutes;
@@ -118,8 +120,14 @@ public class ReportBuilder {
         return allViewersReport.toString();
     }
 
-    private static String buildPaddedBiggestViewersString(int index, String name, int followers, int minutes,
-                                                          int maxIndex, int maxNameLength, int maxFollowers, int maxMinutes) {
+    private static String buildPaddedBiggestViewersString(int index,
+                                                          String name,
+                                                          int followers,
+                                                          int minutes,
+                                                          int maxIndex,
+                                                          int maxNameLength,
+                                                          int maxFollowers,
+                                                          int maxMinutes) {
         StringBuilder output = new StringBuilder();
         int indexPadding = ((int) Math.log10(maxIndex) + 1) - ((int) Math.log10(index) + 1);
         int namePadding = maxNameLength - name.length();
@@ -152,21 +160,24 @@ public class ReportBuilder {
     private static String generateReportNewViewers(StreamData streamData) {
         StringBuilder newViewersReport = new StringBuilder();
 
-        ArrayList<Map.Entry<String, Integer>> newViewersList = streamData.getOrderedWatchtimeList(streamData.getNewViewers());
+        ArrayList<Map.Entry<String,Integer>> newViewersList = streamData.getOrderedWatchtimeList(streamData.getNewViewers());
         int newWatchTime = 0;
 
         newViewersReport.append("------ New Viewers ------\n");
 
         int maxNameLength = 0;
         int maxMinutes = 0;
-        for (Map.Entry<String, Integer> viewer : newViewersList) {
+        for (Map.Entry<String,Integer> viewer : newViewersList) {
             maxNameLength = Math.max(maxNameLength, viewer.getKey().length());
             maxMinutes = Math.max(maxMinutes, viewer.getValue());
         }
-        for (Map.Entry<String, Integer> viewer : newViewersList) {
+        for (Map.Entry<String,Integer> viewer : newViewersList) {
             int minutes = viewer.getValue();
             newWatchTime += minutes;
-            newViewersReport.append(buildPaddedViewerMinutesString(viewer.getKey(), minutes, maxNameLength, maxMinutes));
+            newViewersReport.append(buildPaddedViewerMinutesString(viewer.getKey(),
+                                                                   minutes,
+                                                                   maxNameLength,
+                                                                   maxMinutes));
         }
         newViewersReport.append("\n");
 
@@ -187,20 +198,23 @@ public class ReportBuilder {
     private static String generateReportReturningViewers(StreamData streamData) {
         StringBuilder returningViewersReport = new StringBuilder();
 
-        ArrayList<Map.Entry<String, Integer>> returningViewersList = streamData.getOrderedWatchtimeList(streamData.getReturningViewers());
+        ArrayList<Map.Entry<String,Integer>> returningViewersList = streamData.getOrderedWatchtimeList(streamData.getReturningViewers());
         int returningWatchTime = 0;
         returningViewersReport.append("------ Returning Viewers ------\n");
 
         int maxNameLength = 0;
         int maxMinutes = 0;
-        for (Map.Entry<String, Integer> viewer : returningViewersList) {
+        for (Map.Entry<String,Integer> viewer : returningViewersList) {
             maxNameLength = Math.max(maxNameLength, viewer.getKey().length());
             maxMinutes = Math.max(maxMinutes, viewer.getValue());
         }
-        for (Map.Entry<String, Integer> viewer : returningViewersList) {
+        for (Map.Entry<String,Integer> viewer : returningViewersList) {
             int minutes = viewer.getValue();
             returningWatchTime += minutes;
-            returningViewersReport.append(buildPaddedViewerMinutesString(viewer.getKey(), minutes, maxNameLength, maxMinutes));
+            returningViewersReport.append(buildPaddedViewerMinutesString(viewer.getKey(),
+                                                                         minutes,
+                                                                         maxNameLength,
+                                                                         maxMinutes));
         }
         returningViewersReport.append("\n");
 
@@ -211,7 +225,8 @@ public class ReportBuilder {
 
         int averageWatchPercent = (int) ((float) averageReturningMinutes / streamData.getStreamLength() * 100);
 
-        returningViewersReport.append(String.format("Total Returning Viewers: %d viewers\n", returningViewersList.size()));
+        returningViewersReport.append(String.format("Total Returning Viewers: %d viewers\n",
+                                                    returningViewersList.size()));
         returningViewersReport.append(String.format("Average Watchtime:       %d minutes\n", averageReturningMinutes));
         returningViewersReport.append(String.format("Average Watch%%:          %d%%\n", averageWatchPercent));
 

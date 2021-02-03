@@ -18,8 +18,8 @@ public class SubListener implements TwirkListener {
 
     private final TwirkInterface twirk;
     private final ScheduledExecutorService scheduler;
-    private final HashMap<String, Boolean> subTimersActive;
-    private final HashMap<String, ArrayList<String>> giftedSubs;
+    private final HashMap<String,Boolean> subTimersActive;
+    private final HashMap<String,ArrayList<String>> giftedSubs;
 
     public SubListener(TwirkInterface twirk, ScheduledExecutorService scheduler) {
         this.twirk = twirk;
@@ -35,7 +35,7 @@ public class SubListener implements TwirkListener {
             if (sub.isGift()) {
                 String gifterName = user.getDisplayName();
                 String recipientName = sub.getSubscriptionGift().get().getRecipiantDisplayName();
-                out.println(String.format("%s has gifted a sub to %s", gifterName, recipientName));
+                out.printf("%s has gifted a sub to %s%n", gifterName, recipientName);
 
                 giftedSubs.computeIfAbsent(gifterName, k -> new ArrayList<>());
                 giftedSubs.get(gifterName).add(recipientName);
@@ -60,10 +60,16 @@ public class SubListener implements TwirkListener {
                                 e.printStackTrace();
                             }
                             if (giftedSubs.get(gifterName).size() == 1) {
-                                twirk.channelMessage(String.format("jcogChamp @%s Thank you for gifting a sub to @%s! jcogChamp", gifterName, recipientName));
+                                twirk.channelMessage(String.format(
+                                        "jcogChamp @%s Thank you for gifting a sub to @%s! jcogChamp",
+                                        gifterName,
+                                        recipientName));
                             }
                             else {
-                                twirk.channelMessage(String.format("jcogChamp @%s Thank you for the %d gift subs! jcogChamp", gifterName, subCount));
+                                twirk.channelMessage(String.format(
+                                        "jcogChamp @%s Thank you for the %d gift subs! jcogChamp",
+                                        gifterName,
+                                        subCount));
                             }
 
                             giftedSubs.remove(gifterName);
@@ -75,10 +81,14 @@ public class SubListener implements TwirkListener {
             else {
                 int months = sub.getMonths();
                 if (months == 1) {
-                    twirk.channelMessage(String.format("jcogChamp @%s just subbed! Welcome to the Rookery™! jcogChamp", user.getDisplayName()));
+                    twirk.channelMessage(String.format("jcogChamp @%s just subbed! Welcome to the Rookery™! jcogChamp",
+                                                       user.getDisplayName()));
                 }
                 else {
-                    twirk.channelMessage(String.format("jcogChamp @%s just resubbed for %d months! Welcome back to the Rookery™! jcogChamp", user.getDisplayName(), months));
+                    twirk.channelMessage(String.format(
+                            "jcogChamp @%s just resubbed for %d months! Welcome back to the Rookery™! jcogChamp",
+                            user.getDisplayName(),
+                            months));
                 }
             }
         }

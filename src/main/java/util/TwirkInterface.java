@@ -58,7 +58,7 @@ public class TwirkInterface {
         }
         String firstWord = output.split("\\s", 2)[0];
         if (firstWord.charAt(0) == '/') {
-            System.out.println(String.format("Illegal command usage \"%s\"", firstWord));
+            System.out.printf("Illegal command usage \"%s\"%n", firstWord);
         }
         else {
             sendMessage(output);
@@ -77,7 +77,7 @@ public class TwirkInterface {
         }
         String firstWord = output.split("\\s", 2)[0];
         if (firstWord.charAt(0) == '/') {
-            System.out.println(String.format("command message sent \"%s\"", output));
+            System.out.printf("command message sent \"%s\"%n", output);
         }
         sendMessage(output);
     }
@@ -140,7 +140,7 @@ public class TwirkInterface {
             System.out.println("Twirk failed to reconnect");
             return false;
         }
-        System.out.println(String.format("Twirk connected to %s successfully", channel));
+        System.out.printf("Twirk connected to %s successfully%n", channel);
         return true;
     }
 
@@ -178,7 +178,7 @@ public class TwirkInterface {
         }
     }
 
-    private void getNewTwirk() throws IOException {
+    private void getNewTwirk() {
         twirk = new TwirkBuilder(channel, nick, oauth)
                 .setVerboseMode(verbose)
                 .build();

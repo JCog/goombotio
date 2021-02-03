@@ -102,7 +102,11 @@ public class TattleListener extends CommandBase {
     }
 
     private String tattleItemToString(TattleItem tattleItem) {
-        String username = twitchApi.getUserById(tattleItem.getTwitchId()).getDisplayName();
+        User user = twitchApi.getUserById(tattleItem.getTwitchId());
+        if (user == null) {
+            return String.format("ERROR: unknown user ID \"%s\"", tattleItem.getTwitchId());
+        }
+        String username = user.getDisplayName();
         return String.format("%s: %s", username, tattleItem.getTattle());
     }
 }

@@ -113,7 +113,6 @@ public class Settings {
     }
 
     private Wini getIni() {
-        //noinspection MismatchedQueryAndUpdateOfCollection
         Wini ini;
         try {
             ini = new Wini(new File(INI_FILENAME));

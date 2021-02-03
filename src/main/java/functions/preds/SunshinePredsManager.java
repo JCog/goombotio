@@ -24,7 +24,7 @@ public class SunshinePredsManager extends PredsManagerBase {
     private static final int HUND_5_SECONDS = 5 * 100;
     private static final int HUND_10_SECONDS = 10 * 100;
 
-    private final HashMap<Long, TimeGuess> predictionList = new HashMap<>();
+    private final HashMap<Long,TimeGuess> predictionList = new HashMap<>();
 
     public SunshinePredsManager(TwirkInterface twirk, DbManager dbManager) {
         super(twirk, dbManager);
@@ -100,7 +100,8 @@ public class SunshinePredsManager extends PredsManagerBase {
                     for (int i = 0; i < closestGuesses.size() - 1; i++) {
                         message.append("@").append(closestGuesses.get(i).twitchUser.getDisplayName()).append(", ");
                     }
-                    message.append("and @").append(closestGuesses.get(closestGuesses.size() - 1).twitchUser.getDisplayName());
+                    message.append("and @")
+                            .append(closestGuesses.get(closestGuesses.size() - 1).twitchUser.getDisplayName());
                     message.append(String.format(" were closest (+/- %ss)! jcogComfy", difference));
                 }
             }
@@ -154,11 +155,11 @@ public class SunshinePredsManager extends PredsManagerBase {
             int minutes = Character.getNumericValue(guess.charAt(0));
             int seconds = Integer.parseInt(guess.substring(1, 3));
             int hundredths = Integer.parseInt(guess.substring(3, 5)) + (seconds * 100) + (minutes * 60 * 100);
-            System.out.println(String.format("%s has predicted %d hundredths", user.getDisplayName(), hundredths));
+            System.out.printf("%s has predicted %d hundredths%n", user.getDisplayName(), hundredths);
 
             if (predictionList.containsKey(user.getUserID())) {
                 predictionList.remove(user.getUserID());
-                out.println(String.format("Replacing duplicate guess by %s", user.getDisplayName()));
+                out.printf("Replacing duplicate guess by %s%n", user.getDisplayName());
             }
             predictionList.put(user.getUserID(), new TimeGuess(user, hundredths));
         }
@@ -166,44 +167,44 @@ public class SunshinePredsManager extends PredsManagerBase {
 
     private ArrayList<String> getWinners(int answer) {
         ArrayList<String> winners = new ArrayList<>();
-        for (Map.Entry<Long, TimeGuess> longTimeGuessEntry : predictionList.entrySet()) {
+        for (Map.Entry<Long,TimeGuess> longTimeGuessEntry : predictionList.entrySet()) {
             TimeGuess guess = longTimeGuessEntry.getValue();
             if (guess.hundredths == answer) {
                 //exactly right
                 winners.add(guess.twitchUser.getDisplayName());
                 leaderboard.addPointsAndWins(guess.twitchUser, POINTS_CORRECT, 1);
-                out.println(String.format(
-                        "%s guessed exactly correct. Adding %d points and a win.",
+                out.printf(
+                        "%s guessed exactly correct. Adding %d points and a win.%n",
                         guess.twitchUser.getDisplayName(),
                         POINTS_CORRECT
-                ));
+                );
             }
             else if (Math.abs(guess.hundredths - answer) < HUND_1_SECOND) {
                 //off by less than a second
                 leaderboard.addPoints(guess.twitchUser, POINTS_1_SECOND);
-                out.println(String.format(
-                        "%s was within 1 second. Adding %d points",
+                out.printf(
+                        "%s was within 1 second. Adding %d points%n",
                         guess.twitchUser.getDisplayName(),
                         POINTS_1_SECOND
-                ));
+                );
             }
             else if (Math.abs(guess.hundredths - answer) < HUND_5_SECONDS) {
                 //off by less than 5 seconds
                 leaderboard.addPoints(guess.twitchUser, POINTS_5_SECONDS);
-                out.println(String.format(
-                        "%s was within 5 seconds. Adding %d points",
+                out.printf(
+                        "%s was within 5 seconds. Adding %d points%n",
                         guess.twitchUser.getDisplayName(),
                         POINTS_5_SECONDS
-                ));
+                );
             }
             else if (Math.abs(guess.hundredths - answer) < HUND_10_SECONDS) {
                 //off by less than 10 seconds
                 leaderboard.addPoints(guess.twitchUser, POINTS_10_SECONDS);
-                out.println(String.format(
-                        "%s was within 5 seconds. Adding %d points",
+                out.printf(
+                        "%s was within 5 seconds. Adding %d points%n",
                         guess.twitchUser.getDisplayName(),
                         POINTS_10_SECONDS
-                ));
+                );
             }
         }
         return winners;
@@ -212,7 +213,7 @@ public class SunshinePredsManager extends PredsManagerBase {
     //returns the closest guess, multiple if there are ties
     private ArrayList<TimeGuess> getClosestGuesses(int answer) {
         int minDifference = -1;
-        for (Map.Entry<Long, TimeGuess> longTimeGuessEntry : predictionList.entrySet()) {
+        for (Map.Entry<Long,TimeGuess> longTimeGuessEntry : predictionList.entrySet()) {
             TimeGuess guess = longTimeGuessEntry.getValue();
             if (minDifference == -1) {
                 minDifference = Math.abs(guess.hundredths - answer);
@@ -226,16 +227,16 @@ public class SunshinePredsManager extends PredsManagerBase {
         }
 
         ArrayList<TimeGuess> output = new ArrayList<>();
-        for (Map.Entry<Long, TimeGuess> longTimeGuessEntry : predictionList.entrySet()) {
+        for (Map.Entry<Long,TimeGuess> longTimeGuessEntry : predictionList.entrySet()) {
             TimeGuess guess = longTimeGuessEntry.getValue();
             if (Math.abs(guess.hundredths - answer) == minDifference) {
                 output.add(guess);
                 leaderboard.addPoints(guess.twitchUser, POINTS_CLOSEST);
-                out.println(String.format(
-                        "%s was the closest. Adding %d points",
+                out.printf(
+                        "%s was the closest. Adding %d points%n",
                         guess.twitchUser.getDisplayName(),
                         POINTS_CLOSEST
-                ));
+                );
             }
         }
         return output;
@@ -258,8 +259,8 @@ public class SunshinePredsManager extends PredsManagerBase {
     }
 
     private static class TimeGuess {
-        public TwitchUser twitchUser;
-        public int hundredths;
+        public final TwitchUser twitchUser;
+        public final int hundredths;
 
         public TimeGuess(TwitchUser twitchUser, int hundredths) {
             this.twitchUser = twitchUser;

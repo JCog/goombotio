@@ -35,7 +35,7 @@ public class ViewerQueueManager {
         viewerQueueDb.incrementSessionId();
         this.requestedCount = count;
         twirk.channelMessage("JCog is looking for viewers to play with! If you want to join, type \"!join\" to have a" +
-                " chance. Subs have priority, but you can still get in if there are no more subs left in the queue.");
+                                     " chance. Subs have priority, but you can still get in if there are no more subs left in the queue.");
         out.println("Starting viewer queue");
         this.message = message;
     }
@@ -51,7 +51,7 @@ public class ViewerQueueManager {
         entry.subbed = twitchUser.isSub();
         entry.username = twitchUser.getDisplayName();
         viewers.add(entry);
-        out.println(String.format("%s joined the queue", entry.username));
+        out.printf("%s joined the queue%n", entry.username);
     }
 
     public void closeCurrentSession() {
@@ -100,7 +100,7 @@ public class ViewerQueueManager {
         out.println("Sorted queue:");
         out.println("(Username, ID, Subbed, Attempts, Total Sessions, Last Session ID)");
         for (int i = 0; i < viewers.size(); i++) {
-            out.println(String.format("%d. %s", i + 1, viewers.get(i).toString()));
+            out.printf("%d. %s%n", i + 1, viewers.get(i).toString());
         }
     }
 

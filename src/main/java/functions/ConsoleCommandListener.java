@@ -31,7 +31,7 @@ public class ConsoleCommandListener {
             String command = lineSplit[0];
             if (lineSplit.length == 2 && command.equals(DISCORD_COMMAND)) {
                 String channel = lineSplit[1];
-                out.print(String.format("Enter message for #%s: ", channel));
+                out.printf("Enter message for #%s: ", channel);
                 dbc.sendMessage(channel, scanner.nextLine());
             }
             else if (command.equals(TWITCH_COMMAND)) {

@@ -57,11 +57,11 @@ public class GenericCommandListener extends CommandBase {
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         if (message.getContent().matches(".*\\$\\(.*\\).*") && !isReservedCommand(command)) {
-            System.out.println(String.format(
-                    "Ignoring user (%s) attempt at custom variable: %s",
+            System.out.printf(
+                    "Ignoring user (%s) attempt at custom variable: %s%n",
                     sender.getDisplayName(),
                     message.getContent()
-            ));
+            );
             return;
         }
 

@@ -14,7 +14,7 @@ import static java.lang.System.out;
 
 public class StreamData {
 
-    private final HashMap<String, Integer> userMinutes = new HashMap<>();
+    private final HashMap<String,Integer> userMinutes = new HashMap<>();
     private final ArrayList<Integer> viewerCounts = new ArrayList<>();
     private final ArrayList<User> newViewers = new ArrayList<>();
     private final ArrayList<User> returningViewers = new ArrayList<>();
@@ -144,13 +144,13 @@ public class StreamData {
         }
     }
 
-    public HashMap<String, Integer> getAllViewerMinutes() {
+    public HashMap<String,Integer> getAllViewerMinutes() {
         return userMinutes;
     }
 
     //probably want to replace this with something better at some point
-    public ArrayList<Map.Entry<String, Integer>> getOrderedWatchtimeList(List<User> userList) {
-        ArrayList<Map.Entry<String, Integer>> output = new ArrayList<>();
+    public ArrayList<Map.Entry<String,Integer>> getOrderedWatchtimeList(List<User> userList) {
+        ArrayList<Map.Entry<String,Integer>> output = new ArrayList<>();
         for (User user : userList) {
             output.add(new AbstractMap.SimpleEntry<>(
                     user.getDisplayName(),
@@ -162,8 +162,8 @@ public class StreamData {
     }
 
     //probably want to replace this with something better at some point
-    public ArrayList<Map.Entry<String, Integer>> getTopFollowerCounts() {
-        ArrayList<Map.Entry<String, Integer>> followerCounts = new ArrayList<>();
+    public ArrayList<Map.Entry<String,Integer>> getTopFollowerCounts() {
+        ArrayList<Map.Entry<String,Integer>> followerCounts = new ArrayList<>();
         ArrayList<User> allViewers = new ArrayList<>(newViewers);
         allViewers.addAll(returningViewers);
 
@@ -174,7 +174,7 @@ public class StreamData {
             }
             catch (HystrixRuntimeException e) {
                 e.printStackTrace();
-                out.println(String.format("Error retrieving follower count for %s", user.getDisplayName()));
+                out.printf("Error retrieving follower count for %s%n", user.getDisplayName());
                 continue;
             }
             followerCounts.add(new AbstractMap.SimpleEntry<>(user.getDisplayName(), followCount));
@@ -200,10 +200,10 @@ public class StreamData {
         }
     }
 
-    private static class SortMapDescending implements Comparator<Map.Entry<String, Integer>> {
+    private static class SortMapDescending implements Comparator<Map.Entry<String,Integer>> {
 
         @Override
-        public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+        public int compare(Map.Entry<String,Integer> o1, Map.Entry<String,Integer> o2) {
             return o2.getValue() - o1.getValue();
         }
     }
