@@ -158,6 +158,7 @@ public class MainBotController {
         twirk.addIrcListener(new PredsManagerListener(scheduler, twirk, dbManager, twitchApi, predsGuessListener));
         twirk.addIrcListener(queueJoinListener);
         twirk.addIrcListener(new ScheduledMessageManagerListener(scheduler, twirk, dbManager));
+        twirk.addIrcListener(new TattleListener(scheduler, dbManager, twirk, twitchApi));
         twirk.addIrcListener(new ViewerQueueManageListener(scheduler, viewerQueueManager, queueJoinListener));
         twirk.addIrcListener(new WatchTimeListener(scheduler, twirk, dbManager, streamTracker));
         twirk.addIrcListener(new WrListener(scheduler, twirk, twitchApi));
