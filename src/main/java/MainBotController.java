@@ -7,6 +7,7 @@ import listeners.commands.*;
 import listeners.commands.preds.LeaderboardListener;
 import listeners.commands.preds.PredsGuessListener;
 import listeners.commands.preds.PredsManagerListener;
+import listeners.commands.quotes.QuoteListener;
 import listeners.events.*;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;

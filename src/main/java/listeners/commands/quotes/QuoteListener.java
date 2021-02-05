@@ -1,4 +1,4 @@
-package listeners.commands;
+package listeners.commands.quotes;
 
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
@@ -7,11 +7,15 @@ import com.jcog.utils.TwitchUserLevel;
 import com.jcog.utils.database.DbManager;
 import com.jcog.utils.database.entries.QuoteItem;
 import com.jcog.utils.database.misc.QuoteDb;
+import listeners.commands.CommandBase;
 import util.TwirkInterface;
 
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
+
+import static com.jcog.utils.TwitchUserLevel.USER_LEVEL.*;
+import static listeners.commands.quotes.QuoteUndoEngine.Action.*;
 
 public class QuoteListener extends CommandBase {
 
@@ -20,6 +24,8 @@ public class QuoteListener extends CommandBase {
     private static final String PATTERN_DELETE_QUOTE = "!delquote";
     private static final String PATTERN_EDIT_QUOTE = "!editquote";
     private static final String PATTERN_LATEST_QUOTE = "!latestquote";
+    private static final String PATTERN_UNDO_QUOTE = "!undoquote";
+    private static final String PATTERN_REDO_QUOTE = "!redoquote";
     private static final String ERROR_MISSING_ARGUMENTS = "Missing argument(s)";
     private static final String ERROR_NO_MATCHING_QUOTES = "No matching quotes";
     private static final String ERROR_BAD_INDEX_FORMAT = "Unable to parse quote \"%s\"";
@@ -29,6 +35,7 @@ public class QuoteListener extends CommandBase {
     private final TwitchApi twitchApi;
     private final QuoteDb quoteDb;
     private final Random random;
+    private final QuoteUndoEngine quoteUndoEngine;
 
     public QuoteListener(
             ScheduledExecutorService scheduler,
@@ -41,6 +48,7 @@ public class QuoteListener extends CommandBase {
         this.twitchApi = twitchApi;
         quoteDb = dbManager.getQuoteDb();
         random = new Random();
+        quoteUndoEngine = new QuoteUndoEngine(twirk, quoteDb);
     }
 
     @Override
@@ -51,13 +59,15 @@ public class QuoteListener extends CommandBase {
                 PATTERN_ADD_QUOTE,
                 PATTERN_DELETE_QUOTE,
                 PATTERN_EDIT_QUOTE,
-                PATTERN_LATEST_QUOTE
+                PATTERN_LATEST_QUOTE,
+                PATTERN_UNDO_QUOTE,
+                PATTERN_REDO_QUOTE
         );
     }
 
     @Override
     protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
-        return TwitchUserLevel.USER_LEVEL.DEFAULT;
+        return DEFAULT;
     }
 
     @Override
@@ -105,9 +115,9 @@ public class QuoteListener extends CommandBase {
                 break;
             }
             case PATTERN_ADD_QUOTE: {
-                if (userLevel >= TwitchUserLevel.USER_LEVEL.VIP.value) {
+                if (userLevel >= VIP.value) {
                     //only allow VIPs to add quotes if the stream is live
-                    if (userLevel == TwitchUserLevel.USER_LEVEL.VIP.value && twitchApi.getStream() == null) {
+                    if (userLevel == VIP.value && twitchApi.getStream() == null) {
                         twirk.channelMessage(ERROR_NOT_LIVE);
                         break;
                     }
@@ -115,12 +125,14 @@ public class QuoteListener extends CommandBase {
                         twirk.channelMessage(ERROR_MISSING_ARGUMENTS);
                         break;
                     }
-                    twirk.channelMessage(quoteDb.addQuote(content, sender.getUserID(), true));
+                    QuoteItem quoteItem = quoteDb.addQuote(content, sender.getUserID(), true);
+                    quoteUndoEngine.storeUndoAction(ADD, quoteItem);
+                    twirk.channelMessage(String.format("Successfully added quote #%d", quoteItem.getIndex()));
                 }
                 break;
             }
             case PATTERN_DELETE_QUOTE: {
-                if (userLevel >= TwitchUserLevel.USER_LEVEL.MOD.value) {
+                if (userLevel >= MOD.value) {
                     if (content.isEmpty()) {
                         twirk.channelMessage(ERROR_MISSING_ARGUMENTS);
                         break;
@@ -133,12 +145,14 @@ public class QuoteListener extends CommandBase {
                         twirk.channelMessage(getBadIndexError(content));
                         break;
                     }
-                    twirk.channelMessage(quoteDb.deleteQuote(delIndex));
+                    QuoteItem quote = quoteDb.deleteQuote(delIndex);
+                    quoteUndoEngine.storeUndoAction(DELETE, quote);
+                    twirk.channelMessage(String.format("Successfully deleted quote #%d", delIndex));
                 }
                 break;
             }
             case PATTERN_EDIT_QUOTE: {
-                if (userLevel >= TwitchUserLevel.USER_LEVEL.MOD.value) {
+                if (userLevel >= MOD.value) {
                     String[] editSplit = content.split(" ", 2);
                     if (editSplit.length != 2) {
                         twirk.channelMessage(ERROR_MISSING_ARGUMENTS);
@@ -152,8 +166,11 @@ public class QuoteListener extends CommandBase {
                         twirk.channelMessage(getBadIndexError(editSplit[0]));
                         break;
                     }
-                    twirk.channelMessage(quoteDb.editQuote(editIndex, editSplit[1], sender.getUserID()));
+                    QuoteItem quote = quoteDb.editQuote(editIndex, editSplit[1], sender.getUserID(), true);
+                    quoteUndoEngine.storeUndoAction(EDIT, quote);
+                    twirk.channelMessage(String.format("Successfully edited quote #%d", editIndex));
                 }
+                break;
             }
             case PATTERN_LATEST_QUOTE: {
                 QuoteItem quote = quoteDb.getQuote(quoteDb.getQuoteCount());
@@ -162,6 +179,19 @@ public class QuoteListener extends CommandBase {
                     output = quote.toString();
                 }
                 twirk.channelMessage(output);
+                break;
+            }
+            case PATTERN_UNDO_QUOTE: {
+                if (userLevel >= MOD.value) {
+                    quoteUndoEngine.undo();
+                }
+                break;
+            }
+            case PATTERN_REDO_QUOTE: {
+                if (userLevel >= MOD.value) {
+                    quoteUndoEngine.redo();
+                }
+                break;
             }
         }
     }
