@@ -206,3 +206,11 @@ Edits the text of the given quote.
 
 Deletes the given quote. If there are quotes with higher numbers than this one, each one has its value decremented by
 one.
+
+#### Undo/Redo
+
+`!undoquote` and `!redoquote`
+
+This works exactly how you'd expect. If you add, edit, or delete a quote, `!undoquote` will undo that action so that
+everything will be exactly like it was before that action. `!redoquote` will redo anything that has been undone. Up to
+10 actions are kept in memory to be undone/redone.
