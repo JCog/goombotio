@@ -4,13 +4,16 @@ import com.jcog.utils.database.entries.QuoteItem;
 import com.jcog.utils.database.misc.QuoteDb;
 import util.TwirkInterface;
 
-import java.util.Stack;
+import java.util.Deque;
+import java.util.LinkedList;
 
 import static listeners.commands.quotes.QuoteUndoEngine.Action.*;
 
 public class QuoteUndoEngine {
-    private final Stack<QuoteUndoItem> actionUndoStack = new Stack<>();
-    private final Stack<QuoteUndoItem> actionRedoStack = new Stack<>();
+    private static final int STACK_MAX_SIZE = 10;
+
+    private final Deque<QuoteUndoItem> actionUndoStack = new LinkedList<>();
+    private final Deque<QuoteUndoItem> actionRedoStack = new LinkedList<>();
     private final TwirkInterface twirk;
     private final QuoteDb quoteDb;
 
@@ -26,12 +29,12 @@ public class QuoteUndoEngine {
     }
 
     public void storeUndoAction(Action action, QuoteItem quoteItem) {
-        actionUndoStack.push(new QuoteUndoItem(action, quoteItem));
+        addUndoItem(action, quoteItem);
         clearRedoStack();
     }
 
     public void undo() {
-        if (actionUndoStack.empty()) {
+        if (actionUndoStack.isEmpty()) {
             twirk.channelMessage("No quote actions to undo");
         }
         else {
@@ -40,19 +43,19 @@ public class QuoteUndoEngine {
             switch (quoteUndoItem.getAction()) {
                 case ADD: {
                     QuoteItem quoteToRedo = quoteDb.deleteQuote(quote.getIndex());
-                    actionRedoStack.push(new QuoteUndoItem(ADD, quoteToRedo));
+                    addRedoItem(ADD, quoteToRedo);
                     twirk.channelMessage(String.format("Quote #%d deleted", quote.getIndex()));
                     break;
                 }
                 case EDIT: {
                     QuoteItem quoteToRedo = quoteDb.editQuote(quote);
-                    actionRedoStack.push(new QuoteUndoItem(EDIT, quoteToRedo));
+                    addRedoItem(EDIT, quoteToRedo);
                     twirk.channelMessage(String.format("Reverted edit to quote #%d", quote.getIndex()));
                     break;
                 }
                 case DELETE: {
                     quoteDb.reAddDeletedQuote(quote);
-                    actionRedoStack.push(quoteUndoItem);
+                    addRedoItem(quoteUndoItem.getAction(), quoteUndoItem.getQuoteItem());
                     twirk.channelMessage(String.format("Readded quote #%d", quote.getIndex()));
                     break;
                 }
@@ -61,7 +64,7 @@ public class QuoteUndoEngine {
     }
 
     public void redo() {
-        if (actionRedoStack.empty()) {
+        if (actionRedoStack.isEmpty()) {
             twirk.channelMessage("No quote actions to redo");
         }
         else {
@@ -73,19 +76,19 @@ public class QuoteUndoEngine {
                                                              quoteToRedo.getCreatorId(),
                                                              quoteToRedo.getCreated(),
                                                              quoteToRedo.isApproved());
-                    actionUndoStack.push(new QuoteUndoItem(ADD, quoteToUndo));
+                    addUndoItem(ADD, quoteToUndo);
                     twirk.channelMessage(String.format("Re-added quote #%d", quoteToRedo.getIndex()));
                     break;
                 }
                 case EDIT: {
                     QuoteItem quoteToUndo = quoteDb.editQuote(quoteToRedo);
-                    actionUndoStack.push(new QuoteUndoItem(EDIT, quoteToUndo));
+                    addUndoItem(EDIT, quoteToUndo);
                     twirk.channelMessage(String.format("Redid edit to quote #%d", quoteToRedo.getIndex()));
                     break;
                 }
                 case DELETE: {
                     QuoteItem quoteToUndo = quoteDb.deleteQuote(quoteToRedo.getIndex());
-                    actionUndoStack.push(new QuoteUndoItem(DELETE, quoteToUndo));
+                    addUndoItem(DELETE, quoteToUndo);
                     twirk.channelMessage(String.format("Deleted quote #%d", quoteToRedo.getIndex()));
                     break;
                 }
@@ -95,5 +98,19 @@ public class QuoteUndoEngine {
 
     private void clearRedoStack() {
         actionRedoStack.clear();
+    }
+
+    private void addUndoItem(Action action, QuoteItem quoteItem) {
+        actionUndoStack.push(new QuoteUndoItem(action, quoteItem));
+        while (actionUndoStack.size() > STACK_MAX_SIZE) {
+            actionUndoStack.removeLast();
+        }
+    }
+
+    private void addRedoItem(Action action, QuoteItem quoteItem) {
+        actionRedoStack.push(new QuoteUndoItem(action, quoteItem));
+        while (actionRedoStack.size() > STACK_MAX_SIZE) {
+            actionRedoStack.removeLast();
+        }
     }
 }
