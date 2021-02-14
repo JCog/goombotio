@@ -105,8 +105,16 @@ public class LinkListener implements TwirkListener {
         if (userList.size() != 2) {
             return "";
         }
-        String channelDisplayName = userList.get(0).getDisplayName();
-        String clippedByDisplayName = userList.get(1).getDisplayName();
+        String channelDisplayName;
+        String clippedByDisplayName;
+        if (userList.get(0).getId().equals(channelId)) {
+            channelDisplayName = userList.get(0).getDisplayName();
+            clippedByDisplayName = userList.get(1).getDisplayName();
+        }
+        else {
+            channelDisplayName = userList.get(1).getDisplayName();
+            clippedByDisplayName = userList.get(0).getDisplayName();
+        }
 
         Game game;
         try {
