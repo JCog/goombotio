@@ -68,7 +68,7 @@ public class ReportBuilder {
         int maxNameLength = 0;
         int maxFollowers = 0;
         int maxMinutes = 0;
-        for (int i = 0; i < 10 && i < biggestViewers.size(); i++) {
+        for (int i = 0; i < 20 && i < biggestViewers.size(); i++) {
             String name = biggestViewers.get(i).getKey();
             maxIndex = i + 1;
             maxNameLength = Math.max(maxNameLength, name.length());

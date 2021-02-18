@@ -30,6 +30,7 @@ snowbottos
 stay_hydrated_bot
 streamelements
 teyyd
+twitchdetails
 twitchprimereminder
 v_and_k
 verynaughtywife
