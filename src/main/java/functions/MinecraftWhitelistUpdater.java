@@ -2,23 +2,20 @@ package functions;
 
 import com.github.twitch4j.helix.domain.Subscription;
 import com.github.twitch4j.helix.domain.User;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jcog.utils.TwitchApi;
 import com.jcog.utils.database.DbManager;
 import com.jcog.utils.database.entries.MinecraftUser;
 import com.jcog.utils.database.misc.MinecraftUserDb;
 import com.jcraft.jsch.*;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import util.FileWriter;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TimerTask;
+import java.lang.reflect.Type;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -27,6 +24,9 @@ public class MinecraftWhitelistUpdater {
     private static final String FILENAME = "whitelist.json";
     private static final int INTERVAL = 1; //minutes
 
+    private final Type whitelistType = new TypeToken<ArrayList<Map<String,String>>>() {
+    }.getType();
+    private final Gson gson = new Gson();
     private final JSch jsch = new JSch();
     private final MinecraftUserDb minecraftUserDb;
     private final TwitchApi twitchApi;
@@ -63,8 +63,8 @@ public class MinecraftWhitelistUpdater {
         scheduledFuture = scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                JSONArray currentWhitelist = readInWhitelist();
-                JSONArray newWhitelist;
+                ArrayList<Map<String,String>> currentWhitelist = readInWhitelist();
+                ArrayList<Map<String,String>> newWhitelist;
                 try {
                     newWhitelist = createWhitelist();
                 }
@@ -84,20 +84,18 @@ public class MinecraftWhitelistUpdater {
         scheduledFuture.cancel(false);
     }
 
-    private JSONArray readInWhitelist() {
-        JSONParser jsonParser = new JSONParser();
-
+    private ArrayList<Map<String,String>> readInWhitelist() {
         try (FileReader reader = new FileReader(FILENAME)) {
-            return (JSONArray) jsonParser.parse(reader);
+            return gson.fromJson(reader, whitelistType);
         }
-        catch (ParseException | IOException e) {
+        catch (IOException e) {
             System.out.println("ERROR: unable to read in Minecraft whitelist");
             e.printStackTrace();
         }
-        return new JSONArray();
+        return new ArrayList<>();
     }
 
-    private JSONArray createWhitelist() throws HystrixRuntimeException {
+    private ArrayList<Map<String,String>> createWhitelist() throws HystrixRuntimeException {
         List<Subscription> subList = twitchApi.getSubList(streamerUser.getId());
         ArrayList<MinecraftUser> whitelist = new ArrayList<>();
         for (Subscription sub : subList) {
@@ -107,9 +105,9 @@ public class MinecraftWhitelistUpdater {
             }
         }
 
-        JSONArray whitelistJson = new JSONArray();
+        ArrayList<Map<String,String>> whitelistJson = new ArrayList<>();
         for (MinecraftUser user : whitelist) {
-            JSONObject obj = new JSONObject();
+            Map<String,String> obj = new HashMap<>();
             obj.put("name", user.getMcUsername());
             obj.put("uuid", user.getMcUuid());
             whitelistJson.add(obj);
@@ -117,21 +115,19 @@ public class MinecraftWhitelistUpdater {
         return whitelistJson;
     }
 
-    private boolean whitelistsEqual(JSONArray first, JSONArray second) {
+    private boolean whitelistsEqual(ArrayList<Map<String,String>> first, ArrayList<Map<String,String>> second) {
         if (first.size() != second.size()) {
             return false;
         }
 
-        for (Object userFirst : first) {
-            JSONObject firstObj = (JSONObject) userFirst;
-            String firstUuid = firstObj.get("uuid").toString();
-            String firstName = firstObj.get("name").toString();
+        for (Map<String,String> userFirst : first) {
+            String firstUuid = userFirst.get("uuid");
+            String firstName = userFirst.get("name");
 
             boolean hasPair = false;
-            for (Object userSecond : second) {
-                JSONObject secondObj = (JSONObject) userSecond;
-                String secondUuid = secondObj.get("uuid").toString();
-                String secondName = secondObj.get("name").toString();
+            for (Map<String,String> userSecond : second) {
+                String secondUuid = userSecond.get("uuid");
+                String secondName = userSecond.get("name");
                 if (firstUuid.equals(secondUuid) && firstName.equals(secondName)) {
                     hasPair = true;
                 }
@@ -143,8 +139,8 @@ public class MinecraftWhitelistUpdater {
         return true;
     }
 
-    private void updateLocalWhitelist(JSONArray whitelist) {
-        boolean successful = FileWriter.writeToFile("", FILENAME, whitelist.toJSONString());
+    private void updateLocalWhitelist(ArrayList<Map<String,String>> whitelist) {
+        boolean successful = FileWriter.writeToFile("", FILENAME, gson.toJson(whitelist));
         if (!successful) {
             System.out.println("Error writing Minecraft whitelist to file");
         }
