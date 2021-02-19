@@ -56,7 +56,7 @@ public class QuoteUndoEngine {
                 case DELETE: {
                     quoteDb.reAddDeletedQuote(quote);
                     addRedoItem(quoteUndoItem.getAction(), quoteUndoItem.getQuoteItem());
-                    twirk.channelMessage(String.format("Readded quote #%d", quote.getIndex()));
+                    twirk.channelMessage(String.format("Re-added quote #%d", quote.getIndex()));
                     break;
                 }
             }

@@ -30,9 +30,9 @@ public class SubListener implements TwirkListener {
 
     @Override
     public void onUsernotice(TwitchUser user, Usernotice usernotice) {
-        if (usernotice.isSubscription()) {
+        if (usernotice.isSubscription() && usernotice.getSubscription().isPresent()) {
             Subscription sub = usernotice.getSubscription().get();
-            if (sub.isGift()) {
+            if (sub.isGift() && sub.getSubscriptionGift().isPresent()) {
                 String gifterName = user.getDisplayName();
                 String recipientName = sub.getSubscriptionGift().get().getRecipiantDisplayName();
                 out.printf("%s has gifted a sub to %s%n", gifterName, recipientName);

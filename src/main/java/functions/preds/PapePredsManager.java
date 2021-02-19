@@ -208,13 +208,7 @@ public class PapePredsManager extends PredsManagerBase {
                 "!preds to learn more.";
     }
 
-    /**
-     * Converts a {@link Badge} to a {@link String}
-     *
-     * @param badge badge to convert to String
-     * @return String for Badge
-     */
-    public static String badgeToString(Badge badge) {
+    private static String badgeToString(Badge badge) {
         switch (badge) {
             case BAD_SPIN1:
                 return "BadSpin1";
@@ -227,13 +221,7 @@ public class PapePredsManager extends PredsManagerBase {
         }
     }
 
-    /**
-     * Converts a {@link String} to a {@link Badge}. Returns null if no match exists
-     *
-     * @param badge badge in String form to convert
-     * @return Badge or null
-     */
-    public static Badge stringToBadge(String badge) {
+    private static Badge stringToBadge(String badge) {
         switch (badge.toLowerCase()) {
             case "badspin1":
                 return Badge.BAD_SPIN1;
@@ -248,13 +236,7 @@ public class PapePredsManager extends PredsManagerBase {
         }
     }
 
-    /**
-     * Converts an int to a {@link Badge}. Returns null if no match exists
-     *
-     * @param badge badge in int form to convert
-     * @return Badge or null
-     */
-    public static Badge intToBadge(int badge) {
+    private static Badge intToBadge(int badge) {
         switch (badge) {
             case 1:
                 return Badge.BAD_SPIN1;
@@ -262,10 +244,8 @@ public class PapePredsManager extends PredsManagerBase {
                 return Badge.BAD_SPIN2;
             case 3:
                 return Badge.BAD_SPIN3;
-            case 4:
-                return Badge.SPOODLY_SPUN;
             default:
-                return null;
+                return Badge.SPOODLY_SPUN;
         }
     }
 }

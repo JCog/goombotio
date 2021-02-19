@@ -1,6 +1,7 @@
 package util;
 
 import org.ini4j.Wini;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -108,14 +109,15 @@ public class Settings {
         return ini.get(MINECRAFT_CAT_TAG, "whitelistLocation");
     }
 
+    @NotNull
     private Wini getIni() {
-        Wini ini;
+        Wini ini = null;
         try {
             ini = new Wini(new File(INI_FILENAME));
         }
         catch (IOException e) {
             System.out.println("IOException reading ini");
-            return null;
+            System.exit(1);
         }
         return ini;
     }
