@@ -38,6 +38,7 @@ public class MinecraftWhitelistUpdater {
     private final String whitelistLocation;
 
     private ScheduledFuture<?> scheduledFuture;
+    private boolean subOnly;
 
     public MinecraftWhitelistUpdater(
             DbManager dbManager,
@@ -57,6 +58,7 @@ public class MinecraftWhitelistUpdater {
         this.password = password;
         this.whitelistLocation = whitelistLocation;
         minecraftUserDb = dbManager.getMinecraftUserDb();
+        subOnly = true;
     }
 
     public void start() {
@@ -83,6 +85,14 @@ public class MinecraftWhitelistUpdater {
     public void stop() {
         scheduledFuture.cancel(false);
     }
+    
+    public void setSubOnly(boolean subOnly) {
+        this.subOnly = subOnly;
+    }
+    
+    public boolean isSubOnly() {
+        return subOnly;
+    }
 
     private ArrayList<Map<String,String>> readInWhitelist() {
         try (FileReader reader = new FileReader(FILENAME)) {
@@ -96,13 +106,18 @@ public class MinecraftWhitelistUpdater {
     }
 
     private ArrayList<Map<String,String>> createWhitelist() throws HystrixRuntimeException {
-        List<Subscription> subList = twitchApi.getSubList(streamerUser.getId());
         ArrayList<MinecraftUser> whitelist = new ArrayList<>();
-        for (Subscription sub : subList) {
-            MinecraftUser user = minecraftUserDb.getUser(sub.getUserId());
-            if (user != null) {
-                whitelist.add(user);
+        if (subOnly) {
+            List<Subscription> subList = twitchApi.getSubList(streamerUser.getId());
+            for (Subscription sub : subList) {
+                MinecraftUser user = minecraftUserDb.getUser(sub.getUserId());
+                if (user != null) {
+                    whitelist.add(user);
+                }
             }
+        }
+        else {
+            whitelist.addAll(minecraftUserDb.getAllUsers());
         }
 
         ArrayList<Map<String,String>> whitelistJson = new ArrayList<>();

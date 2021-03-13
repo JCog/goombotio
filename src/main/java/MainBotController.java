@@ -181,7 +181,7 @@ public class MainBotController {
         twirk.addIrcListener(new GenericCommandListener(scheduler, twirk, dbManager, twitchApi, streamerUser));
         //twirk.addIrcListener(new ModListener(scheduler, twirk));
         twirk.addIrcListener(new LeaderboardListener(scheduler, twirk, dbManager, twitchApi));
-        twirk.addIrcListener(new MinecraftListener(scheduler, twirk, dbManager));
+        twirk.addIrcListener(new MinecraftListener(scheduler, twirk, dbManager, minecraftWhitelistUpdater));
         twirk.addIrcListener(new QuoteListener(scheduler, twirk, dbManager, twitchApi));
         twirk.addIrcListener(predsGuessListener);
         twirk.addIrcListener(new PredsManagerListener(scheduler, twirk, dbManager, twitchApi, predsGuessListener));

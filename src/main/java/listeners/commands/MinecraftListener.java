@@ -6,6 +6,7 @@ import com.gikk.twirk.types.users.TwitchUser;
 import com.jcog.utils.TwitchUserLevel;
 import com.jcog.utils.database.DbManager;
 import com.jcog.utils.database.misc.MinecraftUserDb;
+import functions.MinecraftWhitelistUpdater;
 import util.TwirkInterface;
 
 import java.util.ArrayList;
@@ -13,14 +14,18 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class MinecraftListener extends CommandBase {
     private static final String PATTERN = "!minecraft";
-    private static final String GENERIC_MESSAGE = "We have a Minecraft server for subs! To join, register your Minecraft username by typing \"!minecraft <username>\" in the chat and you'll automatically be added to the whitelist if you're subbed to the channel. Then, add a new server with the address \"minecraft.jcoggers.com\". Have fun! PunchTrees";
+    private static final String GENERIC_MESSAGE = "We have a community Minecraft server! It's currently open to %s. To join, register your Minecraft username by typing \"!minecraft <username>\" in the chat and you'll automatically be added to the whitelist. Then, add a new server with the address \"minecraft.jcoggers.com\". Have fun! PunchTrees";
+    private static final String SUBS_ENABLED = "Sub-only mode has been enabled for the minecraft server.";
+    private static final String SUBS_DISABLED = "Sub-only mode has been disabled for the minecraft server.";
 
     private final MinecraftUserDb minecraftUserDb;
     private final TwirkInterface twirk;
+    private final MinecraftWhitelistUpdater mcUpdater;
 
-    public MinecraftListener(ScheduledExecutorService scheduler, TwirkInterface twirk, DbManager dbManager) {
+    public MinecraftListener(ScheduledExecutorService scheduler, TwirkInterface twirk, DbManager dbManager, MinecraftWhitelistUpdater mcUpdater) {
         super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
+        this.mcUpdater = mcUpdater;
         minecraftUserDb = dbManager.getMinecraftUserDb();
     }
 
@@ -43,8 +48,28 @@ public class MinecraftListener extends CommandBase {
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         String[] messageSplit = message.getContent().trim().split("\\s");
         if (messageSplit.length == 1) {
-            twirk.channelMessage(GENERIC_MESSAGE);
+            String subs;
+            if (mcUpdater.isSubOnly()) {
+                subs = "subs only";
+            }
+            else {
+                subs = "everyone";
+            }
+            twirk.channelMessage(String.format(GENERIC_MESSAGE, subs));
             return;
+        }
+    
+        if (sender.isOwner()) {
+            if (messageSplit[1].equals("1")) {
+                mcUpdater.setSubOnly(true);
+                twirk.channelMessage(SUBS_ENABLED);
+                return;
+            }
+            else if (messageSplit[1].equals("0")) {
+                mcUpdater.setSubOnly(false);
+                twirk.channelMessage(SUBS_DISABLED);
+                return;
+            }
         }
 
         String mcUsername = messageSplit[1];
