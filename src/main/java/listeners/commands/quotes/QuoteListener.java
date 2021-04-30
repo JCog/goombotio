@@ -2,6 +2,7 @@ package listeners.commands.quotes;
 
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.helix.domain.User;
 import com.jcog.utils.TwitchApi;
 import com.jcog.utils.TwitchUserLevel;
 import com.jcog.utils.database.DbManager;
@@ -36,16 +37,19 @@ public class QuoteListener extends CommandBase {
     private final QuoteDb quoteDb;
     private final Random random;
     private final QuoteUndoEngine quoteUndoEngine;
+    private final User streamerUser;
 
     public QuoteListener(
             ScheduledExecutorService scheduler,
             TwirkInterface twirk,
             DbManager dbManager,
-            TwitchApi twitchApi
+            TwitchApi twitchApi,
+            User streamerUser
     ) {
         super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
         this.twitchApi = twitchApi;
+        this.streamerUser = streamerUser;
         quoteDb = dbManager.getQuoteDb();
         random = new Random();
         quoteUndoEngine = new QuoteUndoEngine(twirk, quoteDb);
@@ -117,7 +121,7 @@ public class QuoteListener extends CommandBase {
             case PATTERN_ADD_QUOTE: {
                 if (userLevel >= VIP.value) {
                     //only allow VIPs to add quotes if the stream is live
-                    if (userLevel == VIP.value && twitchApi.getStream() == null) {
+                    if (userLevel == VIP.value && twitchApi.getStream(streamerUser.getLogin()) == null) {
                         twirk.channelMessage(ERROR_NOT_LIVE);
                         break;
                     }

@@ -29,6 +29,7 @@ public class ScheduledMessageController {
     private final TwitchApi twitchApi;
     private final ScheduledExecutorService scheduler;
     private final User botUser;
+    private final User streamerUser;
     private final int intervalLength;
 
     private boolean running;
@@ -46,6 +47,7 @@ public class ScheduledMessageController {
             DbManager dbManager,
             TwitchApi twitchApi,
             ScheduledExecutorService scheduler,
+            User streamerUser,
             User botUser,
             int intervalLength
     ) {
@@ -53,6 +55,7 @@ public class ScheduledMessageController {
         this.twitchApi = twitchApi;
         this.scheduler = scheduler;
         this.botUser = botUser;
+        this.streamerUser = streamerUser;
         this.intervalLength = intervalLength;
         socialSchedulerDb = dbManager.getSocialSchedulerDb();
         running = false;
@@ -83,7 +86,7 @@ public class ScheduledMessageController {
         if (running) {
             Stream stream;
             try {
-                stream = twitchApi.getStream();
+                stream = twitchApi.getStream(streamerUser.getLogin());
             }
             catch (HystrixRuntimeException e) {
                 e.printStackTrace();

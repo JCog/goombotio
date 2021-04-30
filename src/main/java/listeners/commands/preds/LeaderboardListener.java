@@ -4,6 +4,7 @@ import com.gikk.twirk.enums.USER_TYPE;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Stream;
+import com.github.twitch4j.helix.domain.User;
 import com.jcog.utils.TwitchApi;
 import com.jcog.utils.TwitchUserLevel;
 import com.jcog.utils.database.DbManager;
@@ -31,17 +32,22 @@ public class LeaderboardListener extends CommandBase {
     private final TwirkInterface twirk;
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
+    private final User streamerUser;
 
     private PredsLeaderboardDb leaderboard;
 
-    public LeaderboardListener(ScheduledExecutorService scheduler,
-                               TwirkInterface twirk,
-                               DbManager dbManager,
-                               TwitchApi twitchApi) {
+    public LeaderboardListener(
+            ScheduledExecutorService scheduler,
+            TwirkInterface twirk,
+            DbManager dbManager,
+            TwitchApi twitchApi,
+            User streamerUser
+    ) {
         super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
+        this.streamerUser = streamerUser;
         updateLeaderboardType();
     }
 
@@ -122,7 +128,7 @@ public class LeaderboardListener extends CommandBase {
     private String getGameId() {
         Stream stream;
         try {
-            stream = twitchApi.getStream();
+            stream = twitchApi.getStream(streamerUser.getLogin());
         }
         catch (HystrixRuntimeException e) {
             e.printStackTrace();

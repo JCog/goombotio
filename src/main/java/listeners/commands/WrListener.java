@@ -4,6 +4,7 @@ import api.SpeedrunApi;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Stream;
+import com.github.twitch4j.helix.domain.User;
 import com.jcog.utils.TwitchApi;
 import com.jcog.utils.TwitchUserLevel;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -23,11 +24,18 @@ public class WrListener extends CommandBase {
 
     private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
+    private final User streamerUser;
 
-    public WrListener(ScheduledExecutorService scheduler, TwirkInterface twirk, TwitchApi twitchApi) {
+    public WrListener(
+            ScheduledExecutorService scheduler,
+            TwirkInterface twirk,
+            TwitchApi twitchApi,
+            User streamerUser
+    ) {
         super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
         this.twitchApi = twitchApi;
+        this.streamerUser = streamerUser;
     }
 
     @Override
@@ -49,7 +57,7 @@ public class WrListener extends CommandBase {
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         Stream stream;
         try {
-            stream = twitchApi.getStream();
+            stream = twitchApi.getStream(streamerUser.getLogin());
         }
         catch (HystrixRuntimeException e) {
             e.printStackTrace();
@@ -132,7 +140,8 @@ public class WrListener extends CommandBase {
                 else if (streamTitle.contains("reverse") && streamTitle.contains("all cards")) {
                     wrText = getWr(Game.PAPER_MARIO, PapeCategory.REVERSE_ALL_CARDS, Platform.N64);
                 }
-                else if (streamTitle.contains("pig") || streamTitle.contains("\uD83D\uDC37") || streamTitle.contains("oink")) {
+                else if (streamTitle.contains("pig") || streamTitle.contains("\uD83D\uDC37") || streamTitle.contains(
+                        "oink")) {
                     wrText = getWr(SpeedrunApi.Game.PAPER_MARIO_MEMES, PapeCategory.PIGGIES);
                 }
                 else if (streamTitle.contains("all bloops")) {

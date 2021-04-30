@@ -57,7 +57,7 @@ public class StreamTracker {
             public void run() {
                 Stream stream;
                 try {
-                    stream = twitchApi.getStream();
+                    stream = twitchApi.getStream(streamerUser.getLogin());
                 }
                 catch (HystrixRuntimeException e) {
                     e.printStackTrace();

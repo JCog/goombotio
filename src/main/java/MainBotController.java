@@ -62,7 +62,6 @@ public class MainBotController {
         discordBotController = DiscordBotController.getInstance();
         chatLogger = new ChatLogger();
         twitchApi = new TwitchApi(
-                settings.getTwitchStream(),
                 settings.getTwitchChannelAuthToken(),
                 settings.getTwitchChannelClientId()
         );
@@ -105,6 +104,7 @@ public class MainBotController {
                 dbManager,
                 twitchApi,
                 scheduler,
+                streamerUser,
                 botUser,
                 SOCIAL_INTERVAL_LENGTH
         );
@@ -180,17 +180,18 @@ public class MainBotController {
         twirk.addIrcListener(new CommandManagerListener(scheduler, twirk, dbManager));
         twirk.addIrcListener(new GenericCommandListener(scheduler, twirk, dbManager, twitchApi, streamerUser));
         //twirk.addIrcListener(new ModListener(scheduler, twirk));
-        twirk.addIrcListener(new LeaderboardListener(scheduler, twirk, dbManager, twitchApi));
+        twirk.addIrcListener(new LeaderboardListener(scheduler, twirk, dbManager, twitchApi, streamerUser));
         twirk.addIrcListener(new MinecraftListener(scheduler, twirk, dbManager, minecraftWhitelistUpdater));
-        twirk.addIrcListener(new QuoteListener(scheduler, twirk, dbManager, twitchApi));
+        twirk.addIrcListener(new QuoteListener(scheduler, twirk, dbManager, twitchApi, streamerUser));
         twirk.addIrcListener(predsGuessListener);
-        twirk.addIrcListener(new PredsManagerListener(scheduler, twirk, dbManager, twitchApi, predsGuessListener));
+        twirk.addIrcListener(new PredsManagerListener(
+                scheduler, twirk, dbManager, twitchApi, predsGuessListener, streamerUser));
         twirk.addIrcListener(queueJoinListener);
         twirk.addIrcListener(new ScheduledMessageManagerListener(scheduler, twirk, dbManager));
         twirk.addIrcListener(new TattleListener(scheduler, dbManager, twirk, twitchApi));
         twirk.addIrcListener(new ViewerQueueManageListener(scheduler, viewerQueueManager, queueJoinListener));
         twirk.addIrcListener(new WatchTimeListener(scheduler, twirk, dbManager, streamTracker));
-        twirk.addIrcListener(new WrListener(scheduler, twirk, twitchApi));
+        twirk.addIrcListener(new WrListener(scheduler, twirk, twitchApi, streamerUser));
 
         // General Listeners
         twirk.addIrcListener(new ChatLoggerListener(chatLogger));

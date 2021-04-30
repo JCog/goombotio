@@ -3,6 +3,7 @@ package listeners.commands.preds;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Stream;
+import com.github.twitch4j.helix.domain.User;
 import com.jcog.utils.TwitchApi;
 import com.jcog.utils.TwitchUserLevel;
 import com.jcog.utils.database.DbManager;
@@ -27,6 +28,7 @@ public class PredsManagerListener extends CommandBase {
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
     private final PredsGuessListener predsGuessListener;
+    private final User streamerUser;
 
     private PredsManagerBase predsManager;
 
@@ -35,13 +37,15 @@ public class PredsManagerListener extends CommandBase {
             TwirkInterface twirk,
             DbManager dbManager,
             TwitchApi twitchApi,
-            PredsGuessListener predsGuessListener
+            PredsGuessListener predsGuessListener,
+            User streamerUser
     ) {
         super(CommandType.PREFIX_COMMAND, scheduler);
         this.twirk = twirk;
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.predsGuessListener = predsGuessListener;
+        this.streamerUser = streamerUser;
         predsManager = null;
     }
 
@@ -66,7 +70,7 @@ public class PredsManagerListener extends CommandBase {
             String gameId = "";
             Stream stream;
             try {
-                stream = twitchApi.getStream();
+                stream = twitchApi.getStream(streamerUser.getLogin());
             }
             catch (HystrixRuntimeException e) {
                 e.printStackTrace();

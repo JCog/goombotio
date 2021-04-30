@@ -190,7 +190,7 @@ public class CommandParser {
             case TYPE_UPTIME: {
                 Stream stream;
                 try {
-                    stream = twitchApi.getStream();
+                    stream = twitchApi.getStream(streamerUser.getLogin());
                 }
                 catch (HystrixRuntimeException e) {
                     e.printStackTrace();
