@@ -47,7 +47,7 @@ public class TwirkInterface {
     }
 
     /**
-     * Sends a message to twitch chat if the first non-whitespace character is not '/' to prevent commands
+     * Sends a message to twitch chat if the first non-whitespace character is not '/' or '.' to prevent commands
      *
      * @param line message to send
      */
@@ -57,7 +57,7 @@ public class TwirkInterface {
             return;
         }
         String firstWord = output.split("\\s", 2)[0];
-        if (firstWord.charAt(0) == '/') {
+        if (firstWord.charAt(0) == '/' || firstWord.charAt(0) == '.') {
             System.out.printf("Illegal command usage \"%s\"%n", firstWord);
         }
         else {
