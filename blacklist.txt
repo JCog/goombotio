@@ -13,6 +13,7 @@ devljoe
 duvveh
 electricallongboard
 feet
+gametrendanalytics
 goombotio
 gza_
 hostmeraffle
