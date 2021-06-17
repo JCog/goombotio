@@ -10,7 +10,11 @@ import com.jcog.utils.database.entries.TattleItem;
 import com.jcog.utils.database.misc.TattleDb;
 import util.TwirkInterface;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 
 public class TattleListener extends CommandBase {
 
@@ -19,6 +23,7 @@ public class TattleListener extends CommandBase {
     private final TattleDb tattleDb;
     private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
+    private final Random random = new Random();
 
     public TattleListener(ScheduledExecutorService scheduler,
                           DbManager dbManager,
@@ -56,18 +61,44 @@ public class TattleListener extends CommandBase {
                     return;
                 }
 
-                User user = twitchApi.getUserByUsername(messageSplit[1]);
-                if (user == null) {
-                    twirk.channelMessage(String.format("Unknown user \"%s\"", messageSplit[1]));
+                String username = messageSplit[1].toLowerCase();
+                
+                User user = twitchApi.getUserByUsername(username);
+                if (user != null) {
+                    TattleItem tattle = tattleDb.getTattle(user.getId());
+                    if (tattle != null) {
+                        twirk.channelMessage(tattleItemToString(tattle));
+                        return;
+                    }
+                }
+    
+                ArrayList<TattleItem> allTattles = tattleDb.getAllTattles();
+                List<User> users = twitchApi.getUserListByIds(allTattles.stream().map(TattleItem::getTwitchId).collect(Collectors.toList()));
+                ArrayList<User> userOptions = new ArrayList<>();
+    
+                for (User tattleUser : users) {
+                    if (tattleUser.getLogin().contains(username)) {
+                        userOptions.add(tattleUser);
+                    }
+                }
+    
+                if (userOptions.isEmpty()) {
+                    twirk.channelMessage(String.format("No matches for \"%s\"", username));
                     return;
                 }
-
-                TattleItem tattle = tattleDb.getTattle(user.getId());
-                if (tattle == null) {
-                    twirk.channelMessage(String.format("No tattle data for %s", user.getDisplayName()));
+                
+                int index = random.nextInt(userOptions.size());
+                TattleItem outputTattle = allTattles.stream()
+                        .filter(tattleItem -> userOptions.get(index).getId().equals(tattleItem.getTwitchId()))
+                        .findAny()
+                        .orElse(null);
+                if (outputTattle == null) {
+                    //sanity check
+                    twirk.channelMessage(String.format("No matches for \"%s\"", username));
                     return;
                 }
-                twirk.channelMessage(tattleItemToString(tattle));
+                
+                twirk.channelMessage(tattleItemToString(outputTattle));
                 break;
             }
             case PATTERN_ADD: {
