@@ -106,7 +106,7 @@ variable|description
 `channel`|the streamer's username
 `choose`|randomly selects a message from a <code>&#124;</code> separated list in `argument`
 `count`|the number of times this command has been called. does not increment unless this variable is used
-`eval`|executes arbitrary javascript. be very careful not to call something with an infinite loop
+`eval`|evaluates mathamatical expressions. for example, the output of `(2^3-1)*sin(pi/4)/ln(pi^2)` would be `2.1619718020347976`
 `followage`|the length of time the user in `argument` has been following the channel
 `query`|full user input that comes after the command
 `rand`|returns a random integer. `argument` should be a comma-separated, inclusive range

@@ -1,5 +1,6 @@
 package util;
 
+import com.fathzer.soft.javaluator.DoubleEvaluator;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Follow;
@@ -45,6 +46,7 @@ public class CommandParser {
     private static final String TYPE_CHOOSE = "choose";
     private static final String TYPE_COUNT = "count";
     private static final String TYPE_FOLLOW_AGE = "followage";
+    private static final String TYPE_EVAL = "eval";
     private static final String TYPE_QUERY = "query";
     private static final String TYPE_RAND = "rand";
     private static final String TYPE_TOUSER = "touser";
@@ -149,6 +151,15 @@ public class CommandParser {
                 }
                 else {
                     return ERROR;
+                }
+            }
+            case TYPE_EVAL: {
+                DoubleEvaluator evaluator = new DoubleEvaluator();
+                try {
+                    return evaluator.evaluate(content).toString();
+                }
+                catch (IllegalArgumentException e) {
+                    return String.format("%s: %s", ERROR, e.getMessage());
                 }
             }
             case TYPE_QUERY: {
