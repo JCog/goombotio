@@ -16,6 +16,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.IOException;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
@@ -36,6 +38,7 @@ public class CommandParser {
     private static final String ERROR_URL = "-bad url-";
     private static final String ERROR_URL_RETRIEVAL = "-unable to retrieve result from url-";
     private static final String ERROR_BAD_ARG_NUM_FORMAT = "-bad argument number \"%s\"-";
+    private static final String ERROR_INVALID_USER_ARG = "-invalid user argument-";
     private static final String ERROR_INVALID_RANGE = "-invalid range\"%s\"-";
     private static final String ERROR_BAD_ENTRY = "-bad entry-";
     private static final String ERROR_INVALID_WEIGHT = "-invalid weight-";
@@ -79,6 +82,7 @@ public class CommandParser {
                 return ERROR_EVAL_LIMIT_EXCEEDED;
             }
             String replacement = evaluateExpression(expression, commandItem, user, twitchMessage);
+            //TODO: check to see if replaceFirst causes a bug
             output = output.replaceFirst(
                     Pattern.quote("$(" + expression + ")"),
                     Matcher.quoteReplacement(replacement)
@@ -125,6 +129,9 @@ public class CommandParser {
                     return String.format(ERROR_BAD_ARG_NUM_FORMAT, content);
                 }
                 else if (arguments.length > arg) {
+                    if (arguments[arg].contains("(") || arguments[arg].contains(")")) {
+                        return ERROR_INVALID_USER_ARG;
+                    }
                     return arguments[arg];
                 }
                 else {
@@ -156,7 +163,9 @@ public class CommandParser {
             case TYPE_EVAL: {
                 DoubleEvaluator evaluator = new DoubleEvaluator();
                 try {
-                    return evaluator.evaluate(content).toString();
+                    DecimalFormat df = new DecimalFormat("#.##");
+                    df.setRoundingMode(RoundingMode.HALF_UP);
+                    return df.format(evaluator.evaluate(content));
                 }
                 catch (IllegalArgumentException e) {
                     return String.format("%s: %s", ERROR, e.getMessage());
