@@ -120,7 +120,9 @@ public class SpeedrunApi extends BaseAPI {
         ANY_NO_RNG("Any% No RNG", "any_no_rng"),
         BEAT_CHAPTER_1("Beat Chapter 1", "beat_chapter_1"),
         SOAP_CAKE("Soap Cake", "soapcake"),
-        MAILMAN("Mailman%", "mailman");
+        MAILMAN("Mailman%", "mailman"),
+        NMSB("Any% No Major Sequence Breaks", "any_no_major_sequence_breaks"),
+        STOP_N_SWOP("Stop 'n' Swop", "stop_n_swop");
 
         private final String name;
         private final String uri;
