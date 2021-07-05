@@ -19,6 +19,7 @@ public class WrListener extends CommandBase {
     private static final String GAME_ID_SUNSHINE = "6086";
     private static final String GAME_ID_PAPER_MARIO = "18231";
     private static final String GAME_ID_TTYD = "6855";
+    private static final String GAME_ID_OOT = "11557";
     private static final String PATTERN = "!wr";
 
     private final TwirkInterface twirk;
@@ -180,6 +181,11 @@ public class WrListener extends CommandBase {
                 }
                 else if (streamTitle.contains("upgrades")) {
                     wrText = getWr(Game.TTYD, TtydCategory.MAX_UPGRADES);
+                }
+                break;
+            case GAME_ID_OOT:
+                if (streamTitle.contains("swop")) {
+                    wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.STOP_N_SWOP);
                 }
                 break;
         }
