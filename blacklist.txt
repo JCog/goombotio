@@ -10,6 +10,7 @@ cachebear
 commanderroot
 cyclemotion
 devljoe
+discord_for_streamers
 duvveh
 electricallongboard
 feet
@@ -21,6 +22,7 @@ hotlocalmom
 itsvodoo
 leoconnor01
 lurxx
+mazerrobot
 megaxa
 n3td3v
 nightbot
