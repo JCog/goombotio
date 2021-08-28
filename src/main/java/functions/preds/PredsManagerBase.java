@@ -21,7 +21,7 @@ public abstract class PredsManagerBase {
 
     protected final PredsLeaderboardDb leaderboard;
 
-    private final DiscordBotController discord = DiscordBotController.getInstance();
+    private final DiscordBotController discord;
 
     protected final TwirkInterface twirk;
     protected final DbManager dbManager;
@@ -29,9 +29,10 @@ public abstract class PredsManagerBase {
     protected boolean enabled;
     protected boolean waitingForAnswer;
 
-    protected PredsManagerBase(TwirkInterface twirk, DbManager dbManager) {
+    protected PredsManagerBase(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord) {
         this.twirk = twirk;
         this.dbManager = dbManager;
+        this.discord = discord;
         leaderboard = getLeaderboardType();
     }
 

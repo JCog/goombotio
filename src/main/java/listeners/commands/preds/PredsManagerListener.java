@@ -8,6 +8,7 @@ import com.jcog.utils.TwitchApi;
 import com.jcog.utils.TwitchUserLevel;
 import com.jcog.utils.database.DbManager;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import functions.DiscordBotController;
 import functions.preds.PapePredsManager;
 import functions.preds.PredsManagerBase;
 import functions.preds.SunshinePredsManager;
@@ -27,6 +28,7 @@ public class PredsManagerListener extends CommandBase {
     private final TwirkInterface twirk;
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
+    private final DiscordBotController discord;
     private final PredsGuessListener predsGuessListener;
     private final User streamerUser;
 
@@ -37,6 +39,7 @@ public class PredsManagerListener extends CommandBase {
             TwirkInterface twirk,
             DbManager dbManager,
             TwitchApi twitchApi,
+            DiscordBotController discord,
             PredsGuessListener predsGuessListener,
             User streamerUser
     ) {
@@ -44,6 +47,7 @@ public class PredsManagerListener extends CommandBase {
         this.twirk = twirk;
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
+        this.discord = discord;
         this.predsGuessListener = predsGuessListener;
         this.streamerUser = streamerUser;
         predsManager = null;
@@ -82,10 +86,10 @@ public class PredsManagerListener extends CommandBase {
                 gameId = stream.getGameId();
             }
             if (gameId.equals(GAME_ID_PAPER_MARIO)) {
-                predsManager = new PapePredsManager(twirk, dbManager);
+                predsManager = new PapePredsManager(twirk, dbManager, discord);
             }
             else if (gameId.equals(GAME_ID_SUNSHINE)) {
-                predsManager = new SunshinePredsManager(twirk, dbManager);
+                predsManager = new SunshinePredsManager(twirk, dbManager, discord);
             }
             else {
                 twirk.channelMessage("The current game is not compatible with preds.");

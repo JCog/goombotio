@@ -33,6 +33,7 @@ public class MainBotController {
     private final DbManager dbManager;
     private final ScheduledExecutorService scheduler;
     private final Twitter twitter;
+    private final DiscordListener discordListener;
     private final DiscordBotController discordBotController;
     private final ChatLogger chatLogger;
     private final TwitchApi twitchApi;
@@ -59,7 +60,8 @@ public class MainBotController {
         );
         scheduler = Executors.newScheduledThreadPool(TIMER_THREAD_SIZE);
         twitter = getTwitterInstance();
-        discordBotController = DiscordBotController.getInstance();
+        discordListener = new DiscordListener();
+        discordBotController = new DiscordBotController(settings.getDiscordToken(), discordListener);
         chatLogger = new ChatLogger();
         twitchApi = new TwitchApi(
                 settings.getTwitchChannelAuthToken(),
@@ -129,7 +131,6 @@ public class MainBotController {
     }
 
     public synchronized void run() {
-        discordBotController.init(settings.getDiscordToken());
         scheduledMessageController.start();
         followLogger.start();
         addAllListeners();
@@ -185,7 +186,7 @@ public class MainBotController {
         twirk.addIrcListener(new QuoteListener(scheduler, twirk, dbManager, twitchApi, streamerUser));
         twirk.addIrcListener(predsGuessListener);
         twirk.addIrcListener(new PredsManagerListener(
-                scheduler, twirk, dbManager, twitchApi, predsGuessListener, streamerUser));
+                scheduler, twirk, dbManager, twitchApi, discordBotController, predsGuessListener, streamerUser));
         twirk.addIrcListener(queueJoinListener);
         twirk.addIrcListener(new ScheduledMessageManagerListener(scheduler, twirk, dbManager));
         twirk.addIrcListener(new TattleListener(scheduler, dbManager, twirk, twitchApi));

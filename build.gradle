@@ -19,6 +19,10 @@ javadoc.options.encoding = 'UTF-8'
 
 repositories {
     mavenCentral()
+    maven {
+        name 'm2-dv8tion'
+        url 'https://m2.dv8tion.net/releases'
+    }
 }
 
 dependencies {
@@ -34,7 +38,7 @@ dependencies {
     implementation group: 'org.ini4j', name: 'ini4j', version: '0.5.4'
     implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
     implementation group: 'com.jcraft', name: 'jsch', version: '0.1.55'
-    implementation group: 'net.dv8tion', name: 'JDA', version: '4.2.0_247'
+    implementation group: 'net.dv8tion', name: 'JDA', version: '4.3.0_310'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.12.3'
     implementation group: 'com.fathzer', name: 'javaluator', version: '3.0.3'

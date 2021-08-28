@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.security.auth.login.LoginException;
 
@@ -14,19 +15,14 @@ public class DiscordBotController {
     private static final String ILLEGAL_ARGUMENT_ERROR = "ERROR: provided text is null, empty, or longer than 2000 characters";
     private static final String UNSUPPORTED_OPERATION_ERROR = "ERROR: this is a private channel and both the currently logged in account and the target user are bots";
 
-    private static DiscordBotController dbc = null;
     private JDA jda;
 
-    public static DiscordBotController getInstance() {
-        if (dbc == null) {
-            dbc = new DiscordBotController();
-        }
-        return dbc;
-    }
-
-    public void init(String token) {
+    public DiscordBotController(String token, ListenerAdapter listenerAdapter) {
         try {
-            jda = JDABuilder.createDefault(token).build().awaitReady();
+            jda = JDABuilder.createDefault(token)
+                    .addEventListeners(listenerAdapter)
+                    .build()
+                    .awaitReady();
             out.println("Goombotio login to Discord successful.");
         }
         catch (LoginException | InterruptedException e) {

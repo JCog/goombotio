@@ -3,6 +3,7 @@ package functions.preds;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.jcog.utils.database.DbManager;
 import com.jcog.utils.database.preds.PredsLeaderboardDb;
+import functions.DiscordBotController;
 import util.TwirkInterface;
 
 import java.util.ArrayList;
@@ -26,8 +27,8 @@ public class SunshinePredsManager extends PredsManagerBase {
 
     private final HashMap<Long,TimeGuess> predictionList = new HashMap<>();
 
-    public SunshinePredsManager(TwirkInterface twirk, DbManager dbManager) {
-        super(twirk, dbManager);
+    public SunshinePredsManager(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord) {
+        super(twirk, dbManager, discord);
     }
 
     @Override

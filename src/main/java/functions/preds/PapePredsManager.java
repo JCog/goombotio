@@ -3,6 +3,7 @@ package functions.preds;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.jcog.utils.database.DbManager;
 import com.jcog.utils.database.preds.PredsLeaderboardDb;
+import functions.DiscordBotController;
 import util.TwirkInterface;
 
 import java.util.*;
@@ -38,8 +39,8 @@ public class PapePredsManager extends PredsManagerBase {
      *
      * @param twirk twirk for chat
      */
-    public PapePredsManager(TwirkInterface twirk, DbManager dbManager) {
-        super(twirk, dbManager);
+    public PapePredsManager(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord) {
+        super(twirk, dbManager, discord);
     }
 
     /**
