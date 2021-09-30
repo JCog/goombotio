@@ -2,10 +2,10 @@ package listeners.commands;
 
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
-import com.jcog.utils.TwitchUserLevel;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.misc.BitWarDb;
+import database.DbManager;
+import database.misc.BitWarDb;
 import util.TwirkInterface;
+import util.TwitchUserLevel;
 
 import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;

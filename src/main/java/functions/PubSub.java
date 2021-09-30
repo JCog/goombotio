@@ -1,12 +1,11 @@
 package functions;
 
-import com.github.twitch4j.pubsub.events.ChannelBitsEvent;
-import com.github.twitch4j.pubsub.events.ChannelSubGiftEvent;
-import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
-import com.jcog.utils.TwitchPubSubClient;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.misc.BitWarDb;
+import com.github.twitch4j.eventsub.events.ChannelPredictionEvent;
+import com.github.twitch4j.pubsub.events.*;
+import database.DbManager;
+import database.misc.BitWarDb;
 import util.TwirkInterface;
+import util.TwitchPubSubClient;
 
 import java.util.Arrays;
 
@@ -37,6 +36,21 @@ public class PubSub extends TwitchPubSubClient {
     
     @Override
     public void onSubGiftsEvent(ChannelSubGiftEvent event) {
+    }
+    
+    @Override
+    public void onPredictionsEvent(ChannelPredictionEvent event) {
+    
+    }
+    
+    @Override
+    public void onHypeTrainStartEvent(HypeTrainStartEvent event) {
+    
+    }
+    
+    @Override
+    public void onHypeTrainEndEvent(HypeTrainEndEvent event) {
+    
     }
     
     private void updateBitWar(ChannelBitsEvent event) {

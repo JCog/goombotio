@@ -2,9 +2,9 @@ package functions;
 
 import com.gikk.twirk.types.users.TwitchUser;
 import com.google.common.collect.ComparisonChain;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.entries.ViewerQueueEntry;
-import com.jcog.utils.database.misc.ViewerQueueDb;
+import database.DbManager;
+import database.entries.ViewerQueueEntry;
+import database.misc.ViewerQueueDb;
 import util.TwirkInterface;
 
 import java.util.ArrayList;

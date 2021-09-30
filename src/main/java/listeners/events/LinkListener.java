@@ -8,12 +8,12 @@ import com.github.twitch4j.helix.domain.Clip;
 import com.github.twitch4j.helix.domain.Game;
 import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.helix.domain.Video;
-import com.jcog.utils.TwitchApi;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import util.TwirkInterface;
+import util.TwitchApi;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;

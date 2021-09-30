@@ -1,7 +1,7 @@
 package util;
 
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.stats.WatchTimeDb;
+import database.DbManager;
+import database.stats.WatchTimeDb;
 import functions.StreamData;
 
 import java.time.LocalDateTime;

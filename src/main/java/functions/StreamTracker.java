@@ -2,12 +2,12 @@ package functions;
 
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
-import com.jcog.utils.TwitchApi;
-import com.jcog.utils.database.DbManager;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import database.DbManager;
 import listeners.events.CloudListener;
 import util.ReportBuilder;
 import util.TwirkInterface;
+import util.TwitchApi;
 
 import java.io.File;
 import java.util.HashSet;

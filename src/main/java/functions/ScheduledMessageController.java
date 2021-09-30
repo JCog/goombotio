@@ -5,12 +5,12 @@ import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
-import com.jcog.utils.TwitchApi;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.entries.ScheduledMessage;
-import com.jcog.utils.database.misc.SocialSchedulerDb;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import database.DbManager;
+import database.entries.ScheduledMessage;
+import database.misc.SocialSchedulerDb;
 import util.TwirkInterface;
+import util.TwitchApi;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;

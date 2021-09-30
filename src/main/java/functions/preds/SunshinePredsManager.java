@@ -1,8 +1,8 @@
 package functions.preds;
 
 import com.gikk.twirk.types.users.TwitchUser;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.preds.PredsLeaderboardDb;
+import database.DbManager;
+import database.preds.PredsLeaderboardDb;
 import functions.DiscordBotController;
 import util.TwirkInterface;
 

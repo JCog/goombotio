@@ -2,11 +2,11 @@ package functions;
 
 import com.github.twitch4j.helix.domain.Subscription;
 import com.github.twitch4j.helix.domain.User;
-import com.jcog.utils.TwitchApi;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.apache.commons.lang.SystemUtils;
 import util.FileWriter;
 import util.Settings;
+import util.TwitchApi;
 
 import java.util.List;
 import java.util.Timer;

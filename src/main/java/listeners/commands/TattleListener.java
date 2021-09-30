@@ -3,12 +3,12 @@ package listeners.commands;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.User;
-import com.jcog.utils.TwitchApi;
-import com.jcog.utils.TwitchUserLevel;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.entries.TattleItem;
-import com.jcog.utils.database.misc.TattleDb;
+import database.DbManager;
+import database.entries.TattleItem;
+import database.misc.TattleDb;
 import util.TwirkInterface;
+import util.TwitchApi;
+import util.TwitchUserLevel;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,13 +4,13 @@ import com.github.twitch4j.helix.domain.Subscription;
 import com.github.twitch4j.helix.domain.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.jcog.utils.TwitchApi;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.entries.MinecraftUser;
-import com.jcog.utils.database.misc.MinecraftUserDb;
 import com.jcraft.jsch.*;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import database.DbManager;
+import database.entries.MinecraftUser;
+import database.misc.MinecraftUserDb;
 import util.FileWriter;
+import util.TwitchApi;
 
 import java.io.FileReader;
 import java.io.IOException;

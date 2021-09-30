@@ -2,11 +2,11 @@ package listeners.commands;
 
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
-import com.jcog.utils.TwitchUserLevel;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.stats.WatchTimeDb;
+import database.DbManager;
+import database.stats.WatchTimeDb;
 import functions.StreamTracker;
 import util.TwirkInterface;
+import util.TwitchUserLevel;
 
 import java.util.Calendar;
 import java.util.Date;

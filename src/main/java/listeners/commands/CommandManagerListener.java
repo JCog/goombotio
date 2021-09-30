@@ -2,11 +2,11 @@ package listeners.commands;
 
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
-import com.jcog.utils.TwitchUserLevel;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.entries.CommandItem;
-import com.jcog.utils.database.misc.CommandDb;
+import database.DbManager;
+import database.entries.CommandItem;
+import database.misc.CommandDb;
 import util.TwirkInterface;
+import util.TwitchUserLevel;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -5,10 +5,10 @@ import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.emote.Emote;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.emotes.BttvEmoteStatsDb;
-import com.jcog.utils.database.emotes.EmoteStatsDb;
-import com.jcog.utils.database.emotes.FfzEmoteStatsDb;
+import database.DbManager;
+import database.emotes.BttvEmoteStatsDb;
+import database.emotes.EmoteStatsDb;
+import database.emotes.FfzEmoteStatsDb;
 
 import java.util.HashMap;
 

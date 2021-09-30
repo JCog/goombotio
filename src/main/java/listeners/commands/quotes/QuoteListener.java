@@ -3,20 +3,20 @@ package listeners.commands.quotes;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.User;
-import com.jcog.utils.TwitchApi;
-import com.jcog.utils.TwitchUserLevel;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.entries.QuoteItem;
-import com.jcog.utils.database.misc.QuoteDb;
+import database.DbManager;
+import database.entries.QuoteItem;
+import database.misc.QuoteDb;
 import listeners.commands.CommandBase;
 import util.TwirkInterface;
+import util.TwitchApi;
+import util.TwitchUserLevel;
 
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static com.jcog.utils.TwitchUserLevel.USER_LEVEL.*;
 import static listeners.commands.quotes.QuoteUndoEngine.Action.*;
+import static util.TwitchUserLevel.USER_LEVEL.*;
 
 public class QuoteListener extends CommandBase {
 

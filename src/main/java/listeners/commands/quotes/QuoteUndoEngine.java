@@ -1,7 +1,7 @@
 package listeners.commands.quotes;
 
-import com.jcog.utils.database.entries.QuoteItem;
-import com.jcog.utils.database.misc.QuoteDb;
+import database.entries.QuoteItem;
+import database.misc.QuoteDb;
 import util.TwirkInterface;
 
 import java.util.Deque;

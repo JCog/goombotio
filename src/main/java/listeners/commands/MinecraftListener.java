@@ -3,11 +3,11 @@ package listeners.commands;
 import api.MinecraftApi;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
-import com.jcog.utils.TwitchUserLevel;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.misc.MinecraftUserDb;
+import database.DbManager;
+import database.misc.MinecraftUserDb;
 import functions.MinecraftWhitelistUpdater;
 import util.TwirkInterface;
+import util.TwitchUserLevel;
 
 import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;

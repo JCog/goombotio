@@ -5,13 +5,13 @@ import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
-import com.jcog.utils.TwitchApi;
-import com.jcog.utils.TwitchUserLevel;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.preds.PredsLeaderboardDb;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import database.DbManager;
+import database.preds.PredsLeaderboardDb;
 import listeners.commands.CommandBase;
 import util.TwirkInterface;
+import util.TwitchApi;
+import util.TwitchUserLevel;
 
 import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;

@@ -2,8 +2,8 @@ package listeners.commands;
 
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
-import com.jcog.utils.TwitchUserLevel;
 import functions.ViewerQueueManager;
+import util.TwitchUserLevel;
 
 import java.io.File;
 import java.io.FileNotFoundException;

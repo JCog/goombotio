@@ -1,7 +1,6 @@
 import com.gikk.twirk.events.TwirkListener;
 import com.github.twitch4j.helix.domain.User;
-import com.jcog.utils.TwitchApi;
-import com.jcog.utils.database.DbManager;
+import database.DbManager;
 import functions.*;
 import listeners.commands.*;
 import listeners.commands.preds.LeaderboardListener;
@@ -15,6 +14,7 @@ import twitter4j.conf.ConfigurationBuilder;
 import util.ChatLogger;
 import util.Settings;
 import util.TwirkInterface;
+import util.TwitchApi;
 
 import java.util.Calendar;
 import java.util.NoSuchElementException;

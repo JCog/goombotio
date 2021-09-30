@@ -4,10 +4,10 @@ import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
-import com.jcog.utils.TwitchApi;
-import com.jcog.utils.TwitchUserLevel;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import util.TwirkInterface;
+import util.TwitchApi;
+import util.TwitchUserLevel;
 
 import java.util.concurrent.ScheduledExecutorService;
 

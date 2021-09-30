@@ -1,11 +1,11 @@
 package functions;
 
 import com.github.twitch4j.helix.domain.User;
-import com.jcog.utils.TwitchApi;
-import com.jcog.utils.database.DbManager;
-import com.jcog.utils.database.stats.StreamStatsDb;
-import com.jcog.utils.database.stats.WatchTimeDb;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import database.DbManager;
+import database.stats.StreamStatsDb;
+import database.stats.WatchTimeDb;
+import util.TwitchApi;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
