@@ -136,12 +136,7 @@ public class StreamData {
 
     public int getViewerMinutes(String username) {
         Integer minutes = userMinutes.get(username.toLowerCase());
-        if (minutes == null) {
-            return 0;
-        }
-        else {
-            return minutes;
-        }
+        return Objects.requireNonNullElse(minutes, 0);
     }
 
     public HashMap<String,Integer> getAllViewerMinutes() {

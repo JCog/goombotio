@@ -47,6 +47,7 @@ public class MainBotController {
     private final FollowLogger followLogger;
     private final ViewerQueueManager viewerQueueManager;
     private final MinecraftWhitelistUpdater minecraftWhitelistUpdater;
+    private final SubPointUpdater subPointUpdater;
 
     public MainBotController() {
         settings = new Settings();
@@ -128,6 +129,7 @@ public class MainBotController {
                 settings.getMinecraftPassword(),
                 settings.getMinecraftWhitelistLocation()
         );
+        subPointUpdater = new SubPointUpdater(twitchApi, streamerUser, settings);
     }
 
     public synchronized void run() {
@@ -137,6 +139,7 @@ public class MainBotController {
         twirk.connect();
         streamTracker.start();
         minecraftWhitelistUpdater.start();
+        subPointUpdater.start();
 
         out.println("Goombotio is ready.");
 
@@ -156,6 +159,7 @@ public class MainBotController {
     }
 
     public void closeAll() {
+        subPointUpdater.stop();
         minecraftWhitelistUpdater.stop();
         streamTracker.stop();
         scheduledMessageController.stop();

@@ -16,6 +16,7 @@ public class Settings {
     private static final String YOUTUBE_CAT_TAG = "youtube";
     private static final String TWITTER_CAT_TAG = "twitter";
     private static final String MINECRAFT_CAT_TAG = "minecraft";
+    private static final String SUB_COUNT_CAT_TAG = "subPointUpdater";
 
     private final Wini ini = getIni();
 
@@ -107,6 +108,14 @@ public class Settings {
 
     public String getMinecraftWhitelistLocation() {
         return ini.get(MINECRAFT_CAT_TAG, "whitelistLocation");
+    }
+    
+    public String getSubCountFormat() {
+        return ini.get(SUB_COUNT_CAT_TAG, "format");
+    }
+    
+    public int getSubCountOffset() {
+        return ini.get(SUB_COUNT_CAT_TAG, "offset", int.class);
     }
 
     @NotNull

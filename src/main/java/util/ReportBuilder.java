@@ -146,17 +146,11 @@ public class ReportBuilder {
         }
         output.append(name);
         output.append(": ");
-        for (int i = 0; i < namePadding; i++) {
-            output.append(' ');
-        }
-        for (int i = 0; i < followersPadding; i++) {
-            output.append(' ');
-        }
+        output.append(" ".repeat(Math.max(0, namePadding)));
+        output.append(" ".repeat(Math.max(0, followersPadding)));
         output.append(followers);
         output.append(" followers, ");
-        for (int i = 0; i < minutesPadding; i++) {
-            output.append(' ');
-        }
+        output.append(" ".repeat(Math.max(0, minutesPadding)));
         output.append(minutes);
         output.append(" minutes\n");
         return output.toString();
@@ -244,12 +238,8 @@ public class ReportBuilder {
         int minutesPadding = ((int) Math.log10(maxMinutes) + 1) - ((int) Math.log10(minutes) + 1);
         output.append(name);
         output.append(": ");
-        for (int i = 0; i < namePadding; i++) {
-            output.append(' ');
-        }
-        for (int i = 0; i < minutesPadding; i++) {
-            output.append(' ');
-        }
+        output.append(" ".repeat(Math.max(0, namePadding)));
+        output.append(" ".repeat(Math.max(0, minutesPadding)));
         output.append(minutes);
         output.append(" minutes\n");
         return output.toString();
