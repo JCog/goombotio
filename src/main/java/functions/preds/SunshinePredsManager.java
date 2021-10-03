@@ -28,9 +28,13 @@ public class SunshinePredsManager extends PredsManagerBase {
     private static final int HUND_10_SECONDS = 10 * 100;
 
     private final HashMap<Long,TimeGuess> predictionList = new HashMap<>();
+    private final TwitchApi twitchApi;
+    private final User streamer;
 
     public SunshinePredsManager(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
-        super(twirk, dbManager, discord, twitchApi, streamer);
+        super(twirk, dbManager, discord);
+        this.twitchApi = twitchApi;
+        this.streamer = streamer;
     }
 
     @Override
@@ -131,12 +135,12 @@ public class SunshinePredsManager extends PredsManagerBase {
             message.append(" on guessing correctly! jcogChamp");
         }
         message.append(" • ");
-        message.append(buildMonthlyLeaderboardString());
+        message.append(buildMonthlyLeaderboardString(leaderboard, twitchApi, streamer));
 
         twirk.channelCommand(String.format(
                 "/me The correct answer is %s - %s",
                 formatHundredths(hundredths),
-                message.toString()
+                message
         ));
         updateDiscordMonthlyPoints();
         updateDiscordAllTimePoints();

@@ -35,6 +35,8 @@ public class PapePredsManager extends PredsManagerBase {
     }
 
     private final HashMap<Long,PapePredsObject> predictionList = new HashMap<>();
+    private final TwitchApi twitchApi;
+    private final User streamer;
 
     /**
      * Manages the !preds Twitch chat game.
@@ -42,7 +44,9 @@ public class PapePredsManager extends PredsManagerBase {
      * @param twirk twirk for chat
      */
     public PapePredsManager(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
-        super(twirk, dbManager, discord, twitchApi, streamer);
+        super(twirk, dbManager, discord);
+        this.twitchApi = twitchApi;
+        this.streamer = streamer;
     }
 
     /**
@@ -80,13 +84,13 @@ public class PapePredsManager extends PredsManagerBase {
             message.append(" on guessing correctly! jcogChamp");
         }
         message.append(" • ");
-        message.append(buildMonthlyLeaderboardString());
+        message.append(buildMonthlyLeaderboardString(leaderboard, twitchApi, streamer));
 
         twirk.channelCommand(String.format("/me The correct answer was %s %s %s - %s",
                                            badgeToString(one),
                                            badgeToString(two),
                                            badgeToString(three),
-                                           message.toString()));
+                                           message));
         updateDiscordMonthlyPoints();
         updateDiscordAllTimePoints();
     }

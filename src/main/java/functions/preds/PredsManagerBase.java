@@ -27,23 +27,19 @@ public abstract class PredsManagerBase {
     protected final PredsLeaderboardDb leaderboard;
 
     private final DiscordBotController discord;
-    private final TwitchApi twitchApi;
-    private final User streamer;
-
+    
     protected final TwirkInterface twirk;
     protected final DbManager dbManager;
 
     protected boolean enabled;
     protected boolean waitingForAnswer;
     
-    private HashSet<String> permanentVips = null;
+    private static HashSet<String> permanentVips = null;
 
-    protected PredsManagerBase(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
+    protected PredsManagerBase(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord) {
         this.twirk = twirk;
         this.dbManager = dbManager;
         this.discord = discord;
-        this.twitchApi = twitchApi;
-        this.streamer = streamer;
         leaderboard = getLeaderboardType();
     }
 
@@ -181,7 +177,7 @@ public abstract class PredsManagerBase {
         }
     }
 
-    protected String buildMonthlyLeaderboardString() {
+    public static String buildMonthlyLeaderboardString(PredsLeaderboardDb leaderboard, TwitchApi twitchApi, User streamer) {
         ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
         ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
         ArrayList<String> topMonthlyNames = new ArrayList<>();
@@ -216,7 +212,7 @@ public abstract class PredsManagerBase {
         return "Monthly Leaderboard: " + String.join(", ", leaderboardStrings);
     }
     
-    private HashSet<String> getPermanentVips() {
+    private static HashSet<String> getPermanentVips() {
         if (permanentVips == null) {
     
             HashSet<String> tempList = new HashSet<>();
