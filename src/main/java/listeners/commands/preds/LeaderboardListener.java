@@ -78,38 +78,44 @@ public class LeaderboardListener extends CommandBase {
         String chatMessage = "";
 
         updateLeaderboardType();
-        switch (command) {
-            case PATTERN_LEADERBOARD:
-                chatMessage = PapePredsManager.buildMonthlyLeaderboardString(leaderboard, twitchApi, streamerUser);
-                break;
-
-            case PATTERN_POINTS:
-                chatMessage = buildMonthlyPointsString(sender);
-                break;
-
-            case PATTERN_PREDS:
-                if (sender.getUserType() != USER_TYPE.OWNER) {
-                    switch (getGameId()) {
-                        case GAME_ID_PAPER_MARIO:
-                            chatMessage = PREDS_MESSAGE_PAPE;
-                            break;
-                        case GAME_ID_SUNSHINE:
-                            chatMessage = PREDS_MESSAGE_SMS;
-                            break;
-                        default:
-                            chatMessage = PREDS_MESSAGE_DEFAULT;
+        //TODO: should probably combine this class and PredsManagerListener
+        if (leaderboard == null) {
+            chatMessage = PREDS_MESSAGE_DEFAULT;
+        }
+        else {
+            switch (command) {
+                case PATTERN_LEADERBOARD:
+                    chatMessage = PapePredsManager.buildMonthlyLeaderboardString(leaderboard, twitchApi, streamerUser);
+                    break;
+        
+                case PATTERN_POINTS:
+                    chatMessage = buildMonthlyPointsString(sender);
+                    break;
+        
+                case PATTERN_PREDS:
+                    if (sender.getUserType() != USER_TYPE.OWNER) {
+                        switch (getGameId()) {
+                            case GAME_ID_PAPER_MARIO:
+                                chatMessage = PREDS_MESSAGE_PAPE;
+                                break;
+                            case GAME_ID_SUNSHINE:
+                                chatMessage = PREDS_MESSAGE_SMS;
+                                break;
+                            default:
+                                chatMessage = PREDS_MESSAGE_DEFAULT;
+                        }
                     }
-                }
-                break;
-
-            case PATTERN_LEADERBOARD_ALL:
-                chatMessage = buildAllTimeLeaderboardString();
-                break;
-
-            case PATTERN_POINTS_ALL:
-                chatMessage = buildPointsString(sender);
-
-                break;
+                    break;
+        
+                case PATTERN_LEADERBOARD_ALL:
+                    chatMessage = buildAllTimeLeaderboardString();
+                    break;
+        
+                case PATTERN_POINTS_ALL:
+                    chatMessage = buildPointsString(sender);
+            
+                    break;
+            }
         }
         twirk.channelCommand(chatMessage);
     }
@@ -120,9 +126,10 @@ public class LeaderboardListener extends CommandBase {
                 leaderboard = dbManager.getSpeedySpinLeaderboardDb();
                 break;
             case GAME_ID_SUNSHINE:
-            default:
                 leaderboard = dbManager.getSunshineTimerLeaderboardDb();
                 break;
+            default:
+                leaderboard = null;
         }
     }
 
