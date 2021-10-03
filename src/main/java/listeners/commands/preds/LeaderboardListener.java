@@ -155,7 +155,7 @@ public class LeaderboardListener extends CommandBase {
     }
 
     private String buildAllTimeLeaderboardString() {
-        ArrayList<Long> topScorers = leaderboard.getTopThreeScorers();
+        ArrayList<Long> topScorers = leaderboard.getTopScorers(5);
         ArrayList<Integer> topPoints = new ArrayList<>();
         ArrayList<String> topNames = new ArrayList<>();
         for (Long topScorer : topScorers) {

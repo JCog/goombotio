@@ -183,12 +183,12 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         return topMonthlyScorers;
     }
 
-    //returns id's of top 3 all-time scorers. if there are less than 3, returns -1 for those slots
-    public ArrayList<Long> getTopThreeScorers() {
+    //returns id's of top all-time scorers, up to the number of results specified by limit
+    public ArrayList<Long> getTopScorers(Integer limit) {
         ArrayList<Long> topScorers = new ArrayList<>();
 
         MongoCursor<Document> result = findAll().sort(Sorts.descending(POINTS_KEY)).iterator();
-        while (result.hasNext() && topScorers.size() < 3) {
+        while (result.hasNext() && (limit == null || topScorers.size() < limit)) {
             Document next = result.next();
             if (next.get(POINTS_KEY) == null) {
                 break;
@@ -203,18 +203,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
 
     //returns id's of top all-time scorers
     public ArrayList<Long> getTopScorers() {
-        ArrayList<Long> topScorers = new ArrayList<>();
-
-        for (Document next : findAll().sort(Sorts.descending(POINTS_KEY))) {
-            if (next.get(POINTS_KEY) == null) {
-                break;
-            }
-            else {
-                topScorers.add((long) next.get(ID_KEY));
-            }
-        }
-
-        return topScorers;
+        return getTopScorers(null);
     }
 
     //returns id's of top winners
