@@ -1,20 +1,25 @@
 package functions.preds;
 
 import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.helix.domain.Moderator;
+import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import database.preds.PredsLeaderboardDb;
 import functions.DiscordBotController;
 import util.TwirkInterface;
+import util.TwitchApi;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class PredsManagerBase {
     private static final int DISCORD_MAX_CHARS = 2000;
     private static final String STOP_MESSAGE = "/me Predictions are up! Let's see how everyone did...";
+    private static final String VIP_FILENAME = "vips.txt";
 
     protected final String START_MESSAGE = getStartMessage();
 
@@ -22,17 +27,23 @@ public abstract class PredsManagerBase {
     protected final PredsLeaderboardDb leaderboard;
 
     private final DiscordBotController discord;
+    private final TwitchApi twitchApi;
+    private final User streamer;
 
     protected final TwirkInterface twirk;
     protected final DbManager dbManager;
 
     protected boolean enabled;
     protected boolean waitingForAnswer;
+    
+    private HashSet<String> permanentVips = null;
 
-    protected PredsManagerBase(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord) {
+    protected PredsManagerBase(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
         this.twirk = twirk;
         this.dbManager = dbManager;
         this.discord = discord;
+        this.twitchApi = twitchApi;
+        this.streamer = streamer;
         leaderboard = getLeaderboardType();
     }
 
@@ -174,29 +185,56 @@ public abstract class PredsManagerBase {
         ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
         ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
         ArrayList<String> topMonthlyNames = new ArrayList<>();
-
+        List<String> mods = twitchApi.getMods(streamer.getId()).stream().map(Moderator::getUserLogin).collect(Collectors.toList());
+        HashSet<String> permanentVips = getPermanentVips();
+    
         for (Long topMonthlyScorer : topMonthlyScorers) {
             topMonthlyPoints.add(leaderboard.getMonthlyPoints(topMonthlyScorer));
             topMonthlyNames.add(leaderboard.getUsername(topMonthlyScorer));
         }
-
+    
         int prevPoints = -1;
         int prevRank = -1;
+        int ineligibleCount = 0;
         ArrayList<String> leaderboardStrings = new ArrayList<>();
         for (int i = 0; i < topMonthlyNames.size(); i++) {
+            if (permanentVips.contains(topMonthlyNames.get(i).toLowerCase()) || mods.contains(topMonthlyNames.get(i).toLowerCase())) {
+                ineligibleCount++;
+            }
             if (topMonthlyPoints.get(i) != prevPoints) {
                 prevRank = i + 1;
-                if (prevRank > 5) {
+                if (prevRank > 5 + ineligibleCount) {
                     break;
                 }
             }
             prevPoints = topMonthlyPoints.get(i);
             String name = topMonthlyNames.get(i);
-
+        
             leaderboardStrings.add(String.format("%d. %s - %d", prevRank, name, prevPoints));
         }
 
         return "Monthly Leaderboard: " + String.join(", ", leaderboardStrings);
+    }
+    
+    private HashSet<String> getPermanentVips() {
+        if (permanentVips == null) {
+    
+            HashSet<String> tempList = new HashSet<>();
+            try {
+                File file = new File(VIP_FILENAME);
+                Scanner sc = new Scanner(file);
+                while (sc.hasNextLine()) {
+                    tempList.add(sc.nextLine());
+                }
+                sc.close();
+                permanentVips = tempList;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new HashSet<>();
+            }
+        }
+        
+        return permanentVips;
     }
 
     protected abstract PredsLeaderboardDb getLeaderboardType();

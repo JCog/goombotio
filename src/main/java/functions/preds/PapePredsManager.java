@@ -1,10 +1,12 @@
 package functions.preds;
 
 import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import database.preds.PredsLeaderboardDb;
 import functions.DiscordBotController;
 import util.TwirkInterface;
+import util.TwitchApi;
 
 import java.util.*;
 
@@ -39,8 +41,8 @@ public class PapePredsManager extends PredsManagerBase {
      *
      * @param twirk twirk for chat
      */
-    public PapePredsManager(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord) {
-        super(twirk, dbManager, discord);
+    public PapePredsManager(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
+        super(twirk, dbManager, discord, twitchApi, streamer);
     }
 
     /**

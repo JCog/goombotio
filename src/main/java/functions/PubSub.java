@@ -27,7 +27,7 @@ public class PubSub extends TwitchPubSubClient {
     
     @Override
     public void onBitsEvent(ChannelBitsEvent event) {
-        updateBitWar(event);
+        //updateBitWar(event);
     }
     
     @Override

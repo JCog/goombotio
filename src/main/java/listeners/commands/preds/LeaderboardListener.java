@@ -3,6 +3,7 @@ package listeners.commands.preds;
 import com.gikk.twirk.enums.USER_TYPE;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.helix.domain.Moderator;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -13,13 +14,19 @@ import util.TwirkInterface;
 import util.TwitchApi;
 import util.TwitchUserLevel;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 
 public class LeaderboardListener extends CommandBase {
     private static final String PREDS_MESSAGE_PAPE = "Guess the badge locations in the badge shop! Get 1 point for one badge (or if you have them all but in the wrong locations), 5 for two badges, and 20 if you get all three correct! Use !leaderboard to see the top scores this month and !points to see how many points you have. If you get all three and aren't subscribed to the channel, JCog will gift you a sub, and at the end of every month, the top five scorers will be given a VIP badge for the next month, so get guessing!";
     private static final String PREDS_MESSAGE_SMS = "Guess what the timer will be at the end of Pianta 6! You get 1 point if you're within ten seconds, 5 points if you're within five seconds, 15 points if you're within 1 second, and if you get it exactly right you'll get 50 points and a free gift sub! If nobody is exactly right, whoever's closest will get an additional 10 point bonus, and at the end of every month, the top five scorers will be given a VIP badge for the next month, so get guessing!";
     private static final String PREDS_MESSAGE_DEFAULT = "Either the stream isn't live or the current game is not associated with preds";
+    private static final String VIP_FILENAME = "vips.txt";
 
     private static final String GAME_ID_SUNSHINE = "6086";
     private static final String GAME_ID_PAPER_MARIO = "18231";
@@ -35,6 +42,7 @@ public class LeaderboardListener extends CommandBase {
     private final User streamerUser;
 
     private PredsLeaderboardDb leaderboard;
+    private HashSet<String> permanentVips = null;
 
     public LeaderboardListener(
             ScheduledExecutorService scheduler,
@@ -153,29 +161,36 @@ public class LeaderboardListener extends CommandBase {
         return String.format("@%s you have %d total point%s.", username, points, points == 1 ? "" : "s");
     }
 
+    //TODO: use method from PredsManagerBase to deduplicate code
     private String buildMonthlyLeaderboardString() {
         ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
         ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
         ArrayList<String> topMonthlyNames = new ArrayList<>();
-
+        List<String> mods = twitchApi.getMods(streamerUser.getId()).stream().map(Moderator::getUserLogin).collect(Collectors.toList());
+        HashSet<String> permanentVips = getPermanentVips();
+    
         for (Long topMonthlyScorer : topMonthlyScorers) {
             topMonthlyPoints.add(leaderboard.getMonthlyPoints(topMonthlyScorer));
             topMonthlyNames.add(leaderboard.getUsername(topMonthlyScorer));
         }
-
+    
         int prevPoints = -1;
         int prevRank = -1;
+        int ineligibleCount = 0;
         ArrayList<String> leaderboardStrings = new ArrayList<>();
         for (int i = 0; i < topMonthlyNames.size(); i++) {
+            if (permanentVips.contains(topMonthlyNames.get(i).toLowerCase()) || mods.contains(topMonthlyNames.get(i).toLowerCase())) {
+                ineligibleCount++;
+            }
             if (topMonthlyPoints.get(i) != prevPoints) {
                 prevRank = i + 1;
-                if (prevRank > 5) {
+                if (prevRank > 5 + ineligibleCount) {
                     break;
                 }
             }
             prevPoints = topMonthlyPoints.get(i);
             String name = topMonthlyNames.get(i);
-
+            
             leaderboardStrings.add(String.format("%d. %s - %d", prevRank, name, prevPoints));
         }
 
@@ -208,5 +223,26 @@ public class LeaderboardListener extends CommandBase {
         }
 
         return "All-Time Leaderboard: " + String.join(", ", leaderboardStrings);
+    }
+    
+    private HashSet<String> getPermanentVips() {
+        if (permanentVips == null) {
+            
+            HashSet<String> tempList = new HashSet<>();
+            try {
+                File file = new File(VIP_FILENAME);
+                Scanner sc = new Scanner(file);
+                while (sc.hasNextLine()) {
+                    tempList.add(sc.nextLine());
+                }
+                sc.close();
+                permanentVips = tempList;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new HashSet<>();
+            }
+        }
+        
+        return permanentVips;
     }
 }

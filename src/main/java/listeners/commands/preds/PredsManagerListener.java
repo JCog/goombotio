@@ -86,10 +86,10 @@ public class PredsManagerListener extends CommandBase {
                 gameId = stream.getGameId();
             }
             if (gameId.equals(GAME_ID_PAPER_MARIO)) {
-                predsManager = new PapePredsManager(twirk, dbManager, discord);
+                predsManager = new PapePredsManager(twirk, dbManager, discord, twitchApi, streamerUser);
             }
             else if (gameId.equals(GAME_ID_SUNSHINE)) {
-                predsManager = new SunshinePredsManager(twirk, dbManager, discord);
+                predsManager = new SunshinePredsManager(twirk, dbManager, discord, twitchApi, streamerUser);
             }
             else {
                 twirk.channelMessage("The current game is not compatible with preds.");

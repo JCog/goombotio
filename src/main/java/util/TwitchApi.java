@@ -122,7 +122,8 @@ public class TwitchApi {
                     authToken,
                     userId,
                     null,
-                    cursor
+                    cursor,
+                    100
             ).execute();
             cursor = moderatorList.getPagination().getCursor();
             modsOutput.addAll(moderatorList.getModerators());
