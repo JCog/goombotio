@@ -187,6 +187,9 @@ public class WrListener extends CommandBase {
                 if (streamTitle.contains("swop")) {
                     wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.STOP_N_SWOP);
                 }
+                else {
+                    wrText = getWr(Game.OOT, OotCategory.ANY_PERCENT);
+                }
                 break;
         }
 

@@ -5,6 +5,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
 
 public class SpeedrunApi extends BaseAPI {
@@ -34,7 +35,8 @@ public class SpeedrunApi extends BaseAPI {
         SUNSHINE("Super Mario Sunshine", "sms/"),
         PAPER_MARIO("Paper Mario", "pm64/"),
         PAPER_MARIO_MEMES("Paper Mario", "pm64memes/"),
-        TTYD("Paper Mario: The Thousand-Year Door", "ttyd/");
+        TTYD("Paper Mario: The Thousand-Year Door", "ttyd/"),
+        OOT("The Legend of Zelda: Ocarina of Time", "oot/");
 
         private final String name;
         private final String uri;
@@ -141,7 +143,7 @@ public class SpeedrunApi extends BaseAPI {
             return name;
         }
     }
-
+    
     public enum TtydCategory implements Category {
         ANY_PERCENT("Any%", "any"),
         ALL_CRYSTAL_STARS("All Crystal Stars", "all_crystal_stars"),
@@ -149,19 +151,40 @@ public class SpeedrunApi extends BaseAPI {
         HUNDO("100%", "100"),
         ALL_COLLECTIBLES("All Collectibles", "all_collectibles"),
         MAX_UPGRADES("Max Upgrades", "max_upgrades");
-
+        
         private final String name;
         private final String uri;
-
+        
         TtydCategory(String name, String uri) {
             this.name = name;
             this.uri = uri;
         }
-
+        
         public String getUri() {
             return uri;
         }
-
+        
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+    
+    public enum OotCategory implements Category {
+        ANY_PERCENT("Any%", "any");
+        
+        private final String name;
+        private final String uri;
+        
+        OotCategory(String name, String uri) {
+            this.name = name;
+            this.uri = uri;
+        }
+        
+        public String getUri() {
+            return uri;
+        }
+        
         @Override
         public String toString() {
             return name;
@@ -207,11 +230,11 @@ public class SpeedrunApi extends BaseAPI {
             return ERROR_MESSAGE;
         }
         String playerId = getPlayerIdFromJson(json);
-        long seconds = getRunTimeFromJson(json);
+        long ms = getRunTimeMsFromJson(json);
 
         String name = getUsernameFromId(playerId);
-        String time = getTimeString(seconds);
-        return String.format("The %s %s WR is %s by %s", game.toString(), category.toString(), time, name);
+        String time = getTimeString(ms);
+        return String.format("The %s %s WR is %s by %s", game, category, time, name);
     }
 
     /**
@@ -233,16 +256,16 @@ public class SpeedrunApi extends BaseAPI {
             return ERROR_MESSAGE;
         }
         String allPlayerId = getPlayerIdFromJson(allJson);
-        long allSeconds = getRunTimeFromJson(allJson);
+        long allMs = getRunTimeMsFromJson(allJson);
 
         String allName = getUsernameFromId(allPlayerId);
-        String allTime = getTimeString(allSeconds);
+        String allTime = getTimeString(allMs);
 
         String n64Json = getWrJson(gameString, categoryString, platformString);
         String n64PlayerId = getPlayerIdFromJson(n64Json);
 
-        long n64Seconds = getRunTimeFromJson(n64Json);
-        String platformTime = getTimeString(n64Seconds);
+        long n64Ms = getRunTimeMsFromJson(n64Json);
+        String platformTime = getTimeString(n64Ms);
 
         String platformName = getUsernameFromId(n64PlayerId);
 
@@ -279,8 +302,9 @@ public class SpeedrunApi extends BaseAPI {
         return players_first.get(ID_KEY).toString();
     }
 
-    private static long getRunTimeFromJson(String json) {
+    private static long getRunTimeMsFromJson(String json) {
         JSONParser jsonParser = new JSONParser();
+        BigDecimal thousand = new BigDecimal(1000);
 
         JSONObject leaderboard;
         try {
@@ -294,7 +318,15 @@ public class SpeedrunApi extends BaseAPI {
         JSONObject runs_first = (JSONObject) ((JSONArray) data.get(RUNS_KEY)).get(0);
         JSONObject run = (JSONObject) runs_first.get(RUN_KEY);
         JSONObject times = (JSONObject) run.get(TIMES_KEY);
-        return (long) times.get(PRIMARY_T_KEY);
+        BigDecimal seconds;
+        if (times.get(PRIMARY_T_KEY).getClass() == Double.class) {
+            seconds = BigDecimal.valueOf((Double) times.get(PRIMARY_T_KEY));
+        }
+        else {
+            seconds = BigDecimal.valueOf((Long) times.get(PRIMARY_T_KEY));
+        }
+        
+        return seconds.multiply(thousand).longValue();
     }
 
     private static String getUsernameFromId(String id) {
@@ -314,15 +346,23 @@ public class SpeedrunApi extends BaseAPI {
         return names.get(INTERNATIONAL_KEY).toString();
     }
 
-    private static String getTimeString(long seconds) {
-        long hours = TimeUnit.SECONDS.toHours(seconds);
-        seconds -= TimeUnit.HOURS.toSeconds(hours);
-        long minutes = TimeUnit.SECONDS.toMinutes(seconds);
-        seconds -= TimeUnit.MINUTES.toSeconds(minutes);
+    private static String getTimeString(long ms) {
+        long hours = TimeUnit.MILLISECONDS.toHours(ms);
+        ms -= TimeUnit.HOURS.toMillis(hours);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(ms);
+        ms -= TimeUnit.MINUTES.toMillis(minutes);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(ms);
+        ms -= TimeUnit.SECONDS.toMillis(seconds);
         if (hours > 0) {
+            if (ms > 0) {
+                return String.format("%d:%02d:%02d.%03d", hours, minutes, seconds, ms);
+            }
             return String.format("%d:%02d:%02d", hours, minutes, seconds);
         }
         else {
+            if (ms > 0) {
+                return String.format("%d:%02d.%03d", minutes, seconds, ms);
+            }
             return String.format("%d:%02d", minutes, seconds);
         }
     }
