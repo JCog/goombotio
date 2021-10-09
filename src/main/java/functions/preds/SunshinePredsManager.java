@@ -30,11 +30,13 @@ public class SunshinePredsManager extends PredsManagerBase {
     private final HashMap<Long,TimeGuess> predictionList = new HashMap<>();
     private final TwitchApi twitchApi;
     private final User streamer;
+    private final DiscordBotController discord;
 
     public SunshinePredsManager(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
         super(twirk, dbManager, discord);
         this.twitchApi = twitchApi;
         this.streamer = streamer;
+        this.discord = discord;
     }
 
     @Override
@@ -142,8 +144,8 @@ public class SunshinePredsManager extends PredsManagerBase {
                 formatHundredths(hundredths),
                 message
         ));
-        updateDiscordMonthlyPoints();
-        updateDiscordAllTimePoints();
+        updateDiscordMonthlyPoints(leaderboard, discord, getMonthlyChannelName());
+        updateDiscordAllTimePoints(leaderboard, discord, getAllTimeChannelName());
     }
 
     @Override

@@ -88,93 +88,102 @@ public abstract class PredsManagerBase {
     public abstract String getAnswerRegex();
 
     public abstract void makePredictionIfValid(TwitchUser user, String message);
-
-    protected void updateDiscordMonthlyPoints() {
-        ArrayList<Long> topScorers = leaderboard.getTopMonthlyScorers();
-        ArrayList<Integer> topPoints = new ArrayList<>();
-        ArrayList<String> topNames = new ArrayList<>();
-        for (Long topScorer : topScorers) {
-            topPoints.add(leaderboard.getMonthlyPoints(topScorer));
-            topNames.add(leaderboard.getUsername(topScorer));
-        }
-
-        StringBuilder message = new StringBuilder();
-        SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy");
-        message.append(sdf.format(new Date()));
-        message.append("\n```");
-
-        //add entries until discord character limit is reached
-        int prevPoints = -1;
-        int prevRank = -1;
-        for (int i = 0; i < topNames.size(); i++) {
-            if (topPoints.get(i) != prevPoints) {
-                prevRank = i + 1;
+    
+    protected static void updateDiscordMonthlyPoints(PredsLeaderboardDb leaderboard, DiscordBotController discord, String channel) {
+        Thread thread = new Thread(() -> {
+            ArrayList<Long> topScorers = leaderboard.getTopMonthlyScorers();
+            ArrayList<Integer> topPoints = new ArrayList<>();
+            ArrayList<String> topNames = new ArrayList<>();
+            for (Long topScorer : topScorers) {
+                topPoints.add(leaderboard.getMonthlyPoints(topScorer));
+                topNames.add(leaderboard.getUsername(topScorer));
             }
-            prevPoints = topPoints.get(i);
-            String entry = String.format(
-                    "%d. %s - %d point%s\n",
-                    prevRank,
-                    topNames.get(i),
-                    topPoints.get(i),
-                    topPoints.get(i) != 1 ? "s" : "");
-            if (message.length() + entry.length() > DISCORD_MAX_CHARS - 3) {
-                break;
+            
+            StringBuilder message = new StringBuilder();
+            SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy");
+            message.append(sdf.format(new Date()));
+            message.append("\n```");
+            
+            //add entries until discord character limit is reached
+            int prevPoints = -1;
+            int prevRank = -1;
+            for (int i = 0; i < topNames.size(); i++) {
+                if (topPoints.get(i) != prevPoints) {
+                    prevRank = i + 1;
+                }
+                prevPoints = topPoints.get(i);
+                String entry = String.format(
+                        "%d. %s - %d point%s\n",
+                        prevRank,
+                        topNames.get(i),
+                        topPoints.get(i),
+                        topPoints.get(i) != 1 ? "s" : "");
+                if (message.length() + entry.length() > DISCORD_MAX_CHARS - 3) {
+                    break;
+                }
+                else {
+                    message.append(entry);
+                }
             }
-            else {
-                message.append(entry);
+            message.append("```");
+            
+            //edit message for current month if it exists, otherwise make a new one
+            if (discord.hasRecentMessageContents(channel)) {
+                String dateString = discord.getMostRecentMessageContents(channel).split("\n", 2)[0];
+                YearMonth now = YearMonth.now();
+                YearMonth messageDate = YearMonth.parse(dateString, DateTimeFormatter.ofPattern("MMMM yyyy"));
+                if (now.getMonth() == messageDate.getMonth() && now.getYear() == messageDate.getYear()) {
+                    discord.editMostRecentMessage(channel, message.toString());
+                    System.out.printf("%s - current month edited.\n", channel);
+                    return;
+                }
             }
-        }
-        message.append("```");
-
-        //edit message for current month if it exists, otherwise make a new one
-        if (discord.hasRecentMessageContents(getMonthlyChannelName())) {
-            String dateString = discord.getMostRecentMessageContents(getMonthlyChannelName()).split("\n", 2)[0];
-            YearMonth now = YearMonth.now();
-            YearMonth messageDate = YearMonth.parse(dateString, DateTimeFormatter.ofPattern("MMMM yyyy"));
-            if (now.getMonth() == messageDate.getMonth() && now.getYear() == messageDate.getYear()) {
-                discord.editMostRecentMessage(getMonthlyChannelName(), message.toString());
-                return;
-            }
-        }
-        discord.sendMessage(getMonthlyChannelName(), message.toString());
+            discord.sendMessage(channel, message.toString());
+            System.out.printf("%s - new month added.\n", channel);
+        });
+        thread.start();
     }
-
-    protected void updateDiscordAllTimePoints() {
-        ArrayList<Long> topScorers = leaderboard.getTopScorers();
-        ArrayList<Integer> topPoints = new ArrayList<>();
-        ArrayList<String> topNames = new ArrayList<>();
-        for (Long topScorer : topScorers) {
-            topPoints.add(leaderboard.getPoints(topScorer));
-            topNames.add(leaderboard.getUsername(topScorer));
-        }
-
-        StringBuilder message = new StringBuilder();
-        message.append("All-Time Points:\n```");
-
-        //add entries until discord character limit is reached
-        int prevPoints = -1;
-        int prevRank = -1;
-        for (int i = 0; i < topNames.size(); i++) {
-            if (topPoints.get(i) != prevPoints) {
-                prevRank = i + 1;
+    
+    protected static void updateDiscordAllTimePoints(PredsLeaderboardDb leaderboard, DiscordBotController discord, String channel) {
+        Thread thread = new Thread(() -> {
+            ArrayList<Long> topScorers = leaderboard.getTopScorers();
+            ArrayList<Integer> topPoints = new ArrayList<>();
+            ArrayList<String> topNames = new ArrayList<>();
+            for (Long topScorer : topScorers) {
+                topPoints.add(leaderboard.getPoints(topScorer));
+                topNames.add(leaderboard.getUsername(topScorer));
             }
-            prevPoints = topPoints.get(i);
-            String entry = String.format("%d. %s - %d points\n", prevRank, topNames.get(i), topPoints.get(i));
-            if (message.length() + entry.length() > DISCORD_MAX_CHARS - 3) {
-                break;
+            
+            StringBuilder message = new StringBuilder();
+            message.append("All-Time Points:\n```");
+            
+            //add entries until discord character limit is reached
+            int prevPoints = -1;
+            int prevRank = -1;
+            for (int i = 0; i < topNames.size(); i++) {
+                if (topPoints.get(i) != prevPoints) {
+                    prevRank = i + 1;
+                }
+                prevPoints = topPoints.get(i);
+                String entry = String.format("%d. %s - %d points\n", prevRank, topNames.get(i), topPoints.get(i));
+                if (message.length() + entry.length() > DISCORD_MAX_CHARS - 3) {
+                    break;
+                }
+                else {
+                    message.append(entry);
+                }
+            }
+            message.append("```");
+            
+            if (discord.hasRecentMessageContents(channel)) {
+                discord.editMostRecentMessage(channel, message.toString());
             }
             else {
-                message.append(entry);
+                discord.sendMessage(channel, message.toString());
             }
-        }
-        message.append("```");
-
-        if (discord.hasRecentMessageContents(getAllTimeChannelName())) {
-            discord.editMostRecentMessage(getAllTimeChannelName(), message.toString());
-        }
-        else {
-            discord.sendMessage(getAllTimeChannelName(), message.toString());
-        }
+            System.out.printf("%s - updated.\n", channel);
+        });
+        thread.start();
     }
 
     public static String buildMonthlyLeaderboardString(PredsLeaderboardDb leaderboard, TwitchApi twitchApi, User streamer) {

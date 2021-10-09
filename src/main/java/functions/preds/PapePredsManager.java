@@ -37,6 +37,7 @@ public class PapePredsManager extends PredsManagerBase {
     private final HashMap<Long,PapePredsObject> predictionList = new HashMap<>();
     private final TwitchApi twitchApi;
     private final User streamer;
+    private final DiscordBotController discord;
 
     /**
      * Manages the !preds Twitch chat game.
@@ -47,6 +48,7 @@ public class PapePredsManager extends PredsManagerBase {
         super(twirk, dbManager, discord);
         this.twitchApi = twitchApi;
         this.streamer = streamer;
+        this.discord = discord;
     }
 
     /**
@@ -91,8 +93,8 @@ public class PapePredsManager extends PredsManagerBase {
                                            badgeToString(two),
                                            badgeToString(three),
                                            message));
-        updateDiscordMonthlyPoints();
-        updateDiscordAllTimePoints();
+        updateDiscordMonthlyPoints(leaderboard, discord, getMonthlyChannelName());
+        updateDiscordAllTimePoints(leaderboard, discord, getAllTimeChannelName());
     }
 
     @Override

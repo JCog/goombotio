@@ -8,7 +8,7 @@ import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.preds.PredsLeaderboardDb;
-import functions.preds.PapePredsManager;
+import functions.preds.PredsManagerBase;
 import listeners.commands.CommandBase;
 import util.TwirkInterface;
 import util.TwitchApi;
@@ -78,14 +78,13 @@ public class LeaderboardListener extends CommandBase {
         String chatMessage = "";
 
         updateLeaderboardType();
-        //TODO: should probably combine this class and PredsManagerListener
         if (leaderboard == null) {
             chatMessage = PREDS_MESSAGE_DEFAULT;
         }
         else {
             switch (command) {
                 case PATTERN_LEADERBOARD:
-                    chatMessage = PapePredsManager.buildMonthlyLeaderboardString(leaderboard, twitchApi, streamerUser);
+                    chatMessage = PredsManagerBase.buildMonthlyLeaderboardString(leaderboard, twitchApi, streamerUser);
                     break;
         
                 case PATTERN_POINTS:
@@ -113,7 +112,6 @@ public class LeaderboardListener extends CommandBase {
         
                 case PATTERN_POINTS_ALL:
                     chatMessage = buildPointsString(sender);
-            
                     break;
             }
         }
