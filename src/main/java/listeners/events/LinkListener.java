@@ -102,18 +102,30 @@ public class LinkListener implements TwirkListener {
             e.printStackTrace();
             return "Error retrieving user data";
         }
-        if (userList.size() != 2) {
-            return "";
-        }
         String channelDisplayName;
         String clippedByDisplayName;
-        if (userList.get(0).getId().equals(channelId)) {
-            channelDisplayName = userList.get(0).getDisplayName();
-            clippedByDisplayName = userList.get(1).getDisplayName();
-        }
-        else {
-            channelDisplayName = userList.get(1).getDisplayName();
-            clippedByDisplayName = userList.get(0).getDisplayName();
+        switch (userList.size()) {
+            case 2:
+                if (userList.get(0).getId().equals(channelId)) {
+                    channelDisplayName = userList.get(0).getDisplayName();
+                    clippedByDisplayName = userList.get(1).getDisplayName();
+                }
+                else {
+                    channelDisplayName = userList.get(1).getDisplayName();
+                    clippedByDisplayName = userList.get(0).getDisplayName();
+                }
+                break;
+            case 1:
+                if (channelId.equals(clippedById)) {
+                    channelDisplayName = userList.get(0).getDisplayName();
+                    clippedByDisplayName = channelDisplayName;
+                    break;
+                }
+                else {
+                    return "";
+                }
+            default:
+                return "";
         }
 
         Game game;
