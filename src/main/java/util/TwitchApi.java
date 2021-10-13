@@ -1,5 +1,6 @@
 package util;
 
+import com.github.twitch4j.eventsub.domain.RedemptionStatus;
 import com.github.twitch4j.helix.TwitchHelix;
 import com.github.twitch4j.helix.TwitchHelixBuilder;
 import com.github.twitch4j.helix.domain.*;
@@ -249,5 +250,50 @@ public class TwitchApi {
             return null;
         }
         return videoList.getVideos().get(0);
+    }
+    
+    ///////////////////////////// Channel Points /////////////////////////////
+    
+    public CustomReward createCustomReward(String broadcasterId, CustomReward customReward) throws  HystrixRuntimeException {
+        CustomRewardList customRewardList = helixClient.createCustomReward(authToken, broadcasterId, customReward).execute();
+        return customRewardList.getRewards().get(0);
+    }
+    
+    public void deleteCustomReward(String broadcasterId, String rewardId) throws HystrixRuntimeException {
+        helixClient.deleteCustomReward(authToken, broadcasterId, rewardId).execute();
+    }
+    
+    public List<CustomReward> getCustomRewards(String broadcasterId, Collection<String> rewardIds, Boolean onlyManageableRewards) throws HystrixRuntimeException {
+        return helixClient.getCustomRewards(authToken, broadcasterId, rewardIds, onlyManageableRewards).execute().getRewards();
+    }
+    
+    public CustomReward updateCustomReward(String broadcasterId, String rewardId, CustomReward updatedReward) throws  HystrixRuntimeException {
+        CustomRewardList customRewardList = helixClient.updateCustomReward(authToken, broadcasterId, rewardId, updatedReward).execute();
+        return customRewardList.getRewards().get(0);
+    }
+    
+    public List<CustomRewardRedemption> getCustomRewardRedemptions(String broadcasterId, String rewardId, Collection<String> redemptionIds) throws HystrixRuntimeException {
+        String cursor = null;
+        List<CustomRewardRedemption> redemptionsOutput = new ArrayList<>();
+    
+        do {
+            CustomRewardRedemptionList redemptionList = helixClient.getCustomRewardRedemption(
+                    authToken,
+                    broadcasterId,
+                    rewardId,
+                    redemptionIds,
+                    null,
+                    null,
+                    cursor,
+                    50
+            ).execute();
+            cursor = redemptionList.getPagination().getCursor();
+            redemptionsOutput.addAll(redemptionList.getRedemptions());
+        } while (cursor != null);
+        return redemptionsOutput;
+    }
+    
+    public void updateRedemptionStatus(String broadcasterId, String rewardId, Collection<String> redemptionIds, RedemptionStatus newStatus) throws HystrixRuntimeException {
+        helixClient.updateRedemptionStatus(authToken, broadcasterId, rewardId, redemptionIds, newStatus).execute();
     }
 }

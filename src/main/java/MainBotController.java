@@ -87,12 +87,13 @@ public class MainBotController {
                 settings.isSilentMode(),
                 settings.isVerboseLogging()
         );
-        pubSub = (PubSub) new PubSub(
+        pubSub = new PubSub(
                 twirk,
+                twitchApi,
                 dbManager,
                 streamerUser.getId(),
                 settings.getTwitchChannelAuthToken()
-        ).listenForBits();
+        );
         cloudListener = new CloudListener(twirk);
         streamTracker = new StreamTracker(
                 twirk,
@@ -140,6 +141,7 @@ public class MainBotController {
         streamTracker.start();
         minecraftWhitelistUpdater.start();
         subPointUpdater.start();
+        pubSub.listenForBits().listenForChannelPoints();
 
         out.println("Goombotio is ready.");
 
