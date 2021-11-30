@@ -110,7 +110,7 @@ variable|description
 `followage`|the length of time the user in `argument` has been following the channel
 `query`|full user input that comes after the command
 `rand`|returns a random integer. `argument` should be a comma-separated, inclusive range
-`touser`|returns the same as `arg 0`, but if there are no user arguments, defaults to the user's username
+`touser`|returns the same as `arg 0`, but if there are no user arguments, defaults to the user's username. if `arg 0` starts with '@', returns the substring of `arg 0` without it
 `uptime`|the length of time the stream has been online
 `urlfetch`|output from a remote url
 `user`|the twitch username of the user
