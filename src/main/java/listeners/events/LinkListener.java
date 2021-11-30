@@ -6,7 +6,6 @@ import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Clip;
 import com.github.twitch4j.helix.domain.Game;
-import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.helix.domain.Video;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import twitter4j.Status;
@@ -17,7 +16,6 @@ import util.TwitchApi;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,49 +82,9 @@ public class LinkListener implements TwirkListener {
 
         String title = clip.getTitle();
         int viewCount = clip.getViewCount();
-        String channelId = clip.getBroadcasterId();
-        String clippedById = clip.getCreatorId();
         String gameId = clip.getGameId();
-        ArrayList<String> userIds = new ArrayList<String>() {
-            {
-                add(channelId);
-                add(clippedById);
-            }
-        };
-
-        List<User> userList;
-        try {
-            userList = twitchApi.getUserListByIds(userIds);
-        }
-        catch (HystrixRuntimeException e) {
-            e.printStackTrace();
-            return "Error retrieving user data";
-        }
-        String channelDisplayName;
-        String clippedByDisplayName;
-        switch (userList.size()) {
-            case 2:
-                if (userList.get(0).getId().equals(channelId)) {
-                    channelDisplayName = userList.get(0).getDisplayName();
-                    clippedByDisplayName = userList.get(1).getDisplayName();
-                }
-                else {
-                    channelDisplayName = userList.get(1).getDisplayName();
-                    clippedByDisplayName = userList.get(0).getDisplayName();
-                }
-                break;
-            case 1:
-                if (channelId.equals(clippedById)) {
-                    channelDisplayName = userList.get(0).getDisplayName();
-                    clippedByDisplayName = channelDisplayName;
-                    break;
-                }
-                else {
-                    return "";
-                }
-            default:
-                return "";
-        }
+        String channelDisplayName = clip.getBroadcasterName();
+        String clippedByDisplayName = clip.getCreatorName();
 
         Game game;
         try {
