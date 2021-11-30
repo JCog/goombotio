@@ -200,7 +200,12 @@ public class CommandParser {
             }
             case TYPE_TOUSER: {
                 if (arguments.length > 1) {
-                    return arguments[1];
+                    if (arguments[1].startsWith("@")) {
+                        return arguments[1].substring(1);
+                    }
+                    else {
+                        return arguments[1];
+                    }
                 }
                 else {
                     return user.getDisplayName();
@@ -318,7 +323,7 @@ public class CommandParser {
                     "%s has been following %s for %s",
                     user.getDisplayName(),
                     streamerUser.getDisplayName(),
-                    timeString.toString()
+                    timeString
             );
         }
         else {
