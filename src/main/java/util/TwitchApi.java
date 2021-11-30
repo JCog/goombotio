@@ -166,6 +166,17 @@ public class TwitchApi {
         } while (cursor != null);
         return subscriptionsOutput;
     }
+    
+    public int getSubPoints(String userId) throws HystrixRuntimeException {
+        SubscriptionList subscriptionList = helixClient.getSubscriptions(
+                authToken,
+                userId,
+                null,
+                null,
+                1
+        ).execute();
+        return subscriptionList.getPoints();
+    }
 
     @Nullable
     public User getUserById(String userId) throws HystrixRuntimeException {
