@@ -34,8 +34,8 @@ public class YoutubeApi extends BaseAPI {
         String title;
         String channelName;
         int viewCount;
-        int likeCount = 0;
-        int dislikeCount = 0;
+        int likeCount = -1;
+        int dislikeCount = -1;
 
         JSONArray items = (JSONArray) object.get(ITEMS_KEY);
         JSONObject item;
@@ -53,22 +53,47 @@ public class YoutubeApi extends BaseAPI {
         viewCount = Integer.parseInt(stats.get(VIEW_COUNT_KEY).toString());
         try {
             likeCount = Integer.parseInt(stats.get(LIKE_COUNT_KEY).toString());
-            dislikeCount = Integer.parseInt(stats.get(DISLIKE_COUNT_KEY).toString());
         }
         catch (NullPointerException e) {
             //ratings hidden
         }
+        try {
+            dislikeCount = Integer.parseInt(stats.get(DISLIKE_COUNT_KEY).toString());
+        }
+        catch (NullPointerException e) {
+            //dislikes removed
+        }
 
         NumberFormat numberFormat = NumberFormat.getInstance();
         numberFormat.setGroupingUsed(true);
-        return String.format(
-                "YouTube Video: %s • %s • %s views | \uD83D\uDC4D%s | \uD83D\uDC4E%s",
-                channelName,
-                title,
-                numberFormat.format(viewCount),
-                numberFormat.format(likeCount),
-                numberFormat.format(dislikeCount)
-        );
+        if (likeCount == -1) {
+            return String.format(
+                    "YouTube Video: %s • %s • %s views | (ratings hidden)",
+                    channelName,
+                    title,
+                    numberFormat.format(viewCount)
+            );
+            
+        }
+        else if (dislikeCount == -1) {
+            return String.format(
+                    "YouTube Video: %s • %s • %s views | \uD83D\uDC4D%s",
+                    channelName,
+                    title,
+                    numberFormat.format(viewCount),
+                    numberFormat.format(likeCount)
+            );
+        }
+        else {
+            return String.format(
+                    "YouTube Video: %s • %s • %s views | \uD83D\uDC4D%s | \uD83D\uDC4E%s",
+                    channelName,
+                    title,
+                    numberFormat.format(viewCount),
+                    numberFormat.format(likeCount),
+                    numberFormat.format(dislikeCount)
+            );
+        }
     }
 
 
