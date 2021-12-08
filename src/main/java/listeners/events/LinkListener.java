@@ -157,7 +157,7 @@ public class LinkListener implements TwirkListener {
         return String.format(
                 "Tweet by @%s: %s • \uD83D\uDD01%d | ❤%d",
                 user,
-                content,
+                content.replaceAll("\\n", " "),
                 retweets,
                 likes
         );
