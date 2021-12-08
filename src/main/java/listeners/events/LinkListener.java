@@ -154,12 +154,15 @@ public class LinkListener implements TwirkListener {
         String content = tweet.getText().split(" https")[0];
         int retweets = tweet.getRetweetCount();
         int likes = tweet.getFavoriteCount();
+    
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        numberFormat.setGroupingUsed(true);
         return String.format(
-                "Tweet by @%s: %s • \uD83D\uDD01%d | ❤%d",
+                "Tweet by @%s: %s • \uD83D\uDD01%s | ❤%s",
                 user,
                 content.replaceAll("\\n", " "),
-                retweets,
-                likes
+                numberFormat.format(retweets),
+                numberFormat.format(likes)
         );
     }
 }
