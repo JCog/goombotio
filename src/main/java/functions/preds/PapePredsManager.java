@@ -1,7 +1,9 @@
 package functions.preds;
 
 import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.helix.domain.Subscription;
 import com.github.twitch4j.helix.domain.User;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.preds.PredsLeaderboardDb;
 import functions.DiscordBotController;
@@ -9,6 +11,7 @@ import util.TwirkInterface;
 import util.TwitchApi;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.System.out;
 
@@ -65,24 +68,38 @@ public class PapePredsManager extends PredsManagerBase {
         waitingForAnswer = false;
 
         ArrayList<String> winners = getWinners(one, two, three);
+        List<String> unsubbedWinners = getUnsubbedWinners(winners);
         StringBuilder message = new StringBuilder();
         if (winners.size() == 0) {
             message.append("Nobody guessed it. jcogThump Hopefully you got some points, though!");
         }
         else if (winners.size() == 1) {
-            message.append(String.format("Congrats to @%s on guessing correctly! jcogChamp", winners.get(0)));
+            message.append(String.format("Congrats to @%s%s on guessing correctly! jcogChamp",
+                    winners.get(0),
+                    unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : ""
+            ));
         }
         else if (winners.size() == 2) {
-            message.append(String.format("Congrats to @%s and @%s on guessing correctly! jcogChamp",
-                                         winners.get(0),
-                                         winners.get(1)));
+            message.append(String.format("Congrats to @%s%s and @%s%s on guessing correctly! jcogChamp",
+                    winners.get(0),
+                    unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : "",
+                    winners.get(1),
+                    unsubbedWinners.contains(winners.get(1).toLowerCase()) ? "*" : ""
+            ));
         }
         else {
             message.append("Congrats to ");
             for (int i = 0; i < winners.size() - 1; i++) {
-                message.append("@").append(winners.get(i)).append(", ");
+                message.append("@").append(winners.get(i));
+                if (unsubbedWinners.contains(winners.get(i).toLowerCase())) {
+                    message.append("*");
+                }
+                message.append(", ");
             }
             message.append("and @").append(winners.get(winners.size() - 1));
+            if (unsubbedWinners.contains(winners.get(winners.size() - 1).toLowerCase())) {
+                message.append("*");
+            }
             message.append(" on guessing correctly! jcogChamp");
         }
         message.append(" • ");
@@ -192,6 +209,29 @@ public class PapePredsManager extends PredsManagerBase {
             }
         }
         return winners;
+    }
+    
+    private ArrayList<String> getUnsubbedWinners(ArrayList<String> winners) {
+        if (winners.size() == 0) {
+            return new ArrayList<>();
+        }
+    
+        ArrayList<String> unsubbedWinners = new ArrayList<>();
+        List<String> subList;
+        try {
+            subList = twitchApi.getSubList(streamer.getId()).stream().map(Subscription::getUserLogin).collect(Collectors.toList());
+        }
+        catch (HystrixRuntimeException e) {
+            out.println("Unable to get sub status of winners.");
+            return unsubbedWinners;
+        }
+        
+        for (String winner : winners) {
+            if (!subList.contains(winner.toLowerCase())) {
+                unsubbedWinners.add(winner);
+            }
+        }
+        return unsubbedWinners;
     }
 
     @Override
