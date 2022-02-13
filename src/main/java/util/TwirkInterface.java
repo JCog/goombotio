@@ -127,10 +127,6 @@ public class TwirkInterface {
         }
     }
 
-    public Set<String> getModsOnline() {
-        return twirk.getModsOnline();
-    }
-
     public boolean connect() {
         try {
             getNewTwirk();
