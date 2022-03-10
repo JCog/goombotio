@@ -55,7 +55,7 @@ public class CommandManagerListener extends CommandBase {
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         String[] messageSplit = message.getContent().split("\\s", 4);
         if (messageSplit.length == 1) {
-            twirk.channelMessage("This is a JSON endpoint, so if it looks unreadable you'll probably need a JSON viewer browser extension. https://www.jcoggers.com/commands");
+            twirk.channelMessage("This is a JSON endpoint, so if it looks unreadable you'll probably need a browser extension for viewing JSON. https://www.jcoggers.com/commands");
             return;
         }
         else if (sender.getUserType().value >= USER_LEVEL.MOD.value) {
