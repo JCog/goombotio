@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static util.TwitchUserLevel.USER_LEVEL;
+
 public class CommandManagerListener extends CommandBase {
     private final static String PATTERN = "!commands";
     private final static String USER_LEVEL_TAG = "-ul=";
@@ -40,8 +42,8 @@ public class CommandManagerListener extends CommandBase {
     }
 
     @Override
-    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
-        return TwitchUserLevel.USER_LEVEL.MOD;
+    protected USER_LEVEL getMinUserPrivilege() {
+        return USER_LEVEL.DEFAULT;
     }
 
     @Override
@@ -52,129 +54,134 @@ public class CommandManagerListener extends CommandBase {
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
         String[] messageSplit = message.getContent().split("\\s", 4);
-        if (messageSplit.length < 3) {
-            showError("missing arguments");
+        if (messageSplit.length == 1) {
+            twirk.channelMessage("This is a JSON endpoint, so if it looks unreadable you'll probably need a JSON viewer browser extension. https://www.jcoggers.com/commands");
             return;
         }
-
-        String typeString = messageSplit[1];
-        String idString = messageSplit[2].toLowerCase();
-        if (!isValidId(idString)) {
-            showError("invalid command ID");
-            return;
-        }
-
-        if (twirk.getReservedCommandPatterns().contains(idString)) {
-            showError(String.format("\"%s\" is a reserved command id and cannot be modified", idString));
-            return;
-        }
-
-        String content = null;
-        String[] parameterStrings = null;
-
-        try {
-            int start = messageSplit[3].indexOf('"');
-            int end = messageSplit[3].lastIndexOf('"');
-            if (start != end) { //valid quotes
-                content = messageSplit[3].substring(start + 1, end);
-                parameterStrings = messageSplit[3].replace(messageSplit[3].substring(start, end + 1), "").split("\\s");
-            }
-            else if (start == -1) { //no quotes
-                parameterStrings = messageSplit[3].split("\\s");
-            }
-            else { //one quote mark
-                showError("unbalanced quotation mark");
+        else if (sender.getUserType().value >= USER_LEVEL.MOD.value) {
+            if (messageSplit.length < 3) {
+                showError("missing arguments");
                 return;
             }
-        }
-        catch (IndexOutOfBoundsException e) {
-            //do nothing
-        }
-        boolean hasContent = content != null && !content.isEmpty();
-
-        FUNCTION type = getFunction(typeString);
-        if (type == null) {
-            showError("invalid function");
-            return;
-        }
-
-        boolean hasUserLevel = hasUserLevelTag(parameterStrings);
-        boolean hasCooldown = hasCooldownTag(parameterStrings);
-        TwitchUserLevel.USER_LEVEL userLevel = getUserLevel(parameterStrings);
-        Long cooldown = getCooldown(parameterStrings);
-        if (hasUserLevel || hasCooldown) {
-            String invalidTag = getInvalidTag(parameterStrings);
-            if (invalidTag != null) {
-                showError(String.format("invalid parameter \"%s\"", invalidTag));
+    
+            String typeString = messageSplit[1];
+            String idString = messageSplit[2].toLowerCase();
+            if (!isValidId(idString)) {
+                showError("invalid command ID");
                 return;
             }
-
-            String duplicateTag = getDuplicateTag(parameterStrings);
-            if (duplicateTag != null) {
-                showError(String.format("duplicate tag \"%s\"", duplicateTag));
+    
+            if (twirk.getReservedCommandPatterns().contains(idString)) {
+                showError(String.format("\"%s\" is a reserved command id and cannot be modified", idString));
                 return;
             }
-        }
-
-        if (userLevel == null) {
-            showError("invalid user level");
-            return;
-        }
-        if (cooldown == null) {
-            showError("invalid cooldown");
-            return;
-        }
-
-        switch (type) {
-            case ADD:
-                if (!hasContent) {
-                    showError("no content");
+    
+            String content = null;
+            String[] parameterStrings = null;
+    
+            try {
+                int start = messageSplit[3].indexOf('"');
+                int end = messageSplit[3].lastIndexOf('"');
+                if (start != end) { //valid quotes
+                    content = messageSplit[3].substring(start + 1, end);
+                    parameterStrings = messageSplit[3].replace(messageSplit[3].substring(start, end + 1), "").split("\\s");
+                }
+                else if (start == -1) { //no quotes
+                    parameterStrings = messageSplit[3].split("\\s");
+                }
+                else { //one quote mark
+                    showError("unbalanced quotation mark");
                     return;
                 }
-                twirk.channelMessage(commandDb.addCommand(idString, content, cooldown, userLevel));
-                break;
-            case EDIT:
-                if (hasContent && hasCooldown && hasUserLevel) {
-                    twirk.channelMessage(commandDb.editCommand(idString, content, cooldown, userLevel));
-                }
-                else if (hasContent && hasCooldown) {
-                    twirk.channelMessage(commandDb.editCommand(idString, content, cooldown));
-                }
-                else if (hasContent && hasUserLevel) {
-                    twirk.channelMessage(commandDb.editCommand(idString, content, userLevel));
-                }
-                else if (hasCooldown && hasUserLevel) {
-                    twirk.channelMessage(commandDb.editCommand(idString, cooldown, userLevel));
-                }
-                else if (hasContent) {
-                    twirk.channelMessage(commandDb.editCommand(idString, content));
-                }
-                else if (hasCooldown) {
-                    twirk.channelMessage(commandDb.editCommand(idString, cooldown));
-                }
-                else if (hasUserLevel) {
-                    twirk.channelMessage(commandDb.editCommand(idString, userLevel));
-                }
-                else {
-                    showError("nothing to edit");
-                }
-                break;
-            case DELETE:
-                twirk.channelMessage(commandDb.deleteCommand(idString));
-                break;
-            case DETAILS:
-                CommandItem commandItem = commandDb.getCommandItem(idString);
-                if (commandItem == null) {
-                    showError(String.format("unknown command \"%s\"", idString));
+            } catch (IndexOutOfBoundsException e) {
+                //do nothing
+            }
+            boolean hasContent = content != null && !content.isEmpty();
+    
+            FUNCTION type = getFunction(typeString);
+            if (type == null) {
+                showError("invalid function");
+                return;
+            }
+    
+            boolean hasUserLevel = hasUserLevelTag(parameterStrings);
+            boolean hasCooldown = hasCooldownTag(parameterStrings);
+            USER_LEVEL userLevel = getUserLevel(parameterStrings);
+            Long cooldown = getCooldown(parameterStrings);
+            if (hasUserLevel || hasCooldown) {
+                String invalidTag = getInvalidTag(parameterStrings);
+                if (invalidTag != null) {
+                    showError(String.format("invalid parameter \"%s\"", invalidTag));
                     return;
                 }
-                twirk.channelMessage(String.format(
-                        "\"%s\" -ul=%s -cd=%d",
-                        commandItem.getMessage(),
-                        commandItem.getPermission(),
-                        commandItem.getCooldown()
-                ));
-                break;
+        
+                String duplicateTag = getDuplicateTag(parameterStrings);
+                if (duplicateTag != null) {
+                    showError(String.format("duplicate tag \"%s\"", duplicateTag));
+                    return;
+                }
+            }
+    
+            if (userLevel == null) {
+                showError("invalid user level");
+                return;
+            }
+            if (cooldown == null) {
+                showError("invalid cooldown");
+                return;
+            }
+    
+            switch (type) {
+                case ADD:
+                    if (!hasContent) {
+                        showError("no content");
+                        return;
+                    }
+                    twirk.channelMessage(commandDb.addCommand(idString, content, cooldown, userLevel));
+                    break;
+                case EDIT:
+                    if (hasContent && hasCooldown && hasUserLevel) {
+                        twirk.channelMessage(commandDb.editCommand(idString, content, cooldown, userLevel));
+                    }
+                    else if (hasContent && hasCooldown) {
+                        twirk.channelMessage(commandDb.editCommand(idString, content, cooldown));
+                    }
+                    else if (hasContent && hasUserLevel) {
+                        twirk.channelMessage(commandDb.editCommand(idString, content, userLevel));
+                    }
+                    else if (hasCooldown && hasUserLevel) {
+                        twirk.channelMessage(commandDb.editCommand(idString, cooldown, userLevel));
+                    }
+                    else if (hasContent) {
+                        twirk.channelMessage(commandDb.editCommand(idString, content));
+                    }
+                    else if (hasCooldown) {
+                        twirk.channelMessage(commandDb.editCommand(idString, cooldown));
+                    }
+                    else if (hasUserLevel) {
+                        twirk.channelMessage(commandDb.editCommand(idString, userLevel));
+                    }
+                    else {
+                        showError("nothing to edit");
+                    }
+                    break;
+                case DELETE:
+                    twirk.channelMessage(commandDb.deleteCommand(idString));
+                    break;
+                case DETAILS:
+                    CommandItem commandItem = commandDb.getCommandItem(idString);
+                    if (commandItem == null) {
+                        showError(String.format("unknown command \"%s\"", idString));
+                        return;
+                    }
+                    twirk.channelMessage(String.format(
+                            "\"%s\" -ul=%s -cd=%d",
+                            commandItem.getMessage(),
+                            commandItem.getPermission(),
+                            commandItem.getCooldown()
+                    ));
+                    break;
+            }
         }
     }
 
@@ -226,9 +233,9 @@ public class CommandManagerListener extends CommandBase {
     }
 
     //search everything after the command id for a permission - returns null if an invalid type is found
-    private TwitchUserLevel.USER_LEVEL getUserLevel(String[] parameters) {
+    private USER_LEVEL getUserLevel(String[] parameters) {
         if (parameters == null) {
-            return TwitchUserLevel.USER_LEVEL.DEFAULT;
+            return USER_LEVEL.DEFAULT;
         }
         for (String param : parameters) {
             if (param.startsWith(USER_LEVEL_TAG)) {
@@ -237,7 +244,7 @@ public class CommandManagerListener extends CommandBase {
                 return TwitchUserLevel.getUserLevel(type);
             }
         }
-        return TwitchUserLevel.USER_LEVEL.DEFAULT;
+        return USER_LEVEL.DEFAULT;
     }
 
     //returns the first invalid tag, null if there are none
