@@ -91,8 +91,11 @@ public class QuoteListener extends CommandBase {
             case PATTERN_QUOTE: {
                 QuoteItem quote;
                 if (content.isEmpty()) {
-                    long index = random.nextInt(quoteDb.getQuoteCount());
-                    quote = quoteDb.getQuote(index);
+                    do {
+                        long index = random.nextInt(quoteDb.getQuoteCount());
+                        quote = quoteDb.getQuote(index);
+                    } while (quote == null || !quote.isApproved());
+                    
                 }
                 else {
                     long index;
@@ -101,7 +104,7 @@ public class QuoteListener extends CommandBase {
                         quote = quoteDb.getQuote(index);
                     }
                     catch (NumberFormatException e) {
-                        List<QuoteItem> quotes = quoteDb.searchQuotes(content);
+                        List<QuoteItem> quotes = quoteDb.searchApprovedQuotes(content);
                         if (quotes.isEmpty()) {
                             twirk.channelMessage(ERROR_NO_MATCHING_QUOTES);
                             break;
@@ -110,7 +113,7 @@ public class QuoteListener extends CommandBase {
                         quote = quotes.get(randInt);
                     }
                 }
-                if (quote == null) {
+                if (quote == null || !quote.isApproved()) {
                     twirk.channelMessage(ERROR_NO_MATCHING_QUOTES);
                 }
                 else {

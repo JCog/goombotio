@@ -123,10 +123,13 @@ public class QuoteDb extends GbCollection {
         return (int) countDocuments();
     }
 
-    public List<QuoteItem> searchQuotes(String query) {
+    public List<QuoteItem> searchApprovedQuotes(String query) {
         ArrayList<QuoteItem> output = new ArrayList<>();
         for (Document quote : findContainsSubstring(TEXT_KEY, query, false)) {
-            output.add(convertQuoteDocument(quote));
+            QuoteItem quoteItem = convertQuoteDocument(quote);
+            if (quoteItem!= null && quoteItem.isApproved()) {
+                output.add(quoteItem);
+            }
         }
         return output;
     }
