@@ -4,6 +4,7 @@ import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import util.TwitchUserLevel;
+import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,7 +36,7 @@ public abstract class CommandBase implements TwirkListener {
 
     final ScheduledExecutorService scheduler;
 
-    private final TwitchUserLevel.USER_LEVEL minPrivilege;
+    private final USER_LEVEL minPrivilege;
     private boolean coolingDown;
 
     protected CommandBase(CommandType commandType, ScheduledExecutorService scheduler) {
@@ -57,43 +58,45 @@ public abstract class CommandBase implements TwirkListener {
         String[] split = content.split("\\s", 2);
         String command = split[0];
         char firstChar = content.charAt(0);
-
-        if (!coolingDown && TwitchUserLevel.getUserLevel(sender).value >= minPrivilege.value) {
-            switch (commandType) {
-                case PREFIX_COMMAND:
-                    for (String pattern : commandPattern) {
-                        if (command.equals(pattern)) {
-                            performCommand(pattern, sender, message);
-                            startCooldown();
-                            break;    //We don't want to fire twice for the same message
+    
+        if (!coolingDown || TwitchUserLevel.getUserLevel(sender).value == USER_LEVEL.BROADCASTER.value) {
+            if (TwitchUserLevel.getUserLevel(sender).value >= minPrivilege.value) {
+                switch (commandType) {
+                    case PREFIX_COMMAND:
+                        for (String pattern : commandPattern) {
+                            if (command.equals(pattern)) {
+                                performCommand(pattern, sender, message);
+                                startCooldown();
+                                break;    //We don't want to fire twice for the same message
+                            }
                         }
-                    }
-                    break;
-
-                case CONTENT_COMMAND:
-                    for (String pattern : commandPattern) {
-                        if (content.contains(pattern)) {
-                            performCommand(pattern, sender, message);
-                            startCooldown();
-                            break;
+                        break;
+        
+                    case CONTENT_COMMAND:
+                        for (String pattern : commandPattern) {
+                            if (content.contains(pattern)) {
+                                performCommand(pattern, sender, message);
+                                startCooldown();
+                                break;
+                            }
                         }
-                    }
-                    break;
-
-                case EXACT_MATCH_COMMAND:
-                    for (String pattern : commandPattern) {
-                        if (exactContent.equals(pattern)) {
-                            performCommand(pattern, sender, message);
-                            startCooldown();
-                            break;
+                        break;
+        
+                    case EXACT_MATCH_COMMAND:
+                        for (String pattern : commandPattern) {
+                            if (exactContent.equals(pattern)) {
+                                performCommand(pattern, sender, message);
+                                startCooldown();
+                                break;
+                            }
                         }
-                    }
-                    break;
-                case GENERIC_COMMAND:
-                    if (firstChar == GENERIC_COMMAND_CHAR) {
-                        performCommand(command, sender, message);
-                    }
-                    break;
+                        break;
+                    case GENERIC_COMMAND:
+                        if (firstChar == GENERIC_COMMAND_CHAR) {
+                            performCommand(command, sender, message);
+                        }
+                        break;
+                }
             }
         }
     }
@@ -117,7 +120,7 @@ public abstract class CommandBase implements TwirkListener {
 
     public abstract String getCommandWords();
 
-    protected abstract TwitchUserLevel.USER_LEVEL getMinUserPrivilege();
+    protected abstract USER_LEVEL getMinUserPrivilege();
 
     protected abstract int getCooldownLength();
 
