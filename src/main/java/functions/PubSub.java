@@ -3,11 +3,14 @@ package functions;
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
 import com.github.twitch4j.eventsub.events.ChannelPredictionEvent;
 import com.github.twitch4j.helix.domain.CustomReward;
+import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.pubsub.domain.ChannelPointsReward;
 import com.github.twitch4j.pubsub.events.*;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.misc.BitWarDb;
+import org.apache.commons.lang.SystemUtils;
+import util.FileWriter;
 import util.TwirkInterface;
 import util.TwitchApi;
 import util.TwitchPubSubClient;
@@ -15,12 +18,15 @@ import util.TwitchPubSubClient;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static java.lang.System.out;
+
 public class PubSub extends TwitchPubSubClient {
     private static final String[] SAVE_KEYWORDS = new String[]{"save", "love"};
     private static final String[] KILL_KEYWORDS = new String[]{"kill", "stab"};
     private static final String BIT_WAR_NAME = "save_kill_yoshi";
     private static final String TEAM_KILL = "team_kill";
     private static final String TEAM_SAVE = "team_save";
+    private static final String LOCAL_RECENT_CHEER_FILENAME = "recent_cheer.txt";
     
     private static final String DETHRONE_REWARD_TITLE = "Dethrone";
     private static final String DETHRONE_REWARD_PROMPT = " currently sits on the throne. Redeem this to take their spot and increase the cost for the next person!";
@@ -42,6 +48,28 @@ public class PubSub extends TwitchPubSubClient {
     @Override
     public void onBitsEvent(ChannelBitsEvent event) {
         //updateBitWar(event);
+        event.getData().getBitsUsed();
+    
+        String userId = event.getData().getUserId();
+        User user;
+        try {
+            user = twitchApi.getUserById(userId);
+        }
+        catch (HystrixRuntimeException e) {
+            e.printStackTrace();
+            out.printf(
+                    "error retrieving data for bit user with id %s%n",
+                    userId
+            );
+            user = null;
+        }
+        if (user == null) {
+            out.println("error: bit user is null");
+            return;
+        }
+        
+        String latestCheerText = String.format("%s - %d", user.getDisplayName(), event.getData().getBitsUsed());
+        FileWriter.writeToFile(getOutputLocation(), LOCAL_RECENT_CHEER_FILENAME, latestCheerText);
     }
     
     @Override
@@ -90,6 +118,13 @@ public class PubSub extends TwitchPubSubClient {
         }
     }
     
+    private String getOutputLocation() {
+        if (SystemUtils.IS_OS_LINUX) {
+            return "/srv/goombotio/";
+        }
+        return "output/";
+    }
+    
     public static boolean stringContainsItemFromList(String inputStr, String[] items) {
         return Arrays.stream(items).anyMatch(inputStr::contains);
     }
@@ -104,7 +139,7 @@ public class PubSub extends TwitchPubSubClient {
                     true
             ).get(0);
         } catch (HystrixRuntimeException e) {
-            System.out.println("Error retrieving Dethrone reward from API");
+            out.println("Error retrieving Dethrone reward from API");
             twirk.channelMessage("@JCog error retrieving reward. Please refund manually while shaking your fist at twitch.");
             return;
         }
@@ -122,7 +157,7 @@ public class PubSub extends TwitchPubSubClient {
             success = true;
         } catch (HystrixRuntimeException e) {
             success = false;
-            System.out.println("Error updating Dethrone reward. Refunding points.");
+            out.println("Error updating Dethrone reward. Refunding points.");
             twirk.channelMessage("Error updating Dethrone reward. Refunding points.");
         }
         

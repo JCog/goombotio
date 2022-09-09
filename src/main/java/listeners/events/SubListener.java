@@ -4,6 +4,8 @@ import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.usernotice.Usernotice;
 import com.gikk.twirk.types.usernotice.subtype.Subscription;
 import com.gikk.twirk.types.users.TwitchUser;
+import org.apache.commons.lang.SystemUtils;
+import util.FileWriter;
 import util.TwirkInterface;
 
 import java.util.ArrayList;
@@ -15,7 +17,9 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.System.out;
 
 public class SubListener implements TwirkListener {
-
+    
+    private static final String LOCAL_RECENT_SUB_FILENAME = "recent_sub.txt";
+    
     private final TwirkInterface twirk;
     private final ScheduledExecutorService scheduler;
     private final HashMap<String,Boolean> subTimersActive;
@@ -90,8 +94,20 @@ public class SubListener implements TwirkListener {
                             user.getDisplayName(),
                             months));
                 }
+                outputRecentSubFile(user.getDisplayName());
             }
         }
+    }
+    
+    private void outputRecentSubFile(String displayName) {
+        FileWriter.writeToFile(getOutputLocation(), LOCAL_RECENT_SUB_FILENAME, displayName);
+    }
+    
+    private String getOutputLocation() {
+        if (SystemUtils.IS_OS_LINUX) {
+            return "/srv/goombotio/";
+        }
+        return "output/";
     }
 
 }
