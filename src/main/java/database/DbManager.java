@@ -3,6 +3,7 @@ package database;
 import database.emotes.BttvEmoteStatsDb;
 import database.emotes.EmoteStatsDb;
 import database.emotes.FfzEmoteStatsDb;
+import database.emotes.SevenTvEmoteStatsDb;
 import database.misc.*;
 import database.preds.SpeedySpinLeaderboardDb;
 import database.preds.SunshineTimerLeaderboardDb;
@@ -16,6 +17,7 @@ public class DbManager {
     private final BttvEmoteStatsDb bttvEmoteStatsDb;
     private final EmoteStatsDb emoteStatsDb;
     private final FfzEmoteStatsDb ffzEmoteStatsDb;
+    private final SevenTvEmoteStatsDb sevenTvEmoteStatsDb;
 
     private final BitWarDb bitWarDb;
     private final CommandDb commandDb;
@@ -34,9 +36,10 @@ public class DbManager {
     public DbManager(String host, int port, String dbName, String user, String password, boolean writePermission) {
         this.gbDatabase = new GbDatabase(host, port, dbName, user, password, writePermission);
 
-        bttvEmoteStatsDb = new BttvEmoteStatsDb(gbDatabase);
         emoteStatsDb = new EmoteStatsDb(gbDatabase);
         ffzEmoteStatsDb = new FfzEmoteStatsDb(gbDatabase);
+        sevenTvEmoteStatsDb = new SevenTvEmoteStatsDb(gbDatabase);
+        bttvEmoteStatsDb = new BttvEmoteStatsDb(gbDatabase);
 
         bitWarDb = new BitWarDb(gbDatabase);
         commandDb = new CommandDb(gbDatabase);
@@ -57,16 +60,20 @@ public class DbManager {
         gbDatabase.close();
     }
 
-    public BttvEmoteStatsDb getBttvEmoteStatsDb() {
-        return bttvEmoteStatsDb;
-    }
-
     public EmoteStatsDb getEmoteStatsDb() {
         return emoteStatsDb;
     }
 
     public FfzEmoteStatsDb getFfzEmoteStatsDb() {
         return ffzEmoteStatsDb;
+    }
+    
+    public SevenTvEmoteStatsDb getSevenTvEmoteStatsDb() {
+        return sevenTvEmoteStatsDb;
+    }
+    
+    public BttvEmoteStatsDb getBttvEmoteStatsDb() {
+        return bttvEmoteStatsDb;
     }
 
     public BitWarDb getBitWarDb() {
