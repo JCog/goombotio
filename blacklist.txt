@@ -1,6 +1,7 @@
 0x626f74
 agressive_sock
 alfredjudokus817
+aliceydra
 angeloflight
 anotherttvviewer
 apricotdrupefruit
@@ -20,6 +21,7 @@ gza_
 hostmeraffle
 hotlocalmom
 itsvodoo
+la_kaylee
 leoconnor01
 lurxx
 mazerrobot
@@ -28,7 +30,9 @@ n3td3v
 nightbot
 p0lizei_
 p0sitivitybot
+rogueg1rl
 skinnyseahorse
+smallstreamersdccommunity
 snowbottos
 stay_hydrated_bot
 streamelements
@@ -37,6 +41,7 @@ twitchdetails
 twitchprimereminder
 v_and_k
 verynaughtywife
+violets_tv
 virgoproz
 vlees
 winsock
