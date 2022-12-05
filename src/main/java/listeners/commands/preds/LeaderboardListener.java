@@ -10,7 +10,6 @@ import database.DbManager;
 import database.preds.PredsLeaderboardDb;
 import functions.preds.PredsManagerBase;
 import listeners.commands.CommandBase;
-import util.TwirkInterface;
 import util.TwitchApi;
 import util.TwitchUserLevel;
 
@@ -30,7 +29,6 @@ public class LeaderboardListener extends CommandBase {
     private static final String PATTERN_LEADERBOARD_ALL = "!leaderboardall";
     private static final String PATTERN_POINTS_ALL = "!pointsall";
 
-    private final TwirkInterface twirk;
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
     private final User streamerUser;
@@ -39,13 +37,11 @@ public class LeaderboardListener extends CommandBase {
 
     public LeaderboardListener(
             ScheduledExecutorService scheduler,
-            TwirkInterface twirk,
             DbManager dbManager,
             TwitchApi twitchApi,
             User streamerUser
     ) {
         super(CommandType.PREFIX_COMMAND, scheduler);
-        this.twirk = twirk;
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
@@ -115,7 +111,7 @@ public class LeaderboardListener extends CommandBase {
                     break;
             }
         }
-        twirk.channelCommand(chatMessage);
+        twitchApi.channelCommand(chatMessage);
     }
 
     private void updateLeaderboardType() {

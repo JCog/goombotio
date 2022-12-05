@@ -23,6 +23,7 @@ public class GenericCommandListener extends CommandBase {
     private final CommandDb commandDb;
     private final TwirkInterface twirk;
     private final CommandParser commandParser;
+    private final TwitchApi twitchApi;
     private final HashSet<String> activeCooldowns = new HashSet<>();
 
 
@@ -36,6 +37,7 @@ public class GenericCommandListener extends CommandBase {
         super(CommandType.GENERIC_COMMAND, scheduler);
         this.twirk = twirk;
         this.commandParser = new CommandParser(dbManager, twitchApi, streamerUser);
+        this.twitchApi = twitchApi;
         commandDb = dbManager.getCommandDb();
     }
 
@@ -67,7 +69,7 @@ public class GenericCommandListener extends CommandBase {
 
         CommandItem commandItem = commandDb.getCommandItem(command);
         if (commandItem != null && userHasPermission(sender, commandItem) && !cooldownActive(commandItem)) {
-            twirk.channelMessage(commandParser.parse(commandItem, sender, message));
+            twitchApi.channelMessage(commandParser.parse(commandItem, sender, message));
             startCooldown(commandItem);
         }
     }

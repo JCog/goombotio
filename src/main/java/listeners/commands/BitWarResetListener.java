@@ -4,7 +4,7 @@ import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
 import database.DbManager;
 import database.misc.BitWarDb;
-import util.TwirkInterface;
+import util.TwitchApi;
 import util.TwitchUserLevel;
 
 import java.util.ArrayList;
@@ -17,12 +17,12 @@ public class BitWarResetListener extends CommandBase {
     private static final String TEAM_KILL = "team_kill";
     private static final String TEAM_SAVE = "team_save";
 
-    private final TwirkInterface twirk;
+    private final TwitchApi twitchApi;
     private final BitWarDb bitWarDb;
 
-    public BitWarResetListener(ScheduledExecutorService scheduler, TwirkInterface twirk, DbManager dbManager) {
+    public BitWarResetListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
         super(CommandType.PREFIX_COMMAND, scheduler);
-        this.twirk = twirk;
+        this.twitchApi = twitchApi;
         this.bitWarDb = dbManager.getBitWarDb();
     }
 
@@ -47,6 +47,6 @@ public class BitWarResetListener extends CommandBase {
         teams.add(TEAM_KILL);
         teams.add(TEAM_SAVE);
         bitWarDb.resetBitWar(BIT_WAR_NAME, teams);
-        twirk.channelMessage(MESSAGE);
+        twitchApi.channelMessage(MESSAGE);
     }
 }

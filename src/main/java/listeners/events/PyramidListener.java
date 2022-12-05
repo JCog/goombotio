@@ -3,7 +3,7 @@ package listeners.events;
 import com.gikk.twirk.events.TwirkListener;
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
-import util.TwirkInterface;
+import util.TwitchApi;
 
 public class PyramidListener implements TwirkListener {
     private enum STATE {
@@ -17,15 +17,15 @@ public class PyramidListener implements TwirkListener {
     private static final int MIN_HEIGHT = 3;
     private static final int TRIGGER_HEIGHT = 2;
 
-    private final TwirkInterface twirk;
+    private final TwitchApi twitchApi;
 
     private STATE state;
     private String pattern;
     private long userId;
     private int height;
 
-    public PyramidListener(TwirkInterface twirk) {
-        this.twirk = twirk;
+    public PyramidListener(TwitchApi twitchApi) {
+        this.twitchApi = twitchApi;
         resetState();
     }
 
@@ -89,10 +89,10 @@ public class PyramidListener implements TwirkListener {
 
     private void interruptPyramid() {
         if (pattern.startsWith(INTERRUPT_EMOTE)) {
-            twirk.channelMessage(TROLL_MESSAGE);
+            twitchApi.channelMessage(TROLL_MESSAGE);
         }
         else {
-            twirk.channelMessage(INTERRUPT_EMOTE);
+            twitchApi.channelMessage(INTERRUPT_EMOTE);
         }
     }
 

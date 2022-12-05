@@ -6,7 +6,7 @@ import com.gikk.twirk.types.usernotice.subtype.Subscription;
 import com.gikk.twirk.types.users.TwitchUser;
 import org.apache.commons.lang.SystemUtils;
 import util.FileWriter;
-import util.TwirkInterface;
+import util.TwitchApi;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,13 +20,13 @@ public class SubListener implements TwirkListener {
     
     private static final String LOCAL_RECENT_SUB_FILENAME = "recent_sub.txt";
     
-    private final TwirkInterface twirk;
+    private final TwitchApi twitchApi;
     private final ScheduledExecutorService scheduler;
     private final HashMap<String,Boolean> subTimersActive;
     private final HashMap<String,ArrayList<String>> giftedSubs;
 
-    public SubListener(TwirkInterface twirk, ScheduledExecutorService scheduler) {
-        this.twirk = twirk;
+    public SubListener(TwitchApi twitchApi, ScheduledExecutorService scheduler) {
+        this.twitchApi = twitchApi;
         this.scheduler = scheduler;
         subTimersActive = new HashMap<>();
         giftedSubs = new HashMap<>();
@@ -64,13 +64,13 @@ public class SubListener implements TwirkListener {
                                 e.printStackTrace();
                             }
                             if (giftedSubs.get(gifterName).size() == 1) {
-                                twirk.channelMessage(String.format(
+                                twitchApi.channelMessage(String.format(
                                         "jcogChamp @%s Thank you for gifting a sub to @%s! jcogChamp",
                                         gifterName,
                                         recipientName));
                             }
                             else {
-                                twirk.channelMessage(String.format(
+                                twitchApi.channelMessage(String.format(
                                         "jcogChamp @%s Thank you for the %d gift subs! jcogChamp",
                                         gifterName,
                                         subCount));
@@ -85,11 +85,11 @@ public class SubListener implements TwirkListener {
             else {
                 int months = sub.getMonths();
                 if (months == 1) {
-                    twirk.channelMessage(String.format("jcogChamp @%s just subbed! Welcome to the Rookery™! jcogChamp",
+                    twitchApi.channelMessage(String.format("jcogChamp @%s just subbed! Welcome to the Rookery™! jcogChamp",
                                                        user.getDisplayName()));
                 }
                 else {
-                    twirk.channelMessage(String.format(
+                    twitchApi.channelMessage(String.format(
                             "jcogChamp @%s just resubbed for %d months! Welcome back to the Rookery™! jcogChamp",
                             user.getDisplayName(),
                             months));

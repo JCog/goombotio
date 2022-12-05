@@ -11,7 +11,6 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import util.TwirkInterface;
 import util.TwitchApi;
 
 import java.text.NumberFormat;
@@ -25,13 +24,11 @@ public class LinkListener implements TwirkListener {
     private static final Pattern youtubePattern = Pattern.compile("(?:www\\.)?(?:youtube\\.com/watch\\?[a-zA-Z0-9_=&]*v=|youtu\\.be/)([a-zA-Z0-9_\\-]+)");
     private static final Pattern tweetPattern = Pattern.compile("(?:www\\.)?(?:twitter\\.com/[a-zA-Z0-9_]+/status/)([0-9]+)");
 
-    private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
     private final Twitter twitter;
     private final String youtubeApiKey;
 
-    public LinkListener(TwirkInterface twirk, TwitchApi twitchApi, Twitter twitter, String youtubeApiKey) {
-        this.twirk = twirk;
+    public LinkListener(TwitchApi twitchApi, Twitter twitter, String youtubeApiKey) {
         this.twitchApi = twitchApi;
         this.youtubeApiKey = youtubeApiKey;
         this.twitter = twitter;
@@ -45,16 +42,16 @@ public class LinkListener implements TwirkListener {
         ArrayList<String> tweetIds = getMatches(message.getContent(), tweetPattern);
 
         for (String id : clipUrls) {
-            twirk.channelMessage(getClipDetails(id));
+            twitchApi.channelMessage(getClipDetails(id));
         }
         for (String id : videoUrls) {
-            twirk.channelMessage(getVideoDetails(id));
+            twitchApi.channelMessage(getVideoDetails(id));
         }
         for (String id : youtubeVideoIds) {
-            twirk.channelMessage(YoutubeApi.getVideoDetails(id, youtubeApiKey));
+            twitchApi.channelMessage(YoutubeApi.getVideoDetails(id, youtubeApiKey));
         }
         for (String id : tweetIds) {
-            twirk.channelMessage(getTweetDetails(id));
+            twitchApi.channelMessage(getTweetDetails(id));
         }
     }
 

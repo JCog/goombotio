@@ -7,7 +7,6 @@ import database.DbManager;
 import database.entries.QuoteItem;
 import database.misc.QuoteDb;
 import listeners.commands.CommandBase;
-import util.TwirkInterface;
 import util.TwitchApi;
 import util.TwitchUserLevel;
 
@@ -32,7 +31,6 @@ public class QuoteListener extends CommandBase {
     private static final String ERROR_BAD_INDEX_FORMAT = "Unable to parse quote \"%s\"";
     private static final String ERROR_NOT_LIVE = "VIPs can only add quotes while the stream is live";
 
-    private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
     private final QuoteDb quoteDb;
     private final Random random;
@@ -41,18 +39,16 @@ public class QuoteListener extends CommandBase {
 
     public QuoteListener(
             ScheduledExecutorService scheduler,
-            TwirkInterface twirk,
             DbManager dbManager,
             TwitchApi twitchApi,
             User streamerUser
     ) {
         super(CommandType.PREFIX_COMMAND, scheduler);
-        this.twirk = twirk;
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
         quoteDb = dbManager.getQuoteDb();
         random = new Random();
-        quoteUndoEngine = new QuoteUndoEngine(twirk, quoteDb);
+        quoteUndoEngine = new QuoteUndoEngine(twitchApi, quoteDb);
     }
 
     @Override
@@ -106,7 +102,7 @@ public class QuoteListener extends CommandBase {
                     catch (NumberFormatException e) {
                         List<QuoteItem> quotes = quoteDb.searchApprovedQuotes(content);
                         if (quotes.isEmpty()) {
-                            twirk.channelMessage(ERROR_NO_MATCHING_QUOTES);
+                            twitchApi.channelMessage(ERROR_NO_MATCHING_QUOTES);
                             break;
                         }
                         int randInt = random.nextInt(quotes.size());
@@ -114,10 +110,10 @@ public class QuoteListener extends CommandBase {
                     }
                 }
                 if (quote == null || !quote.isApproved()) {
-                    twirk.channelMessage(ERROR_NO_MATCHING_QUOTES);
+                    twitchApi.channelMessage(ERROR_NO_MATCHING_QUOTES);
                 }
                 else {
-                    twirk.channelMessage(quote.toString());
+                    twitchApi.channelMessage(quote.toString());
                 }
                 break;
             }
@@ -125,23 +121,23 @@ public class QuoteListener extends CommandBase {
                 if (userLevel >= VIP.value) {
                     //only allow VIPs to add quotes if the stream is live
                     if (userLevel == VIP.value && twitchApi.getStream(streamerUser.getLogin()) == null) {
-                        twirk.channelMessage(ERROR_NOT_LIVE);
+                        twitchApi.channelMessage(ERROR_NOT_LIVE);
                         break;
                     }
                     if (content.isEmpty()) {
-                        twirk.channelMessage(ERROR_MISSING_ARGUMENTS);
+                        twitchApi.channelMessage(ERROR_MISSING_ARGUMENTS);
                         break;
                     }
                     QuoteItem quoteItem = quoteDb.addQuote(content, sender.getUserID(), true);
                     quoteUndoEngine.storeUndoAction(ADD, quoteItem);
-                    twirk.channelMessage(String.format("Successfully added quote #%d", quoteItem.getIndex()));
+                    twitchApi.channelMessage(String.format("Successfully added quote #%d", quoteItem.getIndex()));
                 }
                 break;
             }
             case PATTERN_DELETE_QUOTE: {
                 if (userLevel >= MOD.value) {
                     if (content.isEmpty()) {
-                        twirk.channelMessage(ERROR_MISSING_ARGUMENTS);
+                        twitchApi.channelMessage(ERROR_MISSING_ARGUMENTS);
                         break;
                     }
                     long delIndex;
@@ -149,12 +145,12 @@ public class QuoteListener extends CommandBase {
                         delIndex = Long.parseLong(content);
                     }
                     catch (NumberFormatException e) {
-                        twirk.channelMessage(getBadIndexError(content));
+                        twitchApi.channelMessage(getBadIndexError(content));
                         break;
                     }
                     QuoteItem quote = quoteDb.deleteQuote(delIndex);
                     quoteUndoEngine.storeUndoAction(DELETE, quote);
-                    twirk.channelMessage(String.format("Successfully deleted quote #%d", delIndex));
+                    twitchApi.channelMessage(String.format("Successfully deleted quote #%d", delIndex));
                 }
                 break;
             }
@@ -162,7 +158,7 @@ public class QuoteListener extends CommandBase {
                 if (userLevel >= MOD.value) {
                     String[] editSplit = content.split(" ", 2);
                     if (editSplit.length != 2) {
-                        twirk.channelMessage(ERROR_MISSING_ARGUMENTS);
+                        twitchApi.channelMessage(ERROR_MISSING_ARGUMENTS);
                         break;
                     }
                     long editIndex;
@@ -170,12 +166,12 @@ public class QuoteListener extends CommandBase {
                         editIndex = Long.parseLong(editSplit[0]);
                     }
                     catch (NumberFormatException e) {
-                        twirk.channelMessage(getBadIndexError(editSplit[0]));
+                        twitchApi.channelMessage(getBadIndexError(editSplit[0]));
                         break;
                     }
                     QuoteItem quote = quoteDb.editQuote(editIndex, editSplit[1], sender.getUserID(), true);
                     quoteUndoEngine.storeUndoAction(EDIT, quote);
-                    twirk.channelMessage(String.format("Successfully edited quote #%d", editIndex));
+                    twitchApi.channelMessage(String.format("Successfully edited quote #%d", editIndex));
                 }
                 break;
             }
@@ -185,7 +181,7 @@ public class QuoteListener extends CommandBase {
                 if (quote != null) {
                     output = quote.toString();
                 }
-                twirk.channelMessage(output);
+                twitchApi.channelMessage(output);
                 break;
             }
             case PATTERN_UNDO_QUOTE: {

@@ -65,15 +65,19 @@ public class MainBotController {
         discordBotController = new DiscordBotController(settings.getDiscordToken(), discordListener);
         chatLogger = new ChatLogger();
         twitchApi = new TwitchApi(
+                chatLogger,
+                settings.getTwitchStream(),
+                settings.getTwitchUsername(),
                 settings.getTwitchChannelAuthToken(),
-                settings.getTwitchChannelClientId()
+                settings.getTwitchChannelClientId(),
+                settings.isSilentMode()
         );
-        botUser = twitchApi.getUserByUsername(settings.getTwitchUsername());
+        botUser = twitchApi.getBotUser();
         if (botUser == null) {
             out.println("Error retrieving bot user");
             System.exit(1);
         }
-        streamerUser = twitchApi.getUserByUsername(settings.getTwitchStream());
+        streamerUser = twitchApi.getStreamerUser();
         if (streamerUser == null) {
             out.println("Error retrieving streamer user");
             System.exit(1);
@@ -88,15 +92,13 @@ public class MainBotController {
                 settings.isVerboseLogging()
         );
         pubSub = new PubSub(
-                twirk,
                 twitchApi,
                 dbManager,
                 streamerUser.getId(),
                 settings.getTwitchChannelAuthToken()
         );
-        cloudListener = new CloudListener(twirk);
+        cloudListener = new CloudListener(twitchApi);
         streamTracker = new StreamTracker(
-                twirk,
                 dbManager,
                 twitchApi,
                 streamerUser,
@@ -104,7 +106,6 @@ public class MainBotController {
                 cloudListener
         );
         scheduledMessageController = new ScheduledMessageController(
-                twirk,
                 dbManager,
                 twitchApi,
                 scheduler,
@@ -119,7 +120,7 @@ public class MainBotController {
                 streamerUser,
                 scheduler
         );
-        viewerQueueManager = new ViewerQueueManager(twirk, dbManager);
+        viewerQueueManager = new ViewerQueueManager(twitchApi, dbManager);
         minecraftWhitelistUpdater = new MinecraftWhitelistUpdater(
                 dbManager,
                 twitchApi,
@@ -147,7 +148,7 @@ public class MainBotController {
 
         //main loop
         try {
-            new ConsoleCommandListener(twirk, discordBotController).run();
+            new ConsoleCommandListener(twitchApi, discordBotController).run();
         }
         catch (NoSuchElementException nsee) {
             out.println("No console detected. Process must be killed manually");
@@ -183,31 +184,31 @@ public class MainBotController {
         twirk.addIrcListener(getOnDisconnectListener(twirk));
 
         // Command Listeners
-        twirk.addIrcListener(new BitWarResetListener(scheduler, twirk, dbManager));
+        twirk.addIrcListener(new BitWarResetListener(scheduler, twitchApi, dbManager));
         twirk.addIrcListener(new CommandManagerListener(scheduler, twirk, dbManager));
         twirk.addIrcListener(new GenericCommandListener(scheduler, twirk, dbManager, twitchApi, streamerUser));
         //twirk.addIrcListener(new ModListener(scheduler, twirk));
-        twirk.addIrcListener(new LeaderboardListener(scheduler, twirk, dbManager, twitchApi, streamerUser));
-        twirk.addIrcListener(new MinecraftListener(scheduler, twirk, dbManager, minecraftWhitelistUpdater));
-        twirk.addIrcListener(new QuoteListener(scheduler, twirk, dbManager, twitchApi, streamerUser));
+        twirk.addIrcListener(new LeaderboardListener(scheduler, dbManager, twitchApi, streamerUser));
+        twirk.addIrcListener(new MinecraftListener(scheduler, twitchApi, dbManager, minecraftWhitelistUpdater));
+        twirk.addIrcListener(new QuoteListener(scheduler, dbManager, twitchApi, streamerUser));
         twirk.addIrcListener(predsGuessListener);
         twirk.addIrcListener(new PredsManagerListener(
-                scheduler, twirk, dbManager, twitchApi, discordBotController, predsGuessListener, streamerUser));
+                scheduler, dbManager, twitchApi, discordBotController, predsGuessListener, streamerUser));
         twirk.addIrcListener(queueJoinListener);
-        twirk.addIrcListener(new ScheduledMessageManagerListener(scheduler, twirk, dbManager));
-        twirk.addIrcListener(new TattleListener(scheduler, dbManager, twirk, twitchApi));
+        twirk.addIrcListener(new ScheduledMessageManagerListener(scheduler, twitchApi, dbManager));
+        twirk.addIrcListener(new TattleListener(scheduler, dbManager, twitchApi));
         twirk.addIrcListener(new ViewerQueueManageListener(scheduler, viewerQueueManager, queueJoinListener));
-        twirk.addIrcListener(new WatchTimeListener(scheduler, twirk, dbManager, streamTracker));
-        twirk.addIrcListener(new WrListener(scheduler, twirk, twitchApi, streamerUser));
+        twirk.addIrcListener(new WatchTimeListener(scheduler, twitchApi, dbManager, streamTracker));
+        twirk.addIrcListener(new WrListener(scheduler, twitchApi, streamerUser));
 
         // General Listeners
         twirk.addIrcListener(new ChatLoggerListener(chatLogger));
         twirk.addIrcListener(cloudListener);
         twirk.addIrcListener(new EmoteListener(dbManager));
-        twirk.addIrcListener(new LinkListener(twirk, twitchApi, twitter, settings.getYoutubeApiKey()));
-        twirk.addIrcListener(new PyramidListener(twirk));
+        twirk.addIrcListener(new LinkListener(twitchApi, twitter, settings.getYoutubeApiKey()));
+        twirk.addIrcListener(new PyramidListener(twitchApi));
         twirk.addIrcListener(scheduledMessageController.getListener());
-        twirk.addIrcListener(new SubListener(twirk, scheduler));
+        twirk.addIrcListener(new SubListener(twitchApi, scheduler));
     }
 
     private static TwirkListener getOnDisconnectListener(final TwirkInterface twirk) {

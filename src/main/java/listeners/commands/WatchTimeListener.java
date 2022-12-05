@@ -5,7 +5,7 @@ import com.gikk.twirk.types.users.TwitchUser;
 import database.DbManager;
 import database.stats.WatchTimeDb;
 import functions.StreamTracker;
-import util.TwirkInterface;
+import util.TwitchApi;
 import util.TwitchUserLevel;
 
 import java.util.Calendar;
@@ -19,18 +19,18 @@ public class WatchTimeListener extends CommandBase {
     private static final String PATTERN = "!watchtime";
     private static final Date CUTOFF_DATE = generateCutoffDate();
 
-    private final TwirkInterface twirk;
+    private final TwitchApi twitchApi;
     private final StreamTracker streamTracker;
     private final WatchTimeDb watchTimeDb;
 
     public WatchTimeListener(
             ScheduledExecutorService scheduler,
-            TwirkInterface twirk,
+            TwitchApi twitchApi,
             DbManager dbManager,
             StreamTracker streamTracker
     ) {
         super(CommandType.PREFIX_COMMAND, scheduler);
-        this.twirk = twirk;
+        this.twitchApi = twitchApi;
         this.streamTracker = streamTracker;
         watchTimeDb = dbManager.getWatchTimeDb();
     }
@@ -62,7 +62,7 @@ public class WatchTimeListener extends CommandBase {
         if (isOldViewer(sender)) {
             output.append(" since August 30, 2019");
         }
-        twirk.channelMessage(output.toString());
+        twitchApi.channelMessage(output.toString());
     }
 
     private static String getTimeString(long minutes) {

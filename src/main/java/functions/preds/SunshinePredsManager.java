@@ -5,7 +5,6 @@ import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import database.preds.PredsLeaderboardDb;
 import functions.DiscordBotController;
-import util.TwirkInterface;
 import util.TwitchApi;
 
 import java.util.ArrayList;
@@ -32,8 +31,8 @@ public class SunshinePredsManager extends PredsManagerBase {
     private final User streamer;
     private final DiscordBotController discord;
 
-    public SunshinePredsManager(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
-        super(twirk, dbManager, discord);
+    public SunshinePredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
+        super(twitchApi, dbManager, discord);
         this.twitchApi = twitchApi;
         this.streamer = streamer;
         this.discord = discord;
@@ -138,8 +137,8 @@ public class SunshinePredsManager extends PredsManagerBase {
         }
         message.append(" • ");
         message.append(buildMonthlyLeaderboardString(leaderboard, twitchApi, streamer));
-
-        twirk.channelCommand(String.format(
+    
+        twitchApi.channelCommand(String.format(
                 "/me The correct answer is %s - %s",
                 formatHundredths(hundredths),
                 message

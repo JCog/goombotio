@@ -11,7 +11,6 @@ import functions.preds.PapePredsManager;
 import functions.preds.PredsManagerBase;
 import functions.preds.SunshinePredsManager;
 import listeners.commands.CommandBase;
-import util.TwirkInterface;
 import util.TwitchApi;
 import util.TwitchUserLevel;
 
@@ -26,7 +25,6 @@ public class PredsManagerListener extends CommandBase {
     private static final String GAME_ID_SUNSHINE = "6086";
     private static final String GAME_ID_PAPER_MARIO = "18231";
 
-    private final TwirkInterface twirk;
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
     private final DiscordBotController discord;
@@ -37,7 +35,6 @@ public class PredsManagerListener extends CommandBase {
 
     public PredsManagerListener(
             ScheduledExecutorService scheduler,
-            TwirkInterface twirk,
             DbManager dbManager,
             TwitchApi twitchApi,
             DiscordBotController discord,
@@ -45,7 +42,6 @@ public class PredsManagerListener extends CommandBase {
             User streamerUser
     ) {
         super(CommandType.PREFIX_COMMAND, scheduler);
-        this.twirk = twirk;
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.discord = discord;
@@ -81,7 +77,7 @@ public class PredsManagerListener extends CommandBase {
                     }
                     catch (HystrixRuntimeException e) {
                         e.printStackTrace();
-                        twirk.channelMessage("Error retrieving current game");
+                        twitchApi.channelMessage("Error retrieving current game");
                         return;
                     }
         
@@ -89,13 +85,13 @@ public class PredsManagerListener extends CommandBase {
                         gameId = stream.getGameId();
                     }
                     if (gameId.equals(GAME_ID_PAPER_MARIO)) {
-                        predsManager = new PapePredsManager(twirk, dbManager, discord, twitchApi, streamerUser);
+                        predsManager = new PapePredsManager(dbManager, discord, twitchApi, streamerUser);
                     }
                     else if (gameId.equals(GAME_ID_SUNSHINE)) {
-                        predsManager = new SunshinePredsManager(twirk, dbManager, discord, twitchApi, streamerUser);
+                        predsManager = new SunshinePredsManager(dbManager, discord, twitchApi, streamerUser);
                     }
                     else {
-                        twirk.channelMessage("The current game is not compatible with preds.");
+                        twitchApi.channelMessage("The current game is not compatible with preds.");
                         return;
                     }
                     out.println("Starting the prediction game...");
@@ -123,10 +119,10 @@ public class PredsManagerListener extends CommandBase {
                 if (predsManager != null) {
                     predsManager = null;
                     predsGuessListener.stop();
-                    twirk.channelCommand("Active preds game has been canceled.");
+                    twitchApi.channelCommand("Active preds game has been canceled.");
                 }
                 else {
-                    twirk.channelCommand("There isn't an active preds game to cancel.");
+                    twitchApi.channelCommand("There isn't an active preds game to cancel.");
                 }
                 break;
         }

@@ -5,7 +5,7 @@ import com.google.common.collect.ComparisonChain;
 import database.DbManager;
 import database.entries.ViewerQueueEntry;
 import database.misc.ViewerQueueDb;
-import util.TwirkInterface;
+import util.TwitchApi;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -15,15 +15,15 @@ import static java.lang.System.out;
 
 public class ViewerQueueManager {
 
-    private final TwirkInterface twirk;
+    private final TwitchApi twitchApi;
     private final ViewerQueueDb viewerQueueDb;
     private ArrayList<ViewerQueueEntry> viewers;
     private int position;
     private int requestedCount;
     private String message;
 
-    public ViewerQueueManager(TwirkInterface twirk, DbManager dbManager) {
-        this.twirk = twirk;
+    public ViewerQueueManager(TwitchApi twitchApi, DbManager dbManager) {
+        this.twitchApi = twitchApi;
         viewerQueueDb = dbManager.getViewerQueueDb();
         viewers = new ArrayList<>();
         position = 0;
@@ -34,7 +34,7 @@ public class ViewerQueueManager {
         viewers = new ArrayList<>();
         viewerQueueDb.incrementSessionId();
         this.requestedCount = count;
-        twirk.channelMessage("JCog is looking for viewers to play with! If you want to join, type \"!join\" to have a" +
+        twitchApi.channelMessage("JCog is looking for viewers to play with! If you want to join, type \"!join\" to have a" +
                                      " chance. Subs have priority, but you can still get in if there are no more subs left in the queue.");
         out.println("Starting viewer queue");
         this.message = message;
@@ -71,7 +71,7 @@ public class ViewerQueueManager {
             stringBuilder.append(String.format("and @%s! ", viewers.get(i).username));
         }
         stringBuilder.append("Check your whispers for info on how to join. jcogComfy");
-        twirk.channelMessage(stringBuilder.toString());
+        twitchApi.channelMessage(stringBuilder.toString());
         Thread thread = new Thread(() -> {
             for (int j = 0; j < requestedCount && j < viewers.size(); j++) {
                 getNext();
@@ -91,7 +91,7 @@ public class ViewerQueueManager {
             ViewerQueueEntry nextUser = viewers.get(position);
             position++;
             viewerQueueDb.setUserJoined(nextUser.id);
-            twirk.whisper(nextUser.username, message);
+            twitchApi.whisper(nextUser.username, message);
             out.println("inviting " + nextUser.username);
         }
     }

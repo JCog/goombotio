@@ -2,7 +2,7 @@ package listeners.commands;
 
 import com.gikk.twirk.types.twitchMessage.TwitchMessage;
 import com.gikk.twirk.types.users.TwitchUser;
-import util.TwirkInterface;
+import util.TwitchApi;
 import util.TwitchUserLevel;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -10,11 +10,11 @@ import java.util.concurrent.ScheduledExecutorService;
 public class ModListener extends CommandBase {
 
     private final static String PATTERN = "crashes paper mario";
-    private final TwirkInterface twirk;
+    private final TwitchApi twitchApi;
 
-    public ModListener(ScheduledExecutorService scheduler, TwirkInterface twirk) {
+    public ModListener(ScheduledExecutorService scheduler, TwitchApi twitchApi) {
         super(CommandType.CONTENT_COMMAND, scheduler);
-        this.twirk = twirk;
+        this.twitchApi = twitchApi;
     }
 
     @Override
@@ -34,6 +34,6 @@ public class ModListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        twirk.channelMessage(String.format("/timeout %s 1", sender.getUserName()));
+        twitchApi.channelMessage(String.format("/timeout %s 1", sender.getUserName()));
     }
 }

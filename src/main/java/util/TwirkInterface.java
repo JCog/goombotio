@@ -3,7 +3,9 @@ package util;
 import com.gikk.twirk.Twirk;
 import com.gikk.twirk.TwirkBuilder;
 import com.gikk.twirk.events.TwirkListener;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
+import com.github.twitch4j.TwitchClient;
+import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.helix.domain.User;
 import listeners.commands.CommandBase;
 import listeners.commands.GenericCommandListener;
@@ -26,6 +28,7 @@ public class TwirkInterface {
     private final ChatLogger chatLogger;
 
     private Twirk twirk;
+    private final TwitchClient twitchClient;
 
     public TwirkInterface(
             ChatLogger chatLogger,
@@ -44,6 +47,10 @@ public class TwirkInterface {
         this.verbose = verbose;
         botDisplayName = botUser.getDisplayName();
         botId = Long.parseLong(botUser.getId());
+        twitchClient = TwitchClientBuilder.builder()
+                .withEnableChat(true)
+                .withChatAccount(new OAuth2Credential("twitch", oauth))
+                .build();
     }
 
     /**
@@ -93,16 +100,8 @@ public class TwirkInterface {
         return commands;
     }
 
-    public void priorityMessage(String message) {
-        twirk.priorityChannelMessage(message);
-    }
-
     public void whisper(String username, String message) {
-        twirk.whisper(username, message);
-    }
-
-    public void whisper(TwitchUser receiver, String message) {
-        twirk.whisper(receiver, message);
+        twitchClient.getChat().sendPrivateMessage(username, message);
     }
 
     public void addIrcListener(TwirkListener listener) {
@@ -117,16 +116,6 @@ public class TwirkInterface {
         twirkListeners.remove(listener);
     }
 
-    public Set<String> getUsersOnline() {
-        try {
-            return twirk.getUsersOnline();
-        }
-        catch (NullPointerException e) {
-            System.out.println("Attempted to get users online before connection was established");
-            return null;
-        }
-    }
-
     public boolean connect() {
         try {
             getNewTwirk();
@@ -136,28 +125,9 @@ public class TwirkInterface {
             System.out.println("Twirk failed to reconnect");
             return false;
         }
+        twitchClient.getChat().joinChannel(channel);
         System.out.printf("Twirk connected to %s successfully%n", channel);
         return true;
-    }
-
-    public void serverMessage(String message) {
-        twirk.serverMessage(message);
-    }
-
-    public boolean isConnected() {
-        return twirk.isConnected();
-    }
-
-    public boolean isDisposed() {
-        return twirk.isDisposed();
-    }
-
-    public String getNick() {
-        return twirk.getNick();
-    }
-
-    public synchronized void disconnect() {
-        twirk.disconnect();
     }
 
     public void close() {
@@ -169,7 +139,7 @@ public class TwirkInterface {
             System.out.println("SILENT_CHAT: " + message);
         }
         else {
-            twirk.channelMessage(message);
+            twitchClient.getChat().sendMessage(channel, message);
             chatLogger.logMessage(botId, botDisplayName, message);
         }
     }

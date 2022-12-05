@@ -7,7 +7,6 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.preds.PredsLeaderboardDb;
 import functions.DiscordBotController;
-import util.TwirkInterface;
 import util.TwitchApi;
 
 import java.util.*;
@@ -45,10 +44,9 @@ public class PapePredsManager extends PredsManagerBase {
     /**
      * Manages the !preds Twitch chat game.
      *
-     * @param twirk twirk for chat
      */
-    public PapePredsManager(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
-        super(twirk, dbManager, discord);
+    public PapePredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
+        super(twitchApi, dbManager, discord);
         this.twitchApi = twitchApi;
         this.streamer = streamer;
         this.discord = discord;
@@ -104,8 +102,8 @@ public class PapePredsManager extends PredsManagerBase {
         }
         message.append(" • ");
         message.append(buildMonthlyLeaderboardString(leaderboard, twitchApi, streamer));
-
-        twirk.channelCommand(String.format("/me The correct answer was %s %s %s - %s",
+    
+        twitchApi.channelCommand(String.format("/me The correct answer was %s %s %s - %s",
                                            badgeToString(one),
                                            badgeToString(two),
                                            badgeToString(three),

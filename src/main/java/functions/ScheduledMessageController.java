@@ -9,7 +9,6 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.entries.ScheduledMessage;
 import database.misc.SocialSchedulerDb;
-import util.TwirkInterface;
 import util.TwitchApi;
 
 import java.time.LocalDateTime;
@@ -25,7 +24,6 @@ public class ScheduledMessageController {
     private final Random random = new Random();
 
     private final SocialSchedulerDb socialSchedulerDb;
-    private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
     private final ScheduledExecutorService scheduler;
     private final User botUser;
@@ -39,11 +37,9 @@ public class ScheduledMessageController {
     /**
      * Schedules random social media plugs on a set interval
      *
-     * @param twirk          chat interface
      * @param intervalLength minutes between posts
      */
     public ScheduledMessageController(
-            TwirkInterface twirk,
             DbManager dbManager,
             TwitchApi twitchApi,
             ScheduledExecutorService scheduler,
@@ -51,7 +47,6 @@ public class ScheduledMessageController {
             User botUser,
             int intervalLength
     ) {
-        this.twirk = twirk;
         this.twitchApi = twitchApi;
         this.scheduler = scheduler;
         this.botUser = botUser;
@@ -113,7 +108,7 @@ public class ScheduledMessageController {
         }
 
         int selection = random.nextInt(choices.size());
-        twirk.channelMessage(choices.get(selection).getMessage());
+        twitchApi.channelMessage(choices.get(selection).getMessage());
         previousId = choices.get(selection).getId();
     }
 

@@ -2,11 +2,11 @@ package functions;
 
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
+import com.github.twitch4j.tmi.domain.Chatters;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import listeners.events.CloudListener;
 import util.ReportBuilder;
-import util.TwirkInterface;
 import util.TwitchApi;
 
 import java.io.File;
@@ -23,7 +23,6 @@ public class StreamTracker {
 
     private final HashSet<String> blacklist = blacklistInit();
 
-    private final TwirkInterface twirk;
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
     private final User streamerUser;
@@ -33,14 +32,12 @@ public class StreamTracker {
     private StreamData streamData;
     private ScheduledFuture<?> scheduledFuture;
 
-    public StreamTracker(TwirkInterface twirk,
-                         DbManager dbManager,
+    public StreamTracker(DbManager dbManager,
                          TwitchApi twitchApi,
                          User streamerUser,
                          ScheduledExecutorService scheduler,
                          CloudListener cloudListener
     ) {
-        this.twirk = twirk;
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
@@ -64,9 +61,17 @@ public class StreamTracker {
                     System.out.println("Error retrieving stream for StreamTracker, skipping interval");
                     return;
                 }
+                Chatters chatters;
+                try {
+                    chatters = twitchApi.getChatters();
+                } catch (HystrixRuntimeException e) {
+                    e.printStackTrace();
+                    System.out.println("Error retrieving userlist for StreamTracker, skipping interval");
+                    return;
+                }
                 if (stream != null) {
                     HashSet<String> usersOnline = new HashSet<>();
-                    for (String user : twirk.getUsersOnline()) {
+                    for (String user : chatters.getAllViewers()) {
                         if (!blacklist.contains(user)) {
                             usersOnline.add(user);
                         }

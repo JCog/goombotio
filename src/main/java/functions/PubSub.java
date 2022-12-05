@@ -11,7 +11,6 @@ import database.DbManager;
 import database.misc.BitWarDb;
 import org.apache.commons.lang.SystemUtils;
 import util.FileWriter;
-import util.TwirkInterface;
 import util.TwitchApi;
 import util.TwitchPubSubClient;
 
@@ -32,14 +31,12 @@ public class PubSub extends TwitchPubSubClient {
     private static final String DETHRONE_REWARD_PROMPT = " currently sits on the throne. Redeem this to take their spot and increase the cost for the next person!";
     
     
-    private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
     private final BitWarDb bitWarDb;
     private final String streamerId;
     
-    public PubSub(TwirkInterface twirk, TwitchApi twitchApi, DbManager dbManager, String streamerId, String authToken) {
+    public PubSub(TwitchApi twitchApi, DbManager dbManager, String streamerId, String authToken) {
         super(streamerId, authToken);
-        this.twirk = twirk;
         this.twitchApi = twitchApi;
         bitWarDb = dbManager.getBitWarDb();
         this.streamerId = streamerId;
@@ -104,14 +101,14 @@ public class PubSub extends TwitchPubSubClient {
         int bitAmount = event.getData().getBitsUsed();
         if (stringContainsItemFromList(messageText, SAVE_KEYWORDS)) {
             bitWarDb.addBits(BIT_WAR_NAME, TEAM_SAVE, bitAmount);
-            twirk.channelMessage(String.format(
+            twitchApi.channelMessage(String.format(
                     "%d bits have been put toward saving Yoshi jcogLove",
                     bitAmount
             ));
         }
         else if (stringContainsItemFromList(messageText, KILL_KEYWORDS)) {
             bitWarDb.addBits(BIT_WAR_NAME, TEAM_KILL, bitAmount);
-            twirk.channelMessage(String.format(
+            twitchApi.channelMessage(String.format(
                     "%d bits have been put toward killing Yoshi jcogBan",
                     bitAmount
             ));
@@ -140,7 +137,7 @@ public class PubSub extends TwitchPubSubClient {
             ).get(0);
         } catch (HystrixRuntimeException e) {
             out.println("Error retrieving Dethrone reward from API");
-            twirk.channelMessage("@JCog error retrieving reward. Please refund manually while shaking your fist at twitch.");
+            twitchApi.channelMessage("@JCog error retrieving reward. Please refund manually while shaking your fist at twitch.");
             return;
         }
         
@@ -158,7 +155,7 @@ public class PubSub extends TwitchPubSubClient {
         } catch (HystrixRuntimeException e) {
             success = false;
             out.println("Error updating Dethrone reward. Refunding points.");
-            twirk.channelMessage("Error updating Dethrone reward. Refunding points.");
+            twitchApi.channelMessage("Error updating Dethrone reward. Refunding points.");
         }
         
         try {
@@ -169,10 +166,10 @@ public class PubSub extends TwitchPubSubClient {
                     success ? RedemptionStatus.FULFILLED : RedemptionStatus.CANCELED
             );
         } catch (HystrixRuntimeException e) {
-            twirk.channelMessage(String.format("@JCog error %s Dethrone reward. Please do so manually while shaking your fist at twitch.", success ? "fulfilling" : "refunding"));
+            twitchApi.channelMessage(String.format("@JCog error %s Dethrone reward. Please do so manually while shaking your fist at twitch.", success ? "fulfilling" : "refunding"));
         }
         if (success) {
-            twirk.channelMessage(String.format("%s has taken the throne from %s! The cost to dethrone them has increased to %d. jcogBan", newUser, oldUser, newCost));
+            twitchApi.channelMessage(String.format("%s has taken the throne from %s! The cost to dethrone them has increased to %d. jcogBan", newUser, oldUser, newCost));
         }
     }
     

@@ -5,7 +5,6 @@ import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import util.TwirkInterface;
 import util.TwitchApi;
 import util.TwitchUserLevel;
 
@@ -22,18 +21,15 @@ public class WrListener extends CommandBase {
     private static final String GAME_ID_OOT = "11557";
     private static final String PATTERN = "!wr";
 
-    private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
     private final User streamerUser;
 
     public WrListener(
             ScheduledExecutorService scheduler,
-            TwirkInterface twirk,
             TwitchApi twitchApi,
             User streamerUser
     ) {
         super(CommandType.PREFIX_COMMAND, scheduler);
-        this.twirk = twirk;
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
     }
@@ -61,7 +57,7 @@ public class WrListener extends CommandBase {
         }
         catch (HystrixRuntimeException e) {
             e.printStackTrace();
-            twirk.channelMessage("Error retrieving stream data");
+            twitchApi.channelMessage("Error retrieving stream data");
             return;
         }
         String streamTitle = "";
@@ -192,7 +188,7 @@ public class WrListener extends CommandBase {
                 }
                 break;
         }
-
-        twirk.channelMessage(String.format("@%s %s", sender.getDisplayName(), wrText));
+    
+        twitchApi.channelMessage(String.format("@%s %s", sender.getDisplayName(), wrText));
     }
 }
