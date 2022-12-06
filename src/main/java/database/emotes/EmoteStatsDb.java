@@ -1,6 +1,5 @@
 package database.emotes;
 
-import com.gikk.twirk.types.emote.Emote;
 import com.mongodb.client.MongoCursor;
 import database.GbCollection;
 import database.GbDatabase;
@@ -72,9 +71,9 @@ public class EmoteStatsDb extends GbCollection {
         }
     }
 
-    public void addEmoteUsage(Emote emote, long userId) {
-        addEmoteUsage(emote.getEmoteIDString(), emote.getPattern(), userId);
-    }
+//    public void addEmoteUsage(Emote emote, long userId) {
+//        addEmoteUsage(emote.getEmoteIDString(), emote.getPattern(), userId);
+//    }
 
     public int getTotalEmoteUsageCount(String pattern) {
         Document emoteDoc = getEmoteByPattern(pattern);

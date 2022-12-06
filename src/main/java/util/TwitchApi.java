@@ -1,5 +1,6 @@
 package util;
 
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
@@ -7,6 +8,10 @@ import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
 import com.github.twitch4j.helix.domain.*;
 import com.github.twitch4j.pubsub.TwitchPubSub;
+import com.github.twitch4j.pubsub.events.ChannelBitsEvent;
+import com.github.twitch4j.pubsub.events.ChannelSubGiftEvent;
+import com.github.twitch4j.pubsub.events.ChannelSubscribeEvent;
+import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import com.github.twitch4j.tmi.domain.Chatters;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import listeners.TwitchEventListener;
@@ -14,6 +19,8 @@ import listeners.commands.CommandBase;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+
+import static java.lang.System.out;
 
 public class TwitchApi {
     private final String authToken;
@@ -36,9 +43,24 @@ public class TwitchApi {
                 .withEnablePubSub(true)
                 .build();
         twitchClient.getChat().joinChannel(streamerUsername);
-    
+        
         streamerUser = getUserByUsername(streamerUsername);
         botUser = getUserByUsername(botUsername);
+        if (streamerUser == null) {
+            out.println("Error retrieving streamer user");
+            System.exit(1);
+        }
+        if (botUser == null) {
+            out.println("Error retrieving bot user");
+            System.exit(1);
+        }
+    
+        // PubSub
+        OAuth2Credential oauth = new OAuth2Credential("twitch", authToken);
+        twitchClient.getPubSub().listenForCheerEvents(oauth, streamerUser.getId());
+        twitchClient.getPubSub().listenForChannelPointsRedemptionEvents(oauth, streamerUser.getId());
+        twitchClient.getPubSub().listenForSubscriptionEvents(oauth, streamerUser.getId());
+        twitchClient.getPubSub().listenForChannelSubGiftsEvents(oauth, streamerUser.getId());
     }
     
     public User getStreamerUser() {
@@ -56,8 +78,13 @@ public class TwitchApi {
     public void registerEventListener(TwitchEventListener eventListener) {
         twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, eventListener::onPrivMsg);
         twitchClient.getEventManager().onEvent(ChannelGoLiveEvent.class, eventListener::onGoLive);
+        
+        twitchClient.getEventManager().onEvent(ChannelBitsEvent.class, eventListener::onBits);
+        twitchClient.getEventManager().onEvent(RewardRedeemedEvent.class, eventListener::onChannelPointsRedemption);
+        twitchClient.getEventManager().onEvent(ChannelSubscribeEvent.class, eventListener::onSub);
+        twitchClient.getEventManager().onEvent(ChannelSubGiftEvent.class, eventListener::onSubGift);
     
-        // not sure how I feel about storing all the reserved commands here, but I'm not sure where would fit better
+        // not sure how I like storing all the reserved commands here, but I'm not sure where would fit better
         if (eventListener instanceof CommandBase) {
             String[] commands = ((CommandBase) eventListener).getCommandWords().split("\\|");
             reservedCommands.addAll(Arrays.asList(commands));

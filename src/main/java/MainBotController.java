@@ -1,4 +1,3 @@
-import com.gikk.twirk.events.TwirkListener;
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import functions.*;
@@ -13,14 +12,11 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 import util.ChatLogger;
 import util.Settings;
-import util.TwirkInterface;
 import util.TwitchApi;
 
-import java.util.Calendar;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
 
@@ -39,7 +35,6 @@ public class MainBotController {
     private final TwitchApi twitchApi;
     private final User botUser;
     private final User streamerUser;
-    private final TwirkInterface twirk;
     private final PubSub pubSub;
     private final StreamTracker streamTracker;
     private final ScheduledMessageController scheduledMessageController;
@@ -80,15 +75,6 @@ public class MainBotController {
             out.println("Error retrieving streamer user");
             System.exit(1);
         }
-        twirk = new TwirkInterface(
-                chatLogger,
-                botUser,
-                settings.getTwitchStream(),
-                settings.getTwitchUsername(),
-                settings.getTwitchBotOauth(),
-                settings.isSilentMode(),
-                settings.isVerboseLogging()
-        );
         pubSub = new PubSub(
                 twitchApi,
                 dbManager,
@@ -133,7 +119,6 @@ public class MainBotController {
         scheduledMessageController.start();
         followLogger.start();
         addAllListeners();
-        twirk.connect();
         streamTracker.start();
         minecraftWhitelistUpdater.start();
         subPointUpdater.start();
@@ -163,7 +148,6 @@ public class MainBotController {
         scheduledMessageController.stop();
         followLogger.stop();
         chatLogger.close();
-        twirk.close();
         discordBotController.close();
         dbManager.closeDb();
         scheduler.shutdown();
@@ -173,16 +157,13 @@ public class MainBotController {
         //setup
         PredsGuessListener predsGuessListener = new PredsGuessListener();
 
-        //connection handling
-        twirk.addIrcListener(getOnDisconnectListener(twirk));
-
         // Command Listeners
-        //twirk.addIrcListener(new ModListener(scheduler, twirk));
         twitchApi.registerEventListener(new BitWarResetListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new CommandManagerListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new GenericCommandListener(scheduler, dbManager, twitchApi, streamerUser));
         twitchApi.registerEventListener(new LeaderboardListener(scheduler, dbManager, twitchApi, streamerUser));
         twitchApi.registerEventListener(new MinecraftListener(scheduler, twitchApi, dbManager, minecraftWhitelistUpdater));
+//        twitchApi.registerEventListener(new ModListener(scheduler, twitchApi));
         twitchApi.registerEventListener(new QuoteListener(scheduler, dbManager, twitchApi, streamerUser));
         twitchApi.registerEventListener(new PredsManagerListener(
                 scheduler, dbManager, twitchApi, discordBotController, predsGuessListener, streamerUser));
@@ -194,40 +175,13 @@ public class MainBotController {
         twitchApi.registerEventListener(predsGuessListener);
 
         // General Listeners
-        twirk.addIrcListener(new SubListener(twitchApi, scheduler));
-        
         twitchApi.registerEventListener(new ChatLoggerListener(chatLogger));
         twitchApi.registerEventListener(new CloudListener(twitchApi));
         twitchApi.registerEventListener(new EmoteListener(dbManager));
         twitchApi.registerEventListener(new LinkListener(twitchApi, twitter, settings.getYoutubeApiKey()));
         twitchApi.registerEventListener(new PyramidListener(twitchApi));
         twitchApi.registerEventListener(scheduledMessageController.getListener());
-    }
-
-    private static TwirkListener getOnDisconnectListener(final TwirkInterface twirk) {
-        return new TwirkListener() {
-            @Override
-            public void onDisconnect() {
-                do {
-                    Calendar date = Calendar.getInstance();
-                    int hour = date.get(Calendar.HOUR);
-                    int minute = date.get(Calendar.MINUTE);
-                    int second = date.get(Calendar.SECOND);
-                    out.printf(
-                            "%02d:%02d:%02d - Trying to connect again in 10 seconds%n",
-                            hour,
-                            minute,
-                            second
-                    );
-                    try {
-                        TimeUnit.SECONDS.sleep(10);
-                    }
-                    catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                } while (!twirk.connect());
-            }
-        };
+        twitchApi.registerEventListener(new SubListener(twitchApi));
     }
 
     private Twitter getTwitterInstance() {

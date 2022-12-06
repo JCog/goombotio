@@ -1,101 +1,84 @@
 package listeners.events;
 
-import com.gikk.twirk.events.TwirkListener;
-import com.gikk.twirk.types.usernotice.Usernotice;
-import com.gikk.twirk.types.usernotice.subtype.Subscription;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.pubsub.domain.SubGiftData;
+import com.github.twitch4j.pubsub.domain.SubscriptionData;
+import com.github.twitch4j.pubsub.events.ChannelSubGiftEvent;
+import com.github.twitch4j.pubsub.events.ChannelSubscribeEvent;
+import listeners.TwitchEventListener;
 import org.apache.commons.lang.SystemUtils;
 import util.FileWriter;
 import util.TwitchApi;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.TimerTask;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import static java.lang.System.out;
-
-public class SubListener implements TwirkListener {
+public class SubListener implements TwitchEventListener {
     
     private static final String LOCAL_RECENT_SUB_FILENAME = "recent_sub.txt";
     
     private final TwitchApi twitchApi;
-    private final ScheduledExecutorService scheduler;
-    private final HashMap<String,Boolean> subTimersActive;
-    private final HashMap<String,ArrayList<String>> giftedSubs;
 
-    public SubListener(TwitchApi twitchApi, ScheduledExecutorService scheduler) {
+    public SubListener(TwitchApi twitchApi) {
         this.twitchApi = twitchApi;
-        this.scheduler = scheduler;
-        subTimersActive = new HashMap<>();
-        giftedSubs = new HashMap<>();
     }
-
+    
     @Override
-    public void onUsernotice(TwitchUser user, Usernotice usernotice) {
-        if (usernotice.isSubscription() && usernotice.getSubscription().isPresent()) {
-            Subscription sub = usernotice.getSubscription().get();
-            if (sub.isGift() && sub.getSubscriptionGift().isPresent()) {
-                String gifterName = user.getDisplayName();
-                String recipientName = sub.getSubscriptionGift().get().getRecipiantDisplayName();
-                out.printf("%s has gifted a sub to %s%n", gifterName, recipientName);
-
-                giftedSubs.computeIfAbsent(gifterName, k -> new ArrayList<>());
-                giftedSubs.get(gifterName).add(recipientName);
-
-                if (subTimersActive.get(gifterName) == null || !subTimersActive.get(gifterName)) {
-                    subTimersActive.put(gifterName, true);
-                    scheduler.schedule(new TimerTask() {
-
-                        @Override
-                        public void run() {
-                            int subCount = giftedSubs.get(gifterName).size();
-                            try {
-                                TimeUnit.SECONDS.sleep(1);
-                                int updatedSubCount = giftedSubs.get(gifterName).size();
-                                while (subCount != updatedSubCount) {
-                                    subCount = updatedSubCount;
-                                    TimeUnit.SECONDS.sleep(1);
-                                    updatedSubCount = giftedSubs.get(gifterName).size();
-                                }
-                            }
-                            catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            if (giftedSubs.get(gifterName).size() == 1) {
-                                twitchApi.channelMessage(String.format(
-                                        "jcogChamp @%s Thank you for gifting a sub to @%s! jcogChamp",
-                                        gifterName,
-                                        recipientName));
-                            }
-                            else {
-                                twitchApi.channelMessage(String.format(
-                                        "jcogChamp @%s Thank you for the %d gift subs! jcogChamp",
-                                        gifterName,
-                                        subCount));
-                            }
-
-                            giftedSubs.remove(gifterName);
-                            subTimersActive.put(gifterName, false);
-                        }
-                    }, 0, TimeUnit.SECONDS);
-                }
+    public void onSubGift(ChannelSubGiftEvent subGiftEvent) {
+        SubGiftData subData = subGiftEvent.getData();
+        String username = subData.getDisplayName();
+        int count = subData.getCount();
+        String tier;
+        switch (subData.getTier()) {
+            case TIER1: tier = "Tier 1"; break;
+            case TIER2: tier = "Tier 2"; break;
+            case TIER3: tier = "Tier 3"; break;
+            default: tier = "";
+        }
+    
+        if (count == 1) {
+            twitchApi.channelMessage(String.format(
+                    "jcogChamp @%s Thank you so much for the %s gift sub! jcogChamp",
+                    username,
+                    tier
+            ));
+        } else {
+            twitchApi.channelMessage(String.format(
+                    "jcogChamp @%s Thank you so much for the %d %s gift subs! jcogChamp",
+                    username,
+                    count,
+                    tier
+            ));
+        }
+    }
+    
+    @Override
+    public void onSub(ChannelSubscribeEvent subEvent) {
+        SubscriptionData subData = subEvent.getData();
+        if (!subData.getIsGift()) {
+            String username = subData.getDisplayName();
+            int months = subData.getCumulativeMonths();
+            String type;
+            switch (subData.getSubPlan()) {
+                case TIER1: type = "Tier 1"; break;
+                case TIER2: type = "Tier 2"; break;
+                case TIER3: type = "Tier 3"; break;
+                case TWITCH_PRIME: type = "Prime Gaming"; break;
+                default: type = "";
             }
-            else {
-                int months = sub.getMonths();
-                if (months == 1) {
-                    twitchApi.channelMessage(String.format("jcogChamp @%s just subbed! Welcome to the Rookery™! jcogChamp",
-                                                       user.getDisplayName()));
-                }
-                else {
-                    twitchApi.channelMessage(String.format(
-                            "jcogChamp @%s just resubbed for %d months! Welcome back to the Rookery™! jcogChamp",
-                            user.getDisplayName(),
-                            months));
-                }
-                outputRecentSubFile(user.getDisplayName());
+            
+            if (months == 1) {
+                twitchApi.channelMessage(String.format(
+                        "jcogChamp @%s Thank you so much for the %s sub! Welcome to the Rookery™! jcogChamp",
+                        username,
+                        type
+                ));
+            } else {
+                twitchApi.channelMessage(String.format(
+                        "jcogChamp @%s Thank you so much for the %d-month %s resub! Welcome back to the Rookery™! jcogChamp",
+                        username,
+                        months,
+                        type
+                ));
             }
+            
+            outputRecentSubFile(username);
         }
     }
     

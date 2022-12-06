@@ -1,6 +1,5 @@
 package database.preds;
 
-import com.gikk.twirk.types.users.TwitchUser;
 import com.github.twitch4j.common.events.domain.EventUser;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Sorts;
@@ -134,16 +133,6 @@ public abstract class PredsLeaderboardDb extends GbCollection {
             if (monthlyPoints != null) {
                 return (int) monthlyPoints;
             }
-        }
-        return 0;
-    }
-
-    public int getWins(TwitchUser user) {
-        long id = user.getUserID();
-
-        Document result = findFirstEquals(ID_KEY, id);
-        if (result != null) {
-            return (int) result.get(WINS_KEY);
         }
         return 0;
     }
