@@ -63,6 +63,7 @@ public class MainBotController {
                 settings.getTwitchUsername(),
                 settings.getTwitchChannelAuthToken(),
                 settings.getTwitchChannelClientId(),
+                settings.getTwitchBotAuthToken(),
                 settings.isSilentMode()
         );
         botUser = twitchApi.getBotUser();

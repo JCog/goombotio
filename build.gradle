@@ -6,7 +6,6 @@ plugins {
 allprojects {
     repositories {
         mavenCentral()
-        maven { url "https://jitpack.io" }
         maven { url "https://oss.jfrog.org/artifactory/libs-release" }
     }
 }

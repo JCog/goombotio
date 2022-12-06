@@ -65,9 +65,13 @@ public class Settings {
     public String getTwitchChannelClientId() {
         return ini.get(TWITCH_CAT_TAG, "channelClientId");
     }
-
-    public String getTwitchBotOauth() {
-        return "oauth:" + ini.get(TWITCH_CAT_TAG, "botAuthToken");
+    
+    public String getTwitchBotAuthToken() {
+        return ini.get(TWITCH_CAT_TAG, "botAuthToken");
+    }
+    
+    public String getTwitchBotClientId() {
+        return ini.get(TWITCH_CAT_TAG, "botClientId");
     }
 
     public String getDiscordToken() {
