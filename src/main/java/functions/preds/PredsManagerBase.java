@@ -1,12 +1,11 @@
 package functions.preds;
 
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.common.events.domain.EventUser;
 import com.github.twitch4j.helix.domain.Moderator;
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import database.preds.PredsLeaderboardDb;
 import functions.DiscordBotController;
-import util.TwirkInterface;
 import util.TwitchApi;
 
 import java.io.File;
@@ -28,7 +27,7 @@ public abstract class PredsManagerBase {
 
     private final DiscordBotController discord;
     
-    protected final TwirkInterface twirk;
+    protected final TwitchApi twitchApi;
     protected final DbManager dbManager;
 
     protected boolean enabled;
@@ -36,8 +35,8 @@ public abstract class PredsManagerBase {
     
     private static HashSet<String> permanentVips = null;
 
-    protected PredsManagerBase(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord) {
-        this.twirk = twirk;
+    protected PredsManagerBase(TwitchApi twitchApi, DbManager dbManager, DiscordBotController discord) {
+        this.twitchApi = twitchApi;
         this.dbManager = dbManager;
         this.discord = discord;
         leaderboard = getLeaderboardType();
@@ -66,7 +65,7 @@ public abstract class PredsManagerBase {
      */
     public void startGame() {
         enabled = true;
-        twirk.channelCommand(START_MESSAGE);
+        twitchApi.channelCommand(START_MESSAGE);
     }
 
     /**
@@ -75,7 +74,7 @@ public abstract class PredsManagerBase {
      */
     public void waitForAnswer() {
         waitingForAnswer = true;
-        twirk.channelCommand(STOP_MESSAGE);
+        twitchApi.channelCommand(STOP_MESSAGE);
     }
 
     public void endGame() {
@@ -87,7 +86,7 @@ public abstract class PredsManagerBase {
 
     public abstract String getAnswerRegex();
 
-    public abstract void makePredictionIfValid(TwitchUser user, String message);
+    public abstract void makePredictionIfValid(EventUser user, String message);
     
     protected static void updateDiscordMonthlyPoints(PredsLeaderboardDb leaderboard, DiscordBotController discord, String channel) {
         Thread thread = new Thread(() -> {

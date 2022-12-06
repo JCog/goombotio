@@ -1,7 +1,6 @@
 package listeners.commands.preds;
 
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -11,7 +10,6 @@ import functions.preds.PapePredsManager;
 import functions.preds.PredsManagerBase;
 import functions.preds.SunshinePredsManager;
 import listeners.commands.CommandBase;
-import util.TwirkInterface;
 import util.TwitchApi;
 import util.TwitchUserLevel;
 
@@ -26,7 +24,6 @@ public class PredsManagerListener extends CommandBase {
     private static final String GAME_ID_SUNSHINE = "6086";
     private static final String GAME_ID_PAPER_MARIO = "18231";
 
-    private final TwirkInterface twirk;
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
     private final DiscordBotController discord;
@@ -37,7 +34,6 @@ public class PredsManagerListener extends CommandBase {
 
     public PredsManagerListener(
             ScheduledExecutorService scheduler,
-            TwirkInterface twirk,
             DbManager dbManager,
             TwitchApi twitchApi,
             DiscordBotController discord,
@@ -45,7 +41,6 @@ public class PredsManagerListener extends CommandBase {
             User streamerUser
     ) {
         super(CommandType.PREFIX_COMMAND, scheduler);
-        this.twirk = twirk;
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.discord = discord;
@@ -70,7 +65,7 @@ public class PredsManagerListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         switch (command) {
             case PATTERN_PREDS:
                 if (predsManager == null || !predsManager.isActive()) {
@@ -81,7 +76,7 @@ public class PredsManagerListener extends CommandBase {
                     }
                     catch (HystrixRuntimeException e) {
                         e.printStackTrace();
-                        twirk.channelMessage("Error retrieving current game");
+                        twitchApi.channelMessage("Error retrieving current game");
                         return;
                     }
         
@@ -89,13 +84,13 @@ public class PredsManagerListener extends CommandBase {
                         gameId = stream.getGameId();
                     }
                     if (gameId.equals(GAME_ID_PAPER_MARIO)) {
-                        predsManager = new PapePredsManager(twirk, dbManager, discord, twitchApi, streamerUser);
+                        predsManager = new PapePredsManager(dbManager, discord, twitchApi, streamerUser);
                     }
                     else if (gameId.equals(GAME_ID_SUNSHINE)) {
-                        predsManager = new SunshinePredsManager(twirk, dbManager, discord, twitchApi, streamerUser);
+                        predsManager = new SunshinePredsManager(dbManager, discord, twitchApi, streamerUser);
                     }
                     else {
-                        twirk.channelMessage("The current game is not compatible with preds.");
+                        twitchApi.channelMessage("The current game is not compatible with preds.");
                         return;
                     }
                     out.println("Starting the prediction game...");
@@ -104,7 +99,7 @@ public class PredsManagerListener extends CommandBase {
                 }
                 else {
                     if (predsManager.isWaitingForAnswer()) {
-                        String[] content = message.getContent().split("\\s");
+                        String[] content = messageEvent.getMessage().split("\\s");
                         if (content.length > 1 && content[1].matches(predsManager.getAnswerRegex())) {
                             out.println("Submitting predictions...");
                             predsManager.submitPredictions(content[1]);
@@ -123,10 +118,10 @@ public class PredsManagerListener extends CommandBase {
                 if (predsManager != null) {
                     predsManager = null;
                     predsGuessListener.stop();
-                    twirk.channelCommand("Active preds game has been canceled.");
+                    twitchApi.channelCommand("Active preds game has been canceled.");
                 }
                 else {
-                    twirk.channelCommand("There isn't an active preds game to cancel.");
+                    twitchApi.channelCommand("There isn't an active preds game to cancel.");
                 }
                 break;
         }

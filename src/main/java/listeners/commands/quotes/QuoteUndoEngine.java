@@ -2,7 +2,7 @@ package listeners.commands.quotes;
 
 import database.entries.QuoteItem;
 import database.misc.QuoteDb;
-import util.TwirkInterface;
+import util.TwitchApi;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -14,7 +14,7 @@ public class QuoteUndoEngine {
 
     private final Deque<QuoteUndoItem> actionUndoStack = new LinkedList<>();
     private final Deque<QuoteUndoItem> actionRedoStack = new LinkedList<>();
-    private final TwirkInterface twirk;
+    private final TwitchApi twitchApi;
     private final QuoteDb quoteDb;
 
     public enum Action {
@@ -23,8 +23,8 @@ public class QuoteUndoEngine {
         DELETE
     }
 
-    public QuoteUndoEngine(TwirkInterface twirk, QuoteDb quoteDb) {
-        this.twirk = twirk;
+    public QuoteUndoEngine(TwitchApi twitchApi, QuoteDb quoteDb) {
+        this.twitchApi = twitchApi;
         this.quoteDb = quoteDb;
     }
 
@@ -35,7 +35,7 @@ public class QuoteUndoEngine {
 
     public void undo() {
         if (actionUndoStack.isEmpty()) {
-            twirk.channelMessage("No quote actions to undo");
+            twitchApi.channelMessage("No quote actions to undo");
         }
         else {
             QuoteUndoItem quoteUndoItem = actionUndoStack.pop();
@@ -44,19 +44,19 @@ public class QuoteUndoEngine {
                 case ADD: {
                     QuoteItem quoteToRedo = quoteDb.deleteQuote(quote.getIndex());
                     addRedoItem(ADD, quoteToRedo);
-                    twirk.channelMessage(String.format("Quote #%d deleted", quote.getIndex()));
+                    twitchApi.channelMessage(String.format("Quote #%d deleted", quote.getIndex()));
                     break;
                 }
                 case EDIT: {
                     QuoteItem quoteToRedo = quoteDb.editQuote(quote);
                     addRedoItem(EDIT, quoteToRedo);
-                    twirk.channelMessage(String.format("Reverted edit to quote #%d", quote.getIndex()));
+                    twitchApi.channelMessage(String.format("Reverted edit to quote #%d", quote.getIndex()));
                     break;
                 }
                 case DELETE: {
                     quoteDb.reAddDeletedQuote(quote);
                     addRedoItem(quoteUndoItem.getAction(), quoteUndoItem.getQuoteItem());
-                    twirk.channelMessage(String.format("Re-added quote #%d", quote.getIndex()));
+                    twitchApi.channelMessage(String.format("Re-added quote #%d", quote.getIndex()));
                     break;
                 }
             }
@@ -65,7 +65,7 @@ public class QuoteUndoEngine {
 
     public void redo() {
         if (actionRedoStack.isEmpty()) {
-            twirk.channelMessage("No quote actions to redo");
+            twitchApi.channelMessage("No quote actions to redo");
         }
         else {
             QuoteUndoItem quoteRedoItem = actionRedoStack.pop();
@@ -77,19 +77,19 @@ public class QuoteUndoEngine {
                                                              quoteToRedo.getCreated(),
                                                              quoteToRedo.isApproved());
                     addUndoItem(ADD, quoteToUndo);
-                    twirk.channelMessage(String.format("Re-added quote #%d", quoteToRedo.getIndex()));
+                    twitchApi.channelMessage(String.format("Re-added quote #%d", quoteToRedo.getIndex()));
                     break;
                 }
                 case EDIT: {
                     QuoteItem quoteToUndo = quoteDb.editQuote(quoteToRedo);
                     addUndoItem(EDIT, quoteToUndo);
-                    twirk.channelMessage(String.format("Redid edit to quote #%d", quoteToRedo.getIndex()));
+                    twitchApi.channelMessage(String.format("Redid edit to quote #%d", quoteToRedo.getIndex()));
                     break;
                 }
                 case DELETE: {
                     QuoteItem quoteToUndo = quoteDb.deleteQuote(quoteToRedo.getIndex());
                     addUndoItem(DELETE, quoteToUndo);
-                    twirk.channelMessage(String.format("Deleted quote #%d", quoteToRedo.getIndex()));
+                    twitchApi.channelMessage(String.format("Deleted quote #%d", quoteToRedo.getIndex()));
                     break;
                 }
             }

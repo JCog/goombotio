@@ -1,6 +1,6 @@
 package functions;
 
-import util.TwirkInterface;
+import util.TwitchApi;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -14,11 +14,11 @@ public class ConsoleCommandListener {
     private static final String TWITCH_COMMAND = ".twitch";
     private static final String QUIT_COMMAND = ".quit";
 
-    private final TwirkInterface twirk;
+    private final TwitchApi twitchApi;
     private final DiscordBotController dbc;
 
-    public ConsoleCommandListener(TwirkInterface twirk, DiscordBotController dbc) {
-        this.twirk = twirk;
+    public ConsoleCommandListener(TwitchApi twitchApi, DiscordBotController dbc) {
+        this.twitchApi = twitchApi;
         this.dbc = dbc;
     }
 
@@ -37,7 +37,7 @@ public class ConsoleCommandListener {
             else if (command.equals(TWITCH_COMMAND)) {
                 int start = line.indexOf(' ') + 1;
                 if (line.length() > start) {
-                    twirk.channelMessage(line.substring(start));
+                    twitchApi.channelMessage(line.substring(start));
                     out.println("Message sent to twitch chat");
                 }
                 else {

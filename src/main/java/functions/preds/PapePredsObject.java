@@ -1,13 +1,13 @@
 package functions.preds;
 
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.common.events.domain.EventUser;
 
 public class PapePredsObject {
-    private final TwitchUser twitchUser;
+    private final EventUser twitchUser;
     private final PapePredsManager.Badge left, middle, right;
 
     public PapePredsObject(
-            TwitchUser twitchUser,
+            EventUser twitchUser,
             PapePredsManager.Badge left,
             PapePredsManager.Badge middle,
             PapePredsManager.Badge right) {
@@ -17,7 +17,7 @@ public class PapePredsObject {
         this.right = right;
     }
 
-    public TwitchUser getTwitchUser() {
+    public EventUser getTwitchUser() {
         return twitchUser;
     }
 

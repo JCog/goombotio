@@ -1,11 +1,10 @@
 package listeners.commands;
 
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import database.DbManager;
 import database.entries.CommandItem;
 import database.misc.CommandDb;
-import util.TwirkInterface;
+import util.TwitchApi;
 import util.TwitchUserLevel;
 
 import java.util.HashSet;
@@ -21,7 +20,7 @@ public class CommandManagerListener extends CommandBase {
     private final static long DEFAULT_COOLDOWN = 2; // seconds
 
     private final CommandDb commandDb;
-    private final TwirkInterface twirk;
+    private final TwitchApi twitchApi;
 
     private enum FUNCTION {
         ADD,
@@ -30,9 +29,9 @@ public class CommandManagerListener extends CommandBase {
         DETAILS
     }
 
-    public CommandManagerListener(ScheduledExecutorService scheduler, TwirkInterface twirk, DbManager dbManager) {
+    public CommandManagerListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
         super(CommandType.PREFIX_COMMAND, scheduler);
-        this.twirk = twirk;
+        this.twitchApi = twitchApi;
         this.commandDb = dbManager.getCommandDb();
     }
 
@@ -52,13 +51,13 @@ public class CommandManagerListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        String[] messageSplit = message.getContent().split("\\s", 4);
+    protected void performCommand(String command, USER_LEVEL commandUserLevel, ChannelMessageEvent messageEvent) {
+        String[] messageSplit = messageEvent.getMessage().split("\\s", 4);
         if (messageSplit.length == 1) {
-            twirk.channelMessage("This is a JSON endpoint, so if it looks unreadable you'll probably need a browser extension for viewing JSON. https://www.jcoggers.com/commands");
+            twitchApi.channelMessage("This is a JSON endpoint, so if it looks unreadable you'll probably need a browser extension for viewing JSON. https://www.jcoggers.com/commands");
             return;
         }
-        else if (sender.getUserType().value >= USER_LEVEL.MOD.value) {
+        else if (commandUserLevel.value >= USER_LEVEL.MOD.value) {
             if (messageSplit.length < 3) {
                 showError("missing arguments");
                 return;
@@ -71,7 +70,7 @@ public class CommandManagerListener extends CommandBase {
                 return;
             }
     
-            if (twirk.getReservedCommandPatterns().contains(idString)) {
+            if (twitchApi.getReservedCommands().contains(idString)) {
                 showError(String.format("\"%s\" is a reserved command id and cannot be modified", idString));
                 return;
             }
@@ -137,36 +136,36 @@ public class CommandManagerListener extends CommandBase {
                         showError("no content");
                         return;
                     }
-                    twirk.channelMessage(commandDb.addCommand(idString, content, cooldown, userLevel));
+                    twitchApi.channelMessage(commandDb.addCommand(idString, content, cooldown, userLevel));
                     break;
                 case EDIT:
                     if (hasContent && hasCooldown && hasUserLevel) {
-                        twirk.channelMessage(commandDb.editCommand(idString, content, cooldown, userLevel));
+                        twitchApi.channelMessage(commandDb.editCommand(idString, content, cooldown, userLevel));
                     }
                     else if (hasContent && hasCooldown) {
-                        twirk.channelMessage(commandDb.editCommand(idString, content, cooldown));
+                        twitchApi.channelMessage(commandDb.editCommand(idString, content, cooldown));
                     }
                     else if (hasContent && hasUserLevel) {
-                        twirk.channelMessage(commandDb.editCommand(idString, content, userLevel));
+                        twitchApi.channelMessage(commandDb.editCommand(idString, content, userLevel));
                     }
                     else if (hasCooldown && hasUserLevel) {
-                        twirk.channelMessage(commandDb.editCommand(idString, cooldown, userLevel));
+                        twitchApi.channelMessage(commandDb.editCommand(idString, cooldown, userLevel));
                     }
                     else if (hasContent) {
-                        twirk.channelMessage(commandDb.editCommand(idString, content));
+                        twitchApi.channelMessage(commandDb.editCommand(idString, content));
                     }
                     else if (hasCooldown) {
-                        twirk.channelMessage(commandDb.editCommand(idString, cooldown));
+                        twitchApi.channelMessage(commandDb.editCommand(idString, cooldown));
                     }
                     else if (hasUserLevel) {
-                        twirk.channelMessage(commandDb.editCommand(idString, userLevel));
+                        twitchApi.channelMessage(commandDb.editCommand(idString, userLevel));
                     }
                     else {
                         showError("nothing to edit");
                     }
                     break;
                 case DELETE:
-                    twirk.channelMessage(commandDb.deleteCommand(idString));
+                    twitchApi.channelMessage(commandDb.deleteCommand(idString));
                     break;
                 case DETAILS:
                     CommandItem commandItem = commandDb.getCommandItem(idString);
@@ -174,7 +173,7 @@ public class CommandManagerListener extends CommandBase {
                         showError(String.format("unknown command \"%s\"", idString));
                         return;
                     }
-                    twirk.channelMessage(String.format(
+                    twitchApi.channelMessage(String.format(
                             "\"%s\" -ul=%s -cd=%d",
                             commandItem.getMessage(),
                             commandItem.getPermission(),
@@ -186,7 +185,7 @@ public class CommandManagerListener extends CommandBase {
     }
 
     private void showError(String error) {
-        twirk.channelMessage(String.format("ERROR: %s", error));
+        twitchApi.channelMessage(String.format("ERROR: %s", error));
     }
 
     private FUNCTION getFunction(String function) {

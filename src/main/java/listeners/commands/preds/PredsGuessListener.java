@@ -1,11 +1,10 @@
 package listeners.commands.preds;
 
-import com.gikk.twirk.events.TwirkListener;
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import functions.preds.PredsManagerBase;
+import listeners.TwitchEventListener;
 
-public class PredsGuessListener implements TwirkListener {
+public class PredsGuessListener implements TwitchEventListener {
     protected PredsManagerBase manager;
     protected boolean enabled;
 
@@ -24,10 +23,10 @@ public class PredsGuessListener implements TwirkListener {
     }
 
     @Override
-    public void onPrivMsg(TwitchUser sender, TwitchMessage message) {
+    public void onPrivMsg(ChannelMessageEvent messageEvent) {
         if (enabled) {
-            String content = message.getContent().trim();
-            manager.makePredictionIfValid(sender, content);
+            String content = messageEvent.getMessage().trim();
+            manager.makePredictionIfValid(messageEvent.getUser(), content);
         }
     }
 }

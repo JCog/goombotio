@@ -1,10 +1,9 @@
 package listeners.commands;
 
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import database.DbManager;
 import database.misc.SocialSchedulerDb;
-import util.TwirkInterface;
+import util.TwitchApi;
 import util.TwitchUserLevel;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -13,7 +12,7 @@ public class ScheduledMessageManagerListener extends CommandBase {
     private static final String PATTERN = "!scheduled";
 
     private final SocialSchedulerDb socialSchedulerDb;
-    private final TwirkInterface twirk;
+    private final TwitchApi twitchApi;
 
     private enum FUNCTION {
         ADD,
@@ -22,10 +21,10 @@ public class ScheduledMessageManagerListener extends CommandBase {
     }
 
     public ScheduledMessageManagerListener(ScheduledExecutorService scheduler,
-                                           TwirkInterface twirk,
+                                           TwitchApi twitchApi,
                                            DbManager dbManager) {
         super(CommandType.PREFIX_COMMAND, scheduler);
-        this.twirk = twirk;
+        this.twitchApi = twitchApi;
         socialSchedulerDb = dbManager.getSocialSchedulerDb();
     }
 
@@ -45,8 +44,8 @@ public class ScheduledMessageManagerListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        String[] messageSplit = message.getContent().split("\\s", 4);
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+        String[] messageSplit = messageEvent.getMessage().split("\\s", 4);
         if (messageSplit.length < 3) {
             showError("missing arguments");
             return;
@@ -91,23 +90,23 @@ public class ScheduledMessageManagerListener extends CommandBase {
                     showError("no content");
                     return;
                 }
-                twirk.channelMessage(socialSchedulerDb.addMessage(idString, content, 1));
+                twitchApi.channelMessage(socialSchedulerDb.addMessage(idString, content, 1));
                 break;
             case EDIT:
                 if (!hasContent) {
                     showError("no content");
                     return;
                 }
-                twirk.channelMessage(socialSchedulerDb.editMessage(idString, content));
+                twitchApi.channelMessage(socialSchedulerDb.editMessage(idString, content));
                 break;
             case DELETE:
-                twirk.channelMessage(socialSchedulerDb.deleteMessage(idString));
+                twitchApi.channelMessage(socialSchedulerDb.deleteMessage(idString));
                 break;
         }
     }
 
     private void showError(String error) {
-        twirk.channelMessage(String.format("ERROR: %s", error));
+        twitchApi.channelMessage(String.format("ERROR: %s", error));
     }
 
     private FUNCTION getFunction(String function) {

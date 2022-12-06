@@ -1,11 +1,10 @@
 package functions.preds;
 
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.common.events.domain.EventUser;
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import database.preds.PredsLeaderboardDb;
 import functions.DiscordBotController;
-import util.TwirkInterface;
 import util.TwitchApi;
 
 import java.util.ArrayList;
@@ -32,8 +31,8 @@ public class SunshinePredsManager extends PredsManagerBase {
     private final User streamer;
     private final DiscordBotController discord;
 
-    public SunshinePredsManager(TwirkInterface twirk, DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
-        super(twirk, dbManager, discord);
+    public SunshinePredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
+        super(twitchApi, dbManager, discord);
         this.twitchApi = twitchApi;
         this.streamer = streamer;
         this.discord = discord;
@@ -92,25 +91,25 @@ public class SunshinePredsManager extends PredsManagerBase {
                 if (closestGuesses.size() == 1) {
                     message.append(String.format(
                             "Nobody won, but @%s was closest (+/- %ss)! jcogComfy",
-                            closestGuesses.get(0).twitchUser.getDisplayName(),
+                            closestGuesses.get(0).twitchUser.getName(),
                             difference
                     ));
                 }
                 else if (closestGuesses.size() == 2) {
                     message.append(String.format(
                             "Nobody won, but @%s and @%s were closest (+/- %ss)! jcogComfy",
-                            closestGuesses.get(0).twitchUser.getDisplayName(),
-                            closestGuesses.get(1).twitchUser.getDisplayName(),
+                            closestGuesses.get(0).twitchUser.getName(),
+                            closestGuesses.get(1).twitchUser.getName(),
                             difference
                     ));
                 }
                 else {
                     message.append("Nobody won, but ");
                     for (int i = 0; i < closestGuesses.size() - 1; i++) {
-                        message.append("@").append(closestGuesses.get(i).twitchUser.getDisplayName()).append(", ");
+                        message.append("@").append(closestGuesses.get(i).twitchUser.getName()).append(", ");
                     }
                     message.append("and @")
-                            .append(closestGuesses.get(closestGuesses.size() - 1).twitchUser.getDisplayName());
+                            .append(closestGuesses.get(closestGuesses.size() - 1).twitchUser.getName());
                     message.append(String.format(" were closest (+/- %ss)! jcogComfy", difference));
                 }
             }
@@ -138,8 +137,8 @@ public class SunshinePredsManager extends PredsManagerBase {
         }
         message.append(" • ");
         message.append(buildMonthlyLeaderboardString(leaderboard, twitchApi, streamer));
-
-        twirk.channelCommand(String.format(
+    
+        twitchApi.channelCommand(String.format(
                 "/me The correct answer is %s - %s",
                 formatHundredths(hundredths),
                 message
@@ -154,7 +153,7 @@ public class SunshinePredsManager extends PredsManagerBase {
     }
 
     @Override
-    public void makePredictionIfValid(TwitchUser user, String message) {
+    public void makePredictionIfValid(EventUser user, String message) {
         String guess = message.replaceAll("[^0-9]", "");
         if (guess.length() == 5) {
             int secondDigit = Character.getNumericValue(guess.charAt(1));
@@ -164,13 +163,13 @@ public class SunshinePredsManager extends PredsManagerBase {
             int minutes = Character.getNumericValue(guess.charAt(0));
             int seconds = Integer.parseInt(guess.substring(1, 3));
             int hundredths = Integer.parseInt(guess.substring(3, 5)) + (seconds * 100) + (minutes * 60 * 100);
-            System.out.printf("%s has predicted %d hundredths%n", user.getDisplayName(), hundredths);
+            System.out.printf("%s has predicted %d hundredths%n", user.getName(), hundredths);
 
-            if (predictionList.containsKey(user.getUserID())) {
-                predictionList.remove(user.getUserID());
-                out.printf("Replacing duplicate guess by %s%n", user.getDisplayName());
+            if (predictionList.containsKey(Long.parseLong(user.getId()))) {
+                predictionList.remove(Long.parseLong(user.getId()));
+                out.printf("Replacing duplicate guess by %s%n", user.getName());
             }
-            predictionList.put(user.getUserID(), new TimeGuess(user, hundredths));
+            predictionList.put(Long.parseLong(user.getId()), new TimeGuess(user, hundredths));
         }
     }
 
@@ -180,11 +179,11 @@ public class SunshinePredsManager extends PredsManagerBase {
             TimeGuess guess = longTimeGuessEntry.getValue();
             if (guess.hundredths == answer) {
                 //exactly right
-                winners.add(guess.twitchUser.getDisplayName());
+                winners.add(guess.twitchUser.getName());
                 leaderboard.addPointsAndWins(guess.twitchUser, POINTS_CORRECT, 1);
                 out.printf(
                         "%s guessed exactly correct. Adding %d points and a win.%n",
-                        guess.twitchUser.getDisplayName(),
+                        guess.twitchUser.getName(),
                         POINTS_CORRECT
                 );
             }
@@ -193,7 +192,7 @@ public class SunshinePredsManager extends PredsManagerBase {
                 leaderboard.addPoints(guess.twitchUser, POINTS_1_SECOND);
                 out.printf(
                         "%s was within 1 second. Adding %d points%n",
-                        guess.twitchUser.getDisplayName(),
+                        guess.twitchUser.getName(),
                         POINTS_1_SECOND
                 );
             }
@@ -202,7 +201,7 @@ public class SunshinePredsManager extends PredsManagerBase {
                 leaderboard.addPoints(guess.twitchUser, POINTS_5_SECONDS);
                 out.printf(
                         "%s was within 5 seconds. Adding %d points%n",
-                        guess.twitchUser.getDisplayName(),
+                        guess.twitchUser.getName(),
                         POINTS_5_SECONDS
                 );
             }
@@ -211,7 +210,7 @@ public class SunshinePredsManager extends PredsManagerBase {
                 leaderboard.addPoints(guess.twitchUser, POINTS_10_SECONDS);
                 out.printf(
                         "%s was within 5 seconds. Adding %d points%n",
-                        guess.twitchUser.getDisplayName(),
+                        guess.twitchUser.getName(),
                         POINTS_10_SECONDS
                 );
             }
@@ -243,7 +242,7 @@ public class SunshinePredsManager extends PredsManagerBase {
                 leaderboard.addPoints(guess.twitchUser, POINTS_CLOSEST);
                 out.printf(
                         "%s was the closest. Adding %d points%n",
-                        guess.twitchUser.getDisplayName(),
+                        guess.twitchUser.getName(),
                         POINTS_CLOSEST
                 );
             }
@@ -268,10 +267,10 @@ public class SunshinePredsManager extends PredsManagerBase {
     }
 
     private static class TimeGuess {
-        public final TwitchUser twitchUser;
+        public final EventUser twitchUser;
         public final int hundredths;
 
-        public TimeGuess(TwitchUser twitchUser, int hundredths) {
+        public TimeGuess(EventUser twitchUser, int hundredths) {
             this.twitchUser = twitchUser;
             this.hundredths = hundredths;
         }

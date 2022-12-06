@@ -1,8 +1,7 @@
 package util;
 
 import com.fathzer.soft.javaluator.DoubleEvaluator;
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Follow;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
@@ -72,7 +71,7 @@ public class CommandParser {
         commandDb = dbManager.getCommandDb();
     }
 
-    public String parse(CommandItem commandItem, TwitchUser user, TwitchMessage twitchMessage) {
+    public String parse(CommandItem commandItem, ChannelMessageEvent messageEvent) {
         String output = commandItem.getMessage();
         String expression = getNextExpression(output);
         int evalCount = 0;
@@ -80,7 +79,7 @@ public class CommandParser {
             if (evalCount == EVAL_LIMIT) {
                 return ERROR_EVAL_LIMIT_EXCEEDED;
             }
-            String replacement = evaluateExpression(expression, commandItem, user, twitchMessage);
+            String replacement = evaluateExpression(expression, commandItem, messageEvent);
             //TODO: check to see if replaceFirst causes a bug
             output = output.replaceFirst(
                     Pattern.quote("$(" + expression + ")"),
@@ -92,11 +91,10 @@ public class CommandParser {
         return output;
     }
 
-    private String evaluateExpression(String expression, CommandItem commandItem,
-                                      TwitchUser user, TwitchMessage twitchMessage) {
+    private String evaluateExpression(String expression, CommandItem commandItem, ChannelMessageEvent messageEvent) {
         String[] split = expression.split(" ", 2);
         String type = split[0];
-        String[] arguments = twitchMessage.getContent().split(" ");
+        String[] arguments = messageEvent.getMessage().split(" ");
         String content = "";
         if (split.length > 1) {
             content = split[1];
@@ -172,7 +170,7 @@ public class CommandParser {
             }
             case TYPE_QUERY: {
                 if (arguments.length > 1) {
-                    return twitchMessage.getContent().split(" ", 2)[1];
+                    return messageEvent.getMessage().split(" ", 2)[1];
                 }
                 else {
                     return "";
@@ -208,7 +206,7 @@ public class CommandParser {
                     }
                 }
                 else {
-                    return user.getDisplayName();
+                    return messageEvent.getUser().getName();
                 }
             }
             case TYPE_UPTIME: {
@@ -231,10 +229,10 @@ public class CommandParser {
                 return submitRequest(content);
             }
             case TYPE_USER: {
-                return user.getDisplayName();
+                return messageEvent.getUser().getName();
             }
             case TYPE_USER_ID: {
-                return Long.toString(user.getUserID());
+                return messageEvent.getUser().getId();
             }
             case TYPE_WEIGHTED: {
                 String[] entries = content.split("\\|");

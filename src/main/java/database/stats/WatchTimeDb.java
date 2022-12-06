@@ -1,6 +1,6 @@
 package database.stats;
 
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.common.events.domain.EventUser;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Sorts;
 import database.GbCollection;
@@ -96,8 +96,8 @@ public class WatchTimeDb extends GbCollection {
         return "";
     }
 
-    public int getMinutesByTwirkUser(TwitchUser user) {
-        return getMinutesById(user.getUserID());
+    public int getMinutesByEventUser(EventUser user) {
+        return getMinutesById(Long.parseLong(user.getId()));
     }
 
     public int getMinutesByUsername(String username) {

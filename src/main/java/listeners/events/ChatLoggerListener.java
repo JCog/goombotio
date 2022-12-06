@@ -1,11 +1,10 @@
 package listeners.events;
 
-import com.gikk.twirk.events.TwirkListener;
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import listeners.TwitchEventListener;
 import util.ChatLogger;
 
-public class ChatLoggerListener implements TwirkListener {
+public class ChatLoggerListener implements TwitchEventListener {
     private final ChatLogger chatLogger;
 
     public ChatLoggerListener(ChatLogger chatLogger) {
@@ -13,8 +12,8 @@ public class ChatLoggerListener implements TwirkListener {
     }
 
     @Override
-    public void onPrivMsg(TwitchUser sender, TwitchMessage message) {
-        chatLogger.logMessage(sender, message);
+    public void onPrivMsg(ChannelMessageEvent messageEvent) {
+        chatLogger.logMessage(messageEvent);
     }
 
 

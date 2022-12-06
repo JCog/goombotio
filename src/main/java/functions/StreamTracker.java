@@ -2,11 +2,10 @@ package functions;
 
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
+import com.github.twitch4j.tmi.domain.Chatters;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
-import listeners.events.CloudListener;
 import util.ReportBuilder;
-import util.TwirkInterface;
 import util.TwitchApi;
 
 import java.io.File;
@@ -23,29 +22,23 @@ public class StreamTracker {
 
     private final HashSet<String> blacklist = blacklistInit();
 
-    private final TwirkInterface twirk;
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
     private final User streamerUser;
     private final ScheduledExecutorService scheduler;
-    private final CloudListener cloudListener;
 
     private StreamData streamData;
     private ScheduledFuture<?> scheduledFuture;
 
-    public StreamTracker(TwirkInterface twirk,
-                         DbManager dbManager,
+    public StreamTracker(DbManager dbManager,
                          TwitchApi twitchApi,
                          User streamerUser,
-                         ScheduledExecutorService scheduler,
-                         CloudListener cloudListener
+                         ScheduledExecutorService scheduler
     ) {
-        this.twirk = twirk;
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
         this.scheduler = scheduler;
-        this.cloudListener = cloudListener;
 
         streamData = null;
     }
@@ -64,9 +57,17 @@ public class StreamTracker {
                     System.out.println("Error retrieving stream for StreamTracker, skipping interval");
                     return;
                 }
+                Chatters chatters;
+                try {
+                    chatters = twitchApi.getChatters();
+                } catch (HystrixRuntimeException e) {
+                    e.printStackTrace();
+                    System.out.println("Error retrieving userlist for StreamTracker, skipping interval");
+                    return;
+                }
                 if (stream != null) {
                     HashSet<String> usersOnline = new HashSet<>();
-                    for (String user : twirk.getUsersOnline()) {
+                    for (String user : chatters.getAllViewers()) {
                         if (!blacklist.contains(user)) {
                             usersOnline.add(user);
                         }
@@ -76,7 +77,6 @@ public class StreamTracker {
                     }
                     if (streamData == null) {
                         streamData = new StreamData(dbManager, twitchApi, streamerUser);
-                        cloudListener.reset();
                     }
                     streamData.updateUsersMinutes(usersOnline);
                     streamData.updateViewerCounts(stream.getViewerCount());
@@ -107,7 +107,7 @@ public class StreamTracker {
             return 0;
         }
         else {
-            return streamData.getViewerMinutes(username);
+            return streamData.getViewerMinutes(username.toLowerCase());
         }
     }
 

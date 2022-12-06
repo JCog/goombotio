@@ -1,7 +1,8 @@
 package util;
 
-import com.gikk.twirk.types.users.TwitchUser;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Set;
 
 public class TwitchUserLevel {
     public enum USER_LEVEL {
@@ -26,13 +27,13 @@ public class TwitchUserLevel {
         }
     }
 
-    public static USER_LEVEL getUserLevel(TwitchUser twitchUser) {
+    public static USER_LEVEL getUserLevel(Set<String> badges) {
         boolean broadcaster = false;
         boolean mod = false;
         boolean vip = false;
         boolean staff = false;
         boolean sub = false;
-        for (String badgeString : twitchUser.getBadges()) {
+        for (String badgeString : badges) {
             String badge = badgeString.split("/", 2)[0];
             switch (badge) {
                 case ("broadcaster"):

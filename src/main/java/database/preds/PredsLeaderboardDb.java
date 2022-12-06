@@ -1,6 +1,6 @@
 package database.preds;
 
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.common.events.domain.EventUser;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Sorts;
 import database.GbCollection;
@@ -27,15 +27,15 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         return null;
     }
 
-    public void addPointsAndWins(TwitchUser user, int points, int wins) {
+    public void addPointsAndWins(EventUser user, int points, int wins) {
         addPoints(user, points);
         addWins(user, wins);
     }
 
-    public void addPoints(TwitchUser user, int points) {
+    public void addPoints(EventUser user, int points) {
         String monthlyPointsKey = getMonthlyPointsKey();
-        long id = user.getUserID();
-        String name = user.getDisplayName();
+        long id = Long.parseLong(user.getId());
+        String name = user.getName();
 
         Document result = findFirstEquals(ID_KEY, id);
 
@@ -64,10 +64,10 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         }
     }
 
-    public void addWins(TwitchUser user, int wins) {
+    public void addWins(EventUser user, int wins) {
         String monthlyPoints = getMonthlyPointsKey();
-        long id = user.getUserID();
-        String name = user.getDisplayName();
+        long id = Long.parseLong(user.getId());
+        String name = user.getName();
 
         Document result = findFirstEquals(ID_KEY, id);
 
@@ -85,8 +85,8 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         }
     }
 
-    public int getPoints(TwitchUser user) {
-        long id = user.getUserID();
+    public int getPoints(EventUser user) {
+        long id = Long.parseLong(user.getId());
 
         Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
@@ -113,8 +113,8 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         return 0;
     }
 
-    public int getMonthlyPoints(TwitchUser user) {
-        long id = user.getUserID();
+    public int getMonthlyPoints(EventUser user) {
+        long id = Long.parseLong(user.getId());
 
         Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
@@ -133,16 +133,6 @@ public abstract class PredsLeaderboardDb extends GbCollection {
             if (monthlyPoints != null) {
                 return (int) monthlyPoints;
             }
-        }
-        return 0;
-    }
-
-    public int getWins(TwitchUser user) {
-        long id = user.getUserID();
-
-        Document result = findFirstEquals(ID_KEY, id);
-        if (result != null) {
-            return (int) result.get(WINS_KEY);
         }
         return 0;
     }

@@ -1,7 +1,7 @@
 package util;
 
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.helix.domain.User;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -31,9 +31,13 @@ public class ChatLogger {
             writer.close();
         }
     }
-
-    public void logMessage(TwitchUser user, TwitchMessage message) {
-        logMessage(user.getUserID(), user.getDisplayName(), message.getContent());
+    
+    public void logMessage(ChannelMessageEvent messageEvent) {
+        logMessage(Long.parseLong(messageEvent.getUser().getId()), messageEvent.getUser().getName(), messageEvent.getMessage());
+    }
+    
+    public void logMessage(User user, String message) {
+        logMessage(Long.parseLong(user.getId()), user.getDisplayName(), message);
     }
 
     public void logMessage(long userId, String displayName, String message) {

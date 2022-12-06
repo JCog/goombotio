@@ -1,12 +1,11 @@
 package listeners.commands;
 
 import api.MinecraftApi;
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import database.DbManager;
 import database.misc.MinecraftUserDb;
 import functions.MinecraftWhitelistUpdater;
-import util.TwirkInterface;
+import util.TwitchApi;
 import util.TwitchUserLevel;
 
 import java.util.ArrayList;
@@ -19,12 +18,12 @@ public class MinecraftListener extends CommandBase {
     private static final String SUBS_DISABLED = "Sub-only mode has been disabled for the minecraft server.";
 
     private final MinecraftUserDb minecraftUserDb;
-    private final TwirkInterface twirk;
+    private final TwitchApi twitchApi;
     private final MinecraftWhitelistUpdater mcUpdater;
 
-    public MinecraftListener(ScheduledExecutorService scheduler, TwirkInterface twirk, DbManager dbManager, MinecraftWhitelistUpdater mcUpdater) {
+    public MinecraftListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager, MinecraftWhitelistUpdater mcUpdater) {
         super(CommandType.PREFIX_COMMAND, scheduler);
-        this.twirk = twirk;
+        this.twitchApi = twitchApi;
         this.mcUpdater = mcUpdater;
         minecraftUserDb = dbManager.getMinecraftUserDb();
     }
@@ -45,8 +44,8 @@ public class MinecraftListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        String[] messageSplit = message.getContent().trim().split("\\s");
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+        String[] messageSplit = messageEvent.getMessage().trim().split("\\s");
         if (messageSplit.length == 1) {
             String subs;
             if (mcUpdater.isSubOnly()) {
@@ -55,19 +54,19 @@ public class MinecraftListener extends CommandBase {
             else {
                 subs = "everyone";
             }
-            twirk.channelMessage(String.format(GENERIC_MESSAGE, subs));
+            twitchApi.channelMessage(String.format(GENERIC_MESSAGE, subs));
             return;
         }
     
-        if (sender.isOwner()) {
+        if (userLevel == TwitchUserLevel.USER_LEVEL.BROADCASTER) {
             if (messageSplit[1].equals("1")) {
                 mcUpdater.setSubOnly(true);
-                twirk.channelMessage(SUBS_ENABLED);
+                twitchApi.channelMessage(SUBS_ENABLED);
                 return;
             }
             else if (messageSplit[1].equals("0")) {
                 mcUpdater.setSubOnly(false);
-                twirk.channelMessage(SUBS_DISABLED);
+                twitchApi.channelMessage(SUBS_DISABLED);
                 return;
             }
         }
@@ -75,9 +74,9 @@ public class MinecraftListener extends CommandBase {
         String mcUsername = messageSplit[1];
         ArrayList<String> profile = MinecraftApi.getProfile(mcUsername);
         if (profile == null) {
-            twirk.channelMessage(String.format(
+            twitchApi.channelMessage(String.format(
                     "@%s invalid Minecraft username \"%s\"",
-                    sender.getDisplayName(),
+                    messageEvent.getUser().getName(),
                     mcUsername
             ));
             return;
@@ -85,10 +84,10 @@ public class MinecraftListener extends CommandBase {
 
         String uuid = convertStringToUuid(profile.get(0));
         String name = profile.get(1);
-        minecraftUserDb.addUser(Long.toString(sender.getUserID()), uuid, name);
-        twirk.channelMessage(String.format(
+        minecraftUserDb.addUser(messageEvent.getUser().getName(), uuid, name);
+        twitchApi.channelMessage(String.format(
                 "@%s Minecraft username updated to \"%s\"",
-                sender.getDisplayName(),
+                messageEvent.getUser().getName(),
                 name
         ));
     }

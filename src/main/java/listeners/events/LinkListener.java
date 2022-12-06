@@ -1,17 +1,15 @@
 package listeners.events;
 
 import api.YoutubeApi;
-import com.gikk.twirk.events.TwirkListener;
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Clip;
 import com.github.twitch4j.helix.domain.Game;
 import com.github.twitch4j.helix.domain.Video;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import listeners.TwitchEventListener;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import util.TwirkInterface;
 import util.TwitchApi;
 
 import java.text.NumberFormat;
@@ -19,42 +17,40 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LinkListener implements TwirkListener {
+public class LinkListener implements TwitchEventListener {
     private static final Pattern clipPattern = Pattern.compile("(?:www\\.|clips\\.)?twitch\\.tv/(?:[a-zA-Z0-9_]+/clip/)?([a-zA-Z0-9-_]+)");
     private static final Pattern videoPattern = Pattern.compile("(?:www\\.)?twitch\\.tv/videos/([0-9]+)");
     private static final Pattern youtubePattern = Pattern.compile("(?:www\\.)?(?:youtube\\.com/watch\\?[a-zA-Z0-9_=&]*v=|youtu\\.be/)([a-zA-Z0-9_\\-]+)");
     private static final Pattern tweetPattern = Pattern.compile("(?:www\\.)?(?:twitter\\.com/[a-zA-Z0-9_]+/status/)([0-9]+)");
 
-    private final TwirkInterface twirk;
     private final TwitchApi twitchApi;
     private final Twitter twitter;
     private final String youtubeApiKey;
 
-    public LinkListener(TwirkInterface twirk, TwitchApi twitchApi, Twitter twitter, String youtubeApiKey) {
-        this.twirk = twirk;
+    public LinkListener(TwitchApi twitchApi, Twitter twitter, String youtubeApiKey) {
         this.twitchApi = twitchApi;
         this.youtubeApiKey = youtubeApiKey;
         this.twitter = twitter;
     }
 
     @Override
-    public void onPrivMsg(TwitchUser sender, TwitchMessage message) {
-        ArrayList<String> clipUrls = getMatches(message.getContent(), clipPattern);
-        ArrayList<String> videoUrls = getMatches(message.getContent(), videoPattern);
-        ArrayList<String> youtubeVideoIds = getMatches(message.getContent(), youtubePattern);
-        ArrayList<String> tweetIds = getMatches(message.getContent(), tweetPattern);
+    public void onPrivMsg(ChannelMessageEvent messageEvent) {
+        ArrayList<String> clipUrls = getMatches(messageEvent.getMessage(), clipPattern);
+        ArrayList<String> videoUrls = getMatches(messageEvent.getMessage(), videoPattern);
+        ArrayList<String> youtubeVideoIds = getMatches(messageEvent.getMessage(), youtubePattern);
+        ArrayList<String> tweetIds = getMatches(messageEvent.getMessage(), tweetPattern);
 
         for (String id : clipUrls) {
-            twirk.channelMessage(getClipDetails(id));
+            twitchApi.channelMessage(getClipDetails(id));
         }
         for (String id : videoUrls) {
-            twirk.channelMessage(getVideoDetails(id));
+            twitchApi.channelMessage(getVideoDetails(id));
         }
         for (String id : youtubeVideoIds) {
-            twirk.channelMessage(YoutubeApi.getVideoDetails(id, youtubeApiKey));
+            twitchApi.channelMessage(YoutubeApi.getVideoDetails(id, youtubeApiKey));
         }
         for (String id : tweetIds) {
-            twirk.channelMessage(getTweetDetails(id));
+            twitchApi.channelMessage(getTweetDetails(id));
         }
     }
 
