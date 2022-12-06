@@ -7,7 +7,6 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
 import com.github.twitch4j.helix.domain.*;
-import com.github.twitch4j.pubsub.TwitchPubSub;
 import com.github.twitch4j.pubsub.events.ChannelBitsEvent;
 import com.github.twitch4j.pubsub.events.ChannelSubGiftEvent;
 import com.github.twitch4j.pubsub.events.ChannelSubscribeEvent;
@@ -71,15 +70,11 @@ public class TwitchApi {
         return botUser;
     }
     
-    public TwitchPubSub getPubSub() {
-        return twitchClient.getPubSub();
-    }
-    
     public void registerEventListener(TwitchEventListener eventListener) {
         twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, eventListener::onPrivMsg);
         twitchClient.getEventManager().onEvent(ChannelGoLiveEvent.class, eventListener::onGoLive);
         
-        twitchClient.getEventManager().onEvent(ChannelBitsEvent.class, eventListener::onBits);
+        twitchClient.getEventManager().onEvent(ChannelBitsEvent.class, eventListener::onCheer);
         twitchClient.getEventManager().onEvent(RewardRedeemedEvent.class, eventListener::onChannelPointsRedemption);
         twitchClient.getEventManager().onEvent(ChannelSubscribeEvent.class, eventListener::onSub);
         twitchClient.getEventManager().onEvent(ChannelSubGiftEvent.class, eventListener::onSubGift);

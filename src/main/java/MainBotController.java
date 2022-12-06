@@ -1,6 +1,7 @@
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import functions.*;
+import listeners.channelpoints.DethroneListener;
 import listeners.commands.*;
 import listeners.commands.preds.LeaderboardListener;
 import listeners.commands.preds.PredsGuessListener;
@@ -35,7 +36,6 @@ public class MainBotController {
     private final TwitchApi twitchApi;
     private final User botUser;
     private final User streamerUser;
-    private final PubSub pubSub;
     private final StreamTracker streamTracker;
     private final ScheduledMessageController scheduledMessageController;
     private final FollowLogger followLogger;
@@ -75,12 +75,6 @@ public class MainBotController {
             out.println("Error retrieving streamer user");
             System.exit(1);
         }
-        pubSub = new PubSub(
-                twitchApi,
-                dbManager,
-                streamerUser.getId(),
-                settings.getTwitchChannelAuthToken()
-        );
         streamTracker = new StreamTracker(
                 dbManager,
                 twitchApi,
@@ -118,11 +112,10 @@ public class MainBotController {
     public synchronized void run() {
         scheduledMessageController.start();
         followLogger.start();
-        addAllListeners();
+        registerListeners();
         streamTracker.start();
         minecraftWhitelistUpdater.start();
         subPointUpdater.start();
-        pubSub.listenForBits().listenForChannelPoints();
 
         out.println("Goombotio is ready.");
 
@@ -153,12 +146,12 @@ public class MainBotController {
         scheduler.shutdown();
     }
 
-    private void addAllListeners() {
+    private void registerListeners() {
         //setup
         PredsGuessListener predsGuessListener = new PredsGuessListener();
 
         // Command Listeners
-        twitchApi.registerEventListener(new BitWarResetListener(scheduler, twitchApi, dbManager));
+//        twitchApi.registerEventListener(new BitWarResetCommandListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new CommandManagerListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new GenericCommandListener(scheduler, dbManager, twitchApi, streamerUser));
         twitchApi.registerEventListener(new LeaderboardListener(scheduler, dbManager, twitchApi, streamerUser));
@@ -173,13 +166,18 @@ public class MainBotController {
         twitchApi.registerEventListener(new WrListener(scheduler, twitchApi, streamerUser));
         
         twitchApi.registerEventListener(predsGuessListener);
+        
+        // Channel Point Listeners
+        twitchApi.registerEventListener(new DethroneListener(twitchApi, streamerUser.getId()));
 
         // General Listeners
+//        twitchApi.registerEventListener(new BitWarCheerListener(twitchApi, dbManager));
         twitchApi.registerEventListener(new ChatLoggerListener(chatLogger));
         twitchApi.registerEventListener(new CloudListener(twitchApi));
         twitchApi.registerEventListener(new EmoteListener(dbManager));
         twitchApi.registerEventListener(new LinkListener(twitchApi, twitter, settings.getYoutubeApiKey()));
         twitchApi.registerEventListener(new PyramidListener(twitchApi));
+        twitchApi.registerEventListener(new RecentCheerListener(twitchApi));
         twitchApi.registerEventListener(scheduledMessageController.getListener());
         twitchApi.registerEventListener(new SubListener(twitchApi));
     }

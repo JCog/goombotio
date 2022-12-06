@@ -14,7 +14,7 @@ public interface TwitchEventListener {
     default void onGoLive(ChannelGoLiveEvent goLiveEvent) {}
     
     ////////////////// PubSub //////////////////
-    default void onBits(ChannelBitsEvent bitsEvent) {}
+    default void onCheer(ChannelBitsEvent bitsEvent) {}
     
     default void onChannelPointsRedemption(RewardRedeemedEvent channelPointsEvent) {}
     

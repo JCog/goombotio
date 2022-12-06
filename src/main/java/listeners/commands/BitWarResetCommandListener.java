@@ -9,7 +9,7 @@ import util.TwitchUserLevel;
 import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 
-public class BitWarResetListener extends CommandBase {
+public class BitWarResetCommandListener extends CommandBase {
     private static final String PATTERN = "!resetyoshi";
     private static final String MESSAGE = "The Yoshi Bit War has been reset.";
     private static final String BIT_WAR_NAME = "save_kill_yoshi";
@@ -19,7 +19,7 @@ public class BitWarResetListener extends CommandBase {
     private final TwitchApi twitchApi;
     private final BitWarDb bitWarDb;
 
-    public BitWarResetListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
+    public BitWarResetCommandListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
         super(CommandType.PREFIX_COMMAND, scheduler);
         this.twitchApi = twitchApi;
         this.bitWarDb = dbManager.getBitWarDb();

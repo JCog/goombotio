@@ -1,130 +1,38 @@
-package functions;
+package listeners.channelpoints;
 
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
-import com.github.twitch4j.eventsub.events.ChannelPredictionEvent;
 import com.github.twitch4j.helix.domain.CustomReward;
-import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.pubsub.domain.ChannelPointsReward;
-import com.github.twitch4j.pubsub.events.*;
+import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import database.DbManager;
-import database.misc.BitWarDb;
-import org.apache.commons.lang.SystemUtils;
-import util.FileWriter;
+import listeners.TwitchEventListener;
 import util.TwitchApi;
-import util.TwitchPubSubClient;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 import static java.lang.System.out;
 
-public class PubSub extends TwitchPubSubClient {
-    private static final String[] SAVE_KEYWORDS = new String[]{"save", "love"};
-    private static final String[] KILL_KEYWORDS = new String[]{"kill", "stab"};
-    private static final String BIT_WAR_NAME = "save_kill_yoshi";
-    private static final String TEAM_KILL = "team_kill";
-    private static final String TEAM_SAVE = "team_save";
-    private static final String LOCAL_RECENT_CHEER_FILENAME = "recent_cheer.txt";
-    
+public class DethroneListener implements TwitchEventListener {
     private static final String DETHRONE_REWARD_TITLE = "Dethrone";
     private static final String DETHRONE_REWARD_PROMPT = " currently sits on the throne. Redeem this to take their spot and increase the cost for the next person!";
     
     
     private final TwitchApi twitchApi;
-    private final BitWarDb bitWarDb;
     private final String streamerId;
     
-    public PubSub(TwitchApi twitchApi, DbManager dbManager, String streamerId, String authToken) {
-        super(twitchApi, streamerId, authToken);
+    public DethroneListener(TwitchApi twitchApi, String streamerId) {
         this.twitchApi = twitchApi;
-        bitWarDb = dbManager.getBitWarDb();
         this.streamerId = streamerId;
     }
     
     @Override
-    public void onBitsEvent(ChannelBitsEvent event) {
-        //updateBitWar(event);
-        event.getData().getBitsUsed();
-    
-        String userId = event.getData().getUserId();
-        User user;
-        try {
-            user = twitchApi.getUserById(userId);
-        }
-        catch (HystrixRuntimeException e) {
-            e.printStackTrace();
-            out.printf(
-                    "error retrieving data for bit user with id %s%n",
-                    userId
-            );
-            user = null;
-        }
-        if (user == null) {
-            out.println("error: bit user is null");
-            return;
-        }
-        
-        String latestCheerText = String.format("%s - %d", user.getDisplayName(), event.getData().getBitsUsed());
-        FileWriter.writeToFile(getOutputLocation(), LOCAL_RECENT_CHEER_FILENAME, latestCheerText);
-    }
-    
-    @Override
-    public void onChannelPointsEvent(RewardRedeemedEvent event) {
+    public void onChannelPointsRedemption(RewardRedeemedEvent event) {
         ChannelPointsReward channelPointsReward = event.getRedemption().getReward();
         if (channelPointsReward.getTitle().startsWith(DETHRONE_REWARD_TITLE)) {
             handleDethroneReward(event);
         }
     }
     
-    @Override
-    public void onSubGiftsEvent(ChannelSubGiftEvent event) {
-    }
-    
-    @Override
-    public void onPredictionsEvent(ChannelPredictionEvent event) {
-    
-    }
-    
-    @Override
-    public void onHypeTrainStartEvent(HypeTrainStartEvent event) {
-    
-    }
-    
-    @Override
-    public void onHypeTrainEndEvent(HypeTrainEndEvent event) {
-    
-    }
-    
-    private void updateBitWar(ChannelBitsEvent event) {
-        String messageText = event.getData().getChatMessage().toLowerCase();
-        int bitAmount = event.getData().getBitsUsed();
-        if (stringContainsItemFromList(messageText, SAVE_KEYWORDS)) {
-            bitWarDb.addBits(BIT_WAR_NAME, TEAM_SAVE, bitAmount);
-            twitchApi.channelMessage(String.format(
-                    "%d bits have been put toward saving Yoshi jcogLove",
-                    bitAmount
-            ));
-        }
-        else if (stringContainsItemFromList(messageText, KILL_KEYWORDS)) {
-            bitWarDb.addBits(BIT_WAR_NAME, TEAM_KILL, bitAmount);
-            twitchApi.channelMessage(String.format(
-                    "%d bits have been put toward killing Yoshi jcogBan",
-                    bitAmount
-            ));
-        }
-    }
-    
-    private String getOutputLocation() {
-        if (SystemUtils.IS_OS_LINUX) {
-            return "/srv/goombotio/";
-        }
-        return "output/";
-    }
-    
-    public static boolean stringContainsItemFromList(String inputStr, String[] items) {
-        return Arrays.stream(items).anyMatch(inputStr::contains);
-    }
     
     private void handleDethroneReward(RewardRedeemedEvent event) {
         ChannelPointsReward channelPointsReward = event.getRedemption().getReward();
