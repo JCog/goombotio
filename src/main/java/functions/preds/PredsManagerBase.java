@@ -1,6 +1,6 @@
 package functions.preds;
 
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.common.events.domain.EventUser;
 import com.github.twitch4j.helix.domain.Moderator;
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
@@ -86,7 +86,7 @@ public abstract class PredsManagerBase {
 
     public abstract String getAnswerRegex();
 
-    public abstract void makePredictionIfValid(TwitchUser user, String message);
+    public abstract void makePredictionIfValid(EventUser user, String message);
     
     protected static void updateDiscordMonthlyPoints(PredsLeaderboardDb leaderboard, DiscordBotController discord, String channel) {
         Thread thread = new Thread(() -> {

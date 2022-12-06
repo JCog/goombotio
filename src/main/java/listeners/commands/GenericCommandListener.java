@@ -1,13 +1,11 @@
 package listeners.commands;
 
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import database.entries.CommandItem;
 import database.misc.CommandDb;
 import util.CommandParser;
-import util.TwirkInterface;
 import util.TwitchApi;
 import util.TwitchUserLevel;
 
@@ -21,7 +19,6 @@ public class GenericCommandListener extends CommandBase {
     private final static String PATTERN = "";
 
     private final CommandDb commandDb;
-    private final TwirkInterface twirk;
     private final CommandParser commandParser;
     private final TwitchApi twitchApi;
     private final HashSet<String> activeCooldowns = new HashSet<>();
@@ -29,13 +26,11 @@ public class GenericCommandListener extends CommandBase {
 
     public GenericCommandListener(
             ScheduledExecutorService scheduler,
-            TwirkInterface twirk,
             DbManager dbManager,
             TwitchApi twitchApi,
             User streamerUser
     ) {
         super(CommandType.GENERIC_COMMAND, scheduler);
-        this.twirk = twirk;
         this.commandParser = new CommandParser(dbManager, twitchApi, streamerUser);
         this.twitchApi = twitchApi;
         commandDb = dbManager.getCommandDb();
@@ -57,25 +52,25 @@ public class GenericCommandListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        if (message.getContent().matches(".*\\$\\(.*\\).*") && !isReservedCommand(command)) {
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+        if (messageEvent.getMessage().matches(".*\\$\\(.*\\).*") && !isReservedCommand(command)) {
             System.out.printf(
                     "Ignoring user (%s) attempt at custom variable: %s%n",
-                    sender.getDisplayName(),
-                    message.getContent()
+                    messageEvent.getUser().getName(),
+                    messageEvent.getMessage()
             );
             return;
         }
 
         CommandItem commandItem = commandDb.getCommandItem(command);
-        if (commandItem != null && userHasPermission(sender, commandItem) && !cooldownActive(commandItem)) {
-            twitchApi.channelMessage(commandParser.parse(commandItem, sender, message));
+        if (commandItem != null && userHasPermission(userLevel, commandItem) && !cooldownActive(commandItem)) {
+            twitchApi.channelMessage(commandParser.parse(commandItem, messageEvent));
             startCooldown(commandItem);
         }
     }
 
-    private boolean userHasPermission(TwitchUser sender, CommandItem commandItem) {
-        return TwitchUserLevel.getUserLevel(sender).value >= commandItem.getPermission().value;
+    private boolean userHasPermission(TwitchUserLevel.USER_LEVEL userLevel, CommandItem commandItem) {
+        return userLevel.value >= commandItem.getPermission().value;
     }
 
     private void startCooldown(CommandItem commandItem) {
@@ -97,6 +92,6 @@ public class GenericCommandListener extends CommandBase {
     }
 
     private boolean isReservedCommand(String commandId) {
-        return twirk.getReservedCommandPatterns().contains(commandId);
+        return twitchApi.getReservedCommands().contains(commandId);
     }
 }

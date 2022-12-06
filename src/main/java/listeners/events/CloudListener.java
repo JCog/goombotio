@@ -1,13 +1,15 @@
 package listeners.events;
 
-import com.gikk.twirk.events.TwirkListener;
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.events.ChannelGoLiveEvent;
+import listeners.TwitchEventListener;
 import util.TwitchApi;
 
-public class CloudListener implements TwirkListener {
+import java.util.Objects;
+
+public class CloudListener implements TwitchEventListener {
     private static final String MESSAGE = "hi cloud";
-    private static final long CLOUD_ID = 51671037;
+    private static final String CLOUD_ID = "51671037";
 
     private final TwitchApi twitchApi;
 
@@ -19,11 +21,16 @@ public class CloudListener implements TwirkListener {
     }
 
     @Override
-    public void onPrivMsg(TwitchUser sender, TwitchMessage message) {
-        if (sender.getUserID() == CLOUD_ID && !saidHi) {
+    public void onPrivMsg(ChannelMessageEvent messageEvent) {
+        if (Objects.equals(messageEvent.getUser().getId(), CLOUD_ID) && !saidHi) {
             twitchApi.channelMessage(MESSAGE);
             saidHi = true;
         }
+    }
+    
+    @Override
+    public void onGoLive(ChannelGoLiveEvent goLiveEvent) {
+        saidHi = false;
     }
 
     public void reset() {

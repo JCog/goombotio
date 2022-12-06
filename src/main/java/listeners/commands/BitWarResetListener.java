@@ -1,7 +1,6 @@
 package listeners.commands;
 
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import database.DbManager;
 import database.misc.BitWarDb;
 import util.TwitchApi;
@@ -42,7 +41,7 @@ public class BitWarResetListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         ArrayList<String> teams = new ArrayList<>();
         teams.add(TEAM_KILL);
         teams.add(TEAM_SAVE);

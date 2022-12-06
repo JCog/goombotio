@@ -1,8 +1,7 @@
 package listeners.commands;
 
-import com.gikk.twirk.events.TwirkListener;
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import listeners.TwitchEventListener;
 import util.TwitchUserLevel;
 import util.TwitchUserLevel.USER_LEVEL;
 
@@ -13,7 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public abstract class CommandBase implements TwirkListener {
+public abstract class CommandBase implements TwitchEventListener {
 
     private static final char GENERIC_COMMAND_CHAR = '!';
 
@@ -49,23 +48,25 @@ public abstract class CommandBase implements TwirkListener {
     }
 
     @Override
-    public void onPrivMsg(TwitchUser sender, TwitchMessage message) {
-        String exactContent = message.getContent().trim();
+    public void onPrivMsg(ChannelMessageEvent messageEvent) {
+        String exactContent = messageEvent.getMessage().trim();
         if (exactContent.length() == 0) {
             return;
         }
-        String content = message.getContent().toLowerCase(Locale.ENGLISH).trim();
+        String content = messageEvent.getMessage().toLowerCase(Locale.ENGLISH).trim();
         String[] split = content.split("\\s", 2);
         String command = split[0];
         char firstChar = content.charAt(0);
+        Set<String> badges = messageEvent.getMessageEvent().getBadges().keySet();
+        USER_LEVEL userLevel = TwitchUserLevel.getUserLevel(badges);
     
-        if (!coolingDown || TwitchUserLevel.getUserLevel(sender).value == USER_LEVEL.BROADCASTER.value) {
-            if (TwitchUserLevel.getUserLevel(sender).value >= minPrivilege.value) {
+        if (!coolingDown || userLevel.value == USER_LEVEL.BROADCASTER.value) {
+            if (userLevel.value >= minPrivilege.value) {
                 switch (commandType) {
                     case PREFIX_COMMAND:
                         for (String pattern : commandPattern) {
                             if (command.equals(pattern)) {
-                                performCommand(pattern, sender, message);
+                                performCommand(pattern, userLevel, messageEvent);
                                 startCooldown();
                                 break;    //We don't want to fire twice for the same message
                             }
@@ -75,7 +76,7 @@ public abstract class CommandBase implements TwirkListener {
                     case CONTENT_COMMAND:
                         for (String pattern : commandPattern) {
                             if (content.contains(pattern)) {
-                                performCommand(pattern, sender, message);
+                                performCommand(pattern, userLevel, messageEvent);
                                 startCooldown();
                                 break;
                             }
@@ -85,7 +86,7 @@ public abstract class CommandBase implements TwirkListener {
                     case EXACT_MATCH_COMMAND:
                         for (String pattern : commandPattern) {
                             if (exactContent.equals(pattern)) {
-                                performCommand(pattern, sender, message);
+                                performCommand(pattern, userLevel, messageEvent);
                                 startCooldown();
                                 break;
                             }
@@ -93,7 +94,7 @@ public abstract class CommandBase implements TwirkListener {
                         break;
                     case GENERIC_COMMAND:
                         if (firstChar == GENERIC_COMMAND_CHAR) {
-                            performCommand(command, sender, message);
+                            performCommand(command, userLevel, messageEvent);
                         }
                         break;
                 }
@@ -123,6 +124,6 @@ public abstract class CommandBase implements TwirkListener {
     protected abstract USER_LEVEL getMinUserPrivilege();
 
     protected abstract int getCooldownLength();
-
-    protected abstract void performCommand(String command, TwitchUser sender, TwitchMessage message);
+    
+    protected abstract void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent);
 }

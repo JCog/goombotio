@@ -1,7 +1,6 @@
 package listeners.commands.quotes;
 
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import database.entries.QuoteItem;
@@ -76,9 +75,8 @@ public class QuoteListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        int userLevel = TwitchUserLevel.getUserLevel(sender).value;
-        String[] messageSplit = message.getContent().trim().split(" ", 2);
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+        String[] messageSplit = messageEvent.getMessage().trim().split(" ", 2);
         String content = "";
         if (messageSplit.length > 1) {
             content = messageSplit[1];
@@ -118,9 +116,9 @@ public class QuoteListener extends CommandBase {
                 break;
             }
             case PATTERN_ADD_QUOTE: {
-                if (userLevel >= VIP.value) {
+                if (userLevel.value >= VIP.value) {
                     //only allow VIPs to add quotes if the stream is live
-                    if (userLevel == VIP.value && twitchApi.getStream(streamerUser.getLogin()) == null) {
+                    if (userLevel.value == VIP.value && twitchApi.getStream(streamerUser.getLogin()) == null) {
                         twitchApi.channelMessage(ERROR_NOT_LIVE);
                         break;
                     }
@@ -128,14 +126,14 @@ public class QuoteListener extends CommandBase {
                         twitchApi.channelMessage(ERROR_MISSING_ARGUMENTS);
                         break;
                     }
-                    QuoteItem quoteItem = quoteDb.addQuote(content, sender.getUserID(), true);
+                    QuoteItem quoteItem = quoteDb.addQuote(content, Long.parseLong(messageEvent.getUser().getId()), true);
                     quoteUndoEngine.storeUndoAction(ADD, quoteItem);
                     twitchApi.channelMessage(String.format("Successfully added quote #%d", quoteItem.getIndex()));
                 }
                 break;
             }
             case PATTERN_DELETE_QUOTE: {
-                if (userLevel >= MOD.value) {
+                if (userLevel.value >= MOD.value) {
                     if (content.isEmpty()) {
                         twitchApi.channelMessage(ERROR_MISSING_ARGUMENTS);
                         break;
@@ -155,7 +153,7 @@ public class QuoteListener extends CommandBase {
                 break;
             }
             case PATTERN_EDIT_QUOTE: {
-                if (userLevel >= MOD.value) {
+                if (userLevel.value >= MOD.value) {
                     String[] editSplit = content.split(" ", 2);
                     if (editSplit.length != 2) {
                         twitchApi.channelMessage(ERROR_MISSING_ARGUMENTS);
@@ -169,7 +167,7 @@ public class QuoteListener extends CommandBase {
                         twitchApi.channelMessage(getBadIndexError(editSplit[0]));
                         break;
                     }
-                    QuoteItem quote = quoteDb.editQuote(editIndex, editSplit[1], sender.getUserID(), true);
+                    QuoteItem quote = quoteDb.editQuote(editIndex, editSplit[1], Long.parseLong(messageEvent.getUser().getId()), true);
                     quoteUndoEngine.storeUndoAction(EDIT, quote);
                     twitchApi.channelMessage(String.format("Successfully edited quote #%d", editIndex));
                 }
@@ -185,13 +183,13 @@ public class QuoteListener extends CommandBase {
                 break;
             }
             case PATTERN_UNDO_QUOTE: {
-                if (userLevel >= MOD.value) {
+                if (userLevel.value >= MOD.value) {
                     quoteUndoEngine.undo();
                 }
                 break;
             }
             case PATTERN_REDO_QUOTE: {
-                if (userLevel >= MOD.value) {
+                if (userLevel.value >= MOD.value) {
                     quoteUndoEngine.redo();
                 }
                 break;

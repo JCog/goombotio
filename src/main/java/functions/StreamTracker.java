@@ -5,7 +5,6 @@ import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.tmi.domain.Chatters;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
-import listeners.events.CloudListener;
 import util.ReportBuilder;
 import util.TwitchApi;
 
@@ -27,7 +26,6 @@ public class StreamTracker {
     private final TwitchApi twitchApi;
     private final User streamerUser;
     private final ScheduledExecutorService scheduler;
-    private final CloudListener cloudListener;
 
     private StreamData streamData;
     private ScheduledFuture<?> scheduledFuture;
@@ -35,14 +33,12 @@ public class StreamTracker {
     public StreamTracker(DbManager dbManager,
                          TwitchApi twitchApi,
                          User streamerUser,
-                         ScheduledExecutorService scheduler,
-                         CloudListener cloudListener
+                         ScheduledExecutorService scheduler
     ) {
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
         this.scheduler = scheduler;
-        this.cloudListener = cloudListener;
 
         streamData = null;
     }
@@ -81,7 +77,6 @@ public class StreamTracker {
                     }
                     if (streamData == null) {
                         streamData = new StreamData(dbManager, twitchApi, streamerUser);
-                        cloudListener.reset();
                     }
                     streamData.updateUsersMinutes(usersOnline);
                     streamData.updateViewerCounts(stream.getViewerCount());
@@ -112,7 +107,7 @@ public class StreamTracker {
             return 0;
         }
         else {
-            return streamData.getViewerMinutes(username);
+            return streamData.getViewerMinutes(username.toLowerCase());
         }
     }
 

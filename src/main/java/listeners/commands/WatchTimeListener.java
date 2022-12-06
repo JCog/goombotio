@@ -1,7 +1,7 @@
 package listeners.commands;
 
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.common.events.domain.EventUser;
 import database.DbManager;
 import database.stats.WatchTimeDb;
 import functions.StreamTracker;
@@ -51,15 +51,16 @@ public class WatchTimeListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         StringBuilder output = new StringBuilder();
-        int minutes = watchTimeDb.getMinutesByTwirkUser(sender) + streamTracker.getViewerMinutes(sender.getUserName());
+        int minutes = watchTimeDb.getMinutesByEventUser(messageEvent.getUser())
+                      + streamTracker.getViewerMinutes(messageEvent.getUser().getName());
         output.append(String.format(
                 "@%s %s",
-                sender.getDisplayName(),
+                messageEvent.getUser().getName(),
                 getTimeString(minutes)
         ));
-        if (isOldViewer(sender)) {
+        if (isOldViewer(messageEvent.getUser())) {
             output.append(" since August 30, 2019");
         }
         twitchApi.channelMessage(output.toString());
@@ -82,8 +83,8 @@ public class WatchTimeListener extends CommandBase {
     }
 
     //watchdata has been tracked since the cutoff date
-    private boolean isOldViewer(TwitchUser user) {
-        Date firstSeen = watchTimeDb.getFirstSeenById(user.getUserID());
+    private boolean isOldViewer(EventUser user) {
+        Date firstSeen = watchTimeDb.getFirstSeenById(Long.parseLong(user.getId()));
         if (firstSeen == null) {
             return false;
         }

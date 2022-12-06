@@ -1,14 +1,14 @@
 package functions;
 
-import com.gikk.twirk.events.TwirkListener;
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.common.events.domain.EventUser;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.entries.ScheduledMessage;
 import database.misc.SocialSchedulerDb;
+import listeners.TwitchEventListener;
 import util.TwitchApi;
 
 import java.time.LocalDateTime;
@@ -121,10 +121,12 @@ public class ScheduledMessageController {
         scheduler.schedule(this::socialLoop, now.until(nextInterval, ChronoUnit.MILLIS), TimeUnit.MILLISECONDS);
     }
 
-    private class AnyMessageListener implements TwirkListener {
+    private class AnyMessageListener implements TwitchEventListener {
         @Override
-        public void onPrivMsg(TwitchUser sender, TwitchMessage message) {
-            if (!sender.isOwner() && !sender.getUserName().toLowerCase().equals(botUser.getLogin())) {
+        public void onPrivMsg(ChannelMessageEvent messageEvent) {
+            EventUser sender = messageEvent.getUser();
+            // chat is active as long as posters aren't the streamer or bot
+            if (!sender.getId().equals(streamerUser.getId()) && !sender.getId().equals(botUser.getId())) {
                 activeChat = true;
             }
         }

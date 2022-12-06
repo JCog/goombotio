@@ -1,7 +1,6 @@
 package listeners.commands;
 
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import database.entries.TattleItem;
@@ -47,8 +46,8 @@ public class TattleListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        String trimmedMessage = message.getContent().trim();
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+        String trimmedMessage = messageEvent.getMessage().trim();
         String[] messageSplit = trimmedMessage.split(" ");
         switch (command) {
             case PATTERN_TATTLE: {
@@ -98,7 +97,7 @@ public class TattleListener extends CommandBase {
                 break;
             }
             case PATTERN_ADD: {
-                if (sender.isOwner()) {
+                if (userLevel == TwitchUserLevel.USER_LEVEL.BROADCASTER) {
                     if (messageSplit.length < 3) {
                         twitchApi.channelMessage("ERROR: not enough arguments");
                         return;

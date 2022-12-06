@@ -1,7 +1,6 @@
 package listeners.commands;
 
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -50,7 +49,7 @@ public class WrListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         Stream stream;
         try {
             stream = twitchApi.getStream(streamerUser.getLogin());
@@ -189,6 +188,6 @@ public class WrListener extends CommandBase {
                 break;
         }
     
-        twitchApi.channelMessage(String.format("@%s %s", sender.getDisplayName(), wrText));
+        twitchApi.channelMessage(String.format("@%s %s", messageEvent.getUser().getName(), wrText));
     }
 }

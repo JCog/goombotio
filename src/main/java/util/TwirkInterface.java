@@ -7,13 +7,9 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.helix.domain.User;
-import listeners.commands.CommandBase;
-import listeners.commands.GenericCommandListener;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 
 public class TwirkInterface {
     private final HashSet<TwirkListener> twirkListeners = new HashSet<>();
@@ -87,17 +83,6 @@ public class TwirkInterface {
             System.out.printf("command message sent \"%s\"%n", output);
         }
         sendMessage(output);
-    }
-
-    public Set<String> getReservedCommandPatterns() {
-        HashSet<String> commands = new HashSet<>();
-        for (TwirkListener listener : twirkListeners) {
-            if (CommandBase.class.isAssignableFrom(listener.getClass()) && listener.getClass() != GenericCommandListener.class) {
-                String[] commandWords = ((CommandBase) listener).getCommandWords().split("\\|");
-                commands.addAll(Arrays.asList(commandWords));
-            }
-        }
-        return commands;
     }
 
     public void whisper(String username, String message) {

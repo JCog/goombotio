@@ -1,6 +1,6 @@
 package functions.preds;
 
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.common.events.domain.EventUser;
 import com.github.twitch4j.helix.domain.Subscription;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -118,7 +118,7 @@ public class PapePredsManager extends PredsManagerBase {
     }
 
     @Override
-    public void makePredictionIfValid(TwitchUser user, String message) {
+    public void makePredictionIfValid(EventUser user, String message) {
         String[] split = message.split("\\s");
 
         if (split.length == 3) {
@@ -131,14 +131,14 @@ public class PapePredsManager extends PredsManagerBase {
             }
 
             if (badgeGuess.size() == 3) {
-                predictionList.put(user.getUserID(), new PapePredsObject(
+                predictionList.put(Long.valueOf(user.getId()), new PapePredsObject(
                         user,
                         stringToBadge(badgeGuess.get(0)),
                         stringToBadge(badgeGuess.get(1)),
                         stringToBadge(badgeGuess.get(2))
                 ));
                 System.out.printf("%s has predicted %s %s %s%n",
-                                  user.getUserName(), badgeGuess.get(0), badgeGuess.get(1), badgeGuess.get(2));
+                                  user.getName(), badgeGuess.get(0), badgeGuess.get(1), badgeGuess.get(2));
             }
         }
         else if (split.length == 1 && split[0].matches("[1-4]{3}")) {
@@ -156,9 +156,9 @@ public class PapePredsManager extends PredsManagerBase {
                 Badge badge2 = intToBadge(badgeGuess.get(1));
                 Badge badge3 = intToBadge(badgeGuess.get(2));
 
-                predictionList.put(user.getUserID(), new PapePredsObject(user, badge1, badge2, badge3));
+                predictionList.put(Long.valueOf(user.getId()), new PapePredsObject(user, badge1, badge2, badge3));
 
-                System.out.printf("%s has predicted %s %s %s%n", user.getUserName(),
+                System.out.printf("%s has predicted %s %s %s%n", user.getName(),
                                   badgeToString(badge1), badgeToString(badge2), badgeToString(badge3));
             }
         }
@@ -172,7 +172,7 @@ public class PapePredsManager extends PredsManagerBase {
 
         ArrayList<String> winners = new ArrayList<>();
         for (PapePredsObject pred : predictionList.values()) {
-            TwitchUser user = pred.getTwitchUser();
+            EventUser user = pred.getTwitchUser();
             Badge leftGuess = pred.getLeft();
             Badge middleGuess = pred.getMiddle();
             Badge rightGuess = pred.getRight();
@@ -182,28 +182,28 @@ public class PapePredsManager extends PredsManagerBase {
             guessSet.add(rightGuess);
 
             if (leftGuess == leftAnswer && middleGuess == middleAnswer && rightGuess == rightAnswer) {
-                winners.add(user.getDisplayName());
+                winners.add(user.getName());
                 leaderboard.addPointsAndWins(user, POINTS_3, 1);
-                out.printf("%s guessed 3 correctly. Adding %d points and a win.%n", user.getDisplayName(),
+                out.printf("%s guessed 3 correctly. Adding %d points and a win.%n", user.getName(),
                            POINTS_3);
             }
             else if ((leftGuess == leftAnswer && middleGuess == middleAnswer) ||
                     (leftGuess == leftAnswer && rightGuess == rightAnswer) ||
                     (middleGuess == middleAnswer && rightGuess == rightAnswer)) {
                 leaderboard.addPoints(user, POINTS_2);
-                out.printf("%s guessed 2 correctly. Adding %d points.%n", user.getDisplayName(), POINTS_2);
+                out.printf("%s guessed 2 correctly. Adding %d points.%n", user.getName(), POINTS_2);
             }
             else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == rightAnswer) {
                 leaderboard.addPoints(user, POINTS_1);
-                out.printf("%s guessed 1 correctly. Adding %d point.%n", user.getDisplayName(), POINTS_1);
+                out.printf("%s guessed 1 correctly. Adding %d point.%n", user.getName(), POINTS_1);
             }
             else if (answerSet.equals(guessSet)) {
                 leaderboard.addPoints(user, POINTS_WRONG_ORDER);
                 out.printf("%s guessed 0 correctly, but got all 3 badges. Adding %d point.%n",
-                           user.getDisplayName(), POINTS_WRONG_ORDER);
+                           user.getName(), POINTS_WRONG_ORDER);
             }
             else {
-                out.printf("%s guessed 0 correctly.%n", user.getDisplayName());
+                out.printf("%s guessed 0 correctly.%n", user.getName());
             }
         }
         return winners;

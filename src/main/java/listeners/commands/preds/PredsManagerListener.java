@@ -1,7 +1,6 @@
 package listeners.commands.preds;
 
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -66,7 +65,7 @@ public class PredsManagerListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         switch (command) {
             case PATTERN_PREDS:
                 if (predsManager == null || !predsManager.isActive()) {
@@ -100,7 +99,7 @@ public class PredsManagerListener extends CommandBase {
                 }
                 else {
                     if (predsManager.isWaitingForAnswer()) {
-                        String[] content = message.getContent().split("\\s");
+                        String[] content = messageEvent.getMessage().split("\\s");
                         if (content.length > 1 && content[1].matches(predsManager.getAnswerRegex())) {
                             out.println("Submitting predictions...");
                             predsManager.submitPredictions(content[1]);

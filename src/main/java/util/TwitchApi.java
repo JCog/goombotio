@@ -2,10 +2,15 @@ package util;
 
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
 import com.github.twitch4j.helix.domain.*;
+import com.github.twitch4j.pubsub.TwitchPubSub;
 import com.github.twitch4j.tmi.domain.Chatters;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import listeners.TwitchEventListener;
+import listeners.commands.CommandBase;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -17,6 +22,7 @@ public class TwitchApi {
     private final User botUser;
     private final ChatLogger chatLogger;
     private final boolean silentChat;
+    private final Set<String> reservedCommands = new HashSet<>();
     
     public TwitchApi(ChatLogger chatLogger, String streamerUsername, String botUsername, String authToken, String clientId, boolean silentChat) {
         this.chatLogger = chatLogger;
@@ -27,6 +33,7 @@ public class TwitchApi {
                 .withEnableChat(true)
                 .withEnableTMI(true)
                 .withEnableHelix(true)
+                .withEnablePubSub(true)
                 .build();
         twitchClient.getChat().joinChannel(streamerUsername);
     
@@ -40,6 +47,25 @@ public class TwitchApi {
     
     public User getBotUser() {
         return botUser;
+    }
+    
+    public TwitchPubSub getPubSub() {
+        return twitchClient.getPubSub();
+    }
+    
+    public void registerEventListener(TwitchEventListener eventListener) {
+        twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, eventListener::onPrivMsg);
+        twitchClient.getEventManager().onEvent(ChannelGoLiveEvent.class, eventListener::onGoLive);
+    
+        // not sure how I feel about storing all the reserved commands here, but I'm not sure where would fit better
+        if (eventListener instanceof CommandBase) {
+            String[] commands = ((CommandBase) eventListener).getCommandWords().split("\\|");
+            reservedCommands.addAll(Arrays.asList(commands));
+        }
+    }
+    
+    public Set<String> getReservedCommands() {
+        return reservedCommands;
     }
     
     //////////////////////////////////////////////////////////////////////////

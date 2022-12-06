@@ -1,8 +1,7 @@
 package listeners.commands.preds;
 
-import com.gikk.twirk.enums.USER_TYPE;
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.common.events.domain.EventUser;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -70,7 +69,7 @@ public class LeaderboardListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         String chatMessage = "";
 
         updateLeaderboardType();
@@ -84,11 +83,11 @@ public class LeaderboardListener extends CommandBase {
                     break;
         
                 case PATTERN_POINTS:
-                    chatMessage = buildMonthlyPointsString(sender);
+                    chatMessage = buildMonthlyPointsString(messageEvent.getUser());
                     break;
         
                 case PATTERN_PREDS:
-                    if (sender.getUserType() != USER_TYPE.OWNER) {
+                    if (userLevel != TwitchUserLevel.USER_LEVEL.BROADCASTER) {
                         switch (getGameId()) {
                             case GAME_ID_PAPER_MARIO:
                                 chatMessage = PREDS_MESSAGE_PAPE;
@@ -107,7 +106,7 @@ public class LeaderboardListener extends CommandBase {
                     break;
         
                 case PATTERN_POINTS_ALL:
-                    chatMessage = buildPointsString(sender);
+                    chatMessage = buildPointsString(messageEvent.getUser());
                     break;
             }
         }
@@ -143,14 +142,14 @@ public class LeaderboardListener extends CommandBase {
         return "";
     }
 
-    private String buildMonthlyPointsString(TwitchUser user) {
-        String username = user.getDisplayName();
+    private String buildMonthlyPointsString(EventUser user) {
+        String username = user.getName();
         int points = leaderboard.getMonthlyPoints(user);
         return String.format("@%s you have %d point%s this month.", username, points, points == 1 ? "" : "s");
     }
 
-    private String buildPointsString(TwitchUser user) {
-        String username = user.getDisplayName();
+    private String buildPointsString(EventUser user) {
+        String username = user.getName();
         int points = leaderboard.getPoints(user);
         return String.format("@%s you have %d total point%s.", username, points, points == 1 ? "" : "s");
     }

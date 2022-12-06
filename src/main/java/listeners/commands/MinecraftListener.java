@@ -1,8 +1,7 @@
 package listeners.commands;
 
 import api.MinecraftApi;
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import database.DbManager;
 import database.misc.MinecraftUserDb;
 import functions.MinecraftWhitelistUpdater;
@@ -45,8 +44,8 @@ public class MinecraftListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        String[] messageSplit = message.getContent().trim().split("\\s");
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+        String[] messageSplit = messageEvent.getMessage().trim().split("\\s");
         if (messageSplit.length == 1) {
             String subs;
             if (mcUpdater.isSubOnly()) {
@@ -59,7 +58,7 @@ public class MinecraftListener extends CommandBase {
             return;
         }
     
-        if (sender.isOwner()) {
+        if (userLevel == TwitchUserLevel.USER_LEVEL.BROADCASTER) {
             if (messageSplit[1].equals("1")) {
                 mcUpdater.setSubOnly(true);
                 twitchApi.channelMessage(SUBS_ENABLED);
@@ -77,7 +76,7 @@ public class MinecraftListener extends CommandBase {
         if (profile == null) {
             twitchApi.channelMessage(String.format(
                     "@%s invalid Minecraft username \"%s\"",
-                    sender.getDisplayName(),
+                    messageEvent.getUser().getName(),
                     mcUsername
             ));
             return;
@@ -85,10 +84,10 @@ public class MinecraftListener extends CommandBase {
 
         String uuid = convertStringToUuid(profile.get(0));
         String name = profile.get(1);
-        minecraftUserDb.addUser(Long.toString(sender.getUserID()), uuid, name);
+        minecraftUserDb.addUser(messageEvent.getUser().getName(), uuid, name);
         twitchApi.channelMessage(String.format(
                 "@%s Minecraft username updated to \"%s\"",
-                sender.getDisplayName(),
+                messageEvent.getUser().getName(),
                 name
         ));
     }

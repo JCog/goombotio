@@ -1,7 +1,6 @@
 package listeners.commands;
 
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import util.TwitchApi;
 import util.TwitchUserLevel;
 
@@ -33,7 +32,7 @@ public class ModListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        twitchApi.channelMessage(String.format("/timeout %s 1", sender.getUserName()));
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+        twitchApi.channelMessage(String.format("/timeout %s 1", messageEvent.getUser().getName()));
     }
 }

@@ -36,7 +36,7 @@ public class PubSub extends TwitchPubSubClient {
     private final String streamerId;
     
     public PubSub(TwitchApi twitchApi, DbManager dbManager, String streamerId, String authToken) {
-        super(streamerId, authToken);
+        super(twitchApi, streamerId, authToken);
         this.twitchApi = twitchApi;
         bitWarDb = dbManager.getBitWarDb();
         this.streamerId = streamerId;

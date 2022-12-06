@@ -1,7 +1,6 @@
 package listeners.commands;
 
-import com.gikk.twirk.types.twitchMessage.TwitchMessage;
-import com.gikk.twirk.types.users.TwitchUser;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import database.DbManager;
 import database.misc.SocialSchedulerDb;
 import util.TwitchApi;
@@ -45,8 +44,8 @@ public class ScheduledMessageManagerListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, TwitchUser sender, TwitchMessage message) {
-        String[] messageSplit = message.getContent().split("\\s", 4);
+    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+        String[] messageSplit = messageEvent.getMessage().split("\\s", 4);
         if (messageSplit.length < 3) {
             showError("missing arguments");
             return;
