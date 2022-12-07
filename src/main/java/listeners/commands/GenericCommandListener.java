@@ -1,11 +1,10 @@
 package listeners.commands;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import database.entries.CommandItem;
 import database.misc.CommandDb;
-import util.CommandParser;
+import util.MessageExpressionParser;
 import util.TwitchApi;
 import util.TwitchUserLevel;
 
@@ -19,19 +18,19 @@ public class GenericCommandListener extends CommandBase {
     private final static String PATTERN = "";
 
     private final CommandDb commandDb;
-    private final CommandParser commandParser;
+    private final MessageExpressionParser commandParser;
     private final TwitchApi twitchApi;
     private final HashSet<String> activeCooldowns = new HashSet<>();
 
 
     public GenericCommandListener(
             ScheduledExecutorService scheduler,
+            MessageExpressionParser commandParser,
             DbManager dbManager,
-            TwitchApi twitchApi,
-            User streamerUser
+            TwitchApi twitchApi
     ) {
         super(CommandType.GENERIC_COMMAND, scheduler);
-        this.commandParser = new CommandParser(dbManager, twitchApi, streamerUser);
+        this.commandParser = commandParser;
         this.twitchApi = twitchApi;
         commandDb = dbManager.getCommandDb();
     }

@@ -12,6 +12,7 @@ import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 import util.ChatLogger;
+import util.MessageExpressionParser;
 import util.Settings;
 import util.TwitchApi;
 
@@ -37,6 +38,7 @@ public class MainBotController {
     private final User botUser;
     private final User streamerUser;
     private final StreamTracker streamTracker;
+    private final MessageExpressionParser messageExpressionParser;
     private final ScheduledMessageController scheduledMessageController;
     private final FollowLogger followLogger;
     private final MinecraftWhitelistUpdater minecraftWhitelistUpdater;
@@ -82,10 +84,12 @@ public class MainBotController {
                 streamerUser,
                 scheduler
         );
+        messageExpressionParser = new MessageExpressionParser(dbManager, twitchApi, streamerUser);
         scheduledMessageController = new ScheduledMessageController(
                 dbManager,
                 twitchApi,
                 scheduler,
+                messageExpressionParser,
                 streamerUser,
                 botUser,
                 SOCIAL_INTERVAL_LENGTH
@@ -154,7 +158,7 @@ public class MainBotController {
         // Command Listeners
 //        twitchApi.registerEventListener(new BitWarResetCommandListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new CommandManagerListener(scheduler, twitchApi, dbManager));
-        twitchApi.registerEventListener(new GenericCommandListener(scheduler, dbManager, twitchApi, streamerUser));
+        twitchApi.registerEventListener(new GenericCommandListener(scheduler, messageExpressionParser, dbManager, twitchApi));
         twitchApi.registerEventListener(new LeaderboardListener(scheduler, dbManager, twitchApi, streamerUser));
         twitchApi.registerEventListener(new MinecraftListener(scheduler, twitchApi, dbManager, minecraftWhitelistUpdater));
 //        twitchApi.registerEventListener(new ModListener(scheduler, twitchApi));

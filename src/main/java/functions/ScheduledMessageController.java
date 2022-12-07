@@ -6,9 +6,11 @@ import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
+import database.entries.GenericMessage;
 import database.entries.ScheduledMessage;
 import database.misc.SocialSchedulerDb;
 import listeners.TwitchEventListener;
+import util.MessageExpressionParser;
 import util.TwitchApi;
 
 import java.time.LocalDateTime;
@@ -26,6 +28,7 @@ public class ScheduledMessageController {
     private final SocialSchedulerDb socialSchedulerDb;
     private final TwitchApi twitchApi;
     private final ScheduledExecutorService scheduler;
+    private final MessageExpressionParser commandParser;
     private final User botUser;
     private final User streamerUser;
     private final int intervalLength;
@@ -43,12 +46,14 @@ public class ScheduledMessageController {
             DbManager dbManager,
             TwitchApi twitchApi,
             ScheduledExecutorService scheduler,
+            MessageExpressionParser messageExpressionParser,
             User streamerUser,
             User botUser,
             int intervalLength
     ) {
         this.twitchApi = twitchApi;
         this.scheduler = scheduler;
+        this.commandParser = messageExpressionParser;
         this.botUser = botUser;
         this.streamerUser = streamerUser;
         this.intervalLength = intervalLength;
@@ -108,7 +113,8 @@ public class ScheduledMessageController {
         }
 
         int selection = random.nextInt(choices.size());
-        twitchApi.channelMessage(choices.get(selection).getMessage());
+        String message = choices.get(selection).getMessage();
+        twitchApi.channelMessage(commandParser.parse(new GenericMessage(message), null));
         previousId = choices.get(selection).getId();
     }
 

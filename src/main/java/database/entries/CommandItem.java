@@ -3,10 +3,9 @@ package database.entries;
 import org.jetbrains.annotations.Nullable;
 import util.TwitchUserLevel;
 
-public class CommandItem {
+public class CommandItem extends GenericMessage{
 
     private final String id;
-    private final String message;
     private final TwitchUserLevel.USER_LEVEL permission;
     private final long cooldown;
     private final int count;
@@ -32,19 +31,15 @@ public class CommandItem {
     }
 
     public CommandItem(String id, String message, TwitchUserLevel.USER_LEVEL permission, long cooldown, int count) {
+        super(message);
         this.id = id;
-        this.message = message;
         this.permission = permission;
         this.cooldown = cooldown;
         this.count = count;
     }
-
+    
     public String getId() {
         return id;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     public TwitchUserLevel.USER_LEVEL getPermission() {

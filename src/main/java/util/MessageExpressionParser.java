@@ -8,6 +8,7 @@ import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.entries.CommandItem;
+import database.entries.GenericMessage;
 import database.misc.CommandDb;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -26,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CommandParser {
+public class MessageExpressionParser {
     private static final int EVAL_LIMIT = 10;
 
     private static final String ERROR = "ERROR";
@@ -40,6 +41,7 @@ public class CommandParser {
     private static final String ERROR_INVALID_RANGE = "-invalid range\"%s\"-";
     private static final String ERROR_BAD_ENTRY = "-bad entry-";
     private static final String ERROR_INVALID_WEIGHT = "-invalid weight-";
+    private static final String ERROR_NON_COMMAND = "-this expression is only for commands-";
 
     private static final String TYPE_ALIAS = "alias";
     private static final String TYPE_ARG = "arg";
@@ -65,21 +67,21 @@ public class CommandParser {
     private final TwitchApi twitchApi;
     private final User streamerUser;
 
-    public CommandParser(DbManager dbManager, TwitchApi twitchApi, User streamerUser) {
+    public MessageExpressionParser(DbManager dbManager, TwitchApi twitchApi, User streamerUser) {
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
         commandDb = dbManager.getCommandDb();
     }
 
-    public String parse(CommandItem commandItem, ChannelMessageEvent messageEvent) {
-        String output = commandItem.getMessage();
+    public String parse(GenericMessage genericMessage, ChannelMessageEvent messageEvent) {
+        String output = genericMessage.getMessage();
         String expression = getNextExpression(output);
         int evalCount = 0;
         while (!expression.isEmpty()) {
             if (evalCount == EVAL_LIMIT) {
                 return ERROR_EVAL_LIMIT_EXCEEDED;
             }
-            String replacement = evaluateExpression(expression, commandItem, messageEvent);
+            String replacement = evaluateExpression(expression, genericMessage, messageEvent);
             //TODO: check to see if replaceFirst causes a bug
             output = output.replaceFirst(
                     Pattern.quote("$(" + expression + ")"),
@@ -91,10 +93,10 @@ public class CommandParser {
         return output;
     }
 
-    private String evaluateExpression(String expression, CommandItem commandItem, ChannelMessageEvent messageEvent) {
+    private String evaluateExpression(String expression, GenericMessage genericMessage, ChannelMessageEvent messageEvent) {
         String[] split = expression.split(" ", 2);
         String type = split[0];
-        String[] arguments = messageEvent.getMessage().split(" ");
+        String[] arguments = genericMessage.getMessage().split(" ");
         String content = "";
         if (split.length > 1) {
             content = split[1];
@@ -146,8 +148,14 @@ public class CommandParser {
                 return entries[random.nextInt(entries.length)];
             }
             case TYPE_COUNT: {
-                commandDb.incrementCount(commandItem.getId());
-                return Integer.toString(commandItem.getCount() + 1);
+                if (genericMessage instanceof CommandItem) {
+                    CommandItem commandItem = (CommandItem) genericMessage;
+                    commandDb.incrementCount(commandItem.getId());
+                    return Integer.toString(commandItem.getCount() + 1);
+                }
+                else {
+                    return ERROR_NON_COMMAND;
+                }
             }
             case TYPE_FOLLOW_AGE: {
                 if (content.split(" ").length == 1) {
@@ -197,16 +205,19 @@ public class CommandParser {
                 return Integer.toString(randomOutput);
             }
             case TYPE_TOUSER: {
-                if (arguments.length > 1) {
-                    if (arguments[1].startsWith("@")) {
-                        return arguments[1].substring(1);
-                    }
-                    else {
-                        return arguments[1];
+                if (genericMessage instanceof CommandItem) {
+                    if (arguments.length > 1) {
+                        if (arguments[1].startsWith("@")) {
+                            return arguments[1].substring(1);
+                        } else {
+                            return arguments[1];
+                        }
+                    } else {
+                        return messageEvent.getUser().getName();
                     }
                 }
                 else {
-                    return messageEvent.getUser().getName();
+                    return ERROR_NON_COMMAND;
                 }
             }
             case TYPE_UPTIME: {
@@ -229,10 +240,20 @@ public class CommandParser {
                 return submitRequest(content);
             }
             case TYPE_USER: {
-                return messageEvent.getUser().getName();
+                if (genericMessage instanceof CommandItem) {
+                    return messageEvent.getUser().getName();
+                }
+                else {
+                    return ERROR_NON_COMMAND;
+                }
             }
             case TYPE_USER_ID: {
-                return messageEvent.getUser().getId();
+                if (genericMessage instanceof CommandItem) {
+                    return messageEvent.getUser().getId();
+                }
+                else {
+                    return ERROR_NON_COMMAND;
+                }
             }
             case TYPE_WEIGHTED: {
                 String[] entries = content.split("\\|");

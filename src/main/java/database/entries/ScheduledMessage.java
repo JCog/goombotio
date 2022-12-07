@@ -1,22 +1,17 @@
 package database.entries;
 
-public class ScheduledMessage {
+public class ScheduledMessage extends GenericMessage {
     private final String id;
-    private final String message;
     private final int weight;
 
     public ScheduledMessage(String id, String message, int weight) {
+        super(message);
         this.id = id;
-        this.message = message;
         this.weight = weight;
     }
-
+    
     public String getId() {
         return id;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     public int getWeight() {
