@@ -96,7 +96,7 @@ public class MessageExpressionParser {
     private String evaluateExpression(String expression, GenericMessage genericMessage, ChannelMessageEvent messageEvent) {
         String[] split = expression.split(" ", 2);
         String type = split[0];
-        String[] arguments = genericMessage.getMessage().split(" ");
+        String[] arguments = messageEvent.getMessage().split(" ");
         String content = "";
         if (split.length > 1) {
             content = split[1];
