@@ -56,8 +56,7 @@ public class CommandManagerListener extends CommandBase {
         if (messageSplit.length == 1) {
             twitchApi.channelMessage("This is a JSON endpoint, so if it looks unreadable you'll probably need a browser extension for viewing JSON. https://www.jcoggers.com/commands");
             return;
-        }
-        else if (commandUserLevel.value >= USER_LEVEL.MOD.value) {
+        } else if (commandUserLevel.value >= USER_LEVEL.MOD.value) {
             if (messageSplit.length < 3) {
                 showError("missing arguments");
                 return;
@@ -84,11 +83,9 @@ public class CommandManagerListener extends CommandBase {
                 if (start != end) { //valid quotes
                     content = messageSplit[3].substring(start + 1, end);
                     parameterStrings = messageSplit[3].replace(messageSplit[3].substring(start, end + 1), "").split("\\s");
-                }
-                else if (start == -1) { //no quotes
+                } else if (start == -1) { //no quotes
                     parameterStrings = messageSplit[3].split("\\s");
-                }
-                else { //one quote mark
+                } else { //one quote mark
                     showError("unbalanced quotation mark");
                     return;
                 }
@@ -141,26 +138,19 @@ public class CommandManagerListener extends CommandBase {
                 case EDIT:
                     if (hasContent && hasCooldown && hasUserLevel) {
                         twitchApi.channelMessage(commandDb.editCommand(idString, content, cooldown, userLevel));
-                    }
-                    else if (hasContent && hasCooldown) {
+                    } else if (hasContent && hasCooldown) {
                         twitchApi.channelMessage(commandDb.editCommand(idString, content, cooldown));
-                    }
-                    else if (hasContent && hasUserLevel) {
+                    } else if (hasContent && hasUserLevel) {
                         twitchApi.channelMessage(commandDb.editCommand(idString, content, userLevel));
-                    }
-                    else if (hasCooldown && hasUserLevel) {
+                    } else if (hasCooldown && hasUserLevel) {
                         twitchApi.channelMessage(commandDb.editCommand(idString, cooldown, userLevel));
-                    }
-                    else if (hasContent) {
+                    } else if (hasContent) {
                         twitchApi.channelMessage(commandDb.editCommand(idString, content));
-                    }
-                    else if (hasCooldown) {
+                    } else if (hasCooldown) {
                         twitchApi.channelMessage(commandDb.editCommand(idString, cooldown));
-                    }
-                    else if (hasUserLevel) {
+                    } else if (hasUserLevel) {
                         twitchApi.channelMessage(commandDb.editCommand(idString, userLevel));
-                    }
-                    else {
+                    } else {
                         showError("nothing to edit");
                     }
                     break;
@@ -269,8 +259,7 @@ public class CommandManagerListener extends CommandBase {
             String paramTag = param.substring(0, param.indexOf('='));
             if (tags.contains(paramTag)) {
                 return paramTag;
-            }
-            else {
+            } else {
                 tags.add(paramTag);
             }
         }
@@ -287,8 +276,7 @@ public class CommandManagerListener extends CommandBase {
                 String cooldownString = param.substring(start);
                 try {
                     return Long.parseLong(cooldownString);
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     return null;
                 }
             }

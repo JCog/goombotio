@@ -31,8 +31,7 @@ public class ReportBuilder {
         boolean successful = FileWriter.writeToFile(REPORT_LOCATION, filename, report);
         if (successful) {
             out.printf("Output report to %s%s%n", REPORT_LOCATION, filename);
-        }
-        else {
+        } else {
             out.println("Error writing report to file");
         }
     }

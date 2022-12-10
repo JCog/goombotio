@@ -32,8 +32,7 @@ public class TattleDb extends GbCollection {
             Document document = new Document(ID_KEY, twitchId)
                     .append(TATTLE_KEY, tattle);
             insertOne(document);
-        }
-        else {
+        } else {
             updateOne(twitchId, new Document(TATTLE_KEY, tattle));
         }
     }
@@ -43,8 +42,7 @@ public class TattleDb extends GbCollection {
         Document result = findFirstEquals(ID_KEY, twitchId);
         if (result == null) {
             return null;
-        }
-        else {
+        } else {
             return new TattleItem(result.getString(ID_KEY), result.getString(TATTLE_KEY));
         }
     }

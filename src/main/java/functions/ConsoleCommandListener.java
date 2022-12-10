@@ -33,14 +33,12 @@ public class ConsoleCommandListener {
                 String channel = lineSplit[1];
                 out.printf("Enter message for #%s: ", channel);
                 dbc.sendMessage(channel, scanner.nextLine());
-            }
-            else if (command.equals(TWITCH_COMMAND)) {
+            } else if (command.equals(TWITCH_COMMAND)) {
                 int start = line.indexOf(' ') + 1;
                 if (line.length() > start) {
                     twitchApi.channelMessage(line.substring(start));
                     out.println("Message sent to twitch chat");
-                }
-                else {
+                } else {
                     out.println("ERROR: No message");
                 }
             }

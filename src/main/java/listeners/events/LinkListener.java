@@ -67,8 +67,7 @@ public class LinkListener implements TwitchEventListener {
         Clip clip;
         try {
             clip = twitchApi.getClipById(id);
-        }
-        catch (HystrixRuntimeException e) {
+        } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             return "Error retrieving clip data";
         }
@@ -85,8 +84,7 @@ public class LinkListener implements TwitchEventListener {
         Game game;
         try {
             game = twitchApi.getGameById(gameId);
-        }
-        catch (HystrixRuntimeException e) {
+        } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             return "Error retrieving game data";
         }
@@ -112,8 +110,7 @@ public class LinkListener implements TwitchEventListener {
         Video video;
         try {
             video = twitchApi.getVideoById(id);
-        }
-        catch (HystrixRuntimeException e) {
+        } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             return "Error retrieving video data";
         }
@@ -140,8 +137,7 @@ public class LinkListener implements TwitchEventListener {
         Status tweet;
         try {
             tweet = twitter.tweets().showStatus(Long.parseLong(id));
-        }
-        catch (TwitterException e) {
+        } catch (TwitterException e) {
             System.out.println("Twitter Exception");
             return "";
         }

@@ -85,8 +85,7 @@ public class SunshinePredsManager extends PredsManagerBase {
             ArrayList<TimeGuess> closestGuesses = getClosestGuesses(hundredths);
             if (closestGuesses.size() == 0) {
                 message.append("Nobody guessed jcogREE");
-            }
-            else {
+            } else {
                 String difference = formatDifference(hundredths, closestGuesses.get(0).hundredths);
                 if (closestGuesses.size() == 1) {
                     message.append(String.format(
@@ -94,16 +93,14 @@ public class SunshinePredsManager extends PredsManagerBase {
                             closestGuesses.get(0).twitchUser.getName(),
                             difference
                     ));
-                }
-                else if (closestGuesses.size() == 2) {
+                } else if (closestGuesses.size() == 2) {
                     message.append(String.format(
                             "Nobody won, but @%s and @%s were closest (+/- %ss)! jcogComfy",
                             closestGuesses.get(0).twitchUser.getName(),
                             closestGuesses.get(1).twitchUser.getName(),
                             difference
                     ));
-                }
-                else {
+                } else {
                     message.append("Nobody won, but ");
                     for (int i = 0; i < closestGuesses.size() - 1; i++) {
                         message.append("@").append(closestGuesses.get(i).twitchUser.getName()).append(", ");
@@ -113,21 +110,18 @@ public class SunshinePredsManager extends PredsManagerBase {
                     message.append(String.format(" were closest (+/- %ss)! jcogComfy", difference));
                 }
             }
-        }
-        else if (winners.size() == 1) {
+        } else if (winners.size() == 1) {
             message.append(String.format(
                     "Congrats to @%s on guessing correctly! jcogChamp",
                     winners.get(0)
             ));
-        }
-        else if (winners.size() == 2) {
+        } else if (winners.size() == 2) {
             message.append(String.format(
                     "Congrats to @%s and @%s on guessing correctly! jcogChamp",
                     winners.get(0),
                     winners.get(1)
             ));
-        }
-        else {
+        } else {
             message.append("Congrats to ");
             for (int i = 0; i < winners.size() - 1; i++) {
                 message.append("@").append(winners.get(i)).append(", ");
@@ -186,8 +180,7 @@ public class SunshinePredsManager extends PredsManagerBase {
                         guess.twitchUser.getName(),
                         POINTS_CORRECT
                 );
-            }
-            else if (Math.abs(guess.hundredths - answer) < HUND_1_SECOND) {
+            } else if (Math.abs(guess.hundredths - answer) < HUND_1_SECOND) {
                 //off by less than a second
                 leaderboard.addPoints(guess.twitchUser, POINTS_1_SECOND);
                 out.printf(
@@ -195,8 +188,7 @@ public class SunshinePredsManager extends PredsManagerBase {
                         guess.twitchUser.getName(),
                         POINTS_1_SECOND
                 );
-            }
-            else if (Math.abs(guess.hundredths - answer) < HUND_5_SECONDS) {
+            } else if (Math.abs(guess.hundredths - answer) < HUND_5_SECONDS) {
                 //off by less than 5 seconds
                 leaderboard.addPoints(guess.twitchUser, POINTS_5_SECONDS);
                 out.printf(
@@ -204,8 +196,7 @@ public class SunshinePredsManager extends PredsManagerBase {
                         guess.twitchUser.getName(),
                         POINTS_5_SECONDS
                 );
-            }
-            else if (Math.abs(guess.hundredths - answer) < HUND_10_SECONDS) {
+            } else if (Math.abs(guess.hundredths - answer) < HUND_10_SECONDS) {
                 //off by less than 10 seconds
                 leaderboard.addPoints(guess.twitchUser, POINTS_10_SECONDS);
                 out.printf(
@@ -225,8 +216,7 @@ public class SunshinePredsManager extends PredsManagerBase {
             TimeGuess guess = longTimeGuessEntry.getValue();
             if (minDifference == -1) {
                 minDifference = Math.abs(guess.hundredths - answer);
-            }
-            else {
+            } else {
                 int difference = Math.abs(guess.hundredths - answer);
                 if (difference < minDifference) {
                     minDifference = difference;

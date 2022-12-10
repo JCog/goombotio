@@ -44,8 +44,7 @@ public class QuoteItem {
     public String toString() {
         if (created == null) {
             return String.format("%d. %s", index, text);
-        }
-        else {
+        } else {
             return String.format("%d. %s, %s", index, text, getDateString());
         }
     }

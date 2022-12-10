@@ -56,20 +56,15 @@ public class TwitchUserLevel {
         }
         if (broadcaster) {
             return USER_LEVEL.BROADCASTER;
-        }
-        else if (mod) {
+        } else if (mod) {
             return USER_LEVEL.MOD;
-        }
-        else if (vip) {
+        } else if (vip) {
             return USER_LEVEL.VIP;
-        }
-        else if (staff) {
+        } else if (staff) {
             return USER_LEVEL.STAFF;
-        }
-        else if (sub) {
+        } else if (sub) {
             return USER_LEVEL.SUBSCRIBER;
-        }
-        else {
+        } else {
             return USER_LEVEL.DEFAULT;
         }
     }
@@ -78,23 +73,17 @@ public class TwitchUserLevel {
     public static USER_LEVEL getUserLevel(String type) {
         if (type.equals(USER_LEVEL.DEFAULT.toString())) {
             return USER_LEVEL.DEFAULT;
-        }
-        else if (type.equals(USER_LEVEL.SUBSCRIBER.toString()) || type.equals("sub")) {
+        } else if (type.equals(USER_LEVEL.SUBSCRIBER.toString()) || type.equals("sub")) {
             return USER_LEVEL.SUBSCRIBER;
-        }
-        else if (type.equals(USER_LEVEL.STAFF.toString())) {
+        } else if (type.equals(USER_LEVEL.STAFF.toString())) {
             return USER_LEVEL.STAFF;
-        }
-        else if (type.equals(USER_LEVEL.VIP.toString())) {
+        } else if (type.equals(USER_LEVEL.VIP.toString())) {
             return USER_LEVEL.VIP;
-        }
-        else if (type.equals(USER_LEVEL.MOD.toString())) {
+        } else if (type.equals(USER_LEVEL.MOD.toString())) {
             return USER_LEVEL.MOD;
-        }
-        else if (type.equals(USER_LEVEL.BROADCASTER.toString())) {
+        } else if (type.equals(USER_LEVEL.BROADCASTER.toString())) {
             return USER_LEVEL.BROADCASTER;
-        }
-        else {
+        } else {
             return null;
         }
     }

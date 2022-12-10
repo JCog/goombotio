@@ -30,8 +30,7 @@ public class MinecraftUserDb extends GbCollection {
                     .append(MC_UUID_KEY, mcUuid)
                     .append(MC_USERNAME_KEY, mcUsername);
             insertOne(document);
-        }
-        else {
+        } else {
             updateOne(twitchId, new Document(MC_UUID_KEY, mcUuid));
             updateOne(twitchId, new Document(MC_USERNAME_KEY, mcUsername));
         }

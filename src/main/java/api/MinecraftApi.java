@@ -18,8 +18,7 @@ public class MinecraftApi extends BaseAPI {
         JSONObject object;
         try {
             object = (JSONObject) jsonParser.parse(submitRequest(url));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return null;
         }
 

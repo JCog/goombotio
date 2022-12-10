@@ -73,8 +73,7 @@ public class PredsManagerListener extends CommandBase {
                     Stream stream;
                     try {
                         stream = twitchApi.getStream(streamerUser.getLogin());
-                    }
-                    catch (HystrixRuntimeException e) {
+                    } catch (HystrixRuntimeException e) {
                         e.printStackTrace();
                         twitchApi.channelMessage("Error retrieving current game");
                         return;
@@ -85,19 +84,16 @@ public class PredsManagerListener extends CommandBase {
                     }
                     if (gameId.equals(GAME_ID_PAPER_MARIO)) {
                         predsManager = new PapePredsManager(dbManager, discord, twitchApi, streamerUser);
-                    }
-                    else if (gameId.equals(GAME_ID_SUNSHINE)) {
+                    } else if (gameId.equals(GAME_ID_SUNSHINE)) {
                         predsManager = new SunshinePredsManager(dbManager, discord, twitchApi, streamerUser);
-                    }
-                    else {
+                    } else {
                         twitchApi.channelMessage("The current game is not compatible with preds.");
                         return;
                     }
                     out.println("Starting the prediction game...");
                     predsGuessListener.start(predsManager);
                     predsManager.startGame();
-                }
-                else {
+                } else {
                     if (predsManager.isWaitingForAnswer()) {
                         String[] content = messageEvent.getMessage().split("\\s");
                         if (content.length > 1 && content[1].matches(predsManager.getAnswerRegex())) {
@@ -105,8 +101,7 @@ public class PredsManagerListener extends CommandBase {
                             predsManager.submitPredictions(content[1]);
                             predsManager = null;
                         }
-                    }
-                    else {
+                    } else {
                         out.println("Ending the prediction game...");
                         predsGuessListener.stop();
                         predsManager.waitForAnswer();
@@ -119,8 +114,7 @@ public class PredsManagerListener extends CommandBase {
                     predsManager = null;
                     predsGuessListener.stop();
                     twitchApi.channelCommand("Active preds game has been canceled.");
-                }
-                else {
+                } else {
                     twitchApi.channelCommand("There isn't an active preds game to cancel.");
                 }
                 break;

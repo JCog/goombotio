@@ -46,8 +46,7 @@ public class FollowLogger {
         watchTimeDb = dbManager.getWatchTimeDb();
         try {
             oldFollowerIdList = fetchFollowerIds();
-        }
-        catch (HystrixRuntimeException e) {
+        } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             System.out.printf(
                     "Error retrieving initial follower list. Trying again in %dmin%n",
@@ -59,8 +58,7 @@ public class FollowLogger {
         FileWriter fw;
         try {
             fw = new FileWriter(FILENAME, true);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.printf("ERROR: IOException for filename \"%s\"%n", FILENAME);
             e.printStackTrace();
             return;
@@ -76,8 +74,7 @@ public class FollowLogger {
                 HashSet<String> updatedFollowerIds;
                 try {
                     updatedFollowerIds = fetchFollowerIds();
-                }
-                catch (HystrixRuntimeException e) {
+                } catch (HystrixRuntimeException e) {
                     e.printStackTrace();
                     System.out.printf(
                             "Error retrieving updated follower list. Trying again in %dmin%n",
@@ -96,8 +93,7 @@ public class FollowLogger {
                     User newFollowerUser;
                     try {
                         newFollowerUser = twitchApi.getUserById(newFollowerId);
-                    }
-                    catch (HystrixRuntimeException e) {
+                    } catch (HystrixRuntimeException e) {
                         e.printStackTrace();
                         System.out.printf(
                                 "error retrieving data for new follower with id %s%n",
@@ -114,8 +110,7 @@ public class FollowLogger {
                                 dateToString(watchTimeDb.getFirstSeenById(idLong)),
                                 watchTimeDb.getMinutesById(idLong) + streamTracker.getViewerMinutes(newFollowerUser.getLogin())
                         ));
-                    }
-                    else {
+                    } else {
                         String name = watchTimeDb.getNameById(idLong);
                         writer.write(String.format(
                                 "%s New follower (invalid state): %s - First seen: %s - Watchtime: %d minutes\n",
@@ -130,8 +125,7 @@ public class FollowLogger {
                     User unfollowerUser;
                     try {
                         unfollowerUser = twitchApi.getUserById(unfollowerId);
-                    }
-                    catch (HystrixRuntimeException e) {
+                    } catch (HystrixRuntimeException e) {
                         e.printStackTrace();
                         System.out.printf(
                                 "error retrieving data for unfollower with id %s%n",
@@ -149,8 +143,7 @@ public class FollowLogger {
                                 dateToString(watchTimeDb.getLastSeenById(idLong)),
                                 watchTimeDb.getMinutesById(idLong) + streamTracker.getViewerMinutes(unfollowerUser.getLogin())
                         ));
-                    }
-                    else {
+                    } else {
                         String name = watchTimeDb.getNameById(idLong);
                         writer.write(String.format(
                                 "%s Unfollower (account deleted): %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",

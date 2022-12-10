@@ -50,22 +50,18 @@ public class PyramidListener implements TwitchEventListener {
                 if (Objects.equals(userId, sender.getId()) && allPatternsEqual(pattern, splitMessage)) {
                     if (splitMessage.length == height + 1) {
                         height += 1;
-                    }
-                    else if (splitMessage.length == height - 1 && height >= MIN_HEIGHT) {
+                    } else if (splitMessage.length == height - 1 && height >= MIN_HEIGHT) {
                         if (splitMessage.length == TRIGGER_HEIGHT) {
                             interruptPyramid();
                             resetState();
-                        }
-                        else {
+                        } else {
                             state = STATE.FALLING;
                             height -= 1;
                         }
-                    }
-                    else {
+                    } else {
                         resetState();
                     }
-                }
-                else {
+                } else {
                     resetState();
                 }
                 break;
@@ -75,15 +71,12 @@ public class PyramidListener implements TwitchEventListener {
                     if (splitMessage.length == TRIGGER_HEIGHT) {
                         interruptPyramid();
                         resetState();
-                    }
-                    else if (splitMessage.length == height - 1) {
+                    } else if (splitMessage.length == height - 1) {
                         height -= 1;
-                    }
-                    else {
+                    } else {
                         resetState();
                     }
-                }
-                else {
+                } else {
                     resetState();
                 }
                 break;
@@ -93,8 +86,7 @@ public class PyramidListener implements TwitchEventListener {
     private void interruptPyramid() {
         if (pattern.startsWith(INTERRUPT_EMOTE)) {
             twitchApi.channelMessage(TROLL_MESSAGE);
-        }
-        else {
+        } else {
             twitchApi.channelMessage(INTERRUPT_EMOTE);
         }
     }

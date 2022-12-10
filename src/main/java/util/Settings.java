@@ -127,8 +127,7 @@ public class Settings {
         Wini ini = null;
         try {
             ini = new Wini(new File(INI_FILENAME));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("IOException reading ini");
             System.exit(1);
         }

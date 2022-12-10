@@ -46,14 +46,12 @@ public abstract class PredsLeaderboardDb extends GbCollection {
                     .append(monthlyPointsKey, points)
                     .append(WINS_KEY, 0);
             insertOne(document);
-        }
-        else {
+        } else {
             int newPoints = (int) result.get(POINTS_KEY) + points;
             int newMonthlyPoints;
             if (result.get(monthlyPointsKey) == null) {
                 newMonthlyPoints = 0;
-            }
-            else {
+            } else {
                 newMonthlyPoints = (int) result.get(monthlyPointsKey);
             }
             newMonthlyPoints += points;
@@ -78,8 +76,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
                     .append(monthlyPoints, 0)
                     .append(WINS_KEY, wins);
             insertOne(document);
-        }
-        else {
+        } else {
             int newWins = (int) result.get(WINS_KEY) + wins;
             updateOne(id, new Document(WINS_KEY, newWins));
         }
@@ -99,8 +96,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         Object monthlyPoints = user.get(getPrevMonthlyPointsKey());
         if (monthlyPoints != null) {
             return (int) monthlyPoints;
-        }
-        else {
+        } else {
             return 0;
         }
     }
@@ -164,8 +160,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         for (Document next : findAll().sort(Sorts.descending(getMonthlyPointsKey()))) {
             if (next.get(getMonthlyPointsKey()) == null) {
                 break;
-            }
-            else {
+            } else {
                 topMonthlyScorers.add((long) next.get(ID_KEY));
             }
         }
@@ -182,8 +177,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
             Document next = result.next();
             if (next.get(POINTS_KEY) == null) {
                 break;
-            }
-            else {
+            } else {
                 topScorers.add((long) next.get(ID_KEY));
             }
         }
@@ -203,8 +197,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         for (Document next : findAll().sort(Sorts.descending(WINS_KEY))) {
             if (next.get(WINS_KEY) == null) {
                 break;
-            }
-            else {
+            } else {
                 topScorers.add((long) next.get(ID_KEY));
             }
         }

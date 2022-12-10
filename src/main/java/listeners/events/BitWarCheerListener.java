@@ -33,8 +33,7 @@ public class BitWarCheerListener implements TwitchEventListener {
                     "%d bits have been put toward saving Yoshi jcogLove",
                     bitAmount
             ));
-        }
-        else if (stringContainsItemFromList(messageText, KILL_KEYWORDS)) {
+        } else if (stringContainsItemFromList(messageText, KILL_KEYWORDS)) {
             bitWarDb.addBits(BIT_WAR_NAME, TEAM_KILL, bitAmount);
             twitchApi.channelMessage(String.format(
                     "%d bits have been put toward killing Yoshi jcogBan",

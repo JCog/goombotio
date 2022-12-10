@@ -44,8 +44,7 @@ public class ViewerQueueDb extends GbCollection {
                     .append(ATTEMPTS_SINCE_LAST_SESSION_KEY, 0)
                     .append(LAST_SESSION_ID_KEY, sessionId);
             insertOne(document);
-        }
-        else {
+        } else {
             int newTotalSessions = result.getInteger(TOTAL_SESSIONS_KEY) + 1;
             updateOne(userId, new Document(TOTAL_SESSIONS_KEY, newTotalSessions));
             updateOne(userId, new Document(ATTEMPTS_SINCE_LAST_SESSION_KEY, 0));
@@ -62,8 +61,7 @@ public class ViewerQueueDb extends GbCollection {
                     .append(ATTEMPTS_SINCE_LAST_SESSION_KEY, 1)
                     .append(LAST_SESSION_ID_KEY, -1);
             insertOne(document);
-        }
-        else {
+        } else {
             int newAttempts = result.getInteger(ATTEMPTS_SINCE_LAST_SESSION_KEY) + 1;
             updateOne(userId, new Document(ATTEMPTS_SINCE_LAST_SESSION_KEY, newAttempts));
         }
@@ -79,8 +77,7 @@ public class ViewerQueueDb extends GbCollection {
                     .append(LAST_SESSION_ID_KEY, -1);
             insertOne(document);
             return new ViewerQueueEntry(userId, 0, 0, -1);
-        }
-        else {
+        } else {
             int totalSessions = result.getInteger(TOTAL_SESSIONS_KEY);
             int attempts = result.getInteger(ATTEMPTS_SINCE_LAST_SESSION_KEY);
             int lastSessionId = result.getInteger(LAST_SESSION_ID_KEY);

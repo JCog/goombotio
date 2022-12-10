@@ -69,8 +69,7 @@ public class MinecraftWhitelistUpdater {
                 ArrayList<Map<String,String>> newWhitelist;
                 try {
                     newWhitelist = createWhitelist();
-                }
-                catch (HystrixRuntimeException e) {
+                } catch (HystrixRuntimeException e) {
                     System.out.println("ERROR: unable to fetch sub list for Minecraft whitelist. Skipping interval");
                     return;
                 }
@@ -97,8 +96,7 @@ public class MinecraftWhitelistUpdater {
     private ArrayList<Map<String,String>> readInWhitelist() {
         try (FileReader reader = new FileReader(FILENAME)) {
             return gson.fromJson(reader, whitelistType);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("ERROR: unable to read in Minecraft whitelist");
             e.printStackTrace();
         }
@@ -115,8 +113,7 @@ public class MinecraftWhitelistUpdater {
                     whitelist.add(user);
                 }
             }
-        }
-        else {
+        } else {
             whitelist.addAll(minecraftUserDb.getAllUsers());
         }
 
@@ -182,8 +179,7 @@ public class MinecraftWhitelistUpdater {
             channel.disconnect();
             session.disconnect();
             System.out.println("Successfully updated Minecraft whitelist");
-        }
-        catch (JSchException | SftpException e) {
+        } catch (JSchException | SftpException e) {
             System.out.println("ERROR: unable to update Minecraft whitelist");
             e.printStackTrace();
         }

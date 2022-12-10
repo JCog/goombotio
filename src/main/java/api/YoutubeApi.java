@@ -24,8 +24,7 @@ public class YoutubeApi extends BaseAPI {
         JSONObject object;
         try {
             object = (JSONObject) jsonParser.parse(submitRequest(buildUrlString(id, apiKey)));
-        }
-        catch (ParseException e) {
+        } catch (ParseException e) {
             System.out.println("Error getting youtube data");
             e.printStackTrace();
             return "";
@@ -41,8 +40,7 @@ public class YoutubeApi extends BaseAPI {
         JSONObject item;
         try {
             item = (JSONObject) items.get(0);
-        }
-        catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
             return "Deleted/Private Youtube Video";
         }
         JSONObject snippet = (JSONObject) item.get(SNIPPET_KEY);
@@ -53,14 +51,12 @@ public class YoutubeApi extends BaseAPI {
         viewCount = Integer.parseInt(stats.get(VIEW_COUNT_KEY).toString());
         try {
             likeCount = Integer.parseInt(stats.get(LIKE_COUNT_KEY).toString());
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             //ratings hidden
         }
         try {
             dislikeCount = Integer.parseInt(stats.get(DISLIKE_COUNT_KEY).toString());
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             //dislikes removed
         }
 
@@ -74,8 +70,7 @@ public class YoutubeApi extends BaseAPI {
                     numberFormat.format(viewCount)
             );
             
-        }
-        else if (dislikeCount == -1) {
+        } else if (dislikeCount == -1) {
             return String.format(
                     "YouTube Video: %s • %s • %s views | \uD83D\uDC4D%s",
                     channelName,
@@ -83,8 +78,7 @@ public class YoutubeApi extends BaseAPI {
                     numberFormat.format(viewCount),
                     numberFormat.format(likeCount)
             );
-        }
-        else {
+        } else {
             return String.format(
                     "YouTube Video: %s • %s • %s views | \uD83D\uDC4D%s | \uD83D\uDC4E%s",
                     channelName,

@@ -119,8 +119,7 @@ public abstract class PredsManagerBase {
                         topPoints.get(i) != 1 ? "s" : "");
                 if (message.length() + entry.length() > DISCORD_MAX_CHARS - 3) {
                     break;
-                }
-                else {
+                } else {
                     message.append(entry);
                 }
             }
@@ -167,8 +166,7 @@ public abstract class PredsManagerBase {
                 String entry = String.format("%d. %s - %d points\n", prevRank, topNames.get(i), topPoints.get(i));
                 if (message.length() + entry.length() > DISCORD_MAX_CHARS - 3) {
                     break;
-                }
-                else {
+                } else {
                     message.append(entry);
                 }
             }
@@ -176,8 +174,7 @@ public abstract class PredsManagerBase {
             
             if (discord.hasRecentMessageContents(channel)) {
                 discord.editMostRecentMessage(channel, message.toString());
-            }
-            else {
+            } else {
                 discord.sendMessage(channel, message.toString());
             }
             System.out.printf("%s - updated.\n", channel);

@@ -75,8 +75,7 @@ public class LeaderboardListener extends CommandBase {
         updateLeaderboardType();
         if (leaderboard == null) {
             chatMessage = PREDS_MESSAGE_DEFAULT;
-        }
-        else {
+        } else {
             switch (command) {
                 case PATTERN_LEADERBOARD:
                     chatMessage = PredsManagerBase.buildMonthlyLeaderboardString(leaderboard, twitchApi, streamerUser);
@@ -130,8 +129,7 @@ public class LeaderboardListener extends CommandBase {
         Stream stream;
         try {
             stream = twitchApi.getStream(streamerUser.getLogin());
-        }
-        catch (HystrixRuntimeException e) {
+        } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             System.out.println("Error retrieving stream data");
             return "";

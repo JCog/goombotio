@@ -114,11 +114,9 @@ public class TattleListener extends CommandBase {
                     if (start != end) { //valid quotes
                         tattleDb.addTattle(user.getId(), trimmedMessage.substring(start + 1, end));
                         twitchApi.channelMessage(String.format("Added tattle for %s", user.getDisplayName()));
-                    }
-                    else if (start == -1) { //no quotes
+                    } else if (start == -1) { //no quotes
                         twitchApi.channelMessage("ERROR: no quotation marks");
-                    }
-                    else { //one quote mark
+                    } else { //one quote mark
                         twitchApi.channelMessage("ERROR: not enough quotation marks");
                     }
                 }

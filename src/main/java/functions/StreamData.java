@@ -59,8 +59,7 @@ public class StreamData {
         List<User> userList;
         try {
             userList = twitchApi.getUserListByUsernames(userMinutes.keySet());
-        }
-        catch (HystrixRuntimeException e) {
+        } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             out.println("Error retrieving user data for stream, unable to save stream statistics");
             return;
@@ -96,13 +95,11 @@ public class StreamData {
 
         if (viewersCounts.size() == 0) {
             return 0;
-        }
-        else if (isEven) {
+        } else if (isEven) {
             int first = viewersCounts.get(middleIndex - 1);
             int second = viewersCounts.get(middleIndex);
             return (first + second) / 2;
-        }
-        else {
+        } else {
             return viewersCounts.get(middleIndex);
         }
     }
@@ -166,8 +163,7 @@ public class StreamData {
             int followCount;
             try {
                 followCount = twitchApi.getFollowerCount(user.getId());
-            }
-            catch (HystrixRuntimeException e) {
+            } catch (HystrixRuntimeException e) {
                 e.printStackTrace();
                 out.printf("Error retrieving follower count for %s%n", user.getDisplayName());
                 continue;
@@ -188,8 +184,7 @@ public class StreamData {
             long userId = Long.parseLong(user.getId());
             if (allTimeUserIds.contains(userId)) {
                 returningViewers.add(user);
-            }
-            else {
+            } else {
                 newViewers.add(user);
             }
         }

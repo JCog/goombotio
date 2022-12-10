@@ -51,8 +51,7 @@ public class StreamTracker {
                 Stream stream;
                 try {
                     stream = twitchApi.getStream(streamerUser.getLogin());
-                }
-                catch (HystrixRuntimeException e) {
+                } catch (HystrixRuntimeException e) {
                     e.printStackTrace();
                     System.out.println("Error retrieving stream for StreamTracker, skipping interval");
                     return;
@@ -80,8 +79,7 @@ public class StreamTracker {
                     }
                     streamData.updateUsersMinutes(usersOnline);
                     streamData.updateViewerCounts(stream.getViewerCount());
-                }
-                else {
+                } else {
                     if (streamData != null) {
                         streamData.endStream();
                         ReportBuilder.generateReport(dbManager, streamData);
@@ -105,8 +103,7 @@ public class StreamTracker {
     public int getViewerMinutes(String username) {
         if (streamData == null) {
             return 0;
-        }
-        else {
+        } else {
             return streamData.getViewerMinutes(username.toLowerCase());
         }
     }
@@ -120,8 +117,7 @@ public class StreamTracker {
                 blacklist.add(sc.nextLine());
             }
             sc.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

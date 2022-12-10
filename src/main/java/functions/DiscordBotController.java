@@ -24,8 +24,7 @@ public class DiscordBotController {
                     .build()
                     .awaitReady();
             out.println("Goombotio login to Discord successful.");
-        }
-        catch (LoginException | InterruptedException e) {
+        } catch (LoginException | InterruptedException e) {
             out.println("Goombotio login to Discord unsuccessful:");
             e.printStackTrace();
         }
@@ -39,22 +38,18 @@ public class DiscordBotController {
         TextChannel channel;
         try {
             channel = jda.getTextChannelsByName(channelName, true).get(0);
-        }
-        catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
             out.printf("ERROR: discord channel \"#%s\" does not exist%n", channelName);
             return;
         }
 
         try {
             channel.sendMessage(message).queue();
-        }
-        catch (InsufficientPermissionException e) {
+        } catch (InsufficientPermissionException e) {
             out.println(INSUFFICIENT_PERMISSION_ERROR);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             out.println(ILLEGAL_ARGUMENT_ERROR);
-        }
-        catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException e) {
             out.println(UNSUPPORTED_OPERATION_ERROR);
         }
     }

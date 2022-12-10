@@ -27,8 +27,7 @@ public class RecentCheerListener implements TwitchEventListener {
         User user;
         try {
             user = twitchApi.getUserById(userId);
-        }
-        catch (HystrixRuntimeException e) {
+        } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             out.printf(
                     "error retrieving data for bit user with id %s%n",

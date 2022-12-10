@@ -50,8 +50,7 @@ public class MinecraftListener extends CommandBase {
             String subs;
             if (mcUpdater.isSubOnly()) {
                 subs = "subs only";
-            }
-            else {
+            } else {
                 subs = "everyone";
             }
             twitchApi.channelMessage(String.format(GENERIC_MESSAGE, subs));
@@ -63,8 +62,7 @@ public class MinecraftListener extends CommandBase {
                 mcUpdater.setSubOnly(true);
                 twitchApi.channelMessage(SUBS_ENABLED);
                 return;
-            }
-            else if (messageSplit[1].equals("0")) {
+            } else if (messageSplit[1].equals("0")) {
                 mcUpdater.setSubOnly(false);
                 twitchApi.channelMessage(SUBS_DISABLED);
                 return;

@@ -70,22 +70,19 @@ public class PapePredsManager extends PredsManagerBase {
         StringBuilder message = new StringBuilder();
         if (winners.size() == 0) {
             message.append("Nobody guessed it. jcogThump Hopefully you got some points, though!");
-        }
-        else if (winners.size() == 1) {
+        } else if (winners.size() == 1) {
             message.append(String.format("Congrats to @%s%s on guessing correctly! jcogChamp",
                     winners.get(0),
                     unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : ""
             ));
-        }
-        else if (winners.size() == 2) {
+        } else if (winners.size() == 2) {
             message.append(String.format("Congrats to @%s%s and @%s%s on guessing correctly! jcogChamp",
                     winners.get(0),
                     unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : "",
                     winners.get(1),
                     unsubbedWinners.contains(winners.get(1).toLowerCase()) ? "*" : ""
             ));
-        }
-        else {
+        } else {
             message.append("Congrats to ");
             for (int i = 0; i < winners.size() - 1; i++) {
                 message.append("@").append(winners.get(i));
@@ -140,8 +137,7 @@ public class PapePredsManager extends PredsManagerBase {
                 System.out.printf("%s has predicted %s %s %s%n",
                                   user.getName(), badgeGuess.get(0), badgeGuess.get(1), badgeGuess.get(2));
             }
-        }
-        else if (split.length == 1 && split[0].matches("[1-4]{3}")) {
+        } else if (split.length == 1 && split[0].matches("[1-4]{3}")) {
             //using numbers, e.g. "412"
             Vector<Integer> badgeGuess = new Vector<>();
             for (int i = 0; i < split[0].length(); i++) {
@@ -186,23 +182,19 @@ public class PapePredsManager extends PredsManagerBase {
                 leaderboard.addPointsAndWins(user, POINTS_3, 1);
                 out.printf("%s guessed 3 correctly. Adding %d points and a win.%n", user.getName(),
                            POINTS_3);
-            }
-            else if ((leftGuess == leftAnswer && middleGuess == middleAnswer) ||
+            } else if ((leftGuess == leftAnswer && middleGuess == middleAnswer) ||
                     (leftGuess == leftAnswer && rightGuess == rightAnswer) ||
                     (middleGuess == middleAnswer && rightGuess == rightAnswer)) {
                 leaderboard.addPoints(user, POINTS_2);
                 out.printf("%s guessed 2 correctly. Adding %d points.%n", user.getName(), POINTS_2);
-            }
-            else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == rightAnswer) {
+            } else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == rightAnswer) {
                 leaderboard.addPoints(user, POINTS_1);
                 out.printf("%s guessed 1 correctly. Adding %d point.%n", user.getName(), POINTS_1);
-            }
-            else if (answerSet.equals(guessSet)) {
+            } else if (answerSet.equals(guessSet)) {
                 leaderboard.addPoints(user, POINTS_WRONG_ORDER);
                 out.printf("%s guessed 0 correctly, but got all 3 badges. Adding %d point.%n",
                            user.getName(), POINTS_WRONG_ORDER);
-            }
-            else {
+            } else {
                 out.printf("%s guessed 0 correctly.%n", user.getName());
             }
         }
@@ -218,8 +210,7 @@ public class PapePredsManager extends PredsManagerBase {
         List<String> subList;
         try {
             subList = twitchApi.getSubList(streamer.getId()).stream().map(Subscription::getUserLogin).collect(Collectors.toList());
-        }
-        catch (HystrixRuntimeException e) {
+        } catch (HystrixRuntimeException e) {
             out.println("Unable to get sub status of winners.");
             return unsubbedWinners;
         }

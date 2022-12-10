@@ -40,11 +40,9 @@ public class EmoteListener implements TwitchEventListener {
         for (String word : words) {
             if (ffzEmotes.containsKey(word)) {
                 ffzEmoteStatsDb.addEmoteUsage(ffzEmotes.get(word), word, userId);
-            }
-            else if (sevenTvEmotes.containsKey(word)) {
+            } else if (sevenTvEmotes.containsKey(word)) {
                 sevenTvEmoteStatsDb.addEmoteUsage(sevenTvEmotes.get(word), word, userId);
-            }
-            else if (bttvEmotes.containsKey(word)) {
+            } else if (bttvEmotes.containsKey(word)) {
                 bttvEmoteStatsDb.addEmoteUsage(bttvEmotes.get(word), word, userId);
             }
         }

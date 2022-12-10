@@ -90,14 +90,12 @@ public class QuoteListener extends CommandBase {
                         quote = quoteDb.getQuote(index);
                     } while (quote == null || !quote.isApproved());
                     
-                }
-                else {
+                } else {
                     long index;
                     try {
                         index = Long.parseLong(content);
                         quote = quoteDb.getQuote(index);
-                    }
-                    catch (NumberFormatException e) {
+                    } catch (NumberFormatException e) {
                         List<QuoteItem> quotes = quoteDb.searchApprovedQuotes(content);
                         if (quotes.isEmpty()) {
                             twitchApi.channelMessage(ERROR_NO_MATCHING_QUOTES);
@@ -109,8 +107,7 @@ public class QuoteListener extends CommandBase {
                 }
                 if (quote == null || !quote.isApproved()) {
                     twitchApi.channelMessage(ERROR_NO_MATCHING_QUOTES);
-                }
-                else {
+                } else {
                     twitchApi.channelMessage(quote.toString());
                 }
                 break;
@@ -141,8 +138,7 @@ public class QuoteListener extends CommandBase {
                     long delIndex;
                     try {
                         delIndex = Long.parseLong(content);
-                    }
-                    catch (NumberFormatException e) {
+                    } catch (NumberFormatException e) {
                         twitchApi.channelMessage(getBadIndexError(content));
                         break;
                     }
@@ -162,8 +158,7 @@ public class QuoteListener extends CommandBase {
                     long editIndex;
                     try {
                         editIndex = Long.parseLong(editSplit[0]);
-                    }
-                    catch (NumberFormatException e) {
+                    } catch (NumberFormatException e) {
                         twitchApi.channelMessage(getBadIndexError(editSplit[0]));
                         break;
                     }

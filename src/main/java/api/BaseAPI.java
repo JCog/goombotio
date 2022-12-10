@@ -16,8 +16,7 @@ public abstract class BaseAPI {
                 .build();
         try (Response response = client.newCall(request).execute()) {
             return Objects.requireNonNull(response.body()).string();
-        }
-        catch (IOException | NullPointerException e) {
+        } catch (IOException | NullPointerException e) {
             return null;
         }
     }

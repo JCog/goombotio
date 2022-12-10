@@ -31,8 +31,7 @@ public class ThirdPartyEmoteApi extends BaseAPI {
         JSONObject object;
         try {
             object = (JSONObject) jsonParser.parse(submitRequest(FFZ_URL));
-        }
-        catch (ParseException e) {
+        } catch (ParseException e) {
             System.out.println("Error getting FFZ emotes");
             e.printStackTrace();
             return new HashMap<>();
@@ -55,8 +54,7 @@ public class ThirdPartyEmoteApi extends BaseAPI {
         JSONObject object;
         try {
             object = (JSONObject) jsonParser.parse(submitRequest(SEVENTV_URL));
-        }
-        catch (ParseException e) {
+        } catch (ParseException e) {
             System.out.println("Error getting 7TV emotes");
             e.printStackTrace();
             return new HashMap<>();
@@ -78,8 +76,7 @@ public class ThirdPartyEmoteApi extends BaseAPI {
         JSONObject object;
         try {
             object = (JSONObject) jsonParser.parse(submitRequest(BTTV_URL));
-        }
-        catch (ParseException e) {
+        } catch (ParseException e) {
             System.out.println("Error getting BTTV emotes");
             e.printStackTrace();
             return new HashMap<>();

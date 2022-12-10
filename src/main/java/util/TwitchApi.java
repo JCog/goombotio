@@ -114,8 +114,7 @@ public class TwitchApi {
         String firstWord = output.split("\\s", 2)[0];
         if (firstWord.charAt(0) == '/' || firstWord.charAt(0) == '.') {
             System.out.printf("Illegal command usage \"%s\"%n", firstWord);
-        }
-        else {
+        } else {
             sendMessage(output);
         }
     }
@@ -144,8 +143,7 @@ public class TwitchApi {
     private void sendMessage(String message) {
         if (silentChat) {
             System.out.println("SILENT_CHAT: " + message);
-        }
-        else {
+        } else {
             twitchClient.getChat().sendMessage(streamerUser.getDisplayName(), message);
             chatLogger.logMessage(botUser, message);
         }

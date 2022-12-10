@@ -29,12 +29,10 @@ public class BitWarDb extends GbCollection {
                     .append(totalKey, amount)
                     .append(currentKey, amount);
             insertOne(document);
-        }
-        else if (result.get(totalKey) == null) {
+        } else if (result.get(totalKey) == null) {
             updateOne(bitWar, new Document(totalKey, amount));
             updateOne(bitWar, new Document(currentKey, amount));
-        }
-        else {
+        } else {
             int newTotal = (int) result.get(totalKey) + amount;
             int newCurrent = (int) result.get(currentKey) + amount;
             updateOne(bitWar, new Document(totalKey, newTotal));

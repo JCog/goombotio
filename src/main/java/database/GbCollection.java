@@ -31,8 +31,7 @@ public abstract class GbCollection {
     protected void insertOne(Document document) {
         if (writePermission) {
             collection.insertOne(document);
-        }
-        else {
+        } else {
             out.println("DATABASE: attempted to insertOne");
         }
     }
@@ -43,8 +42,7 @@ public abstract class GbCollection {
     protected void updateOne(long id, Document document) {
         if (writePermission) {
             collection.updateOne(eq(ID_KEY, id), new Document("$set", document));
-        }
-        else {
+        } else {
             out.println("DATABASE: attempted to updateOne");
         }
     }
@@ -55,8 +53,7 @@ public abstract class GbCollection {
     protected void updateOne(String id, Document document) {
         if (writePermission) {
             collection.updateOne(eq(ID_KEY, id), new Document("$set", document));
-        }
-        else {
+        } else {
             out.println("DATABASE: attempted to updateOne");
         }
     }
@@ -67,8 +64,7 @@ public abstract class GbCollection {
     protected void deleteOne(long id) {
         if (writePermission) {
             collection.deleteOne(eq(ID_KEY, id));
-        }
-        else {
+        } else {
             out.println("DATABASE: attempted to deleteOne");
         }
     }
@@ -79,8 +75,7 @@ public abstract class GbCollection {
     protected void deleteOne(String id) {
         if (writePermission) {
             collection.deleteOne(eq(ID_KEY, id));
-        }
-        else {
+        } else {
             out.println("DATABASE: attempted to deleteOne");
         }
     }
@@ -119,8 +114,7 @@ public abstract class GbCollection {
     protected FindIterable<Document> findContainsSubstring(String key, String query, boolean caseSensitive) {
         if (caseSensitive) {
             return collection.find(regex(key, ".*" + query + ".*"));
-        }
-        else {
+        } else {
             return collection.find(regex(key, ".*" + query + ".*", "i"));
         }
     }

@@ -33,8 +33,7 @@ public class WatchTimeDb extends GbCollection {
         long idLong;
         try {
             idLong = Long.parseLong(id);
-        }
-        catch (NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
             System.out.printf(
                     "Error: ID \"%s\" (%s, %d minutes) cannot be parsed into long%n",
                     id,
@@ -54,14 +53,12 @@ public class WatchTimeDb extends GbCollection {
                     .append(FIRST_SEEN_KEY, getDate())
                     .append(LAST_SEEN_KEY, getDate());
             insertOne(document);
-        }
-        else {
+        } else {
             int newMinutes = result.getInteger(MINUTES_KEY) + minutes;
             int newMonthlyMinutes;
             if (result.get(monthlyMinutesKey) == null) {
                 newMonthlyMinutes = 0;
-            }
-            else {
+            } else {
                 newMonthlyMinutes = result.getInteger(monthlyMinutesKey);
             }
             newMonthlyMinutes += minutes;

@@ -56,13 +56,11 @@ public class StreamStatsInterface {
 
         if (viewersCounts.size() == 0) {
             return 0;
-        }
-        else if (isEven) {
+        } else if (isEven) {
             int first = viewersCounts.get(middleIndex - 1);
             int second = viewersCounts.get(middleIndex);
             return (first + second) / 2;
-        }
-        else {
+        } else {
             return viewersCounts.get(middleIndex);
         }
     }
@@ -161,8 +159,7 @@ public class StreamStatsInterface {
         List<User> userList;
         try {
             userList = twitchApi.getUserListByUsernames(streamStatsDb.getUserList());
-        }
-        catch (HystrixRuntimeException e) {
+        } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             out.println("Error retrieving user data for top followers");
             return null;
@@ -173,8 +170,7 @@ public class StreamStatsInterface {
             int followCount;
             try {
                 followCount = twitchApi.getFollowerCount(user.getId());
-            }
-            catch (HystrixRuntimeException e) {
+            } catch (HystrixRuntimeException e) {
                 e.printStackTrace();
                 out.printf("Error retrieving follower count for %s%n", user.getDisplayName());
                 continue;

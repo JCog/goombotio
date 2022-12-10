@@ -70,8 +70,7 @@ public class StreamStatsDb extends GbCollection {
         Document stream = findFirstEquals(ID_KEY, streamKey);
         if (stream == null) {
             insertOne(document);
-        }
-        else {
+        } else {
             updateOne(streamKey, document);
         }
 
@@ -79,8 +78,7 @@ public class StreamStatsDb extends GbCollection {
         Document key = findFirstEquals(ID_KEY, NEWEST_ID);
         if (key == null) {
             insertOne(new Document(ID_KEY, NEWEST_ID).append(NEWEST_KEY, streamKey));
-        }
-        else {
+        } else {
             updateOne(NEWEST_ID, new Document(NEWEST_KEY, streamKey));
         }
     }

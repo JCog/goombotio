@@ -96,7 +96,7 @@ public class ScheduledMessageController {
                 postRandomMsg();
             }
             scheduleSocialMessages();
-            activeChat = true;
+            activeChat = false;
         }
     }
 

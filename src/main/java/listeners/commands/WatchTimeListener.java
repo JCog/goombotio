@@ -73,11 +73,9 @@ public class WatchTimeListener extends CommandBase {
         minutes -= TimeUnit.HOURS.toMinutes(hours);
         if (days > 0) {
             return String.format("%d days, %d hours, %d minutes", days, hours, minutes);
-        }
-        else if (hours > 0) {
+        } else if (hours > 0) {
             return String.format("%d hours, %d minutes", hours, minutes);
-        }
-        else {
+        } else {
             return String.format("%d minutes", minutes);
         }
     }

@@ -40,8 +40,7 @@ public class EmoteStatsDb extends GbCollection {
                     .append(USAGE_STATS_KEY, usageStatsList);
 
             insertOne(mainDocument);
-        }
-        else {
+        } else {
             List<Document> usageStatsList = result.getList(USAGE_STATS_KEY, Document.class);
             Document currentMonthStats = getUsageStats(usageStatsList, monthKeyValue);
 
@@ -51,8 +50,7 @@ public class EmoteStatsDb extends GbCollection {
                 usageStatsList.add(usageStatsDocument);
 
                 updateOne(emoteId, new Document(USAGE_STATS_KEY, usageStatsList));
-            }
-            else {
+            } else {
                 Document newCurrentMonthStats = new Document(currentMonthStats);
                 usageStatsList.remove(currentMonthStats);
                 int newCount = newCurrentMonthStats.getInteger(COUNT_KEY) + 1;

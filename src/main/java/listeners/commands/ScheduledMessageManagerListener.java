@@ -64,16 +64,13 @@ public class ScheduledMessageManagerListener extends CommandBase {
             int end = messageSplit[3].lastIndexOf('"');
             if (start != end) { //valid quotes
                 content = messageSplit[3].substring(start + 1, end);
-            }
-            else if (start == -1) { //no quotes
+            } else if (start == -1) { //no quotes
                 showError("no quotation marks");
-            }
-            else { //one quote mark
+            } else { //one quote mark
                 showError("unbalanced quotation mark");
                 return;
             }
-        }
-        catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
             //do nothing
         }
         boolean hasContent = content != null && !content.isEmpty();

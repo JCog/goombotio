@@ -36,8 +36,7 @@ public class QuoteUndoEngine {
     public void undo() {
         if (actionUndoStack.isEmpty()) {
             twitchApi.channelMessage("No quote actions to undo");
-        }
-        else {
+        } else {
             QuoteUndoItem quoteUndoItem = actionUndoStack.pop();
             QuoteItem quote = quoteUndoItem.getQuoteItem();
             switch (quoteUndoItem.getAction()) {
@@ -66,8 +65,7 @@ public class QuoteUndoEngine {
     public void redo() {
         if (actionRedoStack.isEmpty()) {
             twitchApi.channelMessage("No quote actions to redo");
-        }
-        else {
+        } else {
             QuoteUndoItem quoteRedoItem = actionRedoStack.pop();
             QuoteItem quoteToRedo = quoteRedoItem.getQuoteItem();
             switch (quoteRedoItem.getAction()) {

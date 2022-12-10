@@ -80,8 +80,7 @@ public class QuoteDb extends GbCollection {
         Document quoteToDelete = findFirstEquals(ID_KEY, index);
         if (quoteToDelete != null) {
             deleteOne(index);
-        }
-        else {
+        } else {
             return null;
         }
 

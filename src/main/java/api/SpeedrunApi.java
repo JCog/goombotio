@@ -290,8 +290,7 @@ public class SpeedrunApi extends BaseAPI {
         JSONObject leaderboard;
         try {
             leaderboard = (JSONObject) jsonParser.parse(json);
-        }
-        catch (ParseException e) {
+        } catch (ParseException e) {
             e.printStackTrace();
             return "";
         }
@@ -309,8 +308,7 @@ public class SpeedrunApi extends BaseAPI {
         JSONObject leaderboard;
         try {
             leaderboard = (JSONObject) jsonParser.parse(json);
-        }
-        catch (ParseException e) {
+        } catch (ParseException e) {
             e.printStackTrace();
             return 0;
         }
@@ -321,8 +319,7 @@ public class SpeedrunApi extends BaseAPI {
         BigDecimal seconds;
         if (times.get(PRIMARY_T_KEY).getClass() == Double.class) {
             seconds = BigDecimal.valueOf((Double) times.get(PRIMARY_T_KEY));
-        }
-        else {
+        } else {
             seconds = BigDecimal.valueOf((Long) times.get(PRIMARY_T_KEY));
         }
         
@@ -336,8 +333,7 @@ public class SpeedrunApi extends BaseAPI {
         JSONObject user;
         try {
             user = (JSONObject) jsonParser.parse(userJson);
-        }
-        catch (ParseException e) {
+        } catch (ParseException e) {
             e.printStackTrace();
             return "";
         }
@@ -358,8 +354,7 @@ public class SpeedrunApi extends BaseAPI {
                 return String.format("%d:%02d:%02d.%03d", hours, minutes, seconds, ms);
             }
             return String.format("%d:%02d:%02d", hours, minutes, seconds);
-        }
-        else {
+        } else {
             if (ms > 0) {
                 return String.format("%d:%02d.%03d", minutes, seconds, ms);
             }

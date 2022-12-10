@@ -123,21 +123,18 @@ public class MessageExpressionParser {
                 int arg;
                 try {
                     arg = Integer.parseInt(content) + 1;
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     return String.format(ERROR_BAD_ARG_NUM_FORMAT, content);
                 }
 
                 if (arg < 0) {
                     return String.format(ERROR_BAD_ARG_NUM_FORMAT, content);
-                }
-                else if (userArgs.length > arg) {
+                } else if (userArgs.length > arg) {
                     if (userArgs[arg].contains("(") || userArgs[arg].contains(")")) {
                         return ERROR_INVALID_USER_ARG;
                     }
                     return userArgs[arg];
-                }
-                else {
+                } else {
                     return "";
                 }
             }
@@ -194,8 +191,7 @@ public class MessageExpressionParser {
                 try {
                     low = Integer.parseInt(rangeSplit[0]);
                     high = Integer.parseInt(rangeSplit[1]);
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     return String.format(ERROR_INVALID_RANGE, content);
                 }
                 if (low >= high) {
@@ -291,8 +287,7 @@ public class MessageExpressionParser {
         User user;
         try {
             user = twitchApi.getUserByUsername(userName);
-        }
-        catch (HystrixRuntimeException e) {
+        } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             return String.format("Error retrieving user data for %s", userName);
         }
@@ -302,8 +297,7 @@ public class MessageExpressionParser {
         Follow follow;
         try {
             follow = twitchApi.getFollow(user.getId(), streamerUser.getId());
-        }
-        catch (HystrixRuntimeException e) {
+        } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             return String.format("Error retrieving follow age for %s", userName);
         }
@@ -336,8 +330,7 @@ public class MessageExpressionParser {
                     streamerUser.getDisplayName(),
                     timeString
             );
-        }
-        else {
+        } else {
             return String.format(
                     "%s is not following %s",
                     user.getDisplayName(),
@@ -358,11 +351,9 @@ public class MessageExpressionParser {
                             start = i + 2;
                             i++;
                             depth = 1;
-                        }
-                        else if (input.charAt(i) == '(') {
+                        } else if (input.charAt(i) == '(') {
                             depth += 1;
-                        }
-                        else if (input.charAt(i) == ')') {
+                        } else if (input.charAt(i) == ')') {
                             depth -= 1;
                         }
                         i++;
@@ -371,8 +362,7 @@ public class MessageExpressionParser {
                     return input.substring(start, i);
                 }
             }
-        }
-        catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
             //do nothing, reached the end
         }
         return "";
@@ -384,14 +374,12 @@ public class MessageExpressionParser {
             request = new Request.Builder()
                     .url(url)
                     .build();
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return ERROR_URL;
         }
         try (Response response = client.newCall(request).execute()) {
             return Objects.requireNonNull(response.body()).string();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             return ERROR_URL_RETRIEVAL;
         }
     }
@@ -403,11 +391,9 @@ public class MessageExpressionParser {
         seconds -= TimeUnit.MINUTES.toSeconds(minutes);
         if (hours > 0) {
             return String.format("%d hours, %d minutes, %d seconds", hours, minutes, seconds);
-        }
-        else if (minutes > 0) {
+        } else if (minutes > 0) {
             return String.format("%d minutes, %d seconds", minutes, seconds);
-        }
-        else {
+        } else {
             return String.format("%d seconds", seconds);
         }
     }
