@@ -24,7 +24,7 @@ import static java.lang.System.out;
 
 public class MainBotController {
     private static final String DB_NAME = "goombotio";
-    private static final int SOCIAL_INTERVAL_LENGTH = 20;
+    private static final int SOCIAL_INTERVAL_LENGTH = 1;
     private static final int TIMER_THREAD_SIZE = 5;
 
     private final Settings settings;
@@ -127,13 +127,11 @@ public class MainBotController {
         //main loop
         try {
             new ConsoleCommandListener(twitchApi, discordBotController).run();
-        }
-        catch (NoSuchElementException nsee) {
+        } catch (NoSuchElementException nsee) {
             out.println("No console detected. Process must be killed manually");
             try {
                 this.wait();
-            }
-            catch (InterruptedException ie) {
+            } catch (InterruptedException ie) {
                 ie.printStackTrace();
             }
         }

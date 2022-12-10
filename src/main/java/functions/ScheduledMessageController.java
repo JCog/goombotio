@@ -87,8 +87,7 @@ public class ScheduledMessageController {
             Stream stream;
             try {
                 stream = twitchApi.getStream(streamerUser.getLogin());
-            }
-            catch (HystrixRuntimeException e) {
+            } catch (HystrixRuntimeException e) {
                 e.printStackTrace();
                 System.out.println("Error retrieving stream for SocialScheduler");
                 return;
@@ -97,7 +96,7 @@ public class ScheduledMessageController {
                 postRandomMsg();
             }
             scheduleSocialMessages();
-            activeChat = false;
+            activeChat = true;
         }
     }
 

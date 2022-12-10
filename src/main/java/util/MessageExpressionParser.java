@@ -96,7 +96,7 @@ public class MessageExpressionParser {
     private String evaluateExpression(String expression, GenericMessage genericMessage, ChannelMessageEvent messageEvent) {
         String[] split = expression.split(" ", 2);
         String type = split[0];
-        String[] arguments = messageEvent.getMessage().split(" ");
+        String[] userArgs = (messageEvent == null) ? null : messageEvent.getMessage().split(" ");
         String content = "";
         if (split.length > 1) {
             content = split[1];
@@ -116,6 +116,10 @@ public class MessageExpressionParser {
                 return aliasCommand.getMessage();
             }
             case TYPE_ARG: {
+                if (messageEvent == null) {
+                    return ERROR_NON_COMMAND;
+                }
+                
                 int arg;
                 try {
                     arg = Integer.parseInt(content) + 1;
@@ -127,11 +131,11 @@ public class MessageExpressionParser {
                 if (arg < 0) {
                     return String.format(ERROR_BAD_ARG_NUM_FORMAT, content);
                 }
-                else if (arguments.length > arg) {
-                    if (arguments[arg].contains("(") || arguments[arg].contains(")")) {
+                else if (userArgs.length > arg) {
+                    if (userArgs[arg].contains("(") || userArgs[arg].contains(")")) {
                         return ERROR_INVALID_USER_ARG;
                     }
-                    return arguments[arg];
+                    return userArgs[arg];
                 }
                 else {
                     return "";
@@ -152,16 +156,14 @@ public class MessageExpressionParser {
                     CommandItem commandItem = (CommandItem) genericMessage;
                     commandDb.incrementCount(commandItem.getId());
                     return Integer.toString(commandItem.getCount() + 1);
-                }
-                else {
+                } else {
                     return ERROR_NON_COMMAND;
                 }
             }
             case TYPE_FOLLOW_AGE: {
                 if (content.split(" ").length == 1) {
                     return getFollowAgeString(content);
-                }
-                else {
+                } else {
                     return ERROR;
                 }
             }
@@ -171,16 +173,14 @@ public class MessageExpressionParser {
                     DecimalFormat df = new DecimalFormat("#.##");
                     df.setRoundingMode(RoundingMode.HALF_UP);
                     return df.format(evaluator.evaluate(content));
-                }
-                catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException e) {
                     return String.format("%s: %s", ERROR, e.getMessage());
                 }
             }
             case TYPE_QUERY: {
-                if (arguments.length > 1) {
+                if (userArgs != null && userArgs.length > 1) {
                     return messageEvent.getMessage().split(" ", 2)[1];
-                }
-                else {
+                } else {
                     return "";
                 }
             }
@@ -205,34 +205,30 @@ public class MessageExpressionParser {
                 return Integer.toString(randomOutput);
             }
             case TYPE_TOUSER: {
-                if (genericMessage instanceof CommandItem) {
-                    if (arguments.length > 1) {
-                        if (arguments[1].startsWith("@")) {
-                            return arguments[1].substring(1);
-                        } else {
-                            return arguments[1];
-                        }
-                    } else {
-                        return messageEvent.getUser().getName();
-                    }
-                }
-                else {
+                if (!(genericMessage instanceof CommandItem) || messageEvent == null) {
                     return ERROR_NON_COMMAND;
+                }
+                if (userArgs.length > 1) {
+                    if (userArgs[1].startsWith("@")) {
+                        return userArgs[1].substring(1);
+                    } else {
+                        return userArgs[1];
+                    }
+                } else {
+                    return messageEvent.getUser().getName();
                 }
             }
             case TYPE_UPTIME: {
                 Stream stream;
                 try {
                     stream = twitchApi.getStream(streamerUser.getLogin());
-                }
-                catch (HystrixRuntimeException e) {
+                } catch (HystrixRuntimeException e) {
                     e.printStackTrace();
                     return "error retrieving stream data";
                 }
                 if (stream == null) {
                     return "stream is not live";
-                }
-                else {
+                } else {
                     return getTimeString(stream.getUptime().toMillis() / 1000);
                 }
             }
@@ -242,16 +238,14 @@ public class MessageExpressionParser {
             case TYPE_USER: {
                 if (genericMessage instanceof CommandItem) {
                     return messageEvent.getUser().getName();
-                }
-                else {
+                } else {
                     return ERROR_NON_COMMAND;
                 }
             }
             case TYPE_USER_ID: {
                 if (genericMessage instanceof CommandItem) {
                     return messageEvent.getUser().getId();
-                }
-                else {
+                } else {
                     return ERROR_NON_COMMAND;
                 }
             }
@@ -268,8 +262,7 @@ public class MessageExpressionParser {
                     int weight;
                     try {
                         weight = Integer.parseInt(weightMessage[0]);
-                    }
-                    catch (NumberFormatException e) {
+                    } catch (NumberFormatException e) {
                         return ERROR_INVALID_WEIGHT;
                     }
 
@@ -282,8 +275,7 @@ public class MessageExpressionParser {
                 for (int i = 0; i < weights.size(); i++) {
                     if (selection < weights.get(i)) {
                         return messages.get(i);
-                    }
-                    else {
+                    } else {
                         selection -= weights.get(i);
                     }
                 }
