@@ -15,7 +15,7 @@ import java.util.Collections;
 import static java.lang.System.out;
 
 public class VipRaffleRewardListener implements TwitchEventListener {
-    private static final String RAFFLE_REWARD_TITLE = "VIP Raffle Entry";
+    private static final String RAFFLE_REWARD_TITLE = "VIP Raffle Entries";
     private static final int ENTRY_COUNT = 4;
     
     
