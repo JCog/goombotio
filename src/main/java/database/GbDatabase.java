@@ -19,20 +19,28 @@ public class GbDatabase {
 
     public GbDatabase(String host, int port, String dbName, String user, String password, boolean writePermission) {
         this.writePermission = writePermission;
-
         MongoCredential credential = MongoCredential.createCredential(
                 user,
                 dbName,
                 password.toCharArray()
         );
-        mongoClient = MongoClients.create(
-                MongoClientSettings.builder()
-                        .applyToClusterSettings(builder ->
-                                builder.hosts(Collections.singletonList(
-                                        new ServerAddress(host, port)
-                                )))
-                        .credential(credential)
-                        .build()
+        mongoClient = MongoClients.create(MongoClientSettings.builder()
+                .applyToClusterSettings(builder -> builder.hosts(Collections.singletonList(
+                        new ServerAddress(host, port)
+                )))
+                .credential(credential)
+                .build()
+        );
+        mongoDatabase = mongoClient.getDatabase(dbName);
+    }
+    
+    public GbDatabase(String dbName, boolean writePermission) {
+        this.writePermission = writePermission;
+        mongoClient = MongoClients.create(MongoClientSettings.builder()
+                .applyToClusterSettings(builder -> builder.hosts(Collections.singletonList(
+                        new ServerAddress("localhost", 27017)
+                )))
+                .build()
         );
         mongoDatabase = mongoClient.getDatabase(dbName);
     }

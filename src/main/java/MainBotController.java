@@ -2,6 +2,7 @@ import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import functions.*;
 import listeners.channelpoints.DethroneListener;
+import listeners.channelpoints.VipRaffleRewardListener;
 import listeners.commands.*;
 import listeners.commands.preds.LeaderboardListener;
 import listeners.commands.preds.PredsGuessListener;
@@ -172,6 +173,7 @@ public class MainBotController {
         
         // Channel Point Listeners
         twitchApi.registerEventListener(new DethroneListener(twitchApi, streamerUser.getId()));
+        twitchApi.registerEventListener(new VipRaffleRewardListener(twitchApi, dbManager));
 
         // General Listeners
 //        twitchApi.registerEventListener(new BitWarCheerListener(twitchApi, dbManager));

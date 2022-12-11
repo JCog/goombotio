@@ -23,6 +23,7 @@ public class DbManager {
     private final CommandDb commandDb;
     private final MinecraftUserDb minecraftUserDb;
     private final QuoteDb quoteDb;
+    private final VipRaffleDb vipRaffleDb;
     private final SocialSchedulerDb socialSchedulerDb;
     private final TattleDb tattleDb;
     private final ViewerQueueDb viewerQueueDb;
@@ -33,8 +34,14 @@ public class DbManager {
     private final StreamStatsDb streamStatsDb;
     private final WatchTimeDb watchTimeDb;
 
-    public DbManager(String host, int port, String dbName, String user, String password, boolean writePermission) {
-        this.gbDatabase = new GbDatabase(host, port, dbName, user, password, writePermission);
+    public DbManager(String host, Integer port, String dbName, String user, String password, boolean writePermission) {
+        if (host == null || port == null || user == null || password == null) {
+            this.gbDatabase = new GbDatabase(dbName, writePermission);
+            System.out.printf("Database connection to %s at localhost:27017 successful.%n", dbName);
+        } else {
+            this.gbDatabase = new GbDatabase(host, port, dbName, user, password, writePermission);
+            System.out.printf("Database connection to %s at %s:%d successful.%n", dbName, host, port);
+        }
 
         emoteStatsDb = new EmoteStatsDb(gbDatabase);
         ffzEmoteStatsDb = new FfzEmoteStatsDb(gbDatabase);
@@ -45,6 +52,7 @@ public class DbManager {
         commandDb = new CommandDb(gbDatabase);
         minecraftUserDb = new MinecraftUserDb(gbDatabase);
         quoteDb = new QuoteDb(gbDatabase);
+        vipRaffleDb = new VipRaffleDb(gbDatabase);
         socialSchedulerDb = new SocialSchedulerDb(gbDatabase);
         tattleDb = new TattleDb(gbDatabase);
         viewerQueueDb = new ViewerQueueDb(gbDatabase);
@@ -90,6 +98,10 @@ public class DbManager {
 
     public QuoteDb getQuoteDb() {
         return quoteDb;
+    }
+    
+    public VipRaffleDb getVipRaffleDb() {
+        return vipRaffleDb;
     }
 
     public SocialSchedulerDb getSocialSchedulerDb() {
