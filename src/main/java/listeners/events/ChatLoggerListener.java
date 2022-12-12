@@ -12,7 +12,7 @@ public class ChatLoggerListener implements TwitchEventListener {
     }
 
     @Override
-    public void onPrivMsg(ChannelMessageEvent messageEvent) {
+    public void onChannelMessage(ChannelMessageEvent messageEvent) {
         chatLogger.logMessage(messageEvent);
     }
 

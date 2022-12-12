@@ -128,7 +128,7 @@ public class ScheduledMessageController {
 
     private class AnyMessageListener implements TwitchEventListener {
         @Override
-        public void onPrivMsg(ChannelMessageEvent messageEvent) {
+        public void onChannelMessage(ChannelMessageEvent messageEvent) {
             EventUser sender = messageEvent.getUser();
             // chat is active as long as posters aren't the streamer or bot
             if (!sender.getId().equals(streamerUser.getId()) && !sender.getId().equals(botUser.getId())) {

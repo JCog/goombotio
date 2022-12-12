@@ -21,7 +21,7 @@ public class CloudListener implements TwitchEventListener {
     }
 
     @Override
-    public void onPrivMsg(ChannelMessageEvent messageEvent) {
+    public void onChannelMessage(ChannelMessageEvent messageEvent) {
         if (Objects.equals(messageEvent.getUser().getId(), CLOUD_ID) && !saidHi) {
             twitchApi.channelMessage(MESSAGE);
             saidHi = true;

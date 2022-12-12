@@ -4,7 +4,10 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.events.ChannelChangeGameEvent;
+import com.github.twitch4j.events.ChannelChangeTitleEvent;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
+import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
 import com.github.twitch4j.helix.domain.*;
 import com.github.twitch4j.pubsub.events.ChannelBitsEvent;
@@ -52,7 +55,6 @@ public class TwitchApi {
                 .build();
         twitchClient.getChat().joinChannel(streamerUsername);
         twitchClient.getClientHelper().enableStreamEventListener(streamerUsername);
-        twitchClient.getClientHelper().enableFollowEventListener(streamerUsername);
         
         streamerUser = getUserByUsername(streamerUsername);
         botUser = getUserByUsername(botUsername);
@@ -82,8 +84,11 @@ public class TwitchApi {
     }
     
     public void registerEventListener(TwitchEventListener eventListener) {
-        twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, eventListener::onPrivMsg);
+        twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, eventListener::onChannelMessage);
         twitchClient.getEventManager().onEvent(ChannelGoLiveEvent.class, eventListener::onGoLive);
+        twitchClient.getEventManager().onEvent(ChannelGoOfflineEvent.class, eventListener::onGoOffline);
+        twitchClient.getEventManager().onEvent(ChannelChangeGameEvent.class, eventListener::onGameChange);
+        twitchClient.getEventManager().onEvent(ChannelChangeTitleEvent.class, eventListener::onChangeTitle);
         
         twitchClient.getEventManager().onEvent(ChannelBitsEvent.class, eventListener::onCheer);
         twitchClient.getEventManager().onEvent(RewardRedeemedEvent.class, eventListener::onChannelPointsRedemption);

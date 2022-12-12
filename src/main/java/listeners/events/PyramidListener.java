@@ -32,7 +32,7 @@ public class PyramidListener implements TwitchEventListener {
     }
 
     @Override
-    public void onPrivMsg(ChannelMessageEvent messageEvent) {
+    public void onChannelMessage(ChannelMessageEvent messageEvent) {
         EventUser sender = messageEvent.getUser();
         String[] splitMessage = messageEvent.getMessage().split(" ");
 

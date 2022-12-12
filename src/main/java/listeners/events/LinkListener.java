@@ -34,7 +34,7 @@ public class LinkListener implements TwitchEventListener {
     }
 
     @Override
-    public void onPrivMsg(ChannelMessageEvent messageEvent) {
+    public void onChannelMessage(ChannelMessageEvent messageEvent) {
         ArrayList<String> clipUrls = getMatches(messageEvent.getMessage(), clipPattern);
         ArrayList<String> videoUrls = getMatches(messageEvent.getMessage(), videoPattern);
         ArrayList<String> youtubeVideoIds = getMatches(messageEvent.getMessage(), youtubePattern);

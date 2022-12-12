@@ -48,7 +48,7 @@ public abstract class CommandBase implements TwitchEventListener {
     }
 
     @Override
-    public void onPrivMsg(ChannelMessageEvent messageEvent) {
+    public void onChannelMessage(ChannelMessageEvent messageEvent) {
         String exactContent = messageEvent.getMessage().trim();
         if (exactContent.length() == 0) {
             return;

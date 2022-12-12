@@ -30,7 +30,7 @@ public class EmoteListener implements TwitchEventListener {
     }
 
     @Override
-    public void onPrivMsg(ChannelMessageEvent messageEvent) {
+    public void onChannelMessage(ChannelMessageEvent messageEvent) {
         // Twitch4J doesn't supply data on what Twitch emotes are in a message, so can't easily track this anymore
 //        for (Emote emote : message.getEmotes()) {
 //            emoteStatsDb.addEmoteUsage(emote, sender.getUserID());
