@@ -174,7 +174,7 @@ public class MainBotController {
         
         // Channel Point Listeners
         twitchApi.registerEventListener(new DethroneListener(twitchApi, streamerUser.getId()));
-        twitchApi.registerEventListener(new VipRaffleRewardListener(twitchApi, dbManager));
+        twitchApi.registerEventListener(new VipRaffleRewardListener(twitchApi, dbManager, streamerUser));
 
         // General Listeners
 //        twitchApi.registerEventListener(new BitWarCheerListener(twitchApi, dbManager));

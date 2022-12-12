@@ -442,6 +442,13 @@ public class TwitchApi {
     }
     
     public void updateRedemptionStatus(String broadcasterId, String rewardId, Collection<String> redemptionIds, RedemptionStatus newStatus) throws HystrixRuntimeException {
-        twitchClient.getHelix().updateRedemptionStatus(authToken, broadcasterId, rewardId, redemptionIds, newStatus).execute();
+        CustomRewardRedemptionList redemptionList = twitchClient.getHelix().updateRedemptionStatus(authToken, broadcasterId, rewardId, redemptionIds, newStatus).execute();
+        for (CustomRewardRedemption redemption : redemptionList.getRedemptions()) {
+            out.printf("Custom reward redemption \"%s\" has been %s for %s%n",
+                    redemption.getReward().getTitle(),
+                    newStatus == RedemptionStatus.FULFILLED ? "fulfilled" : "canceled",
+                    redemption.getUserName()
+            );
+        }
     }
 }

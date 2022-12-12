@@ -5,6 +5,7 @@ import database.GbDatabase;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PermanentVipsDb extends GbCollection {
     private static final String COLLECTION_NAME_KEY = "permenant_vips";
@@ -37,7 +38,7 @@ public class PermanentVipsDb extends GbCollection {
         return findFirstEquals(ID_KEY, userId) != null;
     }
     
-    public ArrayList<String> getAllVipUserIds() {
+    public List<String> getAllVipUserIds() {
         return findAll().map(document -> document.getString(ID_KEY)).into(new ArrayList<>());
     }
 }
