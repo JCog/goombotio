@@ -22,11 +22,12 @@ public class DbManager {
     private final BitWarDb bitWarDb;
     private final CommandDb commandDb;
     private final MinecraftUserDb minecraftUserDb;
+    private final PermanentVipsDb permanentVipsDb;
     private final QuoteDb quoteDb;
-    private final VipRaffleDb vipRaffleDb;
     private final SocialSchedulerDb socialSchedulerDb;
     private final TattleDb tattleDb;
     private final ViewerQueueDb viewerQueueDb;
+    private final VipRaffleDb vipRaffleDb;
 
     private final SpeedySpinLeaderboardDb speedySpinLeaderboardDb;
     private final SunshineTimerLeaderboardDb sunshineTimerLeaderboardDb;
@@ -51,11 +52,12 @@ public class DbManager {
         bitWarDb = new BitWarDb(gbDatabase);
         commandDb = new CommandDb(gbDatabase);
         minecraftUserDb = new MinecraftUserDb(gbDatabase);
+        permanentVipsDb = new PermanentVipsDb(gbDatabase);
         quoteDb = new QuoteDb(gbDatabase);
-        vipRaffleDb = new VipRaffleDb(gbDatabase);
         socialSchedulerDb = new SocialSchedulerDb(gbDatabase);
         tattleDb = new TattleDb(gbDatabase);
         viewerQueueDb = new ViewerQueueDb(gbDatabase);
+        vipRaffleDb = new VipRaffleDb(gbDatabase);
 
         speedySpinLeaderboardDb = new SpeedySpinLeaderboardDb(gbDatabase);
         sunshineTimerLeaderboardDb = new SunshineTimerLeaderboardDb(gbDatabase);
@@ -95,13 +97,13 @@ public class DbManager {
     public MinecraftUserDb getMinecraftUserDb() {
         return minecraftUserDb;
     }
+    
+    public PermanentVipsDb getPermanentVipsDb() {
+        return permanentVipsDb;
+    }
 
     public QuoteDb getQuoteDb() {
         return quoteDb;
-    }
-    
-    public VipRaffleDb getVipRaffleDb() {
-        return vipRaffleDb;
     }
 
     public SocialSchedulerDb getSocialSchedulerDb() {
@@ -114,6 +116,10 @@ public class DbManager {
 
     public ViewerQueueDb getViewerQueueDb() {
         return viewerQueueDb;
+    }
+    
+    public VipRaffleDb getVipRaffleDb() {
+        return vipRaffleDb;
     }
 
     public SpeedySpinLeaderboardDb getSpeedySpinLeaderboardDb() {

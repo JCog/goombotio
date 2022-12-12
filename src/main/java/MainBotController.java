@@ -162,6 +162,7 @@ public class MainBotController {
         twitchApi.registerEventListener(new MinecraftListener(scheduler, twitchApi, dbManager, minecraftWhitelistUpdater));
 //        twitchApi.registerEventListener(new ModListener(scheduler, twitchApi));
         twitchApi.registerEventListener(new QuoteListener(scheduler, dbManager, twitchApi, streamerUser));
+        twitchApi.registerEventListener(new PermanentVipListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new PredsManagerListener(
                 scheduler, dbManager, twitchApi, discordBotController, predsGuessListener, streamerUser));
         twitchApi.registerEventListener(new ScheduledMessageManagerListener(scheduler, twitchApi, dbManager));
