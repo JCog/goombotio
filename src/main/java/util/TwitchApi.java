@@ -45,13 +45,16 @@ public class TwitchApi {
         this.chatLogger = chatLogger;
         this.authToken = channelAuthToken;
         this.silentChat = silentChat;
+        
+        OAuth2Credential oauth = new OAuth2Credential("twitch", channelAuthToken);
         twitchClient = TwitchClientBuilder.builder()
                 .withClientId(channelClientId)
+                .withDefaultAuthToken(oauth)
+                .withChatAccount(new OAuth2Credential("twitch", botAuthToken))
                 .withEnableTMI(true)
                 .withEnableHelix(true)
                 .withEnablePubSub(true)
                 .withEnableChat(true)
-                .withChatAccount(new OAuth2Credential("twitch", botAuthToken))
                 .build();
         twitchClient.getChat().joinChannel(streamerUsername);
         twitchClient.getClientHelper().enableStreamEventListener(streamerUsername);
@@ -68,7 +71,6 @@ public class TwitchApi {
         }
     
         // PubSub
-        OAuth2Credential oauth = new OAuth2Credential("twitch", channelAuthToken);
         twitchClient.getPubSub().listenForCheerEvents(oauth, streamerUser.getId());
         twitchClient.getPubSub().listenForChannelPointsRedemptionEvents(oauth, streamerUser.getId());
         twitchClient.getPubSub().listenForSubscriptionEvents(oauth, streamerUser.getId());
