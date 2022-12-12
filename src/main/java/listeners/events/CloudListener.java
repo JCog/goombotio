@@ -32,8 +32,4 @@ public class CloudListener implements TwitchEventListener {
     public void onGoLive(ChannelGoLiveEvent goLiveEvent) {
         saidHi = false;
     }
-
-    public void reset() {
-        saidHi = false;
-    }
 }

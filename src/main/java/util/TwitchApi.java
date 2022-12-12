@@ -51,6 +51,8 @@ public class TwitchApi {
                 .withChatAccount(new OAuth2Credential("twitch", botAuthToken))
                 .build();
         twitchClient.getChat().joinChannel(streamerUsername);
+        twitchClient.getClientHelper().enableStreamEventListener(streamerUsername);
+        twitchClient.getClientHelper().enableFollowEventListener(streamerUsername);
         
         streamerUser = getUserByUsername(streamerUsername);
         botUser = getUserByUsername(botUsername);
