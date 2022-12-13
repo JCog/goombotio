@@ -130,7 +130,12 @@ public class SunshinePredsManager extends PredsManagerBase {
             message.append(" on guessing correctly! jcogChamp");
         }
         message.append(" • ");
-        message.append(buildMonthlyLeaderboardString(leaderboard, twitchApi, streamer));
+        message.append(buildMonthlyLeaderboardString(
+                leaderboard,
+                dbManager.getPermanentVipsDb(),
+                twitchApi,
+                streamer
+        ));
     
         twitchApi.channelCommand(String.format(
                 "/me The correct answer is %s - %s",

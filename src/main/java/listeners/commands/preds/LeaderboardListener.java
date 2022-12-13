@@ -78,7 +78,12 @@ public class LeaderboardListener extends CommandBase {
         } else {
             switch (command) {
                 case PATTERN_LEADERBOARD:
-                    chatMessage = PredsManagerBase.buildMonthlyLeaderboardString(leaderboard, twitchApi, streamerUser);
+                    chatMessage = PredsManagerBase.buildMonthlyLeaderboardString(
+                            leaderboard,
+                            dbManager.getPermanentVipsDb(),
+                            twitchApi,
+                            streamerUser
+                    );
                     break;
         
                 case PATTERN_POINTS:

@@ -4,21 +4,23 @@ import com.github.twitch4j.common.events.domain.EventUser;
 import com.github.twitch4j.helix.domain.Moderator;
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
+import database.misc.PermanentVipsDb;
 import database.preds.PredsLeaderboardDb;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class PredsManagerBase {
     private static final int DISCORD_MAX_CHARS = 2000;
     private static final String STOP_MESSAGE = "/me Predictions are up! Let's see how everyone did...";
-    private static final String VIP_FILENAME = "vips.txt";
 
     protected final String START_MESSAGE = getStartMessage();
 
@@ -182,12 +184,17 @@ public abstract class PredsManagerBase {
         thread.start();
     }
 
-    public static String buildMonthlyLeaderboardString(PredsLeaderboardDb leaderboard, TwitchApi twitchApi, User streamer) {
+    public static String buildMonthlyLeaderboardString(
+            PredsLeaderboardDb leaderboard,
+            PermanentVipsDb permanentVipsDb,
+            TwitchApi twitchApi,
+            User streamer
+    ) {
         ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
         ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
         ArrayList<String> topMonthlyNames = new ArrayList<>();
         List<String> mods = twitchApi.getMods(streamer.getId()).stream().map(Moderator::getUserLogin).collect(Collectors.toList());
-        HashSet<String> permanentVips = getPermanentVips();
+        HashSet<String> permanentVips = new HashSet<>(permanentVipsDb.getAllVipUserIds());
     
         for (Long topMonthlyScorer : topMonthlyScorers) {
             topMonthlyPoints.add(leaderboard.getMonthlyPoints(topMonthlyScorer));
@@ -215,27 +222,6 @@ public abstract class PredsManagerBase {
         }
 
         return "Monthly Leaderboard: " + String.join(", ", leaderboardStrings);
-    }
-    
-    private static HashSet<String> getPermanentVips() {
-        if (permanentVips == null) {
-    
-            HashSet<String> tempList = new HashSet<>();
-            try {
-                File file = new File(VIP_FILENAME);
-                Scanner sc = new Scanner(file);
-                while (sc.hasNextLine()) {
-                    tempList.add(sc.nextLine());
-                }
-                sc.close();
-                permanentVips = tempList;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return new HashSet<>();
-            }
-        }
-        
-        return permanentVips;
     }
 
     protected abstract PredsLeaderboardDb getLeaderboardType();
