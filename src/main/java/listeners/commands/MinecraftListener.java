@@ -6,7 +6,7 @@ import database.DbManager;
 import database.misc.MinecraftUserDb;
 import functions.MinecraftWhitelistUpdater;
 import util.TwitchApi;
-import util.TwitchUserLevel;
+import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;
@@ -22,29 +22,14 @@ public class MinecraftListener extends CommandBase {
     private final MinecraftWhitelistUpdater mcUpdater;
 
     public MinecraftListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager, MinecraftWhitelistUpdater mcUpdater) {
-        super(CommandType.PREFIX_COMMAND, scheduler);
+        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.DEFAULT, 0, PATTERN);
         this.twitchApi = twitchApi;
         this.mcUpdater = mcUpdater;
         minecraftUserDb = dbManager.getMinecraftUserDb();
     }
 
     @Override
-    public String getCommandWords() {
-        return PATTERN;
-    }
-
-    @Override
-    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
-        return TwitchUserLevel.USER_LEVEL.DEFAULT;
-    }
-
-    @Override
-    protected int getCooldownLength() {
-        return 0;
-    }
-
-    @Override
-    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+    protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         String[] messageSplit = messageEvent.getMessage().trim().split("\\s");
         if (messageSplit.length == 1) {
             String subs;
@@ -57,7 +42,7 @@ public class MinecraftListener extends CommandBase {
             return;
         }
     
-        if (userLevel == TwitchUserLevel.USER_LEVEL.BROADCASTER) {
+        if (userLevel == USER_LEVEL.BROADCASTER) {
             if (messageSplit[1].equals("1")) {
                 mcUpdater.setSubOnly(true);
                 twitchApi.channelMessage(SUBS_ENABLED);

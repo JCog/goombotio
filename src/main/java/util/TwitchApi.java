@@ -99,8 +99,8 @@ public class TwitchApi {
     
         // not sure how I like storing all the reserved commands here, but I'm not sure where would fit better
         if (eventListener instanceof CommandBase) {
-            String[] commands = ((CommandBase) eventListener).getCommandWords().split("\\|");
-            reservedCommands.addAll(Arrays.asList(commands));
+            Set<String> commands = ((CommandBase) eventListener).getCommandPatterns();
+            reservedCommands.addAll(commands);
         }
     }
     

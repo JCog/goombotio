@@ -4,7 +4,7 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import database.DbManager;
 import database.misc.BitWarDb;
 import util.TwitchApi;
-import util.TwitchUserLevel;
+import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;
@@ -20,28 +20,13 @@ public class BitWarResetCommandListener extends CommandBase {
     private final BitWarDb bitWarDb;
 
     public BitWarResetCommandListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
-        super(CommandType.PREFIX_COMMAND, scheduler);
+        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.BROADCASTER, 0, PATTERN);
         this.twitchApi = twitchApi;
         this.bitWarDb = dbManager.getBitWarDb();
     }
 
     @Override
-    public String getCommandWords() {
-        return PATTERN;
-    }
-
-    @Override
-    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
-        return TwitchUserLevel.USER_LEVEL.BROADCASTER;
-    }
-
-    @Override
-    protected int getCooldownLength() {
-        return 0;
-    }
-
-    @Override
-    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+    protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         ArrayList<String> teams = new ArrayList<>();
         teams.add(TEAM_KILL);
         teams.add(TEAM_SAVE);

@@ -7,14 +7,13 @@ import database.entries.QuoteItem;
 import database.misc.QuoteDb;
 import listeners.commands.CommandBase;
 import util.TwitchApi;
-import util.TwitchUserLevel;
+import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static listeners.commands.quotes.QuoteUndoEngine.Action.*;
-import static util.TwitchUserLevel.USER_LEVEL.*;
 
 public class QuoteListener extends CommandBase {
 
@@ -42,18 +41,11 @@ public class QuoteListener extends CommandBase {
             TwitchApi twitchApi,
             User streamerUser
     ) {
-        super(CommandType.PREFIX_COMMAND, scheduler);
-        this.twitchApi = twitchApi;
-        this.streamerUser = streamerUser;
-        quoteDb = dbManager.getQuoteDb();
-        random = new Random();
-        quoteUndoEngine = new QuoteUndoEngine(twitchApi, quoteDb);
-    }
-
-    @Override
-    public String getCommandWords() {
-        return String.join(
-                "|",
+        super(
+                scheduler,
+                CommandType.PREFIX_COMMAND,
+                USER_LEVEL.DEFAULT,
+                5 * 1000,
                 PATTERN_QUOTE,
                 PATTERN_ADD_QUOTE,
                 PATTERN_DELETE_QUOTE,
@@ -62,20 +54,15 @@ public class QuoteListener extends CommandBase {
                 PATTERN_UNDO_QUOTE,
                 PATTERN_REDO_QUOTE
         );
+        this.twitchApi = twitchApi;
+        this.streamerUser = streamerUser;
+        quoteDb = dbManager.getQuoteDb();
+        random = new Random();
+        quoteUndoEngine = new QuoteUndoEngine(twitchApi, quoteDb);
     }
 
     @Override
-    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
-        return DEFAULT;
-    }
-
-    @Override
-    protected int getCooldownLength() {
-        return 5 * 1000;
-    }
-
-    @Override
-    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+    protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         String[] messageSplit = messageEvent.getMessage().trim().split(" ", 2);
         String content = "";
         if (messageSplit.length > 1) {
@@ -113,9 +100,9 @@ public class QuoteListener extends CommandBase {
                 break;
             }
             case PATTERN_ADD_QUOTE: {
-                if (userLevel.value >= VIP.value) {
+                if (userLevel.value >= USER_LEVEL.VIP.value) {
                     //only allow VIPs to add quotes if the stream is live
-                    if (userLevel.value == VIP.value && twitchApi.getStream(streamerUser.getLogin()) == null) {
+                    if (userLevel.value == USER_LEVEL.VIP.value && twitchApi.getStream(streamerUser.getLogin()) == null) {
                         twitchApi.channelMessage(ERROR_NOT_LIVE);
                         break;
                     }
@@ -130,7 +117,7 @@ public class QuoteListener extends CommandBase {
                 break;
             }
             case PATTERN_DELETE_QUOTE: {
-                if (userLevel.value >= MOD.value) {
+                if (userLevel.value >= USER_LEVEL.MOD.value) {
                     if (content.isEmpty()) {
                         twitchApi.channelMessage(ERROR_MISSING_ARGUMENTS);
                         break;
@@ -149,7 +136,7 @@ public class QuoteListener extends CommandBase {
                 break;
             }
             case PATTERN_EDIT_QUOTE: {
-                if (userLevel.value >= MOD.value) {
+                if (userLevel.value >= USER_LEVEL.MOD.value) {
                     String[] editSplit = content.split(" ", 2);
                     if (editSplit.length != 2) {
                         twitchApi.channelMessage(ERROR_MISSING_ARGUMENTS);
@@ -178,13 +165,13 @@ public class QuoteListener extends CommandBase {
                 break;
             }
             case PATTERN_UNDO_QUOTE: {
-                if (userLevel.value >= MOD.value) {
+                if (userLevel.value >= USER_LEVEL.MOD.value) {
                     quoteUndoEngine.undo();
                 }
                 break;
             }
             case PATTERN_REDO_QUOTE: {
-                if (userLevel.value >= MOD.value) {
+                if (userLevel.value >= USER_LEVEL.MOD.value) {
                     quoteUndoEngine.redo();
                 }
                 break;

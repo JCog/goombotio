@@ -6,7 +6,7 @@ import database.DbManager;
 import database.stats.WatchTimeDb;
 import functions.StreamTracker;
 import util.TwitchApi;
-import util.TwitchUserLevel;
+import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -29,29 +29,14 @@ public class WatchTimeListener extends CommandBase {
             DbManager dbManager,
             StreamTracker streamTracker
     ) {
-        super(CommandType.PREFIX_COMMAND, scheduler);
+        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.DEFAULT, 0, PATTERN);
         this.twitchApi = twitchApi;
         this.streamTracker = streamTracker;
         watchTimeDb = dbManager.getWatchTimeDb();
     }
 
     @Override
-    public String getCommandWords() {
-        return PATTERN;
-    }
-
-    @Override
-    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
-        return TwitchUserLevel.USER_LEVEL.DEFAULT;
-    }
-
-    @Override
-    protected int getCooldownLength() {
-        return 0;
-    }
-
-    @Override
-    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+    protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         StringBuilder output = new StringBuilder();
         int minutes = watchTimeDb.getMinutesByEventUser(messageEvent.getUser())
                       + streamTracker.getViewerMinutes(messageEvent.getUser().getName());

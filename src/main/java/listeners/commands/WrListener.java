@@ -5,7 +5,7 @@ import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import util.TwitchApi;
-import util.TwitchUserLevel;
+import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -28,28 +28,13 @@ public class WrListener extends CommandBase {
             TwitchApi twitchApi,
             User streamerUser
     ) {
-        super(CommandType.PREFIX_COMMAND, scheduler);
+        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.DEFAULT, 5000, PATTERN);
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
     }
 
     @Override
-    public String getCommandWords() {
-        return PATTERN;
-    }
-
-    @Override
-    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
-        return TwitchUserLevel.USER_LEVEL.DEFAULT;
-    }
-
-    @Override
-    protected int getCooldownLength() {
-        return 5000;
-    }
-
-    @Override
-    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+    protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         Stream stream;
         try {
             stream = twitchApi.getStream(streamerUser.getLogin());

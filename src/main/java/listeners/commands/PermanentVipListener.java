@@ -6,7 +6,7 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.misc.PermanentVipsDb;
 import util.TwitchApi;
-import util.TwitchUserLevel;
+import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -19,28 +19,13 @@ public class PermanentVipListener extends CommandBase {
     private final PermanentVipsDb permanentVipsDb;
 
     public PermanentVipListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
-        super(CommandType.PREFIX_COMMAND, scheduler);
+        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.BROADCASTER, 0, PATTERN_ADD, PATTERN_DELETE);
         this.twitchApi = twitchApi;
         this.permanentVipsDb = dbManager.getPermanentVipsDb();
     }
 
     @Override
-    public String getCommandWords() {
-        return String.join("|", PATTERN_ADD, PATTERN_DELETE);
-    }
-
-    @Override
-    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
-        return TwitchUserLevel.USER_LEVEL.BROADCASTER;
-    }
-
-    @Override
-    protected int getCooldownLength() {
-        return 0;
-    }
-
-    @Override
-    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+    protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         String[] splitMessage = messageEvent.getMessage().trim().split("\\s");
         if (splitMessage.length < 2) {
             twitchApi.channelMessage("ERROR: no username provided");

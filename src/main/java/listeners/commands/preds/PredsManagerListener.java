@@ -11,7 +11,7 @@ import functions.preds.PredsManagerBase;
 import functions.preds.SunshinePredsManager;
 import listeners.commands.CommandBase;
 import util.TwitchApi;
-import util.TwitchUserLevel;
+import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -40,7 +40,7 @@ public class PredsManagerListener extends CommandBase {
             PredsGuessListener predsGuessListener,
             User streamerUser
     ) {
-        super(CommandType.PREFIX_COMMAND, scheduler);
+        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.BROADCASTER, 0, PATTERN_PREDS, PATTERN_PREDS_CANCEL);
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.discord = discord;
@@ -50,22 +50,7 @@ public class PredsManagerListener extends CommandBase {
     }
 
     @Override
-    public String getCommandWords() {
-        return String.join("|", PATTERN_PREDS, PATTERN_PREDS_CANCEL);
-    }
-
-    @Override
-    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
-        return TwitchUserLevel.USER_LEVEL.BROADCASTER;
-    }
-
-    @Override
-    protected int getCooldownLength() {
-        return 0;
-    }
-
-    @Override
-    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+    protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         switch (command) {
             case PATTERN_PREDS:
                 if (predsManager == null || !predsManager.isActive()) {

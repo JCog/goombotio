@@ -6,7 +6,7 @@ import database.entries.CommandItem;
 import database.misc.CommandDb;
 import util.MessageExpressionParser;
 import util.TwitchApi;
-import util.TwitchUserLevel;
+import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.HashSet;
 import java.util.TimerTask;
@@ -14,7 +14,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class GenericCommandListener extends CommandBase {
-
     private final static String PATTERN = "";
 
     private final CommandDb commandDb;
@@ -29,29 +28,14 @@ public class GenericCommandListener extends CommandBase {
             DbManager dbManager,
             TwitchApi twitchApi
     ) {
-        super(CommandType.GENERIC_COMMAND, scheduler);
+        super(scheduler, CommandType.GENERIC_COMMAND, USER_LEVEL.DEFAULT, 0, PATTERN);
         this.commandParser = commandParser;
         this.twitchApi = twitchApi;
         commandDb = dbManager.getCommandDb();
     }
 
     @Override
-    public String getCommandWords() {
-        return PATTERN;
-    }
-
-    @Override
-    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
-        return TwitchUserLevel.USER_LEVEL.DEFAULT;
-    }
-
-    @Override
-    protected int getCooldownLength() {
-        return 0;
-    }
-
-    @Override
-    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+    protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         if (messageEvent.getMessage().matches(".*\\$\\(.*\\).*") && !isReservedCommand(command)) {
             System.out.printf(
                     "Ignoring user (%s) attempt at custom variable: %s%n",
@@ -68,7 +52,7 @@ public class GenericCommandListener extends CommandBase {
         }
     }
 
-    private boolean userHasPermission(TwitchUserLevel.USER_LEVEL userLevel, CommandItem commandItem) {
+    private boolean userHasPermission(USER_LEVEL userLevel, CommandItem commandItem) {
         return userLevel.value >= commandItem.getPermission().value;
     }
 

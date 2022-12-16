@@ -28,22 +28,30 @@ public abstract class CommandBase implements TwitchEventListener {
         EXACT_MATCH_COMMAND,
         GENERIC_COMMAND
     }
-
-    private final Set<String> commandPattern;
+    
+    protected final ScheduledExecutorService scheduler;
+    
     private final CommandType commandType;
-    private final int cooldownLength;
-
-    final ScheduledExecutorService scheduler;
-
     private final USER_LEVEL minPrivilege;
+    private final int cooldownLength;
+    private final Set<String> commandPatterns;
+    
+
     private boolean coolingDown;
 
-    protected CommandBase(CommandType commandType, ScheduledExecutorService scheduler) {
-        this.commandType = commandType;
+    protected CommandBase(
+            ScheduledExecutorService scheduler,
+            CommandType commandType,
+            USER_LEVEL minPrivilege,
+            int cooldownLength,
+            String ... commandWords
+    ) {
         this.scheduler = scheduler;
-        commandPattern = compileCommandPattern();
-        minPrivilege = getMinUserPrivilege();
-        cooldownLength = getCooldownLength();
+        this.commandType = commandType;
+        this.minPrivilege = minPrivilege;
+        this.cooldownLength = cooldownLength;
+        commandPatterns = compileCommandPattern(commandWords);
+        
         coolingDown = false;
     }
 
@@ -64,7 +72,7 @@ public abstract class CommandBase implements TwitchEventListener {
             if (userLevel.value >= minPrivilege.value) {
                 switch (commandType) {
                     case PREFIX_COMMAND:
-                        for (String pattern : commandPattern) {
+                        for (String pattern : commandPatterns) {
                             if (command.equals(pattern)) {
                                 performCommand(pattern, userLevel, messageEvent);
                                 startCooldown();
@@ -74,7 +82,7 @@ public abstract class CommandBase implements TwitchEventListener {
                         break;
         
                     case CONTENT_COMMAND:
-                        for (String pattern : commandPattern) {
+                        for (String pattern : commandPatterns) {
                             if (content.contains(pattern)) {
                                 performCommand(pattern, userLevel, messageEvent);
                                 startCooldown();
@@ -84,7 +92,7 @@ public abstract class CommandBase implements TwitchEventListener {
                         break;
         
                     case EXACT_MATCH_COMMAND:
-                        for (String pattern : commandPattern) {
+                        for (String pattern : commandPatterns) {
                             if (exactContent.equals(pattern)) {
                                 performCommand(pattern, userLevel, messageEvent);
                                 startCooldown();
@@ -101,11 +109,14 @@ public abstract class CommandBase implements TwitchEventListener {
             }
         }
     }
-
-    private Set<String> compileCommandPattern() {
-        String[] patterns = getCommandWords().split("\\|");
+    
+    public Set<String> getCommandPatterns() {
+        return commandPatterns;
+    }
+    
+    private Set<String> compileCommandPattern(String[] commandWords) {
         HashSet<String> out = new HashSet<>();
-        Collections.addAll(out, patterns);
+        Collections.addAll(out, commandWords);
         return out;
     }
 
@@ -118,12 +129,6 @@ public abstract class CommandBase implements TwitchEventListener {
             coolingDown = false;
         }, cooldownLength, TimeUnit.MILLISECONDS);
     }
-
-    public abstract String getCommandWords();
-
-    protected abstract USER_LEVEL getMinUserPrivilege();
-
-    protected abstract int getCooldownLength();
     
     protected abstract void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent);
 }

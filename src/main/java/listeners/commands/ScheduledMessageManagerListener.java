@@ -4,7 +4,7 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import database.DbManager;
 import database.misc.SocialSchedulerDb;
 import util.TwitchApi;
-import util.TwitchUserLevel;
+import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -20,31 +20,18 @@ public class ScheduledMessageManagerListener extends CommandBase {
         DELETE
     }
 
-    public ScheduledMessageManagerListener(ScheduledExecutorService scheduler,
-                                           TwitchApi twitchApi,
-                                           DbManager dbManager) {
-        super(CommandType.PREFIX_COMMAND, scheduler);
+    public ScheduledMessageManagerListener(
+            ScheduledExecutorService scheduler,
+            TwitchApi twitchApi,
+            DbManager dbManager
+    ) {
+        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.MOD, 0, PATTERN);
         this.twitchApi = twitchApi;
         socialSchedulerDb = dbManager.getSocialSchedulerDb();
     }
 
     @Override
-    public String getCommandWords() {
-        return PATTERN;
-    }
-
-    @Override
-    protected TwitchUserLevel.USER_LEVEL getMinUserPrivilege() {
-        return TwitchUserLevel.USER_LEVEL.MOD;
-    }
-
-    @Override
-    protected int getCooldownLength() {
-        return 0;
-    }
-
-    @Override
-    protected void performCommand(String command, TwitchUserLevel.USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+    protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         String[] messageSplit = messageEvent.getMessage().split("\\s", 4);
         if (messageSplit.length < 3) {
             showError("missing arguments");

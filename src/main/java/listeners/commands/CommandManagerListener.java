@@ -30,24 +30,9 @@ public class CommandManagerListener extends CommandBase {
     }
 
     public CommandManagerListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
-        super(CommandType.PREFIX_COMMAND, scheduler);
+        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.DEFAULT, 0, PATTERN);
         this.twitchApi = twitchApi;
         this.commandDb = dbManager.getCommandDb();
-    }
-
-    @Override
-    public String getCommandWords() {
-        return PATTERN;
-    }
-
-    @Override
-    protected USER_LEVEL getMinUserPrivilege() {
-        return USER_LEVEL.DEFAULT;
-    }
-
-    @Override
-    protected int getCooldownLength() {
-        return 0;
     }
 
     @Override
