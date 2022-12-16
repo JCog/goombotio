@@ -23,7 +23,6 @@ public class VipRaffleRewardListener implements TwitchEventListener {
     private static final String RAFFLE_REWARD_TITLE = "VIP Raffle Entries";
     private static final int ENTRY_COUNT = 4;
     
-    
     private final TwitchApi twitchApi;
     private final PermanentVipsDb permanentVipsDb;
     private final VipRaffleDb vipRaffleDb;

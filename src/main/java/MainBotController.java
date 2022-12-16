@@ -167,6 +167,7 @@ public class MainBotController {
                 scheduler, dbManager, twitchApi, discordBotController, predsGuessListener, streamerUser));
         twitchApi.registerEventListener(new ScheduledMessageManagerListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new TattleListener(scheduler, dbManager, twitchApi));
+        twitchApi.registerEventListener(new VipRaffleListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new WatchTimeListener(scheduler, twitchApi, dbManager, streamTracker));
         twitchApi.registerEventListener(new WrListener(scheduler, twitchApi, streamerUser));
         

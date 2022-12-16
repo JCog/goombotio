@@ -43,12 +43,20 @@ public class VipRaffleDb extends GbCollection {
         }
     }
     
+    public ArrayList<VipRaffleItem> getAllVipRaffleItemsCurrentMonth() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        
+        return getAllVipRaffleItems(year, month);
+    }
+    
     public ArrayList<VipRaffleItem> getAllVipRaffleItemsPrevMonth() {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR) - 1;
         int month = calendar.get(Calendar.MONTH);
         month = (month == Calendar.JANUARY) ? Calendar.DECEMBER : month - 1;
-    
+        
         return getAllVipRaffleItems(year, month);
     }
     

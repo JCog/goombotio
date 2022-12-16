@@ -10,7 +10,14 @@ import com.github.twitch4j.pubsub.events.ChannelSubGiftEvent;
 import com.github.twitch4j.pubsub.events.ChannelSubscribeEvent;
 import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 
+import java.util.Map;
+
 public interface TwitchEventListener {
+    // TODO: should probably look into doing this in a more general way, without requiring the tags directly
+    static String getDisplayName(Map<String, String> eventTags) {
+        return eventTags.get("display-name");
+    }
+    
     ////////////////// Events //////////////////
     default void onChannelMessage(ChannelMessageEvent messageEvent) {}
     
