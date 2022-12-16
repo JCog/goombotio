@@ -13,7 +13,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public abstract class CommandBase implements TwitchEventListener {
-
     private static final char GENERIC_COMMAND_CHAR = '!';
 
     /*
@@ -32,7 +31,7 @@ public abstract class CommandBase implements TwitchEventListener {
     protected final ScheduledExecutorService scheduler;
     
     private final CommandType commandType;
-    private final USER_LEVEL minPrivilege;
+    private final USER_LEVEL minUserLevel;
     private final int cooldownLength;
     private final Set<String> commandPatterns;
     
@@ -42,15 +41,15 @@ public abstract class CommandBase implements TwitchEventListener {
     protected CommandBase(
             ScheduledExecutorService scheduler,
             CommandType commandType,
-            USER_LEVEL minPrivilege,
+            USER_LEVEL minUserLevel,
             int cooldownLength,
-            String ... commandWords
+            String ... commandPatterns
     ) {
         this.scheduler = scheduler;
         this.commandType = commandType;
-        this.minPrivilege = minPrivilege;
+        this.minUserLevel = minUserLevel;
         this.cooldownLength = cooldownLength;
-        commandPatterns = compileCommandPattern(commandWords);
+        this.commandPatterns = compileCommandPattern(commandPatterns);
         
         coolingDown = false;
     }
@@ -69,7 +68,7 @@ public abstract class CommandBase implements TwitchEventListener {
         USER_LEVEL userLevel = TwitchUserLevel.getUserLevel(badges);
     
         if (!coolingDown || userLevel.value == USER_LEVEL.BROADCASTER.value) {
-            if (userLevel.value >= minPrivilege.value) {
+            if (userLevel.value >= minUserLevel.value) {
                 switch (commandType) {
                     case PREFIX_COMMAND:
                         for (String pattern : commandPatterns) {

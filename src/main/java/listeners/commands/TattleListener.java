@@ -15,9 +15,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 public class TattleListener extends CommandBase {
-
+    private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
+    private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
+    private static final int COOLDOWN = 5 * 1000;
     private final static String PATTERN_TATTLE = "!tattle";
     private final static String PATTERN_ADD = "!addtattle";
+    
     private final TattleDb tattleDb;
     private final TwitchApi twitchApi;
     private final Random random = new Random();
@@ -27,7 +30,7 @@ public class TattleListener extends CommandBase {
             DbManager dbManager,
             TwitchApi twitchApi
     ) {
-        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.DEFAULT, 5 * 1000, PATTERN_TATTLE, PATTERN_ADD);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN_TATTLE, PATTERN_ADD);
         this.tattleDb = dbManager.getTattleDb();
         this.twitchApi = twitchApi;
     }

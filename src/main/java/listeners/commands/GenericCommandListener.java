@@ -14,7 +14,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class GenericCommandListener extends CommandBase {
-    private final static String PATTERN = "";
+    private static final CommandType COMMAND_TYPE = CommandType.GENERIC_COMMAND;
+    private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
+    private static final int COOLDOWN = 0;
+    private static final String PATTERN = "";
 
     private final CommandDb commandDb;
     private final MessageExpressionParser commandParser;
@@ -28,7 +31,7 @@ public class GenericCommandListener extends CommandBase {
             DbManager dbManager,
             TwitchApi twitchApi
     ) {
-        super(scheduler, CommandType.GENERIC_COMMAND, USER_LEVEL.DEFAULT, 0, PATTERN);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN);
         this.commandParser = commandParser;
         this.twitchApi = twitchApi;
         commandDb = dbManager.getCommandDb();

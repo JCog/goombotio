@@ -12,13 +12,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import static api.SpeedrunApi.*;
 
 public class WrListener extends CommandBase {
-
+    private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
+    private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
+    private static final int COOLDOWN = 5000;
+    private static final String PATTERN = "!wr";
+    
     private static final String GAME_ID_BUG_FABLES = "511735";
     private static final String GAME_ID_SUNSHINE = "6086";
     private static final String GAME_ID_PAPER_MARIO = "18231";
     private static final String GAME_ID_TTYD = "6855";
     private static final String GAME_ID_OOT = "11557";
-    private static final String PATTERN = "!wr";
 
     private final TwitchApi twitchApi;
     private final User streamerUser;
@@ -28,7 +31,7 @@ public class WrListener extends CommandBase {
             TwitchApi twitchApi,
             User streamerUser
     ) {
-        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.DEFAULT, 5000, PATTERN);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN);
         this.twitchApi = twitchApi;
         this.streamerUser = streamerUser;
     }

@@ -16,7 +16,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import static listeners.commands.quotes.QuoteUndoEngine.Action.*;
 
 public class QuoteListener extends CommandBase {
-
+    private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
+    private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
+    private static final int COOLDOWN = 5 * 1000;
     private static final String PATTERN_QUOTE = "!quote";
     private static final String PATTERN_ADD_QUOTE = "!addquote";
     private static final String PATTERN_DELETE_QUOTE = "!delquote";
@@ -24,6 +26,7 @@ public class QuoteListener extends CommandBase {
     private static final String PATTERN_LATEST_QUOTE = "!latestquote";
     private static final String PATTERN_UNDO_QUOTE = "!undoquote";
     private static final String PATTERN_REDO_QUOTE = "!redoquote";
+    
     private static final String ERROR_MISSING_ARGUMENTS = "Missing argument(s)";
     private static final String ERROR_NO_MATCHING_QUOTES = "No matching quotes";
     private static final String ERROR_BAD_INDEX_FORMAT = "Unable to parse quote \"%s\"";
@@ -43,9 +46,9 @@ public class QuoteListener extends CommandBase {
     ) {
         super(
                 scheduler,
-                CommandType.PREFIX_COMMAND,
-                USER_LEVEL.DEFAULT,
-                5 * 1000,
+                COMMAND_TYPE,
+                MIN_USER_LEVEL,
+                COOLDOWN,
                 PATTERN_QUOTE,
                 PATTERN_ADD_QUOTE,
                 PATTERN_DELETE_QUOTE,

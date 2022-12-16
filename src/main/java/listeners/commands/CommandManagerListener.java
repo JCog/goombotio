@@ -14,7 +14,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import static util.TwitchUserLevel.USER_LEVEL;
 
 public class CommandManagerListener extends CommandBase {
+    private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
+    private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
+    private static final int MANAGER_COOLDOWN = 0;
     private final static String PATTERN = "!commands";
+    
     private final static String USER_LEVEL_TAG = "-ul=";
     private final static String COOLDOWN_TAG = "-cd=";
     private final static long DEFAULT_COOLDOWN = 2; // seconds
@@ -30,7 +34,7 @@ public class CommandManagerListener extends CommandBase {
     }
 
     public CommandManagerListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
-        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.DEFAULT, 0, PATTERN);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, MANAGER_COOLDOWN, PATTERN);
         this.twitchApi = twitchApi;
         this.commandDb = dbManager.getCommandDb();
     }

@@ -9,6 +9,9 @@ import util.TwitchUserLevel.USER_LEVEL;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class ScheduledMessageManagerListener extends CommandBase {
+    private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
+    private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.MOD;
+    private static final int COOLDOWN = 0;
     private static final String PATTERN = "!scheduled";
 
     private final SocialSchedulerDb socialSchedulerDb;
@@ -25,7 +28,7 @@ public class ScheduledMessageManagerListener extends CommandBase {
             TwitchApi twitchApi,
             DbManager dbManager
     ) {
-        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.MOD, 0, PATTERN);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN);
         this.twitchApi = twitchApi;
         socialSchedulerDb = dbManager.getSocialSchedulerDb();
     }

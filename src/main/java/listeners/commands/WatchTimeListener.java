@@ -15,8 +15,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class WatchTimeListener extends CommandBase {
-
+    private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
+    private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
+    private static final int COOLDOWN = 0;
     private static final String PATTERN = "!watchtime";
+    
     private static final Date CUTOFF_DATE = generateCutoffDate();
 
     private final TwitchApi twitchApi;
@@ -29,7 +32,7 @@ public class WatchTimeListener extends CommandBase {
             DbManager dbManager,
             StreamTracker streamTracker
     ) {
-        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.DEFAULT, 0, PATTERN);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN);
         this.twitchApi = twitchApi;
         this.streamTracker = streamTracker;
         watchTimeDb = dbManager.getWatchTimeDb();

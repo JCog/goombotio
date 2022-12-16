@@ -11,15 +11,17 @@ import util.TwitchUserLevel.USER_LEVEL;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class PermanentVipListener extends CommandBase {
-
-    private final static String PATTERN_ADD = "!vipadd";
-    private final static String PATTERN_DELETE = "!vipdelete";
+    private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
+    private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.BROADCASTER;
+    private static final int COOLDOWN = 0;
+    private static final String PATTERN_ADD = "!vipadd";
+    private static final String PATTERN_DELETE = "!vipdelete";
     
     private final TwitchApi twitchApi;
     private final PermanentVipsDb permanentVipsDb;
 
     public PermanentVipListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
-        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.BROADCASTER, 0, PATTERN_ADD, PATTERN_DELETE);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN_ADD, PATTERN_DELETE);
         this.twitchApi = twitchApi;
         this.permanentVipsDb = dbManager.getPermanentVipsDb();
     }

@@ -12,7 +12,11 @@ import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class MinecraftListener extends CommandBase {
+    private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
+    private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
+    private static final int COOLDOWN = 0;
     private static final String PATTERN = "!minecraft";
+    
     private static final String GENERIC_MESSAGE = "We have a community Minecraft server! It's currently open to %s. To join, register your Minecraft username by typing \"!minecraft <username>\" in the chat and you'll automatically be added to the whitelist. Then, add a new server with the address \"minecraft.jcoggers.com\". Have fun! PunchTrees";
     private static final String SUBS_ENABLED = "Sub-only mode has been enabled for the minecraft server.";
     private static final String SUBS_DISABLED = "Sub-only mode has been disabled for the minecraft server.";
@@ -22,7 +26,7 @@ public class MinecraftListener extends CommandBase {
     private final MinecraftWhitelistUpdater mcUpdater;
 
     public MinecraftListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager, MinecraftWhitelistUpdater mcUpdater) {
-        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.DEFAULT, 0, PATTERN);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN);
         this.twitchApi = twitchApi;
         this.mcUpdater = mcUpdater;
         minecraftUserDb = dbManager.getMinecraftUserDb();

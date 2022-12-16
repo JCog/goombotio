@@ -18,9 +18,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import static java.lang.System.out;
 
 public class PredsManagerListener extends CommandBase {
-
-    private final static String PATTERN_PREDS = "!preds";
+    private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
+    private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.BROADCASTER;
+    private static final int COOLDOWN = 0;
+    private static final String PATTERN_PREDS = "!preds";
     private static final String PATTERN_PREDS_CANCEL = "!predscancel";
+    
     private static final String GAME_ID_SUNSHINE = "6086";
     private static final String GAME_ID_PAPER_MARIO = "18231";
 
@@ -40,7 +43,7 @@ public class PredsManagerListener extends CommandBase {
             PredsGuessListener predsGuessListener,
             User streamerUser
     ) {
-        super(scheduler, CommandType.PREFIX_COMMAND, USER_LEVEL.BROADCASTER, 0, PATTERN_PREDS, PATTERN_PREDS_CANCEL);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN_PREDS, PATTERN_PREDS_CANCEL);
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.discord = discord;
