@@ -21,27 +21,37 @@ import java.util.stream.Collectors;
 public abstract class PredsManagerBase {
     private static final int DISCORD_MAX_CHARS = 2000;
     private static final String STOP_MESSAGE = "/me Predictions are up! Let's see how everyone did...";
-
-    protected final String START_MESSAGE = getStartMessage();
-
-
-    protected final PredsLeaderboardDb leaderboard;
-
-    private final DiscordBotController discord;
     
-    protected final TwitchApi twitchApi;
-    protected final DbManager dbManager;
+    final DiscordBotController discord;
+    final TwitchApi twitchApi;
+    final DbManager dbManager;
+    final PredsLeaderboardDb leaderboard;
+    final String startMessage;
+    final String answerRegex;
+    final String discordChannelMonthly;
+    final String discordChannelAllTime;
 
-    protected boolean enabled;
-    protected boolean waitingForAnswer;
-    
-    private static HashSet<String> permanentVips = null;
+    boolean isEnabled;
+    boolean waitingForAnswer;
 
-    protected PredsManagerBase(TwitchApi twitchApi, DbManager dbManager, DiscordBotController discord) {
+    PredsManagerBase(
+            TwitchApi twitchApi,
+            DbManager dbManager,
+            DiscordBotController discord,
+            PredsLeaderboardDb leaderboard,
+            String startMessage,
+            String answerRegex,
+            String discordChannelMonthly,
+            String discordChannelAllTime
+    ) {
         this.twitchApi = twitchApi;
         this.dbManager = dbManager;
         this.discord = discord;
-        leaderboard = getLeaderboardType();
+        this.leaderboard = leaderboard;
+        this.startMessage = startMessage;
+        this.answerRegex = answerRegex;
+        this.discordChannelMonthly = discordChannelMonthly;
+        this.discordChannelAllTime = discordChannelAllTime;
     }
 
     /**
@@ -50,7 +60,7 @@ public abstract class PredsManagerBase {
      * @return enabled state
      */
     public boolean isActive() {
-        return enabled;
+        return isEnabled;
     }
 
     /**
@@ -66,8 +76,8 @@ public abstract class PredsManagerBase {
      * Sets the game to an enabled state and sends a message to the chat to tell users to begin submitting predictions.
      */
     public void startGame() {
-        enabled = true;
-        twitchApi.channelCommand(START_MESSAGE);
+        isEnabled = true;
+        twitchApi.channelCommand(startMessage);
     }
 
     /**
@@ -78,19 +88,58 @@ public abstract class PredsManagerBase {
         waitingForAnswer = true;
         twitchApi.channelCommand(STOP_MESSAGE);
     }
-
-    public void endGame() {
-        waitingForAnswer = false;
-        enabled = false;
+    
+    public String getAnswerRegex() {
+        return answerRegex;
     }
-
+    
+    public static String buildMonthlyLeaderboardString(
+            PredsLeaderboardDb leaderboard,
+            PermanentVipsDb permanentVipsDb,
+            TwitchApi twitchApi,
+            User streamer
+    ) {
+        ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
+        ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
+        ArrayList<String> topMonthlyNames = new ArrayList<>();
+        List<String> mods = twitchApi.getMods(streamer.getId()).stream().map(Moderator::getUserLogin).collect(Collectors.toList());
+        HashSet<String> permanentVips = new HashSet<>(permanentVipsDb.getAllVipUserIds());
+        
+        for (Long topMonthlyScorer : topMonthlyScorers) {
+            topMonthlyPoints.add(leaderboard.getMonthlyPoints(topMonthlyScorer));
+            topMonthlyNames.add(leaderboard.getUsername(topMonthlyScorer));
+        }
+        
+        int prevPoints = -1;
+        int prevRank = -1;
+        int ineligibleCount = 0;
+        ArrayList<String> leaderboardStrings = new ArrayList<>();
+        for (int i = 0; i < topMonthlyNames.size(); i++) {
+            if (permanentVips.contains(topMonthlyNames.get(i).toLowerCase()) || mods.contains(topMonthlyNames.get(i).toLowerCase())) {
+                ineligibleCount++;
+            }
+            if (topMonthlyPoints.get(i) != prevPoints) {
+                prevRank = i + 1;
+                if (prevRank > 5 + ineligibleCount) {
+                    break;
+                }
+            }
+            prevPoints = topMonthlyPoints.get(i);
+            String name = topMonthlyNames.get(i);
+            
+            leaderboardStrings.add(String.format("%d. %s - %d", prevRank, name, prevPoints));
+        }
+        
+        return "Monthly Leaderboard: " + String.join(", ", leaderboardStrings);
+    }
+    
     public abstract void submitPredictions(String answer);
-
-    public abstract String getAnswerRegex();
-
+    
     public abstract void makePredictionIfValid(EventUser user, String message);
     
-    protected static void updateDiscordMonthlyPoints(PredsLeaderboardDb leaderboard, DiscordBotController discord, String channel) {
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    void updateDiscordMonthlyPoints() {
         Thread thread = new Thread(() -> {
             ArrayList<Long> topScorers = leaderboard.getTopMonthlyScorers();
             ArrayList<Integer> topPoints = new ArrayList<>();
@@ -128,23 +177,23 @@ public abstract class PredsManagerBase {
             message.append("```");
             
             //edit message for current month if it exists, otherwise make a new one
-            if (discord.hasRecentMessageContents(channel)) {
-                String dateString = discord.getMostRecentMessageContents(channel).split("\n", 2)[0];
+            if (discord.hasRecentMessageContents(discordChannelMonthly)) {
+                String dateString = discord.getMostRecentMessageContents(discordChannelMonthly).split("\n", 2)[0];
                 YearMonth now = YearMonth.now();
                 YearMonth messageDate = YearMonth.parse(dateString, DateTimeFormatter.ofPattern("MMMM yyyy"));
                 if (now.getMonth() == messageDate.getMonth() && now.getYear() == messageDate.getYear()) {
-                    discord.editMostRecentMessage(channel, message.toString());
-                    System.out.printf("%s - current month edited.\n", channel);
+                    discord.editMostRecentMessage(discordChannelMonthly, message.toString());
+                    System.out.printf("%s - current month edited.\n", discordChannelMonthly);
                     return;
                 }
             }
-            discord.sendMessage(channel, message.toString());
-            System.out.printf("%s - new month added.\n", channel);
+            discord.sendMessage(discordChannelMonthly, message.toString());
+            System.out.printf("%s - new month added.\n", discordChannelMonthly);
         });
         thread.start();
     }
     
-    protected static void updateDiscordAllTimePoints(PredsLeaderboardDb leaderboard, DiscordBotController discord, String channel) {
+    void updateDiscordAllTimePoints() {
         Thread thread = new Thread(() -> {
             ArrayList<Long> topScorers = leaderboard.getTopScorers();
             ArrayList<Integer> topPoints = new ArrayList<>();
@@ -174,61 +223,13 @@ public abstract class PredsManagerBase {
             }
             message.append("```");
             
-            if (discord.hasRecentMessageContents(channel)) {
-                discord.editMostRecentMessage(channel, message.toString());
+            if (discord.hasRecentMessageContents(discordChannelAllTime)) {
+                discord.editMostRecentMessage(discordChannelAllTime, message.toString());
             } else {
-                discord.sendMessage(channel, message.toString());
+                discord.sendMessage(discordChannelAllTime, message.toString());
             }
-            System.out.printf("%s - updated.\n", channel);
+            System.out.printf("%s - updated.\n", discordChannelAllTime);
         });
         thread.start();
     }
-
-    public static String buildMonthlyLeaderboardString(
-            PredsLeaderboardDb leaderboard,
-            PermanentVipsDb permanentVipsDb,
-            TwitchApi twitchApi,
-            User streamer
-    ) {
-        ArrayList<Long> topMonthlyScorers = leaderboard.getTopMonthlyScorers();
-        ArrayList<Integer> topMonthlyPoints = new ArrayList<>();
-        ArrayList<String> topMonthlyNames = new ArrayList<>();
-        List<String> mods = twitchApi.getMods(streamer.getId()).stream().map(Moderator::getUserLogin).collect(Collectors.toList());
-        HashSet<String> permanentVips = new HashSet<>(permanentVipsDb.getAllVipUserIds());
-    
-        for (Long topMonthlyScorer : topMonthlyScorers) {
-            topMonthlyPoints.add(leaderboard.getMonthlyPoints(topMonthlyScorer));
-            topMonthlyNames.add(leaderboard.getUsername(topMonthlyScorer));
-        }
-    
-        int prevPoints = -1;
-        int prevRank = -1;
-        int ineligibleCount = 0;
-        ArrayList<String> leaderboardStrings = new ArrayList<>();
-        for (int i = 0; i < topMonthlyNames.size(); i++) {
-            if (permanentVips.contains(topMonthlyNames.get(i).toLowerCase()) || mods.contains(topMonthlyNames.get(i).toLowerCase())) {
-                ineligibleCount++;
-            }
-            if (topMonthlyPoints.get(i) != prevPoints) {
-                prevRank = i + 1;
-                if (prevRank > 5 + ineligibleCount) {
-                    break;
-                }
-            }
-            prevPoints = topMonthlyPoints.get(i);
-            String name = topMonthlyNames.get(i);
-        
-            leaderboardStrings.add(String.format("%d. %s - %d", prevRank, name, prevPoints));
-        }
-
-        return "Monthly Leaderboard: " + String.join(", ", leaderboardStrings);
-    }
-
-    protected abstract PredsLeaderboardDb getLeaderboardType();
-
-    protected abstract String getMonthlyChannelName();
-
-    protected abstract String getAllTimeChannelName();
-
-    protected abstract String getStartMessage();
 }

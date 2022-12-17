@@ -5,7 +5,6 @@ import com.github.twitch4j.helix.domain.Subscription;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
-import database.preds.PredsLeaderboardDb;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
@@ -15,9 +14,15 @@ import java.util.stream.Collectors;
 import static java.lang.System.out;
 
 public class PapePredsManager extends PredsManagerBase {
-
+    private static final String START_MESSAGE = "/me Get your predictions in! Send a message with three of either " +
+                                                "BadSpin1 BadSpin2 BadSpin3 or SpoodlySpun (or a message with 3 " +
+                                                "digits from 1 to 4) to guess the order the badges will show up in " +
+                                                "the badge shop! If you get all three right and don't have a sub, " +
+                                                "you'll win one! Type !preds to learn more.";
+    private static final String ANSWER_REGEX = "[1-4]{3}";
     private static final String DISCORD_CHANNEL_MONTHLY = "pape-preds-monthly";
     private static final String DISCORD_CHANNEL_ALL_TIME = "pape-preds-all-time";
+    
     private static final int POINTS_3 = 20;
     private static final int POINTS_2 = 5;
     private static final int POINTS_1 = 1;
@@ -36,20 +41,24 @@ public class PapePredsManager extends PredsManagerBase {
         SPOODLY_SPUN
     }
 
-    private final HashMap<Long,PapePredsObject> predictionList = new HashMap<>();
-    private final TwitchApi twitchApi;
+    private final ArrayList<PapePredsObject> predictionList = new ArrayList<>();
     private final User streamer;
-    private final DiscordBotController discord;
 
     /**
      * Manages the !preds Twitch chat game.
      *
      */
     public PapePredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
-        super(twitchApi, dbManager, discord);
-        this.twitchApi = twitchApi;
+        super(
+                twitchApi,
+                dbManager, discord,
+                dbManager.getSpeedySpinLeaderboardDb(),
+                START_MESSAGE,
+                ANSWER_REGEX,
+                DISCORD_CHANNEL_MONTHLY,
+                DISCORD_CHANNEL_ALL_TIME
+        );
         this.streamer = streamer;
-        this.discord = discord;
     }
 
     /**
@@ -62,7 +71,7 @@ public class PapePredsManager extends PredsManagerBase {
         Badge one = Badge.values()[Character.getNumericValue(answer.charAt(0)) - 1];
         Badge two = Badge.values()[Character.getNumericValue(answer.charAt(1)) - 1];
         Badge three = Badge.values()[Character.getNumericValue(answer.charAt(2)) - 1];
-        enabled = false;
+        isEnabled = false;
         waitingForAnswer = false;
 
         ArrayList<String> winners = getWinners(one, two, three);
@@ -71,12 +80,14 @@ public class PapePredsManager extends PredsManagerBase {
         if (winners.size() == 0) {
             message.append("Nobody guessed it. jcogThump Hopefully you got some points, though!");
         } else if (winners.size() == 1) {
-            message.append(String.format("Congrats to @%s%s on guessing correctly! jcogChamp",
+            message.append(String.format(
+                    "Congrats to @%s%s on guessing correctly! jcogChamp",
                     winners.get(0),
                     unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : ""
             ));
         } else if (winners.size() == 2) {
-            message.append(String.format("Congrats to @%s%s and @%s%s on guessing correctly! jcogChamp",
+            message.append(String.format(
+                    "Congrats to @%s%s and @%s%s on guessing correctly! jcogChamp",
                     winners.get(0),
                     unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : "",
                     winners.get(1),
@@ -105,18 +116,15 @@ public class PapePredsManager extends PredsManagerBase {
                 streamer
         ));
     
-        twitchApi.channelCommand(String.format("/me The correct answer was %s %s %s - %s",
-                                           badgeToString(one),
-                                           badgeToString(two),
-                                           badgeToString(three),
-                                           message));
-        updateDiscordMonthlyPoints(leaderboard, discord, getMonthlyChannelName());
-        updateDiscordAllTimePoints(leaderboard, discord, getAllTimeChannelName());
-    }
-
-    @Override
-    public String getAnswerRegex() {
-        return "[1-4]{3}";
+        twitchApi.channelCommand(String.format(
+                "/me The correct answer was %s %s %s - %s",
+                badgeToString(one),
+                badgeToString(two),
+                badgeToString(three),
+                message
+        ));
+        updateDiscordMonthlyPoints();
+        updateDiscordAllTimePoints();
     }
 
     @Override
@@ -133,14 +141,19 @@ public class PapePredsManager extends PredsManagerBase {
             }
 
             if (badgeGuess.size() == 3) {
-                predictionList.put(Long.valueOf(user.getId()), new PapePredsObject(
+                predictionList.add(new PapePredsObject(
                         user,
                         stringToBadge(badgeGuess.get(0)),
                         stringToBadge(badgeGuess.get(1)),
                         stringToBadge(badgeGuess.get(2))
                 ));
-                System.out.printf("%s has predicted %s %s %s%n",
-                                  user.getName(), badgeGuess.get(0), badgeGuess.get(1), badgeGuess.get(2));
+                System.out.printf(
+                        "%s has predicted %s %s %s%n",
+                        user.getName(),
+                        badgeGuess.get(0),
+                        badgeGuess.get(1),
+                        badgeGuess.get(2)
+                );
             }
         } else if (split.length == 1 && split[0].matches("[1-4]{3}")) {
             //using numbers, e.g. "412"
@@ -157,13 +170,20 @@ public class PapePredsManager extends PredsManagerBase {
                 Badge badge2 = intToBadge(badgeGuess.get(1));
                 Badge badge3 = intToBadge(badgeGuess.get(2));
 
-                predictionList.put(Long.valueOf(user.getId()), new PapePredsObject(user, badge1, badge2, badge3));
+                predictionList.add(new PapePredsObject(user, badge1, badge2, badge3));
 
-                System.out.printf("%s has predicted %s %s %s%n", user.getName(),
-                                  badgeToString(badge1), badgeToString(badge2), badgeToString(badge3));
+                System.out.printf(
+                        "%s has predicted %s %s %s%n",
+                        user.getName(),
+                        badgeToString(badge1),
+                        badgeToString(badge2),
+                        badgeToString(badge3)
+                );
             }
         }
     }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private ArrayList<String> getWinners(Badge leftAnswer, Badge middleAnswer, Badge rightAnswer) {
         Set<Badge> answerSet = new HashSet<>();
@@ -172,7 +192,7 @@ public class PapePredsManager extends PredsManagerBase {
         answerSet.add(rightAnswer);
 
         ArrayList<String> winners = new ArrayList<>();
-        for (PapePredsObject pred : predictionList.values()) {
+        for (PapePredsObject pred : predictionList) {
             EventUser user = pred.getTwitchUser();
             Badge leftGuess = pred.getLeft();
             Badge middleGuess = pred.getMiddle();
@@ -226,29 +246,6 @@ public class PapePredsManager extends PredsManagerBase {
             }
         }
         return unsubbedWinners;
-    }
-
-    @Override
-    protected PredsLeaderboardDb getLeaderboardType() {
-        return dbManager.getSpeedySpinLeaderboardDb();
-    }
-
-    @Override
-    protected String getMonthlyChannelName() {
-        return DISCORD_CHANNEL_MONTHLY;
-    }
-
-    @Override
-    protected String getAllTimeChannelName() {
-        return DISCORD_CHANNEL_ALL_TIME;
-    }
-
-    @Override
-    protected String getStartMessage() {
-        return "/me Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 " +
-                "BadSpin3 or SpoodlySpun (or a message with 3 digits from 1 to 4) to guess the order the badges will " +
-                "show up in the badge shop! If you get all three right and don't have a sub, you'll win one! Type " +
-                "!preds to learn more.";
     }
 
     private static String badgeToString(Badge badge) {

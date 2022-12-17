@@ -3,7 +3,6 @@ package functions.preds;
 import com.github.twitch4j.common.events.domain.EventUser;
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
-import database.preds.PredsLeaderboardDb;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
@@ -14,9 +13,14 @@ import java.util.Map;
 import static java.lang.System.out;
 
 public class SunshinePredsManager extends PredsManagerBase {
+    private static final String START_MESSAGE = "/me Get your predictions in! Guess what the timer will end at when " +
+                                                "JCog finishes Pianta 6. You get more points the closer you are, " +
+                                                "plus a bonus if you're closest, and if you're closest and within " +
+                                                "half a second, JCog will gift you a sub! Type !preds to learn more.";
+    private static final String ANSWER_REGEX = "[0-9]{5}";
     private static final String DISCORD_CHANNEL_MONTHLY = "sms-preds-monthly";
     private static final String DISCORD_CHANNEL_ALL_TIME = "sms-preds-all-time";
-    private static final String START_MESSAGE = "/me Get your predictions in! Guess what the timer will end at when JCog finishes Pianta 6. You get more points the closer you are, plus a bonus if you're closest, and if you're closest and within half a second, JCog will gift you a sub! Type !preds to learn more.";
+    
     private static final int POINTS_CORRECT = 50;
     private static final int POINTS_1_SECOND = 15;
     private static final int POINTS_5_SECONDS = 5;
@@ -27,43 +31,20 @@ public class SunshinePredsManager extends PredsManagerBase {
     private static final int HUND_10_SECONDS = 10 * 100;
 
     private final HashMap<Long,TimeGuess> predictionList = new HashMap<>();
-    private final TwitchApi twitchApi;
     private final User streamer;
-    private final DiscordBotController discord;
 
     public SunshinePredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
-        super(twitchApi, dbManager, discord);
-        this.twitchApi = twitchApi;
+        super(
+                twitchApi,
+                dbManager,
+                discord,
+                dbManager.getSunshineTimerLeaderboardDb(),
+                START_MESSAGE,
+                ANSWER_REGEX,
+                DISCORD_CHANNEL_MONTHLY,
+                DISCORD_CHANNEL_ALL_TIME
+        );
         this.streamer = streamer;
-        this.discord = discord;
-    }
-
-    @Override
-    protected PredsLeaderboardDb getLeaderboardType() {
-        return dbManager.getSunshineTimerLeaderboardDb();
-    }
-
-    @Override
-    protected String getMonthlyChannelName() {
-        return DISCORD_CHANNEL_MONTHLY;
-    }
-
-    @Override
-    protected String getAllTimeChannelName() {
-        return DISCORD_CHANNEL_ALL_TIME;
-    }
-
-    @Override
-    protected String getStartMessage() {
-        return START_MESSAGE;
-    }
-
-    public boolean isActive() {
-        return enabled;
-    }
-
-    public boolean isWaitingForAnswer() {
-        return waitingForAnswer;
     }
 
     //submit the correct answer, calculate points, end game
@@ -76,7 +57,7 @@ public class SunshinePredsManager extends PredsManagerBase {
         outcome -= seconds * 100;
 
         int hundredths = outcome + (seconds * 100) + (minutes * 60 * 100);
-        enabled = false;
+        isEnabled = false;
         waitingForAnswer = false;
 
         ArrayList<String> winners = getWinners(hundredths);
@@ -142,13 +123,8 @@ public class SunshinePredsManager extends PredsManagerBase {
                 formatHundredths(hundredths),
                 message
         ));
-        updateDiscordMonthlyPoints(leaderboard, discord, getMonthlyChannelName());
-        updateDiscordAllTimePoints(leaderboard, discord, getAllTimeChannelName());
-    }
-
-    @Override
-    public String getAnswerRegex() {
-        return "[0-9]{5}";
+        updateDiscordMonthlyPoints();
+        updateDiscordAllTimePoints();
     }
 
     @Override
@@ -171,6 +147,8 @@ public class SunshinePredsManager extends PredsManagerBase {
             predictionList.put(Long.parseLong(user.getId()), new TimeGuess(user, hundredths));
         }
     }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private ArrayList<String> getWinners(int answer) {
         ArrayList<String> winners = new ArrayList<>();
