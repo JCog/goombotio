@@ -17,7 +17,6 @@ import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import com.github.twitch4j.tmi.domain.Chatters;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import listeners.TwitchEventListener;
-import listeners.commands.CommandBase;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -31,7 +30,6 @@ public class TwitchApi {
     private final User botUser;
     private final ChatLogger chatLogger;
     private final boolean silentChat;
-    private final Set<String> reservedCommands = new HashSet<>();
     
     public TwitchApi(
             ChatLogger chatLogger,
@@ -96,16 +94,6 @@ public class TwitchApi {
         twitchClient.getEventManager().onEvent(RewardRedeemedEvent.class, eventListener::onChannelPointsRedemption);
         twitchClient.getEventManager().onEvent(ChannelSubscribeEvent.class, eventListener::onSub);
         twitchClient.getEventManager().onEvent(ChannelSubGiftEvent.class, eventListener::onSubGift);
-    
-        // not sure how I like storing all the reserved commands here, but I'm not sure where would fit better
-        if (eventListener instanceof CommandBase) {
-            Set<String> commands = ((CommandBase) eventListener).getCommandPatterns();
-            reservedCommands.addAll(commands);
-        }
-    }
-    
-    public Set<String> getReservedCommands() {
-        return reservedCommands;
     }
     
     //////////////////////////////////////////////////////////////////////////

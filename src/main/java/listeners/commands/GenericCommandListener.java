@@ -79,6 +79,6 @@ public class GenericCommandListener extends CommandBase {
     }
 
     private boolean isReservedCommand(String commandId) {
-        return twitchApi.getReservedCommands().contains(commandId);
+        return CommandBase.getReservedCommands().contains(commandId);
     }
 }

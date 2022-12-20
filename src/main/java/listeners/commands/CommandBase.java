@@ -5,15 +5,13 @@ import listeners.TwitchEventListener;
 import util.TwitchUserLevel;
 import util.TwitchUserLevel.USER_LEVEL;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public abstract class CommandBase implements TwitchEventListener {
     private static final char GENERIC_COMMAND_CHAR = '!';
+    private static final Set<String> reservedCommands = new HashSet<>();
 
     /*
     PREFIX_COMMAND: command (first "word") matches exactly
@@ -21,20 +19,19 @@ public abstract class CommandBase implements TwitchEventListener {
     EXACT_MATCH_COMMAND: entire message matches pattern (case-sensitive)
     GENERIC_COMMAND: message begins with '!'
      */
-    public enum CommandType {
+    protected enum CommandType {
         PREFIX_COMMAND,
         CONTENT_COMMAND,
         EXACT_MATCH_COMMAND,
         GENERIC_COMMAND
     }
     
-    protected final ScheduledExecutorService scheduler;
+    final ScheduledExecutorService scheduler;
     
     private final CommandType commandType;
     private final USER_LEVEL minUserLevel;
     private final int cooldownLength;
     private final Set<String> commandPatterns;
-    
 
     private boolean coolingDown;
 
@@ -50,8 +47,12 @@ public abstract class CommandBase implements TwitchEventListener {
         this.minUserLevel = minUserLevel;
         this.cooldownLength = cooldownLength;
         this.commandPatterns = compileCommandPattern(commandPatterns);
-        
+        reservedCommands.addAll(List.of(commandPatterns));
         coolingDown = false;
+    }
+    
+    public static Set<String> getReservedCommands() {
+        return reservedCommands;
     }
 
     @Override
@@ -107,10 +108,6 @@ public abstract class CommandBase implements TwitchEventListener {
                 }
             }
         }
-    }
-    
-    public Set<String> getCommandPatterns() {
-        return commandPatterns;
     }
     
     private Set<String> compileCommandPattern(String[] commandWords) {

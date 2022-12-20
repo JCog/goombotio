@@ -61,8 +61,8 @@ public class CommandManagerListener extends CommandBase {
             return;
         }
 
-        if (twitchApi.getReservedCommands().contains(idString)) {
-            showError(String.format("\"%s\" is a reserved command id and cannot be modified", idString));
+        if (CommandBase.getReservedCommands().contains(idString)) {
+            showError(String.format("\"%s\" is a reserved command id and cannot be modified.", idString));
             return;
         }
 
