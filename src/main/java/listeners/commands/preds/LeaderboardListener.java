@@ -29,12 +29,11 @@ public class LeaderboardListener extends CommandBase {
             "raffle! Get 2 for being two seconds off, 5 for being one second off, or 15 for guessing correctly! " +
             "You'll always get at least one entry just for participating, so get guessing!";
     private static final String PREDS_MESSAGE_PAPE =
-            "Guess the badge locations in the badge shop! Get 1 point for one badge (or if you have them all but in " +
-            "the wrong locations), 5 for two badges, and 20 if you get all three correct! Use !leaderboard to see " +
-            "the top scores this month and !points to see how many points you have. If you get all three and aren't " +
-            "subscribed to the channel, JCog will gift you a sub, and at the end of every month, the top five " +
-            "scorers will be given a VIP badge for the next month, so get guessing!";
-    private static final String PREDS_MESSAGE_SMS =
+            "Guess the badge locations in the badge shop to win raffle entries for next month's VIP raffle! Get 2 " +
+            "for having one badge correct (or all correct but in the wrong locations), 5 for two badges, and 20 if " +
+            "you guess all three correctly! You'll always get at least one entry just for participating, so get " +
+            "guessing!";
+    private static final String PREDS_MESSAGE_SMS = //TODO: update for the VIP raffle
             "Guess what the timer will be at the end of Pianta 6! You get 1 point if you're within ten seconds, 5 " +
             "points if you're within five seconds, 15 points if you're within 1 second, and if you get it exactly " +
             "right you'll get 50 points and a free gift sub! If nobody is exactly right, whoever's closest will get " +
