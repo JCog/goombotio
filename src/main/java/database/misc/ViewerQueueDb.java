@@ -80,12 +80,12 @@ public class ViewerQueueDb extends GbCollection {
     }
     
     public static class ViewerQueueEntry {
-        public long id;
-        public int totalSessions;
-        public int attemptsSinceLastSession;
-        public int lastSessionId;
-        public boolean subbed;
-        public String username;
+        public final long id;
+        public final int totalSessions;
+        public final int attemptsSinceLastSession;
+        public final int lastSessionId;
+        public final boolean subbed;
+        public final String username;
         
         public ViewerQueueEntry(long id, int totalSessions, int attemptsSinceLastSession, int lastSessionId) {
             this.id = id;

@@ -272,13 +272,13 @@ public class SpeedrunApi extends BaseAPI {
 
         return String.format(
                 "The %s %s WRs are %s by %s overall and %s by %s on %s.",
-                game.toString(),
-                category.toString(),
+                game,
+                category,
                 allTime,
                 allName,
                 platformTime,
                 platformName,
-                platform.toString()
+                platform
         );
     }
 

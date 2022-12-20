@@ -1,6 +1,5 @@
 package database.misc;
 
-import com.mongodb.client.MongoCursor;
 import database.GbCollection;
 import database.GbDatabase;
 import org.bson.Document;
@@ -72,11 +71,8 @@ public class SocialSchedulerDb extends GbCollection {
     }
 
     public ArrayList<ScheduledMessage> getAllMessages() {
-        MongoCursor<Document> result = findAll().iterator();
         ArrayList<ScheduledMessage> messages = new ArrayList<>();
-
-        while (result.hasNext()) {
-            Document doc = result.next();
+        for (Document doc : findAll()) {
             String id = doc.getString(ID_KEY);
             String message = doc.getString(MESSAGE_KEY);
             int weight = doc.getInteger(WEIGHT_KEY) == null ? 1 : doc.getInteger(WEIGHT_KEY);

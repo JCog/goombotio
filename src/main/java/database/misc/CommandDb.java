@@ -37,7 +37,7 @@ public class CommandDb extends GbCollection {
                 "Successfully added \"%s\" to the list of commands with cooldown %ds and user level \"%s\".",
                 id,
                 cooldown,
-                userLevel.toString()
+                userLevel
         );
     }
 
@@ -55,7 +55,7 @@ public class CommandDb extends GbCollection {
                 "Successfully edited command message for \"%s\", set cooldown to %ds, and set user level to \"%s\".",
                 id,
                 cooldown,
-                userLevel.toString()
+                userLevel
         );
 
     }
@@ -89,7 +89,7 @@ public class CommandDb extends GbCollection {
         return String.format(
                 "Successfully edited command message for \"%s\" and set user level to \"%s\".",
                 id,
-                userLevel.toString()
+                userLevel
         );
 
     }
@@ -107,7 +107,7 @@ public class CommandDb extends GbCollection {
                 "Successfully edited \"%s\": set cooldown to %ds and set user level to \"%s\".",
                 id,
                 cooldown,
-                userLevel.toString()
+                userLevel
         );
 
     }
@@ -142,7 +142,7 @@ public class CommandDb extends GbCollection {
         Document document = new Document(ID_KEY, id)
                 .append(PERMISSION_KEY, userLevel.value);
         updateOne(id, document);
-        return String.format("Successfully edited \"%s\": set user level to \"%s\".", id, userLevel.toString());
+        return String.format("Successfully edited \"%s\": set user level to \"%s\".", id, userLevel);
     }
 
     public String deleteCommand(String id) {

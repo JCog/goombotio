@@ -107,7 +107,7 @@ public abstract class GbCollection {
     }
 
     /*
-    Finds all documents in the collection who's value of key contains query as a substring
+    Finds all documents in the collection whose key contains query as a substring
      */
     protected FindIterable<Document> findContainsSubstring(String key, String query, boolean caseSensitive) {
         if (caseSensitive) {

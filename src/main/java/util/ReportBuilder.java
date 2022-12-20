@@ -140,9 +140,7 @@ public class ReportBuilder {
 
         output.append(index);
         output.append(". ");
-        for (int i = 0; i < indexPadding; i++) {
-            output.append(' ');
-        }
+        output.append(" ".repeat(Math.max(0, indexPadding)));
         output.append(name);
         output.append(": ");
         output.append(" ".repeat(Math.max(0, namePadding)));
