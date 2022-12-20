@@ -1,8 +1,12 @@
 package database.preds;
 
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.model.Sorts;
 import database.GbCollection;
 import database.GbDatabase;
 import org.bson.Document;
+
+import java.util.ArrayList;
 
 public class DampeRaceLeaderboardDb extends GbCollection {
     private static final String COLLECTION_NAME_KEY = "dampe_race";
@@ -36,8 +40,46 @@ public class DampeRaceLeaderboardDb extends GbCollection {
         }
     }
     
+    public ArrayList<DampeRaceLbItem> getWinners() {
+        FindIterable<Document> winnerDocs = findAll().sort(Sorts.descending(WINS_KEY));
+        ArrayList<DampeRaceLbItem> winnerItems = new ArrayList<>();
+        for (Document winnerDoc : winnerDocs) {
+            winnerItems.add(new DampeRaceLbItem(
+                    winnerDoc.getString(ID_KEY),
+                    winnerDoc.getString(NAME_KEY),
+                    winnerDoc.getInteger(WINS_KEY)
+            ));
+        }
+        return winnerItems;
+    }
+    
     @Override
     protected String getCollectionName() {
         return COLLECTION_NAME_KEY;
+    }
+    
+    public static class DampeRaceLbItem {
+    
+        private final String userId;
+        private final String displayName;
+        private final int winCount;
+    
+        public DampeRaceLbItem(String userId, String displayName, int winCount) {
+            this.userId = userId;
+            this.displayName = displayName;
+            this.winCount = winCount;
+        }
+        
+        public String getUserId() {
+            return userId;
+        }
+    
+        public String getDisplayName() {
+            return displayName;
+        }
+    
+        public int getWinCount() {
+            return winCount;
+        }
     }
 }

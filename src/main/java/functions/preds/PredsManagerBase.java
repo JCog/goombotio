@@ -17,8 +17,9 @@ import java.util.stream.Collectors;
 import static java.lang.System.out;
 
 public abstract class PredsManagerBase {
-    private static final int DISCORD_MAX_CHARS = 2000;
     private static final String STOP_MESSAGE = "Predictions are up! Let's see how everyone did...";
+    
+    static final int DISCORD_MAX_CHARS = 2000;
     
     final DiscordBotController discord;
     final TwitchApi twitchApi;

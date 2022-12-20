@@ -15,6 +15,7 @@ public class OotPredsManager extends PredsManagerBase {
             "learn more.";
     private static final String ANSWER_REGEX = "(^[0-5][0-9])|(^[1-9][0-5][0-9])";
     
+    private static final String DISCORD_CHANNEL = "dampe-race";
     private static final int REWARD_CORRECT = 15;
     private static final int REWARD_1_OFF = 5;
     private static final int REWARD_2_OFF = 2;
@@ -69,32 +70,33 @@ public class OotPredsManager extends PredsManagerBase {
                     "Nobody guessed it. jcogThump Everybody who participated gets at least 1 raffle entry " +
                     "though! Use !raffle to check your updated entry count."
             );
-            return;
+        } else {
+    
+            StringBuilder winnerString = new StringBuilder();
+            switch (winners.size()) {
+                case 1:
+                    winnerString.append("@").append(winners.get(0).displayName);
+                    break;
+                case 2:
+                    winnerString.append(String.format(
+                            "@%s and @%s",
+                            winners.get(0).displayName,
+                            winners.get(1).displayName
+                    ));
+                    break;
+                default:
+                    for (int i = 0; i < winners.size() - 1; i++) {
+                        winnerString.append(String.format("@%s, ", winners.get(i).displayName));
+                    }
+                    winnerString.append(String.format("and @%s", winners.get(winners.size() - 1).displayName));
+                    break;
+            }
+            twitchApi.channelMessage(String.format(
+                    "Congrats to %s on guessing correctly! jcogChamp Use !raffle to check your updated entry count.",
+                    winnerString
+            ));
         }
-        
-        StringBuilder winnerString = new StringBuilder();
-        switch (winners.size()) {
-            case 1:
-                winnerString.append("@").append(winners.get(0).displayName);
-                break;
-            case 2:
-                winnerString.append(String.format(
-                        "@%s and @%s",
-                        winners.get(0).displayName,
-                        winners.get(1).displayName
-                ));
-                break;
-            default:
-                for (int i = 0; i < winners.size() - 1; i++) {
-                    winnerString.append(String.format("@%s, ", winners.get(i).displayName));
-                }
-                winnerString.append(String.format("and @%s", winners.get(winners.size() - 1).displayName));
-                break;
-        }
-        twitchApi.channelMessage(String.format(
-                "Congrats to %s on guessing correctly! jcogChamp Use !raffle to check your updated entry count.",
-                winnerString
-        ));
+        updateDiscordWins();
     }
     
     @Override
@@ -110,6 +112,40 @@ public class OotPredsManager extends PredsManagerBase {
             System.out.printf("%s has guessed %d seconds.%n", displayName, userGuess);
         }
         guesses.put(userId, new TimeGuess(userId, displayName, userGuess));
+    }
+    
+    private void updateDiscordWins() {
+        ArrayList<DampeRaceLeaderboardDb.DampeRaceLbItem> winners = dampeRaceLeaderboardDb.getWinners();
+        StringBuilder message = new StringBuilder();
+        message.append("Dampe Race Prediction Wins:\n```");
+        
+        // add winners until discord character limit is reached
+        int prevWins = -1;
+        int prevRank = -1;
+        for (int i = 0; i < winners.size(); i++) {
+            DampeRaceLeaderboardDb.DampeRaceLbItem winner = winners.get(i);
+            if (winner.getWinCount() != prevWins) {
+                prevRank = i + 1;
+            }
+            prevWins = winner.getWinCount();
+            String nextString = String.format(
+                    "%d. %s - %d\n",
+                    prevRank,
+                    winner.getDisplayName(),
+                    winner.getWinCount()
+            );
+            if (message.length() + nextString.length() > DISCORD_MAX_CHARS - 3) {
+                break;
+            }
+            message.append(nextString);
+        }
+        message.append("```");
+
+        if (discord.hasRecentMessageContents(DISCORD_CHANNEL)) {
+            discord.editMostRecentMessage(DISCORD_CHANNEL, message.toString());
+        } else {
+            discord.sendMessage(DISCORD_CHANNEL, message.toString());
+        }
     }
     
     private Integer guessToSeconds(String userMessage) {

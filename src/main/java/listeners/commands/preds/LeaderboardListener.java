@@ -6,7 +6,6 @@ import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.preds.PredsLeaderboardDb;
-import functions.preds.PredsManagerBase;
 import listeners.TwitchEventListener;
 import listeners.commands.CommandBase;
 import util.TwitchApi;
@@ -22,8 +21,8 @@ public class LeaderboardListener extends CommandBase {
     private static final String PATTERN_LEADERBOARD = "!leaderboard";
     private static final String PATTERN_PREDS = "!preds";
     private static final String PATTERN_POINTS = "!points";
-    private static final String PATTERN_LEADERBOARD_ALL = "!leaderboardall";
-    private static final String PATTERN_POINTS_ALL = "!pointsall";
+//    private static final String PATTERN_LEADERBOARD_ALL = "!leaderboardall";
+//    private static final String PATTERN_POINTS_ALL = "!pointsall";
     
     private static final String PREDS_MESSAGE_OOT =
             "Guess what the timer will say at the end of the Dampe race to win raffle entries for next month's VIP " +
@@ -67,9 +66,9 @@ public class LeaderboardListener extends CommandBase {
                 COOLDOWN,
                 PATTERN_LEADERBOARD,
                 PATTERN_PREDS,
-                PATTERN_POINTS,
-                PATTERN_LEADERBOARD_ALL,
-                PATTERN_POINTS_ALL
+                PATTERN_POINTS
+//                PATTERN_LEADERBOARD_ALL,
+//                PATTERN_POINTS_ALL
         );
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
@@ -88,18 +87,19 @@ public class LeaderboardListener extends CommandBase {
             chatMessage = PREDS_MESSAGE_DEFAULT;
         } else {
             switch (command) {
-                case PATTERN_LEADERBOARD:
-                    chatMessage = PredsManagerBase.buildMonthlyLeaderboardString(
-                            leaderboard,
-                            dbManager.getPermanentVipsDb(),
-                            twitchApi,
-                            streamerUser
-                    );
-                    break;
-        
-                case PATTERN_POINTS:
-                    chatMessage = buildMonthlyPointsString(userId, displayName);
-                    break;
+                // TODO: figure out what to do with the preds leaderboard commands. they're kind of a mess right now.
+//                case PATTERN_LEADERBOARD:
+//                    chatMessage = PredsManagerBase.buildMonthlyLeaderboardString(
+//                            leaderboard,
+//                            dbManager.getPermanentVipsDb(),
+//                            twitchApi,
+//                            streamerUser
+//                    );
+//                    break;
+//
+//                case PATTERN_POINTS:
+//                    chatMessage = buildPointsString(userId, displayName);
+//                    break;
         
                 case PATTERN_PREDS:
                     if (userLevel != USER_LEVEL.BROADCASTER) {
@@ -115,16 +115,9 @@ public class LeaderboardListener extends CommandBase {
                                 break;
                             default:
                                 chatMessage = PREDS_MESSAGE_DEFAULT;
+                                break;
                         }
                     }
-                    break;
-        
-                case PATTERN_LEADERBOARD_ALL:
-                    chatMessage = buildAllTimeLeaderboardString();
-                    break;
-        
-                case PATTERN_POINTS_ALL:
-                    chatMessage = buildPointsString(userId, displayName);
                     break;
             }
         }

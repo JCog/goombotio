@@ -185,11 +185,11 @@ public class PapePredsManager extends PredsManagerBase {
 
         ArrayList<String> winners = new ArrayList<>();
         for (PapePredsObject pred : predictionList) {
-            String userId = pred.getUserId();
-            String displayName = pred.getDisplayName();
-            Badge leftGuess = pred.getLeft();
-            Badge middleGuess = pred.getMiddle();
-            Badge rightGuess = pred.getRight();
+            String userId = pred.userId;
+            String displayName = pred.displayName;
+            Badge leftGuess = pred.left;
+            Badge middleGuess = pred.middle;
+            Badge rightGuess = pred.right;
             Set<Badge> guessSet = new HashSet<>();
             guessSet.add(leftGuess);
             guessSet.add(middleGuess);
@@ -281,4 +281,27 @@ public class PapePredsManager extends PredsManagerBase {
                 return Badge.SPOODLY_SPUN;
         }
     }
+    
+    private static class PapePredsObject {
+        private final String userId;
+        private final String displayName;
+        private final PapePredsManager.Badge left;
+        private final PapePredsManager.Badge middle;
+        private final PapePredsManager.Badge right;
+        
+        private PapePredsObject(
+                String userId,
+                String displayName,
+                PapePredsManager.Badge left,
+                PapePredsManager.Badge middle,
+                PapePredsManager.Badge right
+        ) {
+            this.userId = userId;
+            this.displayName = displayName;
+            this.left = left;
+            this.middle = middle;
+            this.right = right;
+        }
+    }
+    
 }
