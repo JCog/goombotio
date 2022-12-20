@@ -1,22 +1,20 @@
 package functions.preds;
 
-import com.github.twitch4j.common.events.domain.EventUser;
 import com.github.twitch4j.helix.domain.Moderator;
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import database.misc.PermanentVipsDb;
+import database.misc.VipRaffleDb;
 import database.preds.PredsLeaderboardDb;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
-import java.text.SimpleDateFormat;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.lang.System.out;
 
 public abstract class PredsManagerBase {
     private static final int DISCORD_MAX_CHARS = 2000;
@@ -25,11 +23,10 @@ public abstract class PredsManagerBase {
     final DiscordBotController discord;
     final TwitchApi twitchApi;
     final DbManager dbManager;
+    final VipRaffleDb vipRaffleDb;
     final PredsLeaderboardDb leaderboard;
     final String startMessage;
     final String answerRegex;
-    final String discordChannelMonthly;
-    final String discordChannelAllTime;
 
     boolean isEnabled;
     boolean waitingForAnswer;
@@ -40,18 +37,15 @@ public abstract class PredsManagerBase {
             DiscordBotController discord,
             PredsLeaderboardDb leaderboard,
             String startMessage,
-            String answerRegex,
-            String discordChannelMonthly,
-            String discordChannelAllTime
+            String answerRegex
     ) {
         this.twitchApi = twitchApi;
         this.dbManager = dbManager;
+        this.vipRaffleDb = dbManager.getVipRaffleDb();
         this.discord = discord;
         this.leaderboard = leaderboard;
         this.startMessage = startMessage;
         this.answerRegex = answerRegex;
-        this.discordChannelMonthly = discordChannelMonthly;
-        this.discordChannelAllTime = discordChannelAllTime;
     }
 
     /**
@@ -135,66 +129,16 @@ public abstract class PredsManagerBase {
     
     public abstract void submitPredictions(String answer);
     
-    public abstract void makePredictionIfValid(EventUser user, String message);
+    public abstract void makePredictionIfValid(String userId, String displayName, String message);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    void updateDiscordMonthlyPoints() {
+    void updateDiscordPoints(String channel) {
         Thread thread = new Thread(() -> {
-            ArrayList<Long> topScorers = leaderboard.getTopMonthlyScorers();
-            ArrayList<Integer> topPoints = new ArrayList<>();
-            ArrayList<String> topNames = new ArrayList<>();
-            for (Long topScorer : topScorers) {
-                topPoints.add(leaderboard.getMonthlyPoints(topScorer));
-                topNames.add(leaderboard.getUsername(topScorer));
+            if (leaderboard == null) {
+                out.println("Leaderboard DB is null, ignoring attempt to update preds leaderboard in Discord.");
+                return;
             }
-            
-            StringBuilder message = new StringBuilder();
-            SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy");
-            message.append(sdf.format(new Date()));
-            message.append("\n```");
-            
-            //add entries until discord character limit is reached
-            int prevPoints = -1;
-            int prevRank = -1;
-            for (int i = 0; i < topNames.size(); i++) {
-                if (topPoints.get(i) != prevPoints) {
-                    prevRank = i + 1;
-                }
-                prevPoints = topPoints.get(i);
-                String entry = String.format(
-                        "%d. %s - %d point%s\n",
-                        prevRank,
-                        topNames.get(i),
-                        topPoints.get(i),
-                        topPoints.get(i) != 1 ? "s" : "");
-                if (message.length() + entry.length() > DISCORD_MAX_CHARS - 3) {
-                    break;
-                } else {
-                    message.append(entry);
-                }
-            }
-            message.append("```");
-            
-            //edit message for current month if it exists, otherwise make a new one
-            if (discord.hasRecentMessageContents(discordChannelMonthly)) {
-                String dateString = discord.getMostRecentMessageContents(discordChannelMonthly).split("\n", 2)[0];
-                YearMonth now = YearMonth.now();
-                YearMonth messageDate = YearMonth.parse(dateString, DateTimeFormatter.ofPattern("MMMM yyyy"));
-                if (now.getMonth() == messageDate.getMonth() && now.getYear() == messageDate.getYear()) {
-                    discord.editMostRecentMessage(discordChannelMonthly, message.toString());
-                    System.out.printf("%s - current month edited.\n", discordChannelMonthly);
-                    return;
-                }
-            }
-            discord.sendMessage(discordChannelMonthly, message.toString());
-            System.out.printf("%s - new month added.\n", discordChannelMonthly);
-        });
-        thread.start();
-    }
-    
-    void updateDiscordAllTimePoints() {
-        Thread thread = new Thread(() -> {
             ArrayList<Long> topScorers = leaderboard.getTopScorers();
             ArrayList<Integer> topPoints = new ArrayList<>();
             ArrayList<String> topNames = new ArrayList<>();
@@ -223,12 +167,12 @@ public abstract class PredsManagerBase {
             }
             message.append("```");
             
-            if (discord.hasRecentMessageContents(discordChannelAllTime)) {
-                discord.editMostRecentMessage(discordChannelAllTime, message.toString());
+            if (discord.hasRecentMessageContents(channel)) {
+                discord.editMostRecentMessage(channel, message.toString());
             } else {
-                discord.sendMessage(discordChannelAllTime, message.toString());
+                discord.sendMessage(channel, message.toString());
             }
-            System.out.printf("%s - updated.\n", discordChannelAllTime);
+            out.printf("%s - updated.\n", channel);
         });
         thread.start();
     }

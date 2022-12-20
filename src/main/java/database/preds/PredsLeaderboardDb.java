@@ -1,6 +1,5 @@
 package database.preds;
 
-import com.github.twitch4j.common.events.domain.EventUser;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Sorts;
 import database.GbCollection;
@@ -27,130 +26,104 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         return null;
     }
 
-    public void addPointsAndWins(EventUser user, int points, int wins) {
-        addPoints(user, points);
-        addWins(user, wins);
+    public void addPointsAndWins(String userId, String displayName, int points, int wins) {
+        addPoints(userId, displayName, points);
+        addWins(userId, displayName, wins);
     }
 
-    public void addPoints(EventUser user, int points) {
+    public void addPoints(String userId, String displayName, int points) {
         String monthlyPointsKey = getMonthlyPointsKey();
-        long id = Long.parseLong(user.getId());
-        String name = user.getName();
+        long id = Long.parseLong(userId);
 
         Document result = findFirstEquals(ID_KEY, id);
 
         if (result == null) {
             Document document = new Document(ID_KEY, id)
-                    .append(NAME_KEY, name)
+                    .append(NAME_KEY, displayName)
                     .append(POINTS_KEY, points)
                     .append(monthlyPointsKey, points)
                     .append(WINS_KEY, 0);
             insertOne(document);
         } else {
-            int newPoints = (int) result.get(POINTS_KEY) + points;
+            int newPoints = result.getInteger(POINTS_KEY) + points;
             int newMonthlyPoints;
             if (result.get(monthlyPointsKey) == null) {
                 newMonthlyPoints = 0;
             } else {
-                newMonthlyPoints = (int) result.get(monthlyPointsKey);
+                newMonthlyPoints = result.getInteger(monthlyPointsKey);
             }
             newMonthlyPoints += points;
 
-            updateOne(id, new Document(NAME_KEY, name));
+            updateOne(id, new Document(NAME_KEY, displayName));
             updateOne(id, new Document(POINTS_KEY, newPoints));
             updateOne(id, new Document(monthlyPointsKey, newMonthlyPoints));
         }
     }
 
-    public void addWins(EventUser user, int wins) {
+    public void addWins(String userId, String displayName, int wins) {
         String monthlyPoints = getMonthlyPointsKey();
-        long id = Long.parseLong(user.getId());
-        String name = user.getName();
+        long id = Long.parseLong(userId);
 
         Document result = findFirstEquals(ID_KEY, id);
 
         if (result == null) {
             Document document = new Document(ID_KEY, id)
-                    .append(NAME_KEY, name)
+                    .append(NAME_KEY, displayName)
                     .append(POINTS_KEY, 0)
                     .append(monthlyPoints, 0)
                     .append(WINS_KEY, wins);
             insertOne(document);
         } else {
-            int newWins = (int) result.get(WINS_KEY) + wins;
+            int newWins = result.getInteger(WINS_KEY) + wins;
             updateOne(id, new Document(WINS_KEY, newWins));
         }
     }
 
-    public int getPoints(EventUser user) {
-        long id = Long.parseLong(user.getId());
-
-        Document result = findFirstEquals(ID_KEY, id);
-        if (result != null) {
-            return (int) result.get(POINTS_KEY);
-        }
-        return 0;
-    }
-
     public int getPrevMonthlyPoints(Document user) {
-        Object monthlyPoints = user.get(getPrevMonthlyPointsKey());
-        if (monthlyPoints != null) {
-            return (int) monthlyPoints;
-        } else {
-            return 0;
-        }
+        return user.getInteger(getPrevMonthlyPointsKey());
     }
 
-    public int getPoints(long id) {
-        Document result = findFirstEquals(ID_KEY, id);
+    public int getPoints(long userId) {
+        Document result = findFirstEquals(ID_KEY, userId);
         if (result != null) {
-            return (int) result.get(POINTS_KEY);
+            return result.getInteger(POINTS_KEY);
         }
         return 0;
     }
+    
+    public int getPoints(String userId) {
+        return getPoints(Long.parseLong(userId));
+    }
 
-    public int getMonthlyPoints(EventUser user) {
-        long id = Long.parseLong(user.getId());
-
-        Document result = findFirstEquals(ID_KEY, id);
+    public int getMonthlyPoints(long userId) {
+        Document result = findFirstEquals(ID_KEY, userId);
         if (result != null) {
-            Object monthlyPoints = result.get(getMonthlyPointsKey());
+            Integer monthlyPoints = result.getInteger(getMonthlyPointsKey());
             if (monthlyPoints != null) {
-                return (int) monthlyPoints;
+                return monthlyPoints;
             }
         }
         return 0;
     }
 
-    public int getMonthlyPoints(long id) {
-        Document result = findFirstEquals(ID_KEY, id);
+    public int getWins(long userId) {
+        Document result = findFirstEquals(ID_KEY, userId);
         if (result != null) {
-            Object monthlyPoints = result.get(getMonthlyPointsKey());
-            if (monthlyPoints != null) {
-                return (int) monthlyPoints;
-            }
+            return result.getInteger(WINS_KEY);
         }
         return 0;
     }
 
-    public int getWins(long id) {
-        Document result = findFirstEquals(ID_KEY, id);
+    public String getUsername(long userId) {
+        Document result = findFirstEquals(ID_KEY, userId);
         if (result != null) {
-            return (int) result.get(WINS_KEY);
-        }
-        return 0;
-    }
-
-    public String getUsername(long id) {
-        Document result = findFirstEquals(ID_KEY, id);
-        if (result != null) {
-            return (String) result.get(NAME_KEY);
+            return result.getString(NAME_KEY);
         }
         return "N/A";
     }
 
     public String getUsername(Document user) {
-        return (String) user.get(NAME_KEY);
+        return user.getString(NAME_KEY);
     }
 
     //returns IDs of top monthly scorers
@@ -161,7 +134,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
             if (next.get(getMonthlyPointsKey()) == null) {
                 break;
             } else {
-                topMonthlyScorers.add((long) next.get(ID_KEY));
+                topMonthlyScorers.add(next.getLong(ID_KEY));
             }
         }
 
@@ -178,7 +151,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
             if (next.get(POINTS_KEY) == null) {
                 break;
             } else {
-                topScorers.add((long) next.get(ID_KEY));
+                topScorers.add(next.getLong(ID_KEY));
             }
         }
 
@@ -198,7 +171,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
             if (next.get(WINS_KEY) == null) {
                 break;
             } else {
-                topScorers.add((long) next.get(ID_KEY));
+                topScorers.add(next.getLong(ID_KEY));
             }
         }
 

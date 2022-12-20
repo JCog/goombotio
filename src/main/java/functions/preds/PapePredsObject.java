@@ -1,24 +1,32 @@
 package functions.preds;
 
-import com.github.twitch4j.common.events.domain.EventUser;
-
 public class PapePredsObject {
-    private final EventUser twitchUser;
-    private final PapePredsManager.Badge left, middle, right;
+    private final String userId;
+    private final String displayName;
+    private final PapePredsManager.Badge left;
+    private final PapePredsManager.Badge middle;
+    private final PapePredsManager.Badge right;
 
     public PapePredsObject(
-            EventUser twitchUser,
+            String userId,
+            String displayName,
             PapePredsManager.Badge left,
             PapePredsManager.Badge middle,
-            PapePredsManager.Badge right) {
-        this.twitchUser = twitchUser;
+            PapePredsManager.Badge right
+    ) {
+        this.userId = userId;
+        this.displayName = displayName;
         this.left = left;
         this.middle = middle;
         this.right = right;
     }
 
-    public EventUser getTwitchUser() {
-        return twitchUser;
+    public String getUserId() {
+        return userId;
+    }
+    
+    public String getDisplayName() {
+        return displayName;
     }
 
     public PapePredsManager.Badge getLeft() {

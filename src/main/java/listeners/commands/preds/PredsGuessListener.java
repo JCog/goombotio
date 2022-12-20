@@ -26,7 +26,9 @@ public class PredsGuessListener implements TwitchEventListener {
     public void onChannelMessage(ChannelMessageEvent messageEvent) {
         if (enabled) {
             String content = messageEvent.getMessage().trim();
-            manager.makePredictionIfValid(messageEvent.getUser(), content);
+            String userId = messageEvent.getUser().getId();
+            String displayName = TwitchEventListener.getDisplayName(messageEvent.getMessageEvent().getTags());
+            manager.makePredictionIfValid(userId, displayName, content);
         }
     }
 }
