@@ -259,6 +259,19 @@ public class TwitchApi {
         }
         return gameList.getGames().get(0);
     }
+    
+    @Nullable
+    public Game getGameByName(String name) throws HystrixRuntimeException {
+        GameList gameList = twitchClient.getHelix().getGames(
+                authToken,
+                null,
+                Collections.singletonList(name)
+        ).execute();
+        if (gameList.getGames().isEmpty()) {
+            return null;
+        }
+        return gameList.getGames().get(0);
+    }
 
     public List<Moderator> getMods(String userId) throws HystrixRuntimeException {
         String cursor = null;

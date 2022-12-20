@@ -83,6 +83,7 @@ public abstract class PredsManagerBase {
         twitchApi.channelCommand(STOP_MESSAGE);
     }
     
+    // only used for verifying answer from broadcaster
     public String getAnswerRegex() {
         return answerRegex;
     }

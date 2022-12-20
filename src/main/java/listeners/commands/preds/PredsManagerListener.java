@@ -6,6 +6,7 @@ import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import functions.DiscordBotController;
+import functions.preds.OotPredsManager;
 import functions.preds.PapePredsManager;
 import functions.preds.PredsManagerBase;
 import functions.preds.SunshinePredsManager;
@@ -24,8 +25,9 @@ public class PredsManagerListener extends CommandBase {
     private static final String PATTERN_PREDS = "!preds";
     private static final String PATTERN_PREDS_CANCEL = "!predscancel";
     
-    private static final String GAME_ID_SUNSHINE = "6086";
+    private static final String GAME_ID_OOT = "11557";
     private static final String GAME_ID_PAPER_MARIO = "18231";
+    private static final String GAME_ID_SUNSHINE = "6086";
 
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
@@ -70,13 +72,19 @@ public class PredsManagerListener extends CommandBase {
                     if (stream != null) {
                         gameId = stream.getGameId();
                     }
-                    if (gameId.equals(GAME_ID_PAPER_MARIO)) {
-                        predsManager = new PapePredsManager(dbManager, discord, twitchApi, streamerUser);
-                    } else if (gameId.equals(GAME_ID_SUNSHINE)) {
-                        predsManager = new SunshinePredsManager(dbManager, discord, twitchApi, streamerUser);
-                    } else {
-                        twitchApi.channelMessage("The current game is not compatible with preds.");
-                        return;
+                    switch (gameId) {
+                        case GAME_ID_OOT:
+                            predsManager = new OotPredsManager(dbManager, discord, twitchApi);
+                            break;
+                        case GAME_ID_PAPER_MARIO:
+                            predsManager = new PapePredsManager(dbManager, discord, twitchApi, streamerUser);
+                            break;
+                        case GAME_ID_SUNSHINE:
+                            predsManager = new SunshinePredsManager(dbManager, discord, twitchApi, streamerUser);
+                            break;
+                        default:
+                            twitchApi.channelMessage("The current game is not compatible with preds.");
+                            return;
                     }
                     out.println("Starting the prediction game...");
                     predsGuessListener.start(predsManager);
