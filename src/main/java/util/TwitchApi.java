@@ -131,22 +131,14 @@ public class TwitchApi {
     /**
      * Sends a message to twitch chat with no restrictions on commands
      *
-     * @param line message to send
+     * @param message message to send
      */
-    public void channelCommand(String line) {
-        String output = line.trim();
+    public void channelAnnouncement(String message) {
+        String output = message.trim();
         if (output.isEmpty()) {
             return;
         }
-        String firstWord = output.split("\\s", 2)[0];
-        if (firstWord.charAt(0) == '/') {
-            System.out.printf("command message sent \"%s\"%n", output);
-        }
-        sendMessage(output);
-    }
-    
-    public void whisper(String username, String message) {
-        twitchClient.getChat().sendPrivateMessage(username, message);
+        sendMessage("/announce " + output);
     }
     
     private void sendMessage(String message) {

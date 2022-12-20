@@ -12,10 +12,10 @@ import java.util.Map;
 import static java.lang.System.out;
 
 public class SunshinePredsManager extends PredsManagerBase {
-    private static final String START_MESSAGE = "/me Get your predictions in! Guess what the timer will end at when " +
-                                                "JCog finishes Pianta 6. You get more points the closer you are, " +
-                                                "plus a bonus if you're closest, and if you're closest and within " +
-                                                "half a second, JCog will gift you a sub! Type !preds to learn more.";
+    private static final String START_MESSAGE =
+            "Get your predictions in! Guess what the timer will end at when JCog finishes Pianta 6. You get more " +
+            "points the closer you are, plus a bonus if you're closest, and if you're closest and within half a " +
+            "second, JCog will gift you a sub! Type !preds to learn more.";
     private static final String ANSWER_REGEX = "[0-9]{5}";
     private static final String DISCORD_POINTS_CHANNEL = "sms-preds-all-time";
     
@@ -114,8 +114,8 @@ public class SunshinePredsManager extends PredsManagerBase {
                 streamer
         ));
     
-        twitchApi.channelCommand(String.format(
-                "/me The correct answer is %s - %s",
+        twitchApi.channelAnnouncement(String.format(
+                "The correct answer is %s - %s",
                 formatHundredths(hundredths),
                 message
         ));

@@ -128,7 +128,7 @@ public class LeaderboardListener extends CommandBase {
                     break;
             }
         }
-        twitchApi.channelCommand(chatMessage);
+        twitchApi.channelMessage(chatMessage);
     }
 
     private void updateLeaderboardType() {

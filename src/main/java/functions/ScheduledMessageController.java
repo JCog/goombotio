@@ -113,7 +113,7 @@ public class ScheduledMessageController {
 
         int selection = random.nextInt(choices.size());
         String message = choices.get(selection).getMessage();
-        twitchApi.channelMessage(commandParser.parse(new GenericMessage(message), null));
+        twitchApi.channelAnnouncement(commandParser.parse(new GenericMessage(message), null));
         previousId = choices.get(selection).getId();
     }
 

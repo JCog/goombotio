@@ -109,9 +109,9 @@ public class PredsManagerListener extends CommandBase {
                 if (predsManager != null) {
                     predsManager = null;
                     predsGuessListener.stop();
-                    twitchApi.channelCommand("Active preds game has been canceled.");
+                    twitchApi.channelAnnouncement("The active preds game has been canceled.");
                 } else {
-                    twitchApi.channelCommand("There isn't an active preds game to cancel.");
+                    twitchApi.channelMessage("There isn't an active preds game to cancel.");
                 }
                 break;
         }

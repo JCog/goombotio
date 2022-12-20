@@ -18,7 +18,7 @@ import static java.lang.System.out;
 
 public abstract class PredsManagerBase {
     private static final int DISCORD_MAX_CHARS = 2000;
-    private static final String STOP_MESSAGE = "/me Predictions are up! Let's see how everyone did...";
+    private static final String STOP_MESSAGE = "Predictions are up! Let's see how everyone did...";
     
     final DiscordBotController discord;
     final TwitchApi twitchApi;
@@ -71,7 +71,7 @@ public abstract class PredsManagerBase {
      */
     public void startGame() {
         isEnabled = true;
-        twitchApi.channelCommand(startMessage);
+        twitchApi.channelAnnouncement(startMessage);
     }
 
     /**
@@ -80,7 +80,7 @@ public abstract class PredsManagerBase {
      */
     public void waitForAnswer() {
         waitingForAnswer = true;
-        twitchApi.channelCommand(STOP_MESSAGE);
+        twitchApi.channelAnnouncement(STOP_MESSAGE);
     }
     
     // only used for verifying answer from broadcaster

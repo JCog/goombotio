@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class OotPredsManager extends PredsManagerBase {
-    private static final String START_MESSAGE = "/announce Get your predictions in! Guess in chat what the timer " +
-                                                "will say at the end of the Dampe race. The closer you are, the more " +
-                                                "entries you'll earn for a chance at winning the monthly VIP raffle! " +
-                                                "Type !preds to learn more.";
+    private static final String START_MESSAGE =
+            "Get your predictions in! Guess in chat what the timer will say at the end of the Dampe race. The closer " +
+            "you are, the more entries you'll earn for a chance at winning the monthly VIP raffle! Type !preds to " +
+            "learn more.";
     private static final String ANSWER_REGEX = "(^[0-5][0-9])|(^[1-9][0-5][0-9])";
     
     private static final int REWARD_CORRECT = 15;

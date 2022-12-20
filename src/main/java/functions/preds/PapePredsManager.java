@@ -13,11 +13,10 @@ import java.util.stream.Collectors;
 import static java.lang.System.out;
 
 public class PapePredsManager extends PredsManagerBase {
-    private static final String START_MESSAGE = "/me Get your predictions in! Send a message with three of either " +
-                                                "BadSpin1 BadSpin2 BadSpin3 or SpoodlySpun (or a message with 3 " +
-                                                "digits from 1 to 4) to guess the order the badges will show up in " +
-                                                "the badge shop! If you get all three right and don't have a sub, " +
-                                                "you'll win one! Type !preds to learn more.";
+    private static final String START_MESSAGE =
+            "Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 BadSpin3 or SpoodlySpun " +
+            "(or a message with 3 digits from 1 to 4) to guess the order the badges will show up in the badge shop! " +
+            "If you get all three right and don't have a sub, you'll win one! Type !preds to learn more.";
     private static final String ANSWER_REGEX = "[1-4]{3}";
     private static final String DISCORD_CHANNEL_POINTS = "pape-preds-all-time";
     
@@ -109,8 +108,8 @@ public class PapePredsManager extends PredsManagerBase {
                 streamer
         ));
     
-        twitchApi.channelCommand(String.format(
-                "/me The correct answer was %s %s %s - %s",
+        twitchApi.channelAnnouncement(String.format(
+                "The correct answer was %s %s %s - %s",
                 badgeToString(one),
                 badgeToString(two),
                 badgeToString(three),
