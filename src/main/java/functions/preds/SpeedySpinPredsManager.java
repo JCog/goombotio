@@ -127,7 +127,7 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
                 .map(SpeedySpinItem::getWins)
                 .collect(Collectors.toCollection(ArrayList::new));
     
-        updateDiscordLeaderboard(DISCORD_CHANNEL_WINS, "Speedy Spin Prediction Wins:", winsNames, winsCounts);
+        updateDiscordLeaderboard(DISCORD_CHANNEL_WINS, "Badge Shop Prediction Wins:", winsNames, winsCounts);
     
         ArrayList<SpeedySpinItem> pointsAllTime = speedySpinLeaderboardDb.getAllSortedPoints();
         ArrayList<String> pointsNames = pointsAllTime.stream()
@@ -137,7 +137,7 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
                 .map(SpeedySpinItem::getPoints)
                 .collect(Collectors.toCollection(ArrayList::new));
     
-        updateDiscordLeaderboard(DISCORD_CHANNEL_POINTS, "Speedy Spin Prediction Points:", pointsNames, pointsCounts);
+        updateDiscordLeaderboard(DISCORD_CHANNEL_POINTS, "Badge Shop Prediction Points:", pointsNames, pointsCounts);
     }
 
     @Override
