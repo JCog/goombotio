@@ -11,9 +11,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 public abstract class PredsLeaderboardDb extends GbCollection {
-    private static final String NAME_KEY = "name";
-    private static final String POINTS_KEY = "points";
-    private static final String WINS_KEY = "wins";
+    static final String NAME_KEY = "name";
+    static final String POINTS_KEY = "points";
+    static final String WINS_KEY = "wins";
 
     protected PredsLeaderboardDb(GbDatabase gbDatabase, String collectionName) {
         super(gbDatabase, collectionName);

@@ -2,13 +2,15 @@ package functions.preds;
 
 import database.DbManager;
 import database.preds.DampeRaceLeaderboardDb;
+import database.preds.DampeRaceLeaderboardDb.DampeRaceLbItem;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
-public class OotPredsManager extends PredsManagerBase {
+public class DampeRacePredsManager extends PredsManagerBase {
     private static final String START_MESSAGE =
             "Get your predictions in! Guess in chat what the timer will say at the end of the Dampe race. The closer " +
             "you are, the more entries you'll earn for a chance at winning the monthly VIP raffle! Type !preds to " +
@@ -24,12 +26,11 @@ public class OotPredsManager extends PredsManagerBase {
     private final HashMap<String, TimeGuess> guesses = new HashMap<>();
     private final DampeRaceLeaderboardDb dampeRaceLeaderboardDb;
     
-    public OotPredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi) {
+    public DampeRacePredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi) {
         super(
                 twitchApi,
                 dbManager,
                 discord,
-                null,
                 START_MESSAGE,
                 ANSWER_REGEX
         );
@@ -96,7 +97,17 @@ public class OotPredsManager extends PredsManagerBase {
                     winnerString
             ));
         }
-        updateDiscordWins();
+        
+        // update discord leaderboard
+        ArrayList<DampeRaceLbItem> winnersAllTime = dampeRaceLeaderboardDb.getWinners();
+        ArrayList<String> names = winnersAllTime.stream()
+                .map(DampeRaceLbItem::getDisplayName)
+                .collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Integer> winCounts = winnersAllTime.stream()
+                .map(DampeRaceLbItem::getWinCount)
+                .collect(Collectors.toCollection(ArrayList::new));
+        
+        updateDiscordLeaderboard(DISCORD_CHANNEL, "Dampe Race Prediction Wins:", names, winCounts);
     }
     
     @Override
@@ -112,40 +123,6 @@ public class OotPredsManager extends PredsManagerBase {
             System.out.printf("%s has guessed %d seconds.%n", displayName, userGuess);
         }
         guesses.put(userId, new TimeGuess(userId, displayName, userGuess));
-    }
-    
-    private void updateDiscordWins() {
-        ArrayList<DampeRaceLeaderboardDb.DampeRaceLbItem> winners = dampeRaceLeaderboardDb.getWinners();
-        StringBuilder message = new StringBuilder();
-        message.append("Dampe Race Prediction Wins:\n```");
-        
-        // add winners until discord character limit is reached
-        int prevWins = -1;
-        int prevRank = -1;
-        for (int i = 0; i < winners.size(); i++) {
-            DampeRaceLeaderboardDb.DampeRaceLbItem winner = winners.get(i);
-            if (winner.getWinCount() != prevWins) {
-                prevRank = i + 1;
-            }
-            prevWins = winner.getWinCount();
-            String nextString = String.format(
-                    "%d. %s - %d\n",
-                    prevRank,
-                    winner.getDisplayName(),
-                    winner.getWinCount()
-            );
-            if (message.length() + nextString.length() > DISCORD_MAX_CHARS - 3) {
-                break;
-            }
-            message.append(nextString);
-        }
-        message.append("```");
-
-        if (discord.hasRecentMessageContents(DISCORD_CHANNEL)) {
-            discord.editMostRecentMessage(DISCORD_CHANNEL, message.toString());
-        } else {
-            discord.sendMessage(DISCORD_CHANNEL, message.toString());
-        }
     }
     
     private Integer guessToSeconds(String userMessage) {

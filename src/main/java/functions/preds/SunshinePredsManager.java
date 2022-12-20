@@ -1,13 +1,15 @@
 package functions.preds;
 
-import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
+import database.preds.SpeedySpinLeaderboardDb.SpeedySpinItem;
+import database.preds.SunshineTimerLeaderboardDb;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.lang.System.out;
 
@@ -17,8 +19,8 @@ public class SunshinePredsManager extends PredsManagerBase {
             "points the closer you are, plus a bonus if you're closest, and if you're closest and within half a " +
             "second, JCog will gift you a sub! Type !preds to learn more.";
     private static final String ANSWER_REGEX = "[0-9]{5}";
-    private static final String DISCORD_POINTS_CHANNEL = "sms-preds-all-time";
     
+    private static final String DISCORD_CHANNEL = "pianta-6";
     private static final int POINTS_CORRECT = 50;
     private static final int POINTS_1_SECOND = 15;
     private static final int POINTS_5_SECONDS = 5;
@@ -29,18 +31,17 @@ public class SunshinePredsManager extends PredsManagerBase {
     private static final int HUND_10_SECONDS = 10 * 100;
 
     private final HashMap<Long,TimeGuess> predictionList = new HashMap<>();
-    private final User streamer;
+    private final SunshineTimerLeaderboardDb sunshineTimerLeaderboardDb;
 
-    public SunshinePredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
+    public SunshinePredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi) {
         super(
                 twitchApi,
                 dbManager,
                 discord,
-                dbManager.getSunshineTimerLeaderboardDb(),
                 START_MESSAGE,
                 ANSWER_REGEX
         );
-        this.streamer = streamer;
+        this.sunshineTimerLeaderboardDb = dbManager.getSunshineTimerLeaderboardDb();
     }
 
     //submit the correct answer, calculate points, end game
@@ -106,20 +107,24 @@ public class SunshinePredsManager extends PredsManagerBase {
             message.append("and @").append(winners.get(winners.size() - 1));
             message.append(" on guessing correctly! jcogChamp");
         }
-        message.append(" • ");
-        message.append(buildMonthlyLeaderboardString(
-                leaderboard,
-                dbManager.getPermanentVipsDb(),
-                twitchApi,
-                streamer
-        ));
+        message.append(" Use !raffle to check your updated entry count.");
     
         twitchApi.channelAnnouncement(String.format(
                 "The correct answer is %s - %s",
                 formatHundredths(hundredths),
                 message
         ));
-        updateDiscordPoints(DISCORD_POINTS_CHANNEL);
+    
+        // update discord leaderboard
+        ArrayList<SpeedySpinItem> winnersAllTime = sunshineTimerLeaderboardDb.getAllSortedPoints();
+        ArrayList<String> names = winnersAllTime.stream()
+                .map(SpeedySpinItem::getDisplayName)
+                .collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Integer> pointCounts = winnersAllTime.stream()
+                .map(SpeedySpinItem::getPoints)
+                .collect(Collectors.toCollection(ArrayList::new));
+    
+        updateDiscordLeaderboard(DISCORD_CHANNEL, "Pianta 6 Prediction Points:", names, pointCounts);
     }
 
     @Override
@@ -152,7 +157,7 @@ public class SunshinePredsManager extends PredsManagerBase {
             if (guess.hundredths == answer) {
                 //exactly right
                 winners.add(guess.displayName);
-                leaderboard.addPointsAndWins(guess.userId, guess.displayName, POINTS_CORRECT, 1);
+                sunshineTimerLeaderboardDb.addPointsAndWins(guess.userId, guess.displayName, POINTS_CORRECT, 1);
                 out.printf(
                         "%s guessed exactly correct. Adding %d points and a win.%n",
                         guess.displayName,
@@ -160,7 +165,7 @@ public class SunshinePredsManager extends PredsManagerBase {
                 );
             } else if (Math.abs(guess.hundredths - answer) < HUND_1_SECOND) {
                 //off by less than a second
-                leaderboard.addPoints(guess.userId, guess.displayName, POINTS_1_SECOND);
+                sunshineTimerLeaderboardDb.addPoints(guess.userId, guess.displayName, POINTS_1_SECOND);
                 out.printf(
                         "%s was within 1 second. Adding %d points%n",
                         guess.displayName,
@@ -168,7 +173,7 @@ public class SunshinePredsManager extends PredsManagerBase {
                 );
             } else if (Math.abs(guess.hundredths - answer) < HUND_5_SECONDS) {
                 //off by less than 5 seconds
-                leaderboard.addPoints(guess.userId, guess.displayName, POINTS_5_SECONDS);
+                sunshineTimerLeaderboardDb.addPoints(guess.userId, guess.displayName, POINTS_5_SECONDS);
                 out.printf(
                         "%s was within 5 seconds. Adding %d points%n",
                         guess.displayName,
@@ -176,7 +181,7 @@ public class SunshinePredsManager extends PredsManagerBase {
                 );
             } else if (Math.abs(guess.hundredths - answer) < HUND_10_SECONDS) {
                 //off by less than 10 seconds
-                leaderboard.addPoints(guess.userId, guess.displayName, POINTS_10_SECONDS);
+                sunshineTimerLeaderboardDb.addPoints(guess.userId, guess.displayName, POINTS_10_SECONDS);
                 out.printf(
                         "%s was within 5 seconds. Adding %d points%n",
                         guess.displayName,
@@ -207,7 +212,7 @@ public class SunshinePredsManager extends PredsManagerBase {
             TimeGuess guess = longTimeGuessEntry.getValue();
             if (Math.abs(guess.hundredths - answer) == minDifference) {
                 output.add(guess);
-                leaderboard.addPoints(guess.userId, guess.displayName, POINTS_CLOSEST);
+                sunshineTimerLeaderboardDb.addPoints(guess.userId, guess.displayName, POINTS_CLOSEST);
                 out.printf(
                         "%s was the closest. Adding %d points%n",
                         guess.displayName,

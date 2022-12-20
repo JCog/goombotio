@@ -4,6 +4,8 @@ import com.github.twitch4j.helix.domain.Subscription;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
+import database.preds.SpeedySpinLeaderboardDb;
+import database.preds.SpeedySpinLeaderboardDb.SpeedySpinItem;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
@@ -12,18 +14,23 @@ import java.util.stream.Collectors;
 
 import static java.lang.System.out;
 
-public class PapePredsManager extends PredsManagerBase {
+public class SpeedySpinPredsManager extends PredsManagerBase {
     private static final String START_MESSAGE =
             "Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 BadSpin3 or SpoodlySpun " +
             "(or a message with 3 digits from 1 to 4) to guess the order the badges will show up in the badge shop! " +
             "If you get all three right and don't have a sub, you'll win one! Type !preds to learn more.";
     private static final String ANSWER_REGEX = "[1-4]{3}";
-    private static final String DISCORD_CHANNEL_POINTS = "pape-preds-all-time";
     
+    private static final String DISCORD_CHANNEL_WINS = "badge-shop-wins";
+    private static final String DISCORD_CHANNEL_POINTS = "badge-shop-points";
     private static final int POINTS_3 = 20;
     private static final int POINTS_2 = 5;
     private static final int POINTS_1 = 1;
     private static final int POINTS_WRONG_ORDER = 1;
+    private static final int REWARD_3_CORRECT = 20;
+    private static final int REWARD_2_CORRECT = 5;
+    private static final int REWARD_1_CORRECT = 2;
+    private static final int REWARD_0_CORRECT = 1;
     private static final Set<String> BADGE_CHOICES = new HashSet<>(Arrays.asList(
             "badspin1",
             "badspin2",
@@ -39,17 +46,18 @@ public class PapePredsManager extends PredsManagerBase {
     }
 
     private final ArrayList<PapePredsObject> predictionList = new ArrayList<>();
+    private final SpeedySpinLeaderboardDb speedySpinLeaderboardDb;
     private final User streamer;
     
-    public PapePredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
+    public SpeedySpinPredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
         super(
                 twitchApi,
                 dbManager,
                 discord,
-                dbManager.getSpeedySpinLeaderboardDb(),
                 START_MESSAGE,
                 ANSWER_REGEX
         );
+        this.speedySpinLeaderboardDb = dbManager.getSpeedySpinLeaderboardDb();
         this.streamer = streamer;
     }
 
@@ -70,7 +78,7 @@ public class PapePredsManager extends PredsManagerBase {
         List<String> unsubbedWinners = getUnsubbedWinners(winners);
         StringBuilder message = new StringBuilder();
         if (winners.size() == 0) {
-            message.append("Nobody guessed it. jcogThump Hopefully you got some points, though!");
+            message.append("Nobody guessed it. jcogThump");
         } else if (winners.size() == 1) {
             message.append(String.format(
                     "Congrats to @%s%s on guessing correctly! jcogChamp",
@@ -100,13 +108,7 @@ public class PapePredsManager extends PredsManagerBase {
             }
             message.append(" on guessing correctly! jcogChamp");
         }
-        message.append(" • ");
-        message.append(buildMonthlyLeaderboardString(
-                leaderboard,
-                dbManager.getPermanentVipsDb(),
-                twitchApi,
-                streamer
-        ));
+        message.append(" Use !raffle to check your updated entry count.");
     
         twitchApi.channelAnnouncement(String.format(
                 "The correct answer was %s %s %s - %s",
@@ -115,7 +117,27 @@ public class PapePredsManager extends PredsManagerBase {
                 badgeToString(three),
                 message
         ));
-        updateDiscordPoints(DISCORD_CHANNEL_POINTS);
+    
+        // update discord leaderboards
+        ArrayList<SpeedySpinItem> winsAllTime = speedySpinLeaderboardDb.getAllSortedWins();
+        ArrayList<String> winsNames = winsAllTime.stream()
+                .map(SpeedySpinItem::getDisplayName)
+                .collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Integer> winsCounts = winsAllTime.stream()
+                .map(SpeedySpinItem::getWins)
+                .collect(Collectors.toCollection(ArrayList::new));
+    
+        updateDiscordLeaderboard(DISCORD_CHANNEL_WINS, "Speedy Spin Prediction Wins:", winsNames, winsCounts);
+    
+        ArrayList<SpeedySpinItem> pointsAllTime = speedySpinLeaderboardDb.getAllSortedPoints();
+        ArrayList<String> pointsNames = pointsAllTime.stream()
+                .map(SpeedySpinItem::getDisplayName)
+                .collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Integer> pointsCounts = pointsAllTime.stream()
+                .map(SpeedySpinItem::getPoints)
+                .collect(Collectors.toCollection(ArrayList::new));
+    
+        updateDiscordLeaderboard(DISCORD_CHANNEL_POINTS, "Speedy Spin Prediction Points:", pointsNames, pointsCounts);
     }
 
     @Override
@@ -197,22 +219,27 @@ public class PapePredsManager extends PredsManagerBase {
 
             if (leftGuess == leftAnswer && middleGuess == middleAnswer && rightGuess == rightAnswer) {
                 winners.add(displayName);
-                leaderboard.addPointsAndWins(userId, displayName, POINTS_3, 1);
+                speedySpinLeaderboardDb.addPointsAndWins(userId, displayName, POINTS_3, 1);
+                vipRaffleDb.incrementEntryCount(userId, REWARD_3_CORRECT);
                 out.printf("%s guessed 3 correctly. Adding %d points and a win.%n", displayName,
                            POINTS_3);
             } else if ((leftGuess == leftAnswer && middleGuess == middleAnswer) ||
                     (leftGuess == leftAnswer && rightGuess == rightAnswer) ||
                     (middleGuess == middleAnswer && rightGuess == rightAnswer)) {
-                leaderboard.addPoints(userId, displayName, POINTS_2);
+                speedySpinLeaderboardDb.addPoints(userId, displayName, POINTS_2);
+                vipRaffleDb.incrementEntryCount(userId, REWARD_2_CORRECT);
                 out.printf("%s guessed 2 correctly. Adding %d points.%n", displayName, POINTS_2);
             } else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == rightAnswer) {
-                leaderboard.addPoints(userId, displayName, POINTS_1);
+                speedySpinLeaderboardDb.addPoints(userId, displayName, POINTS_1);
+                vipRaffleDb.incrementEntryCount(userId, REWARD_1_CORRECT);
                 out.printf("%s guessed 1 correctly. Adding %d point.%n", displayName, POINTS_1);
             } else if (answerSet.equals(guessSet)) {
-                leaderboard.addPoints(userId, displayName, POINTS_WRONG_ORDER);
+                speedySpinLeaderboardDb.addPoints(userId, displayName, POINTS_WRONG_ORDER);
+                vipRaffleDb.incrementEntryCount(userId, REWARD_0_CORRECT);
                 out.printf("%s guessed 0 correctly, but got all 3 badges. Adding %d point.%n",
                         displayName, POINTS_WRONG_ORDER);
             } else {
+                vipRaffleDb.incrementEntryCount(userId, REWARD_0_CORRECT);
                 out.printf("%s guessed 0 correctly.%n", displayName);
             }
         }
@@ -227,7 +254,9 @@ public class PapePredsManager extends PredsManagerBase {
         ArrayList<String> unsubbedWinners = new ArrayList<>();
         List<String> subList;
         try {
-            subList = twitchApi.getSubList(streamer.getId()).stream().map(Subscription::getUserLogin).collect(Collectors.toList());
+            subList = twitchApi.getSubList(streamer.getId()).stream()
+                    .map(Subscription::getUserLogin)
+                    .collect(Collectors.toList());
         } catch (HystrixRuntimeException e) {
             out.println("Unable to get sub status of winners.");
             return unsubbedWinners;
@@ -285,16 +314,16 @@ public class PapePredsManager extends PredsManagerBase {
     private static class PapePredsObject {
         private final String userId;
         private final String displayName;
-        private final PapePredsManager.Badge left;
-        private final PapePredsManager.Badge middle;
-        private final PapePredsManager.Badge right;
+        private final SpeedySpinPredsManager.Badge left;
+        private final SpeedySpinPredsManager.Badge middle;
+        private final SpeedySpinPredsManager.Badge right;
         
         private PapePredsObject(
                 String userId,
                 String displayName,
-                PapePredsManager.Badge left,
-                PapePredsManager.Badge middle,
-                PapePredsManager.Badge right
+                SpeedySpinPredsManager.Badge left,
+                SpeedySpinPredsManager.Badge middle,
+                SpeedySpinPredsManager.Badge right
         ) {
             this.userId = userId;
             this.displayName = displayName;

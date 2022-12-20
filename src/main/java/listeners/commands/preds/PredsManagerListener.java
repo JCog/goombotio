@@ -6,9 +6,9 @@ import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import functions.DiscordBotController;
-import functions.preds.OotPredsManager;
-import functions.preds.PapePredsManager;
+import functions.preds.DampeRacePredsManager;
 import functions.preds.PredsManagerBase;
+import functions.preds.SpeedySpinPredsManager;
 import functions.preds.SunshinePredsManager;
 import listeners.commands.CommandBase;
 import util.TwitchApi;
@@ -74,13 +74,13 @@ public class PredsManagerListener extends CommandBase {
                     }
                     switch (gameId) {
                         case GAME_ID_OOT:
-                            predsManager = new OotPredsManager(dbManager, discord, twitchApi);
+                            predsManager = new DampeRacePredsManager(dbManager, discord, twitchApi);
                             break;
                         case GAME_ID_PAPER_MARIO:
-                            predsManager = new PapePredsManager(dbManager, discord, twitchApi, streamerUser);
+                            predsManager = new SpeedySpinPredsManager(dbManager, discord, twitchApi, streamerUser);
                             break;
                         case GAME_ID_SUNSHINE:
-                            predsManager = new SunshinePredsManager(dbManager, discord, twitchApi, streamerUser);
+                            predsManager = new SunshinePredsManager(dbManager, discord, twitchApi);
                             break;
                         default:
                             twitchApi.channelMessage("The current game is not compatible with preds.");
