@@ -7,11 +7,12 @@ import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
-import database.entries.GenericMessage;
 import database.misc.CommandDb;
+import listeners.TwitchEventListener;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.math.RoundingMode;
@@ -73,16 +74,28 @@ public class MessageExpressionParser {
         this.streamerUser = streamerUser;
         commandDb = dbManager.getCommandDb();
     }
-
-    public String parse(GenericMessage genericMessage, ChannelMessageEvent messageEvent) {
-        String output = genericMessage.getMessage();
+    
+    public String parse(String message) {
+        return parseInternal(message, null, null);
+    }
+    
+    public String parse(CommandItem commandItem, ChannelMessageEvent messageEvent) {
+        return parseInternal(commandItem.getMessage(), commandItem, messageEvent);
+    }
+    
+    private String parseInternal(
+            String message,
+            @Nullable CommandItem commandItem,
+            @Nullable ChannelMessageEvent messageEvent
+    ) {
+        String output = String.valueOf(message);
         String expression = getNextExpression(output);
         int evalCount = 0;
         while (!expression.isEmpty()) {
             if (evalCount == EVAL_LIMIT) {
                 return ERROR_EVAL_LIMIT_EXCEEDED;
             }
-            String replacement = evaluateExpression(expression, genericMessage, messageEvent);
+            String replacement = evaluateExpression(expression, messageEvent, commandItem);
             //TODO: check to see if replaceFirst causes a bug
             output = output.replaceFirst(
                     Pattern.quote("$(" + expression + ")"),
@@ -94,10 +107,14 @@ public class MessageExpressionParser {
         return output;
     }
 
-    private String evaluateExpression(String expression, GenericMessage genericMessage, ChannelMessageEvent messageEvent) {
+    private String evaluateExpression(
+            String expression,
+            @Nullable ChannelMessageEvent messageEvent,
+            @Nullable CommandItem commandItem
+    ) {
         String[] split = expression.split(" ", 2);
         String type = split[0];
-        String[] userArgs = (messageEvent == null) ? null : messageEvent.getMessage().split(" ");
+        String[] userArgs = (messageEvent == null) ? new String[]{} : messageEvent.getMessage().split(" ");
         String content = "";
         if (split.length > 1) {
             content = split[1];
@@ -150,13 +167,11 @@ public class MessageExpressionParser {
                 return entries[random.nextInt(entries.length)];
             }
             case TYPE_COUNT: {
-                if (genericMessage instanceof CommandItem) {
-                    CommandItem commandItem = (CommandItem) genericMessage;
-                    commandDb.incrementCount(commandItem.getId());
-                    return Integer.toString(commandItem.getCount() + 1);
-                } else {
+                if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
+                commandDb.incrementCount(commandItem.getId());
+                return Integer.toString(commandItem.getCount() + 1);
             }
             case TYPE_FOLLOW_AGE: {
                 if (content.split(" ").length == 1) {
@@ -176,7 +191,7 @@ public class MessageExpressionParser {
                 }
             }
             case TYPE_QUERY: {
-                if (userArgs != null && userArgs.length > 1) {
+                if (userArgs.length > 1) {
                     return messageEvent.getMessage().split(" ", 2)[1];
                 } else {
                     return "";
@@ -202,7 +217,7 @@ public class MessageExpressionParser {
                 return Integer.toString(randomOutput);
             }
             case TYPE_TOUSER: {
-                if (!(genericMessage instanceof CommandItem) || messageEvent == null) {
+                if (messageEvent == null) {
                     return ERROR_NON_COMMAND;
                 }
                 if (userArgs.length > 1) {
@@ -212,7 +227,7 @@ public class MessageExpressionParser {
                         return userArgs[1];
                     }
                 } else {
-                    return messageEvent.getUser().getName();
+                    return TwitchEventListener.getDisplayName(messageEvent.getMessageEvent().getTags());
                 }
             }
             case TYPE_UPTIME: {
@@ -233,18 +248,16 @@ public class MessageExpressionParser {
                 return submitRequest(content);
             }
             case TYPE_USER: {
-                if (genericMessage instanceof CommandItem) {
-                    return messageEvent.getUser().getName();
-                } else {
+                if (messageEvent == null) {
                     return ERROR_NON_COMMAND;
                 }
+                return TwitchEventListener.getDisplayName(messageEvent.getMessageEvent().getTags());
             }
             case TYPE_USER_ID: {
-                if (genericMessage instanceof CommandItem) {
-                    return messageEvent.getUser().getId();
-                } else {
+                if (messageEvent == null) {
                     return ERROR_NON_COMMAND;
                 }
+                return messageEvent.getUser().getId();
             }
             case TYPE_WEIGHTED: {
                 String[] entries = content.split("\\|");

@@ -3,7 +3,6 @@ package database.misc;
 import com.mongodb.client.model.Sorts;
 import database.GbCollection;
 import database.GbDatabase;
-import database.entries.GenericMessage;
 import org.bson.Document;
 import org.jetbrains.annotations.Nullable;
 import util.TwitchUserLevel;
@@ -188,9 +187,10 @@ public class CommandDb extends GbCollection {
         return findFirstEquals(ID_KEY, id);
     }
     
-    public static class CommandItem extends GenericMessage {
+    public static class CommandItem {
         
         private final String id;
+        private final String message;
         private final TwitchUserLevel.USER_LEVEL permission;
         private final long cooldown;
         private final int count;
@@ -216,8 +216,8 @@ public class CommandDb extends GbCollection {
         }
         
         public CommandItem(String id, String message, TwitchUserLevel.USER_LEVEL permission, long cooldown, int count) {
-            super(message);
             this.id = id;
+            this.message = message;
             this.permission = permission;
             this.cooldown = cooldown;
             this.count = count;
@@ -225,6 +225,10 @@ public class CommandDb extends GbCollection {
         
         public String getId() {
             return id;
+        }
+        
+        public String getMessage() {
+            return message;
         }
         
         public TwitchUserLevel.USER_LEVEL getPermission() {

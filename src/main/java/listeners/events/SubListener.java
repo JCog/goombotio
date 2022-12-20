@@ -21,6 +21,10 @@ public class SubListener implements TwitchEventListener {
     
     @Override
     public void onSubGift(ChannelSubGiftEvent subGiftEvent) {
+        //TODO: remove this after debugging why it's not triggering
+        System.out.print("onSubGift triggered: ");
+        System.out.println(subGiftEvent);
+        
         SubGiftData subData = subGiftEvent.getData();
         String username = subData.getDisplayName();
         int count = subData.getCount();

@@ -3,7 +3,6 @@ package database.misc;
 import com.mongodb.client.MongoCursor;
 import database.GbCollection;
 import database.GbDatabase;
-import database.entries.ScheduledMessage;
 import org.bson.Document;
 import org.jetbrains.annotations.Nullable;
 
@@ -84,5 +83,29 @@ public class SocialSchedulerDb extends GbCollection {
             messages.add(new ScheduledMessage(id, message, weight));
         }
         return messages;
+    }
+    
+    public static class ScheduledMessage {
+        private final String id;
+        private final String message;
+        private final int weight;
+        
+        public ScheduledMessage(String id, String message, int weight) {
+            this.id = id;
+            this.message = message;
+            this.weight = weight;
+        }
+        
+        public String getId() {
+            return id;
+        }
+        
+        public String getMessage() {
+            return message;
+        }
+        
+        public int getWeight() {
+            return weight;
+        }
     }
 }
