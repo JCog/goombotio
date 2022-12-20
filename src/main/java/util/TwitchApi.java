@@ -40,6 +40,7 @@ public class TwitchApi {
             String botAuthToken,
             boolean silentChat
     ) {
+        out.printf("Establishing Twitch connection (channel=%s, chat=%s)... ", streamerUsername, botUsername);
         this.chatLogger = chatLogger;
         this.authToken = channelAuthToken;
         this.silentChat = silentChat;
@@ -73,6 +74,7 @@ public class TwitchApi {
         twitchClient.getPubSub().listenForChannelPointsRedemptionEvents(oauth, streamerUser.getId());
         twitchClient.getPubSub().listenForSubscriptionEvents(oauth, streamerUser.getId());
         twitchClient.getPubSub().listenForChannelSubGiftsEvents(oauth, streamerUser.getId());
+        out.println("success.");
     }
     
     public User getStreamerUser() {

@@ -115,21 +115,23 @@ public class MainBotController {
         subPointUpdater = new SubPointUpdater(twitchApi, streamerUser, settings);
     }
 
-    public synchronized void run() {
+    public synchronized void run(long startTime) {
+        out.print("Initializing internal processes... ");
         scheduledMessageController.start();
         followLogger.start();
         registerListeners();
         streamTracker.start();
         minecraftWhitelistUpdater.start();
         subPointUpdater.start();
+        out.println("success.");
 
-        out.println("Goombotio is ready.");
+        out.printf("Goombotio is ready. (~%ds start time)%n%n", (System.currentTimeMillis() - startTime) / 1000);
 
         //main loop
         try {
             new ConsoleCommandListener(twitchApi, discordBotController).run();
         } catch (NoSuchElementException nsee) {
-            out.println("No console detected. Process must be killed manually");
+            out.println("No console detected. Process must be killed manually.");
             try {
                 this.wait();
             } catch (InterruptedException ie) {

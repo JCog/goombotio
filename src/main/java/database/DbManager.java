@@ -39,11 +39,11 @@ public class DbManager {
 
     public DbManager(String host, Integer port, String dbName, String user, String password, boolean writePermission) {
         if (host == null || port == null || user == null || password == null) {
+            System.out.printf("Establishing database connection to %s at localhost:27017... ", dbName);
             this.gbDatabase = new GbDatabase(dbName, writePermission);
-            System.out.printf("Database connection to %s at localhost:27017 successful.%n", dbName);
         } else {
+            System.out.printf("Establishing database connection to %s at %s:%d... ", dbName, host, port);
             this.gbDatabase = new GbDatabase(host, port, dbName, user, password, writePermission);
-            System.out.printf("Database connection to %s at %s:%d successful.%n", dbName, host, port);
         }
 
         emoteStatsDb = new EmoteStatsDb(gbDatabase);
@@ -67,6 +67,8 @@ public class DbManager {
 
         streamStatsDb = new StreamStatsDb(gbDatabase);
         watchTimeDb = new WatchTimeDb(gbDatabase);
+        
+        System.out.println("success.");
     }
 
     public void closeDb() {

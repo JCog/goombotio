@@ -44,16 +44,6 @@ public class FollowLogger {
         this.streamerUser = streamerUser;
         this.scheduler = scheduler;
         watchTimeDb = dbManager.getWatchTimeDb();
-        try {
-            oldFollowerIdList = fetchFollowerIds();
-        } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
-            System.out.printf(
-                    "Error retrieving initial follower list. Trying again in %dmin%n",
-                    INTERVAL
-            );
-            oldFollowerIdList = null;
-        }
 
         FileWriter fw;
         try {
@@ -77,14 +67,14 @@ public class FollowLogger {
                 } catch (HystrixRuntimeException e) {
                     e.printStackTrace();
                     System.out.printf(
-                            "Error retrieving updated follower list. Trying again in %dmin%n",
+                            "Error retrieving updated follower list. Trying again in %d min.%n",
                             INTERVAL
                     );
                     return;
                 }
                 if (oldFollowerIdList == null) {
                     oldFollowerIdList = updatedFollowerIds;
-                    System.out.println("Successfully retrieved initial follower list");
+                    System.out.println("Successfully retrieved initial follower list.");
                     return;
                 }
                 ArrayList<String> newFollowers = getNewFollowers(updatedFollowerIds);

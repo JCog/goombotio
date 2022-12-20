@@ -19,15 +19,16 @@ public class DiscordBotController {
 
     public DiscordBotController(String token, ListenerAdapter listenerAdapter) {
         try {
+            out.print("Establishing Discord connection... ");
             jda = JDABuilder.createDefault(token)
                     .addEventListeners(listenerAdapter)
                     .build()
                     .awaitReady();
-            out.println("Goombotio login to Discord successful.");
         } catch (LoginException | InterruptedException e) {
-            out.println("Goombotio login to Discord unsuccessful:");
+            out.println("failure:");
             e.printStackTrace();
         }
+        out.println("success.");
     }
 
     public void close() {

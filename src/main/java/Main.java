@@ -3,6 +3,7 @@ import static java.lang.System.out;
 
 public class Main {
     public static void main(String[] args) {
+        long startTime = System.currentTimeMillis();
         out.println("Starting...");
         MainBotController mainBotController = new MainBotController();
 
@@ -12,7 +13,7 @@ public class Main {
         }));
 
         //primary loop
-        mainBotController.run();
+        mainBotController.run(startTime);
 
         exit(0);
     }
