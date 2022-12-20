@@ -7,7 +7,6 @@ import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
-import database.entries.CommandItem;
 import database.entries.GenericMessage;
 import database.misc.CommandDb;
 import okhttp3.OkHttpClient;
@@ -26,6 +25,8 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static database.misc.CommandDb.CommandItem;
 
 public class MessageExpressionParser {
     private static final int EVAL_LIMIT = 10;

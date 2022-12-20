@@ -1,12 +1,12 @@
 package listeners.commands.quotes;
 
-import database.entries.QuoteItem;
 import database.misc.QuoteDb;
 import util.TwitchApi;
 
 import java.util.Deque;
 import java.util.LinkedList;
 
+import static database.misc.QuoteDb.QuoteItem;
 import static listeners.commands.quotes.QuoteUndoEngine.Action.*;
 
 public class QuoteUndoEngine {

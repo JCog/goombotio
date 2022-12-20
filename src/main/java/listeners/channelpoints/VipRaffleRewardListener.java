@@ -7,7 +7,6 @@ import com.github.twitch4j.pubsub.domain.ChannelPointsReward;
 import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
-import database.entries.VipRaffleItem;
 import database.misc.PermanentVipsDb;
 import database.misc.VipRaffleDb;
 import listeners.TwitchEventListener;
@@ -17,6 +16,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
+import static database.misc.VipRaffleDb.VipRaffleItem;
 import static java.lang.System.out;
 
 public class VipRaffleRewardListener implements TwitchEventListener {

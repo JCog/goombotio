@@ -7,7 +7,6 @@ import com.google.gson.reflect.TypeToken;
 import com.jcraft.jsch.*;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
-import database.entries.MinecraftUser;
 import database.misc.MinecraftUserDb;
 import util.FileWriter;
 import util.TwitchApi;
@@ -19,6 +18,8 @@ import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import static database.misc.MinecraftUserDb.MinecraftUser;
 
 public class MinecraftWhitelistUpdater {
     private static final String FILENAME = "whitelist.json";

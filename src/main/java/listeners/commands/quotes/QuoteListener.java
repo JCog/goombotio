@@ -3,7 +3,6 @@ package listeners.commands.quotes;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
-import database.entries.QuoteItem;
 import database.misc.QuoteDb;
 import listeners.commands.CommandBase;
 import util.TwitchApi;
@@ -13,6 +12,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static database.misc.QuoteDb.QuoteItem;
 import static listeners.commands.quotes.QuoteUndoEngine.Action.*;
 
 public class QuoteListener extends CommandBase {

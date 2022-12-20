@@ -5,7 +5,6 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Sorts;
 import database.GbCollection;
 import database.GbDatabase;
-import database.entries.WatchtimeItem;
 import org.bson.Document;
 import org.jetbrains.annotations.Nullable;
 
@@ -238,5 +237,41 @@ public class WatchTimeDb extends GbCollection {
         date.set(Calendar.SECOND, 0);
         date.set(Calendar.MILLISECOND, 0);
         return date.getTime();
+    }
+    
+    public static class WatchtimeItem {
+        private final long id;
+        private final String name;
+        private final int minutes;
+        private final Date firstSeen;
+        private final Date lastSeen;
+        
+        public WatchtimeItem(long id, String name, int minutes, Date firstSeen, Date lastSeen) {
+            this.id = id;
+            this.name = name;
+            this.minutes = minutes;
+            this.firstSeen = firstSeen;
+            this.lastSeen = lastSeen;
+        }
+        
+        public long getId() {
+            return id;
+        }
+        
+        public String getName() {
+            return name;
+        }
+        
+        public int getMinutes() {
+            return minutes;
+        }
+        
+        public Date getFirstSeen() {
+            return firstSeen;
+        }
+        
+        public Date getLastSeen() {
+            return lastSeen;
+        }
     }
 }

@@ -2,8 +2,8 @@ package listeners.commands;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import database.DbManager;
-import database.entries.CommandItem;
 import database.misc.CommandDb;
+import database.misc.CommandDb.CommandItem;
 import util.TwitchApi;
 import util.TwitchUserLevel;
 

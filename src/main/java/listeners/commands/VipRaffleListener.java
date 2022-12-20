@@ -3,7 +3,6 @@ package listeners.commands;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
-import database.entries.VipRaffleItem;
 import database.misc.VipRaffleDb;
 import listeners.TwitchEventListener;
 import util.TwitchApi;
@@ -14,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
+
+import static database.misc.VipRaffleDb.VipRaffleItem;
 
 public class VipRaffleListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;

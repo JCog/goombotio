@@ -1,6 +1,6 @@
 package listeners.commands.quotes;
 
-import database.entries.QuoteItem;
+import database.misc.QuoteDb.QuoteItem;
 
 public class QuoteUndoItem {
     private final QuoteUndoEngine.Action action;

@@ -3,7 +3,6 @@ package database.misc;
 import com.mongodb.client.FindIterable;
 import database.GbCollection;
 import database.GbDatabase;
-import database.entries.MinecraftUser;
 import org.bson.Document;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,4 +55,29 @@ public class MinecraftUserDb extends GbCollection {
         String mcUsername = userDoc.getString(MC_USERNAME_KEY);
         return new MinecraftUser(twitchId, mcUuid, mcUsername);
     }
+    
+    public static class MinecraftUser {
+        private final String twitchId;
+        private final String mcUuid;
+        private final String mcUsername;
+        
+        public MinecraftUser(String twitchId, String mcUuid, String mcUsername) {
+            this.twitchId = twitchId;
+            this.mcUuid = mcUuid;
+            this.mcUsername = mcUsername;
+        }
+        
+        public String getTwitchId() {
+            return twitchId;
+        }
+        
+        public String getMcUuid() {
+            return mcUuid;
+        }
+        
+        public String getMcUsername() {
+            return mcUsername;
+        }
+    }
+    
 }

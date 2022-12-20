@@ -4,7 +4,6 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 import database.GbCollection;
 import database.GbDatabase;
-import database.entries.TattleItem;
 import org.bson.Document;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,5 +59,23 @@ public class TattleDb extends GbCollection {
             tattles.add(new TattleItem(document.getString(ID_KEY), document.getString(TATTLE_KEY)));
         }
         return tattles;
+    }
+    
+    public static class TattleItem {
+        private final String twitchId;
+        private final String tattle;
+        
+        public TattleItem(String twitchId, String tattle) {
+            this.twitchId = twitchId;
+            this.tattle = tattle;
+        }
+        
+        public String getTwitchId() {
+            return twitchId;
+        }
+        
+        public String getTattle() {
+            return tattle;
+        }
     }
 }

@@ -3,8 +3,8 @@ package listeners.commands;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
-import database.entries.TattleItem;
 import database.misc.TattleDb;
+import database.misc.TattleDb.TattleItem;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 

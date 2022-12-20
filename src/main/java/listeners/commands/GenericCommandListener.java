@@ -2,7 +2,6 @@ package listeners.commands;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import database.DbManager;
-import database.entries.CommandItem;
 import database.misc.CommandDb;
 import util.MessageExpressionParser;
 import util.TwitchApi;
@@ -12,6 +11,8 @@ import java.util.HashSet;
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static database.misc.CommandDb.CommandItem;
 
 public class GenericCommandListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.GENERIC_COMMAND;
