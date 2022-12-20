@@ -8,8 +8,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class StreamStatsDb extends GbCollection {
+    private static final String COLLECTION_NAME = "streamstats";
 
-    private static final String COLLECTION_NAME_KEY = "streamstats";
     private static final String START_KEY = "start_time";
     private static final String END_KEY = "end_time";
     private static final String VIEW_COUNTS_KEY = "view_counts";
@@ -25,12 +25,7 @@ public class StreamStatsDb extends GbCollection {
      * Database interface to store statistics about individual streams
      */
     public StreamStatsDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
-    }
-
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
+        super(gbDatabase, COLLECTION_NAME);
     }
 
     /**

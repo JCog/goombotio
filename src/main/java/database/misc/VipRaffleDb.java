@@ -11,15 +11,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 public class VipRaffleDb extends GbCollection {
-    private static final String COLLECTION_NAME_KEY = "vip_raffle";
+    private static final String COLLECTION_NAME = "vip_raffle";
     
     public VipRaffleDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
-    }
-    
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
+        super(gbDatabase, COLLECTION_NAME);
     }
     
     public void incrementEntryCount(String twitchId, int count) {

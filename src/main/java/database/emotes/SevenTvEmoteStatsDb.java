@@ -2,15 +2,10 @@ package database.emotes;
 
 import database.GbDatabase;
 
-public class SevenTvEmoteStatsDb extends EmoteStatsDb {
-    private static final String COLLECTION_NAME_KEY = "seventvemotestats";
+public class SevenTvEmoteStatsDb extends EmoteStatsDbBase {
+    private static final String COLLECTION_NAME = "seventvemotestats";
 
     public SevenTvEmoteStatsDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
-    }
-
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
+        super(gbDatabase, COLLECTION_NAME);
     }
 }

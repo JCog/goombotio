@@ -10,17 +10,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 public class MinecraftUserDb extends GbCollection {
-    private static final String COLLECTION_NAME_KEY = "minecraft_users";
+    private static final String COLLECTION_NAME = "minecraft_users";
+    
     private static final String MC_USERNAME_KEY = "mc_username";
     private static final String MC_UUID_KEY = "mc_uuid";
 
     public MinecraftUserDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
-    }
-
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
+        super(gbDatabase, COLLECTION_NAME);
     }
 
     public void addUser(String twitchId, String mcUuid, String mcUsername) {

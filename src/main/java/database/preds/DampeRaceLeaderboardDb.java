@@ -9,13 +9,13 @@ import org.bson.Document;
 import java.util.ArrayList;
 
 public class DampeRaceLeaderboardDb extends GbCollection {
-    private static final String COLLECTION_NAME_KEY = "dampe_race";
+    private static final String COLLECTION_NAME = "dampe_race";
     
     private static final String NAME_KEY = "name";
     private static final String WINS_KEY = "wins";
     
     public DampeRaceLeaderboardDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
+        super(gbDatabase, COLLECTION_NAME);
     }
     
     public int getWinCount(String userId) {
@@ -51,11 +51,6 @@ public class DampeRaceLeaderboardDb extends GbCollection {
             ));
         }
         return winnerItems;
-    }
-    
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
     }
     
     public static class DampeRaceLbItem {

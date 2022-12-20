@@ -7,17 +7,12 @@ import org.bson.Document;
 import java.util.ArrayList;
 
 public class BitWarDb extends GbCollection {
-    private static final String COLLECTION_NAME_KEY = "bit_war";
+    private static final String COLLECTION_NAME = "bit_war";
     private static final String TOTAL_KEY_BASE = "total_";
     private static final String CURRENT_KEY_BASE = "current_";
 
     public BitWarDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
-    }
-
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
+        super(gbDatabase, COLLECTION_NAME);
     }
 
     public void addBits(String bitWar, String team, int amount) {

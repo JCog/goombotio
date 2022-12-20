@@ -11,20 +11,15 @@ import java.util.Date;
 import java.util.List;
 
 public class QuoteDb extends GbCollection {
-
-    private static final String COLLECTION_NAME_KEY = "quotes";
+    private static final String COLLECTION_NAME = "quotes";
+    
     private static final String TEXT_KEY = "text";
     private static final String CREATOR_ID_KEY = "creator_id";
     private static final String CREATED_KEY = "created";
     private static final String APPROVED_KEY = "approved";
 
     public QuoteDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
-    }
-
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
+        super(gbDatabase, COLLECTION_NAME);
     }
 
     public QuoteItem addQuote(String text, long creatorId, boolean approved) {

@@ -10,18 +10,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 public class SocialSchedulerDb extends GbCollection {
+    private static final String COLLECTION_NAME = "socialscheduler";
 
-    private static final String COLLECTION_NAME_KEY = "socialscheduler";
     private static final String MESSAGE_KEY = "message";
     private static final String WEIGHT_KEY = "weight";
 
     public SocialSchedulerDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
-    }
-
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
+        super(gbDatabase, COLLECTION_NAME);
     }
 
     public String addMessage(String id, String message, int weight) {

@@ -1,9 +1,6 @@
 package database;
 
-import database.emotes.BttvEmoteStatsDb;
-import database.emotes.EmoteStatsDb;
-import database.emotes.FfzEmoteStatsDb;
-import database.emotes.SevenTvEmoteStatsDb;
+import database.emotes.*;
 import database.misc.*;
 import database.preds.DampeRaceLeaderboardDb;
 import database.preds.SpeedySpinLeaderboardDb;
@@ -12,12 +9,11 @@ import database.stats.StreamStatsDb;
 import database.stats.WatchTimeDb;
 
 public class DbManager {
-
     private final GbDatabase gbDatabase;
     
     // emote DBs
     private final BttvEmoteStatsDb bttvEmoteStatsDb;
-    private final EmoteStatsDb emoteStatsDb;
+    private final EmoteStatsDbBase emoteStatsDb;
     private final FfzEmoteStatsDb ffzEmoteStatsDb;
     private final SevenTvEmoteStatsDb sevenTvEmoteStatsDb;
 
@@ -77,7 +73,7 @@ public class DbManager {
         gbDatabase.close();
     }
 
-    public EmoteStatsDb getEmoteStatsDb() {
+    public EmoteStatsDbBase getEmoteStatsDb() {
         return emoteStatsDb;
     }
 

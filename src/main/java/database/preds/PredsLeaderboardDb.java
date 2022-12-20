@@ -11,19 +11,12 @@ import java.util.Calendar;
 import java.util.Date;
 
 public abstract class PredsLeaderboardDb extends GbCollection {
-
     private static final String NAME_KEY = "name";
     private static final String POINTS_KEY = "points";
     private static final String WINS_KEY = "wins";
 
-    protected PredsLeaderboardDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
-    }
-
-    //should never actually be called
-    @Override
-    protected String getCollectionName() {
-        return null;
+    protected PredsLeaderboardDb(GbDatabase gbDatabase, String collectionName) {
+        super(gbDatabase, collectionName);
     }
 
     public void addPointsAndWins(String userId, String displayName, int points, int wins) {

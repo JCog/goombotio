@@ -11,8 +11,8 @@ import util.TwitchUserLevel;
 import java.util.ArrayList;
 
 public class CommandDb extends GbCollection {
-
-    private static final String COLLECTION_NAME_KEY = "commands";
+    private static final String COLLECTION_NAME = "commands";
+    
     private static final String MESSAGE_KEY = "message";
     private static final String PERMISSION_KEY = "permission";
     private static final String COUNT_KEY = "count";
@@ -21,12 +21,7 @@ public class CommandDb extends GbCollection {
     private final static long DEFAULT_COOLDOWN = 2; // seconds
 
     public CommandDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
-    }
-
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
+        super(gbDatabase, COLLECTION_NAME);
     }
 
     public String addCommand(String id, String message, long cooldown, TwitchUserLevel.USER_LEVEL userLevel) {

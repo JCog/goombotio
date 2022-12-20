@@ -8,15 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PermanentVipsDb extends GbCollection {
-    private static final String COLLECTION_NAME_KEY = "permenant_vips";
+    private static final String COLLECTION_NAME = "permenant_vips";
     
     public PermanentVipsDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
-    }
-    
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
+        super(gbDatabase, COLLECTION_NAME);
     }
     
     public void addVip(String userId) {

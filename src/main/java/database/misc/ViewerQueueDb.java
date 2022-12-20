@@ -6,8 +6,8 @@ import database.entries.ViewerQueueEntry;
 import org.bson.Document;
 
 public class ViewerQueueDb extends GbCollection {
+    private static final String COLLECTION_NAME = "viewerqueue";
 
-    private static final String COLLECTION_NAME_KEY = "viewerqueue";
     private static final String TOTAL_SESSIONS_KEY = "totalSessions";
     private static final String ATTEMPTS_SINCE_LAST_SESSION_KEY = "attemptsSinceLastSession";
     private static final String LAST_SESSION_ID_KEY = "lastSessionId";
@@ -17,17 +17,12 @@ public class ViewerQueueDb extends GbCollection {
     private int sessionId;
 
     public ViewerQueueDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
+        super(gbDatabase, COLLECTION_NAME);
         sessionId = -1;
         Document result = findFirstEquals(ID_KEY, SESSION);
         if (result != null) {
             sessionId = result.getInteger(SESSION_ID_KEY);
         }
-    }
-
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
     }
 
     public void incrementSessionId() {

@@ -17,13 +17,11 @@ public abstract class GbCollection {
     private final boolean writePermission;
 
 
-    protected GbCollection(GbDatabase gbDatabase) {
+    protected GbCollection(GbDatabase gbDatabase, String collectionName) {
         this.gbDatabase = gbDatabase;
         writePermission = gbDatabase.hasWritePermission();
-        collection = gbDatabase.getCollection(getCollectionName());
+        collection = gbDatabase.getCollection(collectionName);
     }
-
-    protected abstract String getCollectionName();
 
     /*
     Inserts the given document into the collection

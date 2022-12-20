@@ -12,18 +12,14 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class TattleDb extends GbCollection {
-    private static final String COLLECTION_NAME_KEY = "tattles";
+    private static final String COLLECTION_NAME = "tattles";
+    
     private static final String TATTLE_KEY = "tattle";
 
     private final Random random = new Random();
 
     public TattleDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
-    }
-
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
+        super(gbDatabase, COLLECTION_NAME);
     }
 
     public void addTattle(String twitchId, String tattle) {

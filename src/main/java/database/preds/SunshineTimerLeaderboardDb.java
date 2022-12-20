@@ -4,14 +4,9 @@ package database.preds;
 import database.GbDatabase;
 
 public class SunshineTimerLeaderboardDb extends PredsLeaderboardDb {
-    private static final String COLLECTION_NAME_KEY = "sunshinetimer";
+    private static final String COLLECTION_NAME = "sunshinetimer";
 
     public SunshineTimerLeaderboardDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
-    }
-
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
+        super(gbDatabase, COLLECTION_NAME);
     }
 }

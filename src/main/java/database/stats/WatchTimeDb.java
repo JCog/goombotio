@@ -12,8 +12,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class WatchTimeDb extends GbCollection {
+    private static final String COLLECTION_NAME = "watchtime";
 
-    private static final String COLLECTION_NAME_KEY = "watchtime";
     private static final String MINUTES_KEY = "minutes";
     private static final String NAME_KEY = "name";
     private static final String FIRST_SEEN_KEY = "first_seen";
@@ -21,12 +21,7 @@ public class WatchTimeDb extends GbCollection {
 
 
     public WatchTimeDb(GbDatabase gbDatabase) {
-        super(gbDatabase);
-    }
-
-    @Override
-    protected String getCollectionName() {
-        return COLLECTION_NAME_KEY;
+        super(gbDatabase, COLLECTION_NAME);
     }
 
     public void addMinutes(String id, String name, int minutes) {
