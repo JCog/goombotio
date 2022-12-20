@@ -5,6 +5,7 @@ import database.emotes.EmoteStatsDb;
 import database.emotes.FfzEmoteStatsDb;
 import database.emotes.SevenTvEmoteStatsDb;
 import database.misc.*;
+import database.preds.DampeRaceLeaderboardDb;
 import database.preds.SpeedySpinLeaderboardDb;
 import database.preds.SunshineTimerLeaderboardDb;
 import database.stats.StreamStatsDb;
@@ -13,12 +14,14 @@ import database.stats.WatchTimeDb;
 public class DbManager {
 
     private final GbDatabase gbDatabase;
-
+    
+    // emote DBs
     private final BttvEmoteStatsDb bttvEmoteStatsDb;
     private final EmoteStatsDb emoteStatsDb;
     private final FfzEmoteStatsDb ffzEmoteStatsDb;
     private final SevenTvEmoteStatsDb sevenTvEmoteStatsDb;
 
+    // misc DBs
     private final BitWarDb bitWarDb;
     private final CommandDb commandDb;
     private final MinecraftUserDb minecraftUserDb;
@@ -29,9 +32,12 @@ public class DbManager {
     private final ViewerQueueDb viewerQueueDb;
     private final VipRaffleDb vipRaffleDb;
 
+    // preds DBs
+    private final DampeRaceLeaderboardDb dampeRaceLeaderboardDb;
     private final SpeedySpinLeaderboardDb speedySpinLeaderboardDb;
     private final SunshineTimerLeaderboardDb sunshineTimerLeaderboardDb;
 
+    // stats DBs
     private final StreamStatsDb streamStatsDb;
     private final WatchTimeDb watchTimeDb;
 
@@ -58,7 +64,8 @@ public class DbManager {
         tattleDb = new TattleDb(gbDatabase);
         viewerQueueDb = new ViewerQueueDb(gbDatabase);
         vipRaffleDb = new VipRaffleDb(gbDatabase);
-
+    
+        dampeRaceLeaderboardDb = new DampeRaceLeaderboardDb(gbDatabase);
         speedySpinLeaderboardDb = new SpeedySpinLeaderboardDb(gbDatabase);
         sunshineTimerLeaderboardDb = new SunshineTimerLeaderboardDb(gbDatabase);
 
@@ -120,6 +127,10 @@ public class DbManager {
     
     public VipRaffleDb getVipRaffleDb() {
         return vipRaffleDb;
+    }
+    
+    public DampeRaceLeaderboardDb getDampeRaceLeaderboardDb() {
+        return dampeRaceLeaderboardDb;
     }
 
     public SpeedySpinLeaderboardDb getSpeedySpinLeaderboardDb() {

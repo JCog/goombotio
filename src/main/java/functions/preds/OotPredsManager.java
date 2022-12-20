@@ -1,6 +1,7 @@
 package functions.preds;
 
 import database.DbManager;
+import database.preds.DampeRaceLeaderboardDb;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
@@ -20,6 +21,7 @@ public class OotPredsManager extends PredsManagerBase {
     private static final int REWARD_PARTICIPATION = 1;
     
     private final HashMap<String, TimeGuess> guesses = new HashMap<>();
+    private final DampeRaceLeaderboardDb dampeRaceLeaderboardDb;
     
     public OotPredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi) {
         super(
@@ -30,6 +32,7 @@ public class OotPredsManager extends PredsManagerBase {
                 START_MESSAGE,
                 ANSWER_REGEX
         );
+        this.dampeRaceLeaderboardDb = dbManager.getDampeRaceLeaderboardDb();
     }
     
     @Override
@@ -45,6 +48,7 @@ public class OotPredsManager extends PredsManagerBase {
                 case 0:
                     isWinner = true;
                     winners.add(guess);
+                    dampeRaceLeaderboardDb.addWin(guess.userId, guess.displayName);
                     newEntryCount = REWARD_CORRECT;
                     break;
                 case 1: newEntryCount = REWARD_1_OFF; break;
@@ -65,31 +69,32 @@ public class OotPredsManager extends PredsManagerBase {
                     "Nobody guessed it. jcogThump Everybody who participated gets at least 1 raffle entry " +
                     "though! Use !raffle to check your updated entry count."
             );
-        } else {
-            StringBuilder winnerString = new StringBuilder();
-            switch (winners.size()) {
-                case 1:
-                    winnerString.append("@").append(winners.get(0).displayName);
-                    break;
-                case 2:
-                    winnerString.append(String.format(
-                            "@%s and @%s",
-                            winners.get(0).displayName,
-                            winners.get(1).displayName
-                    ));
-                    break;
-                default:
-                    for (int i = 0; i < winners.size() - 1; i++) {
-                        winnerString.append(String.format("@%s, ", winners.get(i).displayName));
-                    }
-                    winnerString.append(String.format("and @%s", winners.get(winners.size() - 1).displayName));
-                    break;
-            }
-            twitchApi.channelMessage(String.format(
-                    "Congrats to %s on guessing correctly! jcogChamp Use !raffle to check your updated entry count.",
-                    winnerString
-            ));
+            return;
         }
+        
+        StringBuilder winnerString = new StringBuilder();
+        switch (winners.size()) {
+            case 1:
+                winnerString.append("@").append(winners.get(0).displayName);
+                break;
+            case 2:
+                winnerString.append(String.format(
+                        "@%s and @%s",
+                        winners.get(0).displayName,
+                        winners.get(1).displayName
+                ));
+                break;
+            default:
+                for (int i = 0; i < winners.size() - 1; i++) {
+                    winnerString.append(String.format("@%s, ", winners.get(i).displayName));
+                }
+                winnerString.append(String.format("and @%s", winners.get(winners.size() - 1).displayName));
+                break;
+        }
+        twitchApi.channelMessage(String.format(
+                "Congrats to %s on guessing correctly! jcogChamp Use !raffle to check your updated entry count.",
+                winnerString
+        ));
     }
     
     @Override
