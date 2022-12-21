@@ -1,7 +1,7 @@
 package functions.preds;
 
+import com.github.twitch4j.helix.domain.Moderator;
 import com.github.twitch4j.helix.domain.Subscription;
-import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.preds.BadgeShopLeaderboardDb;
@@ -46,9 +46,8 @@ public class BadgeShopPredsManager extends PredsManagerBase {
 
     private final Map<String, PapePredsObject> predictionList = new HashMap<>();
     private final BadgeShopLeaderboardDb badgeShopLeaderboardDb;
-    private final User streamer;
     
-    public BadgeShopPredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
+    public BadgeShopPredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi) {
         super(
                 twitchApi,
                 dbManager,
@@ -57,7 +56,6 @@ public class BadgeShopPredsManager extends PredsManagerBase {
                 ANSWER_REGEX
         );
         this.badgeShopLeaderboardDb = dbManager.getBadgeShopLeaderboardDb();
-        this.streamer = streamer;
     }
 
     /**
@@ -198,6 +196,11 @@ public class BadgeShopPredsManager extends PredsManagerBase {
         answerSet.add(leftAnswer);
         answerSet.add(middleAnswer);
         answerSet.add(rightAnswer);
+        
+        Set<String> modIds = twitchApi.getMods(twitchApi.getStreamerUser().getId())
+                .stream()
+                .map(Moderator::getUserId)
+                .collect(Collectors.toSet());
 
         List<String> winners = new ArrayList<>();
         for (Map.Entry<String, PapePredsObject> pred : predictionList.entrySet()) {
@@ -211,31 +214,35 @@ public class BadgeShopPredsManager extends PredsManagerBase {
             guessSet.add(middleGuess);
             guessSet.add(rightGuess);
 
+            int vipRaffleEntries;
             if (leftGuess == leftAnswer && middleGuess == middleAnswer && rightGuess == rightAnswer) {
                 winners.add(displayName);
                 badgeShopLeaderboardDb.addWin(userId, displayName);
                 badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_3);
-                vipRaffleDb.incrementEntryCount(userId, displayName, REWARD_3_CORRECT);
-                out.printf("%s guessed 3 correctly. Adding %d points and a win.%n", displayName,
-                           POINTS_3);
+                vipRaffleEntries = REWARD_3_CORRECT;
+                out.printf("%s guessed 3 correctly. Adding %d points and a win.%n", displayName, POINTS_3);
             } else if ((leftGuess == leftAnswer && middleGuess == middleAnswer) ||
                     (leftGuess == leftAnswer && rightGuess == rightAnswer) ||
                     (middleGuess == middleAnswer && rightGuess == rightAnswer)) {
                 badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_2);
-                vipRaffleDb.incrementEntryCount(userId, displayName, REWARD_2_CORRECT);
+                vipRaffleEntries = REWARD_2_CORRECT;
                 out.printf("%s guessed 2 correctly. Adding %d points.%n", displayName, POINTS_2);
             } else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == rightAnswer) {
                 badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_1);
-                vipRaffleDb.incrementEntryCount(userId, displayName, REWARD_1_CORRECT);
+                vipRaffleEntries = REWARD_1_CORRECT;
                 out.printf("%s guessed 1 correctly. Adding %d point.%n", displayName, POINTS_1);
             } else if (answerSet.equals(guessSet)) {
                 badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_WRONG_ORDER);
-                vipRaffleDb.incrementEntryCount(userId, displayName, REWARD_0_CORRECT);
+                vipRaffleEntries = REWARD_0_CORRECT;
                 out.printf("%s guessed 0 correctly, but got all 3 badges. Adding %d point.%n",
                         displayName, POINTS_WRONG_ORDER);
             } else {
-                vipRaffleDb.incrementEntryCount(userId, displayName, REWARD_0_CORRECT);
+                vipRaffleEntries = REWARD_0_CORRECT;
                 out.printf("%s guessed 0 correctly.%n", displayName);
+            }
+    
+            if (!modIds.contains(userId) && !permanentVipsDb.isPermanentVip(userId)) {
+                vipRaffleDb.incrementEntryCount(userId, displayName, vipRaffleEntries);
             }
         }
         return winners;
@@ -249,7 +256,8 @@ public class BadgeShopPredsManager extends PredsManagerBase {
         List<String> unsubbedWinners = new ArrayList<>();
         List<String> subList;
         try {
-            subList = twitchApi.getSubList(streamer.getId()).stream()
+            subList = twitchApi.getSubList(twitchApi.getStreamerUser().getId())
+                    .stream()
                     .map(Subscription::getUserLogin)
                     .collect(Collectors.toList());
         } catch (HystrixRuntimeException e) {

@@ -1,14 +1,13 @@
 package functions.preds;
 
+import com.github.twitch4j.helix.domain.Moderator;
 import database.DbManager;
 import database.preds.DampeRaceLeaderboardDb;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DampeRacePredsManager extends PredsManagerBase {
     private static final String START_MESSAGE =
@@ -39,6 +38,11 @@ public class DampeRacePredsManager extends PredsManagerBase {
     
     @Override
     public void submitPredictions(String answer) {
+        Set<String> modIds = twitchApi.getMods(twitchApi.getStreamerUser().getId())
+                .stream()
+                .map(Moderator::getUserId)
+                .collect(Collectors.toSet());
+        
         Integer answerSeconds = guessToSeconds(answer);
         List<TimeGuess> winners = new ArrayList<>();
         for (Map.Entry<String, TimeGuess> guess : guesses.entrySet()) {
@@ -61,13 +65,13 @@ public class DampeRacePredsManager extends PredsManagerBase {
                 case 2: newEntryCount = REWARD_2_OFF; break;
                 default: newEntryCount = REWARD_PARTICIPATION; break;
             }
-            vipRaffleDb.incrementEntryCount(userId, displayName, newEntryCount);
-            System.out.printf(
-                    "+%d entries %sto %s%n",
-                    newEntryCount,
-                    isWinner ? "and a win " : "",
-                    displayName
-            );
+            
+            if (!modIds.contains(userId) && !permanentVipsDb.isPermanentVip(userId)) {
+                vipRaffleDb.incrementEntryCount(userId, displayName, newEntryCount);
+                System.out.printf("+%d entries %sto %s%n", newEntryCount, isWinner ? "and a win " : "", displayName);
+            } else if (isWinner) {
+                System.out.printf("No entries, but +1 win to %s%n", displayName);
+            }
         }
     
         if (winners.isEmpty()) {

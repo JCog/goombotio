@@ -77,7 +77,7 @@ public class PredsManagerListener extends CommandBase {
                             predsManager = new DampeRacePredsManager(dbManager, discord, twitchApi);
                             break;
                         case GAME_ID_PAPER_MARIO:
-                            predsManager = new BadgeShopPredsManager(dbManager, discord, twitchApi, streamerUser);
+                            predsManager = new BadgeShopPredsManager(dbManager, discord, twitchApi);
                             break;
                         case GAME_ID_SUNSHINE:
                             predsManager = new PiantaSixPredsManager(dbManager, discord, twitchApi);
