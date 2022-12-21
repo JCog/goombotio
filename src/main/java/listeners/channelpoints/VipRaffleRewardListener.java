@@ -46,7 +46,7 @@ public class VipRaffleRewardListener implements TwitchEventListener {
     
     private void handleRaffleEntryAddition(RewardRedeemedEvent event) {
         String userId = event.getRedemption().getUser().getId();
-        String username = event.getRedemption().getUser().getDisplayName();
+        String displayName = event.getRedemption().getUser().getDisplayName();
         Set<String> modIds = twitchApi.getMods(streamerUser.getId())
                 .stream()
                 .map(Moderator::getUserId)
@@ -57,24 +57,24 @@ public class VipRaffleRewardListener implements TwitchEventListener {
         if (modIds.contains(userId) || permanentVipsDb.isPermanentVip(userId) || userId.equals(streamerUser.getId())) {
             twitchApi.channelMessage(String.format(
                     "@%s You're not eligible for the VIP raffle. Your points will be refunded.",
-                    username
+                    displayName
             ));
             shouldFulfill = false;
         } else {
             // increment entry count in database
-            vipRaffleDb.incrementEntryCount(userId, ENTRY_COUNT);
+            vipRaffleDb.incrementEntryCount(userId, displayName, ENTRY_COUNT);
             VipRaffleItem vipRaffleItem = vipRaffleDb.getVipRaffleItem(userId);
             int entryCount;
             if (vipRaffleItem != null) {
                 entryCount = vipRaffleItem.getEntryCount();
                 twitchApi.channelMessage(String.format("@%s You now have %d entr%s!",
-                        username,
+                        displayName,
                         entryCount,
                         entryCount == 1 ? "y" : "ies"
                 ));
                 shouldFulfill = true;
             } else {
-                out.printf("Error getting entry total for %s%n", username);
+                out.printf("Error getting entry total for %s%n", displayName);
                 shouldFulfill = false;
             }
         }

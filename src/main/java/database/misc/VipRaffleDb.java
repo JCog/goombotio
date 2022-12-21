@@ -13,23 +13,27 @@ import java.util.List;
 public class VipRaffleDb extends GbCollection {
     private static final String COLLECTION_NAME = "vip_raffle";
     
+    private static final String NAME_KEY = "display_name";
+    
     public VipRaffleDb(GbDatabase gbDatabase) {
         super(gbDatabase, COLLECTION_NAME);
     }
     
-    public void incrementEntryCount(String twitchId, int count) {
+    public void incrementEntryCount(String twitchId, String displayName, int count) {
         Calendar calendar = Calendar.getInstance();
-        incrementEntryCount(twitchId, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), count);
+        incrementEntryCount(twitchId, displayName, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), count);
     }
     
-    public void incrementEntryCount(String twitchId, int year, int month, int count) {
+    public void incrementEntryCount(String twitchId, String displayName, int year, int month, int count) {
         Document result = getVipRaffleDocument(twitchId);
         String monthlyEntryKey = getMonthlyEntriesKey(year, month);
         if (result == null) {
             Document document = new Document(ID_KEY, twitchId)
+                    .append(NAME_KEY, displayName)
                     .append(monthlyEntryKey, count);
             insertOne(document);
         } else {
+            updateOne(twitchId, new Document(NAME_KEY, displayName));
             int newMonthlyEntryCount = count;
             if (result.containsKey(monthlyEntryKey)) {
                 newMonthlyEntryCount += result.getInteger(monthlyEntryKey);

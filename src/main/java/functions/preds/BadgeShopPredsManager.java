@@ -215,26 +215,26 @@ public class BadgeShopPredsManager extends PredsManagerBase {
                 winners.add(displayName);
                 badgeShopLeaderboardDb.addWin(userId, displayName);
                 badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_3);
-                vipRaffleDb.incrementEntryCount(userId, REWARD_3_CORRECT);
+                vipRaffleDb.incrementEntryCount(userId, displayName, REWARD_3_CORRECT);
                 out.printf("%s guessed 3 correctly. Adding %d points and a win.%n", displayName,
                            POINTS_3);
             } else if ((leftGuess == leftAnswer && middleGuess == middleAnswer) ||
                     (leftGuess == leftAnswer && rightGuess == rightAnswer) ||
                     (middleGuess == middleAnswer && rightGuess == rightAnswer)) {
                 badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_2);
-                vipRaffleDb.incrementEntryCount(userId, REWARD_2_CORRECT);
+                vipRaffleDb.incrementEntryCount(userId, displayName, REWARD_2_CORRECT);
                 out.printf("%s guessed 2 correctly. Adding %d points.%n", displayName, POINTS_2);
             } else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == rightAnswer) {
                 badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_1);
-                vipRaffleDb.incrementEntryCount(userId, REWARD_1_CORRECT);
+                vipRaffleDb.incrementEntryCount(userId, displayName, REWARD_1_CORRECT);
                 out.printf("%s guessed 1 correctly. Adding %d point.%n", displayName, POINTS_1);
             } else if (answerSet.equals(guessSet)) {
                 badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_WRONG_ORDER);
-                vipRaffleDb.incrementEntryCount(userId, REWARD_0_CORRECT);
+                vipRaffleDb.incrementEntryCount(userId, displayName, REWARD_0_CORRECT);
                 out.printf("%s guessed 0 correctly, but got all 3 badges. Adding %d point.%n",
                         displayName, POINTS_WRONG_ORDER);
             } else {
-                vipRaffleDb.incrementEntryCount(userId, REWARD_0_CORRECT);
+                vipRaffleDb.incrementEntryCount(userId, displayName, REWARD_0_CORRECT);
                 out.printf("%s guessed 0 correctly.%n", displayName);
             }
         }

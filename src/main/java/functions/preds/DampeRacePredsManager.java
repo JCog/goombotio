@@ -61,7 +61,7 @@ public class DampeRacePredsManager extends PredsManagerBase {
                 case 2: newEntryCount = REWARD_2_OFF; break;
                 default: newEntryCount = REWARD_PARTICIPATION; break;
             }
-            vipRaffleDb.incrementEntryCount(userId, newEntryCount);
+            vipRaffleDb.incrementEntryCount(userId, displayName, newEntryCount);
             System.out.printf(
                     "+%d entries %sto %s%n",
                     newEntryCount,
