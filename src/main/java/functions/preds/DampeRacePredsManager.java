@@ -2,7 +2,6 @@ package functions.preds;
 
 import database.DbManager;
 import database.preds.DampeRaceLeaderboardDb;
-import database.preds.DampeRaceLeaderboardDb.DampeRaceLbItem;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
@@ -10,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class DampeRacePredsManager extends PredsManagerBase {
     private static final String START_MESSAGE =
@@ -103,11 +101,11 @@ public class DampeRacePredsManager extends PredsManagerBase {
             ));
         }
         
-        // update discord leaderboard
-        List<DampeRaceLbItem> winnersAll = dampeRaceLeaderboardDb.getWinners();
-        List<String> names = winnersAll.stream().map(DampeRaceLbItem::getDisplayName).collect(Collectors.toList());
-        List<Integer> winCounts = winnersAll.stream().map(DampeRaceLbItem::getWinCount).collect(Collectors.toList());
-        updateDiscordLeaderboard(DISCORD_CHANNEL, "Dampe Race Prediction Wins:", names, winCounts);
+        updateDiscordLeaderboardWins(
+                DISCORD_CHANNEL,
+                "Dampe Race Prediction Wins:",
+                dampeRaceLeaderboardDb.getAllSortedWins()
+        );
     }
     
     @Override

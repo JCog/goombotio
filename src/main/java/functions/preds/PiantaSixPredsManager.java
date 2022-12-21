@@ -1,8 +1,7 @@
 package functions.preds;
 
 import database.DbManager;
-import database.preds.SunshineTimerLeaderboardDb;
-import database.preds.SunshineTimerLeaderboardDb.PiantaSixItem;
+import database.preds.PiantaSixLeaderboardDb;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
@@ -10,11 +9,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.lang.System.out;
 
-public class SunshinePredsManager extends PredsManagerBase {
+public class PiantaSixPredsManager extends PredsManagerBase {
     private static final String START_MESSAGE =
             "Get your predictions in! Guess what the timer will end at when JCog finishes Pianta 6. You get more " +
             "points the closer you are, plus a bonus if you're closest, and if you're closest and within half a " +
@@ -32,9 +30,9 @@ public class SunshinePredsManager extends PredsManagerBase {
     private static final int HUND_10_SECONDS = 10 * 100;
 
     private final Map<String,TimeGuess> predictionList = new HashMap<>();
-    private final SunshineTimerLeaderboardDb sunshineTimerLeaderboardDb;
+    private final PiantaSixLeaderboardDb piantaSixLeaderboardDb;
 
-    public SunshinePredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi) {
+    public PiantaSixPredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi) {
         super(
                 twitchApi,
                 dbManager,
@@ -42,7 +40,7 @@ public class SunshinePredsManager extends PredsManagerBase {
                 START_MESSAGE,
                 ANSWER_REGEX
         );
-        this.sunshineTimerLeaderboardDb = dbManager.getSunshineTimerLeaderboardDb();
+        this.piantaSixLeaderboardDb = dbManager.getPiantaSixLeaderboardDb();
     }
 
     //submit the correct answer, calculate points, end game
@@ -125,11 +123,11 @@ public class SunshinePredsManager extends PredsManagerBase {
                 message
         ));
     
-        // update discord leaderboard
-        List<PiantaSixItem> winnersAllTime = sunshineTimerLeaderboardDb.getAllSortedPoints();
-        List<String> names = winnersAllTime.stream().map(PiantaSixItem::getDisplayName).collect(Collectors.toList());
-        List<Integer> pointCounts = winnersAllTime.stream().map(PiantaSixItem::getPoints).collect(Collectors.toList());
-        updateDiscordLeaderboard(DISCORD_CHANNEL, "Pianta 6 Prediction Points:", names, pointCounts);
+        updateDiscordLeaderboardPoints(
+                DISCORD_CHANNEL,
+                "Pianta 6 Prediction Points:",
+                piantaSixLeaderboardDb.getAllSortedPoints()
+        );
     }
 
     @Override
@@ -178,10 +176,10 @@ public class SunshinePredsManager extends PredsManagerBase {
             }
             
             if (pointsToAdd != 0) {
-                sunshineTimerLeaderboardDb.addPoints(userId, displayName, pointsToAdd);
+                piantaSixLeaderboardDb.addPoints(userId, displayName, pointsToAdd);
                 if (secondsWithin == 0) {
                     winners.add(displayName);
-                    sunshineTimerLeaderboardDb.addWin(userId, displayName);
+                    piantaSixLeaderboardDb.addWin(userId, displayName);
                     out.printf(
                             "%s guessed exactly correct. Adding %d points and a win.%n",
                             displayName,
@@ -215,7 +213,7 @@ public class SunshinePredsManager extends PredsManagerBase {
             
             if (Math.abs(hundredths - answer) == minDifference) {
                 output.add(guess.getValue());
-                sunshineTimerLeaderboardDb.addPoints(userId, displayName, POINTS_CLOSEST);
+                piantaSixLeaderboardDb.addPoints(userId, displayName, POINTS_CLOSEST);
                 out.printf("%s was the closest. Adding %d additional points%n", displayName, POINTS_CLOSEST);
             }
         }

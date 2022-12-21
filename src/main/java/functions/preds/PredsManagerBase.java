@@ -2,10 +2,12 @@ package functions.preds;
 
 import database.DbManager;
 import database.misc.VipRaffleDb;
+import database.preds.PredsLeaderboardDbBase.PredsItem;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class PredsManagerBase {
     private static final String STOP_MESSAGE = "Predictions are up! Let's see how everyone did...";
@@ -80,7 +82,19 @@ public abstract class PredsManagerBase {
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    void updateDiscordLeaderboard(
+    public void updateDiscordLeaderboardWins(String discordChannel, String messageTitle, List<PredsItem> sortedItems) {
+        List<String> names = sortedItems.stream().map(PredsItem::getDisplayName).collect(Collectors.toList());
+        List<Integer> winCounts = sortedItems.stream().map(PredsItem::getWins).collect(Collectors.toList());
+        updateDiscordLeaderboard(discordChannel, messageTitle, names, winCounts);
+    }
+    
+    public void updateDiscordLeaderboardPoints(String discordChannel, String messageTitle, List<PredsItem> sortedItems) {
+        List<String> names = sortedItems.stream().map(PredsItem::getDisplayName).collect(Collectors.toList());
+        List<Integer> pointCounts = sortedItems.stream().map(PredsItem::getPoints).collect(Collectors.toList());
+        updateDiscordLeaderboard(discordChannel, messageTitle, names, pointCounts);
+    }
+    
+    private void updateDiscordLeaderboard(
             String discordChannel, String messageTitle, List<String> names, List<Integer> values
     ) {
         StringBuilder message = new StringBuilder();

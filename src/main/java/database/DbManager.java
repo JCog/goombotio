@@ -2,9 +2,9 @@ package database;
 
 import database.emotes.*;
 import database.misc.*;
+import database.preds.BadgeShopLeaderboardDb;
 import database.preds.DampeRaceLeaderboardDb;
-import database.preds.SpeedySpinLeaderboardDb;
-import database.preds.SunshineTimerLeaderboardDb;
+import database.preds.PiantaSixLeaderboardDb;
 import database.stats.StreamStatsDb;
 import database.stats.WatchTimeDb;
 
@@ -30,8 +30,8 @@ public class DbManager {
 
     // preds DBs
     private final DampeRaceLeaderboardDb dampeRaceLeaderboardDb;
-    private final SpeedySpinLeaderboardDb speedySpinLeaderboardDb;
-    private final SunshineTimerLeaderboardDb sunshineTimerLeaderboardDb;
+    private final BadgeShopLeaderboardDb badgeShopLeaderboardDb;
+    private final PiantaSixLeaderboardDb piantaSixLeaderboardDb;
 
     // stats DBs
     private final StreamStatsDb streamStatsDb;
@@ -62,8 +62,8 @@ public class DbManager {
         vipRaffleDb = new VipRaffleDb(gbDatabase);
     
         dampeRaceLeaderboardDb = new DampeRaceLeaderboardDb(gbDatabase);
-        speedySpinLeaderboardDb = new SpeedySpinLeaderboardDb(gbDatabase);
-        sunshineTimerLeaderboardDb = new SunshineTimerLeaderboardDb(gbDatabase);
+        badgeShopLeaderboardDb = new BadgeShopLeaderboardDb(gbDatabase);
+        piantaSixLeaderboardDb = new PiantaSixLeaderboardDb(gbDatabase);
 
         streamStatsDb = new StreamStatsDb(gbDatabase);
         watchTimeDb = new WatchTimeDb(gbDatabase);
@@ -131,12 +131,12 @@ public class DbManager {
         return dampeRaceLeaderboardDb;
     }
 
-    public SpeedySpinLeaderboardDb getSpeedySpinLeaderboardDb() {
-        return speedySpinLeaderboardDb;
+    public BadgeShopLeaderboardDb getBadgeShopLeaderboardDb() {
+        return badgeShopLeaderboardDb;
     }
 
-    public SunshineTimerLeaderboardDb getSunshineTimerLeaderboardDb() {
-        return sunshineTimerLeaderboardDb;
+    public PiantaSixLeaderboardDb getPiantaSixLeaderboardDb() {
+        return piantaSixLeaderboardDb;
     }
 
     public StreamStatsDb getStreamStatsDb() {

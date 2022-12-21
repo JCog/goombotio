@@ -4,8 +4,7 @@ import com.github.twitch4j.helix.domain.Subscription;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
-import database.preds.SpeedySpinLeaderboardDb;
-import database.preds.SpeedySpinLeaderboardDb.SpeedySpinItem;
+import database.preds.BadgeShopLeaderboardDb;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
@@ -14,7 +13,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.System.out;
 
-public class SpeedySpinPredsManager extends PredsManagerBase {
+public class BadgeShopPredsManager extends PredsManagerBase {
     private static final String START_MESSAGE =
             "Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 BadSpin3 or SpoodlySpun " +
             "(or a message with 3 digits from 1 to 4) to guess the order the badges will show up in the badge shop! " +
@@ -46,10 +45,10 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
     }
 
     private final Map<String, PapePredsObject> predictionList = new HashMap<>();
-    private final SpeedySpinLeaderboardDb speedySpinLeaderboardDb;
+    private final BadgeShopLeaderboardDb badgeShopLeaderboardDb;
     private final User streamer;
     
-    public SpeedySpinPredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
+    public BadgeShopPredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi, User streamer) {
         super(
                 twitchApi,
                 dbManager,
@@ -57,7 +56,7 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
                 START_MESSAGE,
                 ANSWER_REGEX
         );
-        this.speedySpinLeaderboardDb = dbManager.getSpeedySpinLeaderboardDb();
+        this.badgeShopLeaderboardDb = dbManager.getBadgeShopLeaderboardDb();
         this.streamer = streamer;
     }
 
@@ -123,16 +122,17 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
                 message
         ));
     
-        // update discord leaderboards
-        List<SpeedySpinItem> wins = speedySpinLeaderboardDb.getAllSortedWins();
-        List<String> winsNames = wins.stream().map(SpeedySpinItem::getDisplayName).collect(Collectors.toList());
-        List<Integer> winsCounts = wins.stream().map(SpeedySpinItem::getWins).collect(Collectors.toList());
-        updateDiscordLeaderboard(DISCORD_CHANNEL_WINS, "Badge Shop Prediction Wins:", winsNames, winsCounts);
+        updateDiscordLeaderboardWins(
+                DISCORD_CHANNEL_WINS,
+                "Badge Shop Prediction Wins:",
+                badgeShopLeaderboardDb.getAllSortedWins()
+        );
     
-        List<SpeedySpinItem> points = speedySpinLeaderboardDb.getAllSortedPoints();
-        List<String> pointsNames = points.stream().map(SpeedySpinItem::getDisplayName).collect(Collectors.toList());
-        List<Integer> pointsCounts = points.stream().map(SpeedySpinItem::getPoints).collect(Collectors.toList());
-        updateDiscordLeaderboard(DISCORD_CHANNEL_POINTS, "Badge Shop Prediction Points:", pointsNames, pointsCounts);
+        updateDiscordLeaderboardPoints(
+                DISCORD_CHANNEL_POINTS,
+                "Badge Shop Prediction Points:",
+                badgeShopLeaderboardDb.getAllSortedPoints()
+        );
     }
 
     @Override
@@ -213,23 +213,23 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
 
             if (leftGuess == leftAnswer && middleGuess == middleAnswer && rightGuess == rightAnswer) {
                 winners.add(displayName);
-                speedySpinLeaderboardDb.addWin(userId, displayName);
-                speedySpinLeaderboardDb.addPoints(userId, displayName, POINTS_3);
+                badgeShopLeaderboardDb.addWin(userId, displayName);
+                badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_3);
                 vipRaffleDb.incrementEntryCount(userId, REWARD_3_CORRECT);
                 out.printf("%s guessed 3 correctly. Adding %d points and a win.%n", displayName,
                            POINTS_3);
             } else if ((leftGuess == leftAnswer && middleGuess == middleAnswer) ||
                     (leftGuess == leftAnswer && rightGuess == rightAnswer) ||
                     (middleGuess == middleAnswer && rightGuess == rightAnswer)) {
-                speedySpinLeaderboardDb.addPoints(userId, displayName, POINTS_2);
+                badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_2);
                 vipRaffleDb.incrementEntryCount(userId, REWARD_2_CORRECT);
                 out.printf("%s guessed 2 correctly. Adding %d points.%n", displayName, POINTS_2);
             } else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == rightAnswer) {
-                speedySpinLeaderboardDb.addPoints(userId, displayName, POINTS_1);
+                badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_1);
                 vipRaffleDb.incrementEntryCount(userId, REWARD_1_CORRECT);
                 out.printf("%s guessed 1 correctly. Adding %d point.%n", displayName, POINTS_1);
             } else if (answerSet.equals(guessSet)) {
-                speedySpinLeaderboardDb.addPoints(userId, displayName, POINTS_WRONG_ORDER);
+                badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_WRONG_ORDER);
                 vipRaffleDb.incrementEntryCount(userId, REWARD_0_CORRECT);
                 out.printf("%s guessed 0 correctly, but got all 3 badges. Adding %d point.%n",
                         displayName, POINTS_WRONG_ORDER);
@@ -308,15 +308,15 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
     
     private static class PapePredsObject {
         private final String displayName;
-        private final SpeedySpinPredsManager.Badge left;
-        private final SpeedySpinPredsManager.Badge middle;
-        private final SpeedySpinPredsManager.Badge right;
+        private final Badge left;
+        private final Badge middle;
+        private final Badge right;
         
         private PapePredsObject(
                 String displayName,
-                SpeedySpinPredsManager.Badge left,
-                SpeedySpinPredsManager.Badge middle,
-                SpeedySpinPredsManager.Badge right
+                Badge left,
+                Badge middle,
+                Badge right
         ) {
             this.displayName = displayName;
             this.left = left;

@@ -5,7 +5,7 @@ import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
-import database.preds.PredsLeaderboardDb;
+import database.preds.PredsLeaderboardDbBase;
 import listeners.TwitchEventListener;
 import listeners.commands.CommandBase;
 import util.TwitchApi;
@@ -51,7 +51,7 @@ public class LeaderboardListener extends CommandBase {
     private final TwitchApi twitchApi;
     private final User streamerUser;
 
-    private PredsLeaderboardDb leaderboard;
+    private PredsLeaderboardDbBase leaderboard;
 
     public LeaderboardListener(
             ScheduledExecutorService scheduler,
@@ -126,11 +126,13 @@ public class LeaderboardListener extends CommandBase {
 
     private void updateLeaderboardType() {
         switch (getGameId()) {
+            case GAME_ID_OOT:
+                leaderboard = dbManager.getDampeRaceLeaderboardDb();
             case GAME_ID_PAPER_MARIO:
-                leaderboard = dbManager.getSpeedySpinLeaderboardDb();
+                leaderboard = dbManager.getBadgeShopLeaderboardDb();
                 break;
             case GAME_ID_SUNSHINE:
-                leaderboard = dbManager.getSunshineTimerLeaderboardDb();
+                leaderboard = dbManager.getPiantaSixLeaderboardDb();
                 break;
             default:
                 leaderboard = null;
@@ -153,7 +155,7 @@ public class LeaderboardListener extends CommandBase {
     }
 
     private String buildMonthlyPointsString(String userId, String displayName) {
-        int points = leaderboard.getMonthlyPoints(Long.parseLong(userId));
+        int points = leaderboard.getMonthlyPoints(userId);
         return String.format("@%s you have %d point%s this month.", displayName, points, points == 1 ? "" : "s");
     }
 
@@ -163,10 +165,10 @@ public class LeaderboardListener extends CommandBase {
     }
 
     private String buildAllTimeLeaderboardString() {
-        List<Long> topScorers = leaderboard.getTopScorers(5);
+        List<String> topScorers = leaderboard.getTopScorers(5);
         List<Integer> topPoints = new ArrayList<>();
         List<String> topNames = new ArrayList<>();
-        for (Long topScorer : topScorers) {
+        for (String topScorer : topScorers) {
             topPoints.add(leaderboard.getPoints(topScorer));
             topNames.add(leaderboard.getUsername(topScorer));
         }

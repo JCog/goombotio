@@ -6,10 +6,10 @@ import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import functions.DiscordBotController;
+import functions.preds.BadgeShopPredsManager;
 import functions.preds.DampeRacePredsManager;
+import functions.preds.PiantaSixPredsManager;
 import functions.preds.PredsManagerBase;
-import functions.preds.SpeedySpinPredsManager;
-import functions.preds.SunshinePredsManager;
 import listeners.commands.CommandBase;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
@@ -77,10 +77,10 @@ public class PredsManagerListener extends CommandBase {
                             predsManager = new DampeRacePredsManager(dbManager, discord, twitchApi);
                             break;
                         case GAME_ID_PAPER_MARIO:
-                            predsManager = new SpeedySpinPredsManager(dbManager, discord, twitchApi, streamerUser);
+                            predsManager = new BadgeShopPredsManager(dbManager, discord, twitchApi, streamerUser);
                             break;
                         case GAME_ID_SUNSHINE:
-                            predsManager = new SunshinePredsManager(dbManager, discord, twitchApi);
+                            predsManager = new PiantaSixPredsManager(dbManager, discord, twitchApi);
                             break;
                         default:
                             twitchApi.channelMessage("The current game is not compatible with preds.");

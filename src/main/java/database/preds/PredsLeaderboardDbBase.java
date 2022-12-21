@@ -11,23 +11,22 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public abstract class PredsLeaderboardDb extends GbCollection {
+public abstract class PredsLeaderboardDbBase extends GbCollection {
     static final String NAME_KEY = "name";
     static final String POINTS_KEY = "points";
     static final String WINS_KEY = "wins";
 
-    protected PredsLeaderboardDb(GbDatabase gbDatabase, String collectionName) {
+    protected PredsLeaderboardDbBase(GbDatabase gbDatabase, String collectionName) {
         super(gbDatabase, collectionName);
     }
 
     public void addPoints(String userId, String displayName, int points) {
         String monthlyPointsKey = getMonthlyPointsKey();
-        long id = Long.parseLong(userId);
 
-        Document result = findFirstEquals(ID_KEY, id);
+        Document result = findFirstEquals(ID_KEY, userId);
 
         if (result == null) {
-            Document document = new Document(ID_KEY, id)
+            Document document = new Document(ID_KEY, userId)
                     .append(NAME_KEY, displayName)
                     .append(POINTS_KEY, points)
                     .append(monthlyPointsKey, points)
@@ -43,20 +42,19 @@ public abstract class PredsLeaderboardDb extends GbCollection {
             }
             newMonthlyPoints += points;
 
-            updateOne(id, new Document(NAME_KEY, displayName));
-            updateOne(id, new Document(POINTS_KEY, newPoints));
-            updateOne(id, new Document(monthlyPointsKey, newMonthlyPoints));
+            updateOne(userId, new Document(NAME_KEY, displayName));
+            updateOne(userId, new Document(POINTS_KEY, newPoints));
+            updateOne(userId, new Document(monthlyPointsKey, newMonthlyPoints));
         }
     }
 
     public void addWin(String userId, String displayName) {
         String monthlyPoints = getMonthlyPointsKey();
-        long id = Long.parseLong(userId);
 
-        Document result = findFirstEquals(ID_KEY, id);
+        Document result = findFirstEquals(ID_KEY, userId);
 
         if (result == null) {
-            Document document = new Document(ID_KEY, id)
+            Document document = new Document(ID_KEY, userId)
                     .append(NAME_KEY, displayName)
                     .append(POINTS_KEY, 0)
                     .append(monthlyPoints, 0)
@@ -64,7 +62,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
             insertOne(document);
         } else {
             int newWins = result.getInteger(WINS_KEY) + 1;
-            updateOne(id, new Document(WINS_KEY, newWins));
+            updateOne(userId, new Document(WINS_KEY, newWins));
         }
     }
 
@@ -72,19 +70,15 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         return user.getInteger(getPrevMonthlyPointsKey());
     }
 
-    public int getPoints(long userId) {
+    public int getPoints(String userId) {
         Document result = findFirstEquals(ID_KEY, userId);
         if (result != null) {
             return result.getInteger(POINTS_KEY);
         }
         return 0;
     }
-    
-    public int getPoints(String userId) {
-        return getPoints(Long.parseLong(userId));
-    }
 
-    public int getMonthlyPoints(long userId) {
+    public int getMonthlyPoints(String userId) {
         Document result = findFirstEquals(ID_KEY, userId);
         if (result != null) {
             Integer monthlyPoints = result.getInteger(getMonthlyPointsKey());
@@ -95,7 +89,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         return 0;
     }
 
-    public int getWins(long userId) {
+    public int getWins(String userId) {
         Document result = findFirstEquals(ID_KEY, userId);
         if (result != null) {
             return result.getInteger(WINS_KEY);
@@ -103,7 +97,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         return 0;
     }
 
-    public String getUsername(long userId) {
+    public String getUsername(String userId) {
         Document result = findFirstEquals(ID_KEY, userId);
         if (result != null) {
             return result.getString(NAME_KEY);
@@ -111,19 +105,15 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         return "N/A";
     }
 
-    public String getUsername(Document user) {
-        return user.getString(NAME_KEY);
-    }
-
     //returns IDs of top monthly scorers
-    public List<Long> getTopMonthlyScorers() {
-        List<Long> topMonthlyScorers = new ArrayList<>();
+    public List<String> getTopMonthlyScorers() {
+        List<String> topMonthlyScorers = new ArrayList<>();
 
         for (Document next : findAll().sort(Sorts.descending(getMonthlyPointsKey()))) {
             if (next.get(getMonthlyPointsKey()) == null) {
                 break;
             } else {
-                topMonthlyScorers.add(next.getLong(ID_KEY));
+                topMonthlyScorers.add(next.getString(ID_KEY));
             }
         }
 
@@ -131,8 +121,8 @@ public abstract class PredsLeaderboardDb extends GbCollection {
     }
 
     //returns id's of top all-time scorers, up to the number of results specified by limit
-    public List<Long> getTopScorers(Integer limit) {
-        List<Long> topScorers = new ArrayList<>();
+    public List<String> getTopScorers(Integer limit) {
+        List<String> topScorers = new ArrayList<>();
 
         MongoCursor<Document> result = findAll().sort(Sorts.descending(POINTS_KEY)).iterator();
         while (result.hasNext() && (limit == null || topScorers.size() < limit)) {
@@ -140,7 +130,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
             if (next.get(POINTS_KEY) == null) {
                 break;
             } else {
-                topScorers.add(next.getLong(ID_KEY));
+                topScorers.add(next.getString(ID_KEY));
             }
         }
 
@@ -148,19 +138,19 @@ public abstract class PredsLeaderboardDb extends GbCollection {
     }
 
     //returns id's of top all-time scorers
-    public List<Long> getTopScorers() {
+    public List<String> getTopScorers() {
         return getTopScorers(null);
     }
 
     //returns id's of top winners
-    public List<Long> getTopWinners() {
-        List<Long> topScorers = new ArrayList<>();
+    public List<String> getTopWinners() {
+        List<String> topScorers = new ArrayList<>();
 
         for (Document next : findAll().sort(Sorts.descending(WINS_KEY))) {
             if (next.get(WINS_KEY) == null) {
                 break;
             } else {
-                topScorers.add(next.getLong(ID_KEY));
+                topScorers.add(next.getString(ID_KEY));
             }
         }
 
@@ -181,5 +171,63 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         return String.format("points%d%d", year, month);
+    }
+    
+    public List<PredsItem> getAllSortedWins() {
+        List<PredsItem> items = new ArrayList<>();
+        for (Document doc : findAll().sort(Sorts.descending(WINS_KEY))) {
+            if (doc.getInteger(WINS_KEY) > 0) {
+                items.add(new PredsItem(
+                        doc.getString(ID_KEY),
+                        doc.getString(NAME_KEY),
+                        doc.getInteger(WINS_KEY),
+                        doc.getInteger(POINTS_KEY)
+                ));
+            }
+        }
+        return items;
+    }
+    
+    public List<PredsItem> getAllSortedPoints() {
+        List<PredsItem> items = new ArrayList<>();
+        for (Document doc : findAll().sort(Sorts.descending(POINTS_KEY))) {
+            items.add(new PredsItem(
+                    doc.getString(ID_KEY),
+                    doc.getString(NAME_KEY),
+                    doc.getInteger(WINS_KEY),
+                    doc.getInteger(POINTS_KEY)
+            ));
+        }
+        return items;
+    }
+    
+    public static class PredsItem {
+        private final String userId;
+        private final String displayName;
+        private final int wins;
+        private final int points;
+        
+        public PredsItem(String userId, String displayName, int wins, int points) {
+            this.userId = userId;
+            this.displayName = displayName;
+            this.wins = wins;
+            this.points = points;
+        }
+        
+        public String getUserId() {
+            return userId;
+        }
+        
+        public String getDisplayName() {
+            return displayName;
+        }
+        
+        public int getWins() {
+            return wins;
+        }
+        
+        public int getPoints() {
+            return points;
+        }
     }
 }
