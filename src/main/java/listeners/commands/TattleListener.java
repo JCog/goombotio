@@ -57,9 +57,9 @@ public class TattleListener extends CommandBase {
                     }
                 }
     
-                ArrayList<TattleItem> allTattles = tattleDb.getAllTattles();
+                List<TattleItem> allTattles = tattleDb.getAllTattles();
                 List<User> users = twitchApi.getUserListByIds(allTattles.stream().map(TattleItem::getTwitchId).collect(Collectors.toList()));
-                ArrayList<User> userOptions = new ArrayList<>();
+                List<User> userOptions = new ArrayList<>();
     
                 for (User tattleUser : users) {
                     if (tattleUser.getLogin().contains(username)) {

@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import util.TwitchUserLevel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CommandDb extends GbCollection {
     private static final String COLLECTION_NAME = "commands";
@@ -175,8 +176,8 @@ public class CommandDb extends GbCollection {
         return null;
     }
 
-    public ArrayList<String> getAllCommandIds() {
-        ArrayList<String> commands = new ArrayList<>();
+    public List<String> getAllCommandIds() {
+        List<String> commands = new ArrayList<>();
         for (Document document : findAll().sort(Sorts.ascending(ID_KEY))) {
             commands.add(document.getString(ID_KEY));
         }
@@ -188,7 +189,6 @@ public class CommandDb extends GbCollection {
     }
     
     public static class CommandItem {
-        
         private final String id;
         private final String message;
         private final TwitchUserLevel.USER_LEVEL permission;

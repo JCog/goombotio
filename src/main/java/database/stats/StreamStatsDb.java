@@ -41,7 +41,7 @@ public class StreamStatsDb extends GbCollection {
             Date startTime,
             Date endTime,
             List<Integer> viewerCounts,
-            HashMap<String,Integer> userMinutesMap
+            Map<String,Integer> userMinutesMap
     ) {
         String streamKey = getNewStreamKey();
         Document document = new Document(ID_KEY, streamKey)
@@ -116,10 +116,10 @@ public class StreamStatsDb extends GbCollection {
      *
      * @return user watch time map
      */
-    public HashMap<String,Integer> getUserMinutesList() {
+    public Map<String,Integer> getUserMinutesList() {
         String streamKey = getNewestStreamKey();
         List<Document> userListDocs = findFirstEquals(ID_KEY, streamKey).getList(USER_LIST_KEY, Document.class);
-        HashMap<String,Integer> userListMap = new HashMap<>();
+        Map<String,Integer> userListMap = new HashMap<>();
 
         for (Document userDoc : userListDocs) {
             String username = userDoc.getString(USERNAME_KEY);

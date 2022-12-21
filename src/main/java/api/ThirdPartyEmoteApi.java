@@ -6,6 +6,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class ThirdPartyEmoteApi extends BaseAPI {
     private static final String FFZ_URL = "https://api.frankerfacez.com/v1/room/jcog";
@@ -26,7 +27,7 @@ public class ThirdPartyEmoteApi extends BaseAPI {
     private static final String BTTV_ID_KEY = "id";
     private static final String BTTV_CODE_KEY = "code";
     
-    public static HashMap<String, String> getFfzEmotes() {
+    public static Map<String, String> getFfzEmotes() {
         JSONParser jsonParser = new JSONParser();
         JSONObject object;
         try {
@@ -40,7 +41,7 @@ public class ThirdPartyEmoteApi extends BaseAPI {
         JSONObject set = (JSONObject) sets.get(FFZ_SET_ID_KEY);
         JSONArray emotesJsonArray = (JSONArray) set.get(FFZ_EMOTICONS_KEY);
         
-        HashMap<String, String> emotesMap = new HashMap<>();
+        Map<String, String> emotesMap = new HashMap<>();
         for (Object emote : emotesJsonArray) {
             String id = ((JSONObject) emote).get(FFZ_ID_KEY).toString();
             String name = ((JSONObject) emote).get(FFZ_NAME_KEY).toString();
@@ -49,7 +50,7 @@ public class ThirdPartyEmoteApi extends BaseAPI {
         return emotesMap;
     }
     
-    public static HashMap<String, String> get7tvEmotes() {
+    public static Map<String, String> get7tvEmotes() {
         JSONParser jsonParser = new JSONParser();
         JSONObject object;
         try {
@@ -62,7 +63,7 @@ public class ThirdPartyEmoteApi extends BaseAPI {
         JSONObject set = (JSONObject) object.get(SEVENTV_EMOTE_SET_KEY);
         JSONArray emotesJsonArray = (JSONArray) set.get(SEVENTV_EMOTES_KEY);
         
-        HashMap<String, String> emotesMap = new HashMap<>();
+        Map<String, String> emotesMap = new HashMap<>();
         for (Object emote : emotesJsonArray) {
             String id = ((JSONObject) emote).get(SEVENTV_ID_KEY).toString();
             String name = ((JSONObject) emote).get(SEVENTV_NAME_KEY).toString();
@@ -71,7 +72,7 @@ public class ThirdPartyEmoteApi extends BaseAPI {
         return emotesMap;
     }
 
-    public static HashMap<String, String> getBttvEmotes() {
+    public static Map<String, String> getBttvEmotes() {
         JSONParser jsonParser = new JSONParser();
         JSONObject object;
         try {
@@ -83,7 +84,7 @@ public class ThirdPartyEmoteApi extends BaseAPI {
         }
         JSONArray emotesJsonArray = (JSONArray) object.get(BTTV_EMOTES_KEY);
 
-        HashMap<String, String> emotesMap = new HashMap<>();
+        Map<String, String> emotesMap = new HashMap<>();
         for (Object emote : emotesJsonArray) {
             String id = ((JSONObject) emote).get(BTTV_ID_KEY).toString();
             String code = ((JSONObject) emote).get(BTTV_CODE_KEY).toString();

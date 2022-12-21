@@ -58,7 +58,7 @@ public class ReportBuilder {
         StringBuilder allViewersReport = new StringBuilder();
 
         int allWatchTime = 0;
-        ArrayList<Map.Entry<String,Integer>> biggestViewers = streamData.getTopFollowerCounts();
+        List<Map.Entry<String,Integer>> biggestViewers = streamData.getTopFollowerCounts();
 
         allViewersReport.append("------ All Viewers ------\n");
         allViewersReport.append("Biggest Viewers:\n");
@@ -85,7 +85,7 @@ public class ReportBuilder {
 
         allViewersReport.append("\n");
 
-        HashMap<String,Integer> usersMap = streamData.getAllViewerMinutes();
+        Map<String,Integer> usersMap = streamData.getAllViewerMinutes();
         for (Integer value : usersMap.values()) {
             allWatchTime += value;
         }
@@ -155,8 +155,8 @@ public class ReportBuilder {
 
     private static String generateReportNewViewers(StreamData streamData) {
         StringBuilder newViewersReport = new StringBuilder();
-
-        ArrayList<Map.Entry<String,Integer>> newViewersList = streamData.getOrderedWatchtimeList(streamData.getNewViewers());
+    
+        List<Map.Entry<String,Integer>> newViewersList = streamData.getOrderedWatchtimeList(streamData.getNewViewers());
         int newWatchTime = 0;
 
         newViewersReport.append("------ New Viewers ------\n");
@@ -193,8 +193,8 @@ public class ReportBuilder {
 
     private static String generateReportReturningViewers(StreamData streamData) {
         StringBuilder returningViewersReport = new StringBuilder();
-
-        ArrayList<Map.Entry<String,Integer>> returningViewersList = streamData.getOrderedWatchtimeList(streamData.getReturningViewers());
+    
+        List<Map.Entry<String,Integer>> returningViewersList = streamData.getOrderedWatchtimeList(streamData.getReturningViewers());
         int returningWatchTime = 0;
         returningViewersReport.append("------ Returning Viewers ------\n");
 

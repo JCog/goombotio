@@ -48,8 +48,7 @@ public class StreamStatsInterface {
      * @return median viewer count
      */
     public int getMedianViewers() {
-        List<Integer> viewerCounts = streamStatsDb.getViewerCounts();
-        ArrayList<Integer> viewersCounts = new ArrayList<>(viewerCounts);
+        List<Integer> viewersCounts = streamStatsDb.getViewerCounts();
         Collections.sort(viewersCounts);
         boolean isEven = viewersCounts.size() % 2 == 0;
         int middleIndex = viewersCounts.size() / 2;
@@ -111,7 +110,7 @@ public class StreamStatsInterface {
      *
      * @return user watch time map
      */
-    public HashMap<String,Integer> getUserMinutesList() {
+    public Map<String,Integer> getUserMinutesList() {
         return streamStatsDb.getUserMinutesList();
     }
 
@@ -152,10 +151,10 @@ public class StreamStatsInterface {
      * Retrieves a list of all viewers that joined chat during the most recent stream and orders them by how many followers
      * they have. Contains an expensive Twitch API call.
      *
-     * @return ArrayList of <username, followers>
+     * @return List of <username, followers>
      */
-    public ArrayList<Map.Entry<String,Integer>> getTopFollowerCounts() {
-        ArrayList<Map.Entry<String,Integer>> followerCounts = new ArrayList<>();
+    public List<Map.Entry<String,Integer>> getTopFollowerCounts() {
+        List<Map.Entry<String,Integer>> followerCounts = new ArrayList<>();
         List<User> userList;
         try {
             userList = twitchApi.getUserListByUsernames(streamStatsDb.getUserList());

@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
 
 public class SpeedrunApi extends BaseAPI {
-
     private static final String BASE_URL = "http://www.speedrun.com/api/v1/";
     private static final String LEADERBOARDS = "leaderboards/";
     private static final String USERS = "users/";

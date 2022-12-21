@@ -6,6 +6,7 @@ import org.bson.Document;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SocialSchedulerDb extends GbCollection {
     private static final String COLLECTION_NAME = "socialscheduler";
@@ -70,8 +71,8 @@ public class SocialSchedulerDb extends GbCollection {
         return null;
     }
 
-    public ArrayList<ScheduledMessage> getAllMessages() {
-        ArrayList<ScheduledMessage> messages = new ArrayList<>();
+    public List<ScheduledMessage> getAllMessages() {
+        List<ScheduledMessage> messages = new ArrayList<>();
         for (Document doc : findAll()) {
             String id = doc.getString(ID_KEY);
             String message = doc.getString(MESSAGE_KEY);

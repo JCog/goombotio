@@ -23,7 +23,7 @@ public class DampeRacePredsManager extends PredsManagerBase {
     private static final int REWARD_2_OFF = 2;
     private static final int REWARD_PARTICIPATION = 1;
     
-    private final HashMap<String, TimeGuess> guesses = new HashMap<>();
+    private final Map<String, TimeGuess> guesses = new HashMap<>();
     private final DampeRaceLeaderboardDb dampeRaceLeaderboardDb;
     
     public DampeRacePredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi) {

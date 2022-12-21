@@ -14,10 +14,10 @@ import static java.lang.System.out;
 
 public class StreamData {
 
-    private final HashMap<String,Integer> userMinutes = new HashMap<>();
-    private final ArrayList<Integer> viewerCounts = new ArrayList<>();
-    private final ArrayList<User> newViewers = new ArrayList<>();
-    private final ArrayList<User> returningViewers = new ArrayList<>();
+    private final Map<String,Integer> userMinutes = new HashMap<>();
+    private final List<Integer> viewerCounts = new ArrayList<>();
+    private final List<User> newViewers = new ArrayList<>();
+    private final List<User> returningViewers = new ArrayList<>();
 
     private final StreamStatsDb streamStatsDb;
     private final WatchTimeDb watchTimeDb;
@@ -88,7 +88,7 @@ public class StreamData {
     }
 
     public int getMedianViewers() {
-        ArrayList<Integer> viewersCounts = new ArrayList<>(viewerCounts);
+        List<Integer> viewersCounts = new ArrayList<>(viewerCounts);
         Collections.sort(viewersCounts);
         boolean isEven = viewersCounts.size() % 2 == 0;
         int middleIndex = viewersCounts.size() / 2;
@@ -112,11 +112,11 @@ public class StreamData {
         return max;
     }
 
-    public ArrayList<User> getNewViewers() {
+    public List<User> getNewViewers() {
         return newViewers;
     }
 
-    public ArrayList<User> getReturningViewers() {
+    public List<User> getReturningViewers() {
         return returningViewers;
     }
 
@@ -136,13 +136,13 @@ public class StreamData {
         return Objects.requireNonNullElse(minutes, 0);
     }
 
-    public HashMap<String,Integer> getAllViewerMinutes() {
+    public Map<String,Integer> getAllViewerMinutes() {
         return userMinutes;
     }
 
     //probably want to replace this with something better at some point
-    public ArrayList<Map.Entry<String,Integer>> getOrderedWatchtimeList(List<User> userList) {
-        ArrayList<Map.Entry<String,Integer>> output = new ArrayList<>();
+    public List<Map.Entry<String,Integer>> getOrderedWatchtimeList(List<User> userList) {
+        List<Map.Entry<String,Integer>> output = new ArrayList<>();
         for (User user : userList) {
             output.add(new AbstractMap.SimpleEntry<>(
                     user.getDisplayName(),
@@ -154,9 +154,9 @@ public class StreamData {
     }
 
     //probably want to replace this with something better at some point
-    public ArrayList<Map.Entry<String,Integer>> getTopFollowerCounts() {
-        ArrayList<Map.Entry<String,Integer>> followerCounts = new ArrayList<>();
-        ArrayList<User> allViewers = new ArrayList<>(newViewers);
+    public List<Map.Entry<String,Integer>> getTopFollowerCounts() {
+        List<Map.Entry<String,Integer>> followerCounts = new ArrayList<>();
+        List<User> allViewers = new ArrayList<>(newViewers);
         allViewers.addAll(returningViewers);
 
         for (User user : allViewers) {
@@ -177,7 +177,7 @@ public class StreamData {
     ///////////////////////////////////////////////////////////////////////////
 
     private void separateNewReturningViewers(List<User> userList) {
-        HashSet<Long> allTimeUserIds = watchTimeDb.getAllUserIds();
+        Set<Long> allTimeUserIds = watchTimeDb.getAllUserIds();
         returningViewers.clear();
         newViewers.clear();
         for (User user : userList) {

@@ -8,16 +8,16 @@ import database.emotes.FfzEmoteStatsDb;
 import database.emotes.SevenTvEmoteStatsDb;
 import listeners.TwitchEventListener;
 
-import java.util.HashMap;
+import java.util.Map;
 
 public class EmoteListener implements TwitchEventListener {
 //    private final EmoteStatsDb emoteStatsDb;
     private final FfzEmoteStatsDb ffzEmoteStatsDb;
     private final SevenTvEmoteStatsDb sevenTvEmoteStatsDb;
     private final BttvEmoteStatsDb bttvEmoteStatsDb;
-    private final HashMap<String, String> ffzEmotes;
-    private final HashMap<String, String> sevenTvEmotes;
-    private final HashMap<String, String> bttvEmotes;
+    private final Map<String, String> ffzEmotes;
+    private final Map<String, String> sevenTvEmotes;
+    private final Map<String, String> bttvEmotes;
 
     public EmoteListener(DbManager dbManager) {
 //        emoteStatsDb = dbManager.getEmoteStatsDb();

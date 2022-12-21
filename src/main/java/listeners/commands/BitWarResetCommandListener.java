@@ -7,6 +7,7 @@ import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class BitWarResetCommandListener extends CommandBase {
@@ -31,7 +32,7 @@ public class BitWarResetCommandListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
-        ArrayList<String> teams = new ArrayList<>();
+        List<String> teams = new ArrayList<>();
         teams.add(TEAM_KILL);
         teams.add(TEAM_SAVE);
         bitWarDb.resetBitWar(BIT_WAR_NAME, teams);

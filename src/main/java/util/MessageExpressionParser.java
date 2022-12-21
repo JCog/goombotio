@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -261,8 +262,8 @@ public class MessageExpressionParser {
             }
             case TYPE_WEIGHTED: {
                 String[] entries = content.split("\\|");
-                ArrayList<Integer> weights = new ArrayList<>();
-                ArrayList<String> messages = new ArrayList<>();
+                List<Integer> weights = new ArrayList<>();
+                List<String> messages = new ArrayList<>();
                 for (String entry : entries) {
                     String[] weightMessage = entry.split("\\s", 2);
                     if (weightMessage.length != 2) {

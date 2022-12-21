@@ -13,7 +13,7 @@ import listeners.TwitchEventListener;
 import util.TwitchApi;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static database.misc.VipRaffleDb.VipRaffleItem;
@@ -47,10 +47,10 @@ public class VipRaffleRewardListener implements TwitchEventListener {
     private void handleRaffleEntryAddition(RewardRedeemedEvent event) {
         String userId = event.getRedemption().getUser().getId();
         String username = event.getRedemption().getUser().getDisplayName();
-        HashSet<String> modIds = twitchApi.getMods(streamerUser.getId())
+        Set<String> modIds = twitchApi.getMods(streamerUser.getId())
                 .stream()
                 .map(Moderator::getUserId)
-                .collect(Collectors.toCollection(HashSet::new));
+                .collect(Collectors.toSet());
     
         boolean shouldFulfill;
         // mods, permanent VIPs, and the streamer are all ineligible for the VIP raffle

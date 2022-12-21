@@ -28,7 +28,7 @@ public class FollowLogger {
     private final User streamerUser;
     private final ScheduledExecutorService scheduler;
 
-    private HashSet<String> oldFollowerIdList;
+    private Set<String> oldFollowerIdList;
     private PrintWriter writer;
     private ScheduledFuture<?> scheduledFuture;
 
@@ -61,7 +61,7 @@ public class FollowLogger {
         scheduledFuture = scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                HashSet<String> updatedFollowerIds;
+                Set<String> updatedFollowerIds;
                 try {
                     updatedFollowerIds = fetchFollowerIds();
                 } catch (HystrixRuntimeException e) {
@@ -77,8 +77,8 @@ public class FollowLogger {
                     System.out.println("Successfully retrieved initial follower list.");
                     return;
                 }
-                ArrayList<String> newFollowers = getNewFollowers(updatedFollowerIds);
-                ArrayList<String> unfollowers = getUnfollowers(updatedFollowerIds);
+                List<String> newFollowers = getNewFollowers(updatedFollowerIds);
+                List<String> unfollowers = getUnfollowers(updatedFollowerIds);
                 for (String newFollowerId : newFollowers) {
                     User newFollowerUser;
                     try {
@@ -156,17 +156,17 @@ public class FollowLogger {
         writer.close();
     }
 
-    private HashSet<String> fetchFollowerIds() throws HystrixRuntimeException {
+    private Set<String> fetchFollowerIds() throws HystrixRuntimeException {
         List<Follow> followers = twitchApi.getFollowers(streamerUser.getId());
-        HashSet<String> followerIds = new HashSet<>();
+        Set<String> followerIds = new HashSet<>();
         for (Follow follow : followers) {
             followerIds.add(follow.getFromId());
         }
         return followerIds;
     }
 
-    private ArrayList<String> getNewFollowers(HashSet<String> updatedFollowerIdList) {
-        ArrayList<String> newFollowerIds = new ArrayList<>();
+    private List<String> getNewFollowers(Set<String> updatedFollowerIdList) {
+        List<String> newFollowerIds = new ArrayList<>();
         for (String followerId : updatedFollowerIdList) {
             if (!oldFollowerIdList.contains(followerId)) {
                 newFollowerIds.add(followerId);
@@ -175,8 +175,8 @@ public class FollowLogger {
         return newFollowerIds;
     }
 
-    private ArrayList<String> getUnfollowers(HashSet<String> updatedFollowerIdList) {
-        ArrayList<String> unfollowerIds = new ArrayList<>();
+    private List<String> getUnfollowers(Set<String> updatedFollowerIdList) {
+        List<String> unfollowerIds = new ArrayList<>();
         for (String followerId : oldFollowerIdList) {
             if (!updatedFollowerIdList.contains(followerId)) {
                 unfollowerIds.add(followerId);

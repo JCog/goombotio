@@ -7,6 +7,7 @@ import org.bson.Document;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MinecraftUserDb extends GbCollection {
     private static final String COLLECTION_NAME = "minecraft_users";
@@ -36,9 +37,9 @@ public class MinecraftUserDb extends GbCollection {
         return convertMinecraftUser(result);
     }
     
-    public ArrayList<MinecraftUser> getAllUsers() {
+    public List<MinecraftUser> getAllUsers() {
         FindIterable<Document> documents = findAll();
-        ArrayList<MinecraftUser> allUsers = new ArrayList<>();
+        List<MinecraftUser> allUsers = new ArrayList<>();
         for (Document document : documents) {
             allUsers.add(convertMinecraftUser(document));
         }

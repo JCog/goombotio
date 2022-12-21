@@ -24,7 +24,7 @@ public abstract class EmoteStatsDbBase extends GbCollection {
         String monthKeyValue = getMonthKeyValue();
 
         if (result == null) {
-            ArrayList<Document> usageStatsList = new ArrayList<>();
+            List<Document> usageStatsList = new ArrayList<>();
             usageStatsList.add(generateNewUsageStats(userId, monthKeyValue));
 
             Document mainDocument = new Document(ID_KEY, emoteId)
@@ -102,23 +102,23 @@ public abstract class EmoteStatsDbBase extends GbCollection {
         return 0;
     }
 
-    public Vector<EmoteItem> getTopMonthlyEmoteCounts(String prefix) {
-        Vector<EmoteItem> topEmotes = getEmoteItems(getMonthKeyValue(), prefix);
+    public List<EmoteItem> getTopMonthlyEmoteCounts(String prefix) {
+        List<EmoteItem> topEmotes = getEmoteItems(getMonthKeyValue(), prefix);
         topEmotes.sort(new SortEmotesDescendingByCount());
         return topEmotes;
     }
 
-    public Vector<EmoteItem> getTopMonthlyEmoteCounts() {
+    public List<EmoteItem> getTopMonthlyEmoteCounts() {
         return getTopMonthlyEmoteCounts(null);
     }
 
-    public Vector<EmoteItem> getTopEmoteCounts(String prefix) {
-        Vector<EmoteItem> topEmotes = getEmoteItems(null, prefix);
+    public List<EmoteItem> getTopEmoteCounts(String prefix) {
+        List<EmoteItem> topEmotes = getEmoteItems(null, prefix);
         topEmotes.sort(new SortEmotesDescendingByCount());
         return topEmotes;
     }
 
-    public Vector<EmoteItem> getTopEmoteCounts() {
+    public List<EmoteItem> getTopEmoteCounts() {
         return getTopEmoteCounts(null);
     }
 
@@ -161,9 +161,9 @@ public abstract class EmoteStatsDbBase extends GbCollection {
                 .append(USERS_KEY, users);
     }
 
-    private Vector<EmoteItem> getEmoteItems(String monthKeyValue, String prefix) {
+    private List<EmoteItem> getEmoteItems(String monthKeyValue, String prefix) {
         MongoCursor<Document> result = findAll().iterator();
-        Vector<EmoteItem> topEmotes = new Vector<>();
+        List<EmoteItem> topEmotes = new ArrayList<>();
 
         while (result.hasNext()) {
             Document emote = result.next();

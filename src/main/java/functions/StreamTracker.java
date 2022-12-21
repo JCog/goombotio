@@ -11,6 +11,7 @@ import util.TwitchApi;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -20,7 +21,7 @@ public class StreamTracker {
     private static final String BLACKLIST_FILENAME = "blacklist.txt";
     private static final int INTERVAL = 1; //minutes
 
-    private final HashSet<String> blacklist = blacklistInit();
+    private final Set<String> blacklist = blacklistInit();
 
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
@@ -65,7 +66,7 @@ public class StreamTracker {
                     return;
                 }
                 if (stream != null) {
-                    HashSet<String> usersOnline = new HashSet<>();
+                    Set<String> usersOnline = new HashSet<>();
                     for (String user : chatters.getAllViewers()) {
                         if (!blacklist.contains(user)) {
                             usersOnline.add(user);
@@ -108,8 +109,8 @@ public class StreamTracker {
         }
     }
 
-    private HashSet<String> blacklistInit() {
-        HashSet<String> blacklist = new HashSet<>();
+    private Set<String> blacklistInit() {
+        Set<String> blacklist = new HashSet<>();
         try {
             File file = new File(BLACKLIST_FILENAME);
             Scanner sc = new Scanner(file);

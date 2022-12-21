@@ -8,7 +8,7 @@ import functions.MinecraftWhitelistUpdater;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class MinecraftListener extends CommandBase {
@@ -59,7 +59,7 @@ public class MinecraftListener extends CommandBase {
         }
 
         String mcUsername = messageSplit[1];
-        ArrayList<String> profile = MinecraftApi.getProfile(mcUsername);
+        List<String> profile = MinecraftApi.getProfile(mcUsername);
         if (profile == null) {
             twitchApi.channelMessage(String.format(
                     "@%s invalid Minecraft username \"%s\"",

@@ -147,9 +147,9 @@ public class WatchTimeDb extends GbCollection {
         return null;
     }
 
-    public ArrayList<Map.Entry<String,Integer>> getTopUsers() {
+    public List<Map.Entry<String,Integer>> getTopUsers() {
         MongoCursor<Document> result = findAll().sort(Sorts.descending(MINUTES_KEY)).iterator();
-        ArrayList<Map.Entry<String,Integer>> topUsers = new ArrayList<>();
+        List<Map.Entry<String,Integer>> topUsers = new ArrayList<>();
 
         while (result.hasNext()) {
             Document doc = result.next();
@@ -160,9 +160,9 @@ public class WatchTimeDb extends GbCollection {
         return topUsers;
     }
 
-    public HashSet<Long> getAllUserIds() {
+    public Set<Long> getAllUserIds() {
         MongoCursor<Document> result = findAll().iterator();
-        HashSet<Long> users = new HashSet<>();
+        Set<Long> users = new HashSet<>();
 
         while (result.hasNext()) {
             Document document = result.next();
@@ -171,18 +171,19 @@ public class WatchTimeDb extends GbCollection {
         return users;
     }
 
-    public Vector<String> getTopMonthlyUsers() {
+    public List<String> getTopMonthlyUsers() {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         return getTopMonthlyUsers(year, month);
     }
 
-    public Vector<String> getTopMonthlyUsers(int year, int month) {
+    public List<String> getTopMonthlyUsers(int year, int month) {
         String monthlyMinutesKey = getMonthlyMinutesKey(year, month);
         MongoCursor<Document> result = findContainsKey(monthlyMinutesKey)
-                .sort(Sorts.descending(monthlyMinutesKey)).iterator();
-        Vector<String> topUsers = new Vector<>();
+                .sort(Sorts.descending(monthlyMinutesKey))
+                .iterator();
+        List<String> topUsers = new ArrayList<>();
 
         while (result.hasNext()) {
             topUsers.add(result.next().getString(NAME_KEY));
@@ -207,8 +208,8 @@ public class WatchTimeDb extends GbCollection {
         return minutes;
     }
 
-    public Vector<String> getMatchingUsers(String search) {
-        Vector<String> result = new Vector<>();
+    public List<String> getMatchingUsers(String search) {
+        List<String> result = new ArrayList<>();
 
         for (Document document : findAll()) {
             String name = document.getString(NAME_KEY);

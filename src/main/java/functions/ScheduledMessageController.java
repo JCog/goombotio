@@ -14,6 +14,7 @@ import util.TwitchApi;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -102,7 +103,7 @@ public class ScheduledMessageController {
 
     private void postRandomMsg() {
         //there's definitely a more memory-efficient way to do this, but eh
-        ArrayList<ScheduledMessage> choices = new ArrayList<>();
+        List<ScheduledMessage> choices = new ArrayList<>();
         for (ScheduledMessage message : socialSchedulerDb.getAllMessages()) {
             if (!message.getId().equals(previousId)) {
                 for (int i = 0; i < message.getWeight(); i++) {

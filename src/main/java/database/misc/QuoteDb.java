@@ -79,7 +79,7 @@ public class QuoteDb extends GbCollection {
             return null;
         }
 
-        ArrayList<QuoteItem> replacements = new ArrayList<>();
+        List<QuoteItem> replacements = new ArrayList<>();
         for (Document document : findAll()) {
             long documentIndex = document.getLong(ID_KEY);
             if (documentIndex > index) {
@@ -118,7 +118,7 @@ public class QuoteDb extends GbCollection {
     }
 
     public List<QuoteItem> searchApprovedQuotes(String query) {
-        ArrayList<QuoteItem> output = new ArrayList<>();
+        List<QuoteItem> output = new ArrayList<>();
         for (Document quote : findContainsSubstring(TEXT_KEY, query, false)) {
             QuoteItem quoteItem = convertQuoteDocument(quote);
             if (quoteItem!= null && quoteItem.isApproved()) {

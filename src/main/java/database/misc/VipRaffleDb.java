@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class VipRaffleDb extends GbCollection {
     private static final String COLLECTION_NAME = "vip_raffle";
@@ -37,7 +38,7 @@ public class VipRaffleDb extends GbCollection {
         }
     }
     
-    public ArrayList<VipRaffleItem> getAllVipRaffleItemsCurrentMonth() {
+    public List<VipRaffleItem> getAllVipRaffleItemsCurrentMonth() {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
@@ -45,7 +46,7 @@ public class VipRaffleDb extends GbCollection {
         return getAllVipRaffleItems(year, month);
     }
     
-    public ArrayList<VipRaffleItem> getAllVipRaffleItemsPrevMonth() {
+    public List<VipRaffleItem> getAllVipRaffleItemsPrevMonth() {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR) - 1;
         int month = calendar.get(Calendar.MONTH);
@@ -54,9 +55,9 @@ public class VipRaffleDb extends GbCollection {
         return getAllVipRaffleItems(year, month);
     }
     
-    public ArrayList<VipRaffleItem> getAllVipRaffleItems(int year, int month) {
+    public List<VipRaffleItem> getAllVipRaffleItems(int year, int month) {
         FindIterable<Document> documents = findAll();
-        ArrayList<VipRaffleItem> vipRaffleItems = new ArrayList<>();
+        List<VipRaffleItem> vipRaffleItems = new ArrayList<>();
         String monthlyEntriesKey = getMonthlyEntriesKey(year, month);
         for (Document document : documents) {
             if (document.containsKey(monthlyEntriesKey)) {

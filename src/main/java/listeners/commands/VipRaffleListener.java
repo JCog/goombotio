@@ -34,7 +34,7 @@ public class VipRaffleListener extends CommandBase {
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         if (userLevel == USER_LEVEL.BROADCASTER) {
-            ArrayList<String> ids = performRaffle(new LinkedList<>(vipRaffleDb.getAllVipRaffleItemsCurrentMonth()));
+            List<String> ids = performRaffle(new LinkedList<>(vipRaffleDb.getAllVipRaffleItemsCurrentMonth()));
             List<User> winners = twitchApi.getUserListByIds(ids);
             twitchApi.channelMessage(String.format(
                     "The winners of the raffle are %s, %s, %s, %s, and %s. Congrats on winning VIP for the month! jcogChamp",
@@ -50,7 +50,7 @@ public class VipRaffleListener extends CommandBase {
         } else {
             String userId = messageEvent.getMessageEvent().getUser().getId();
             String userDisplayName = TwitchEventListener.getDisplayName(messageEvent.getMessageEvent().getTags());
-            ArrayList<VipRaffleItem> raffleItems = vipRaffleDb.getAllVipRaffleItemsCurrentMonth();
+            List<VipRaffleItem> raffleItems = vipRaffleDb.getAllVipRaffleItemsCurrentMonth();
     
             VipRaffleItem userRaffleItem = vipRaffleDb.getVipRaffleItem(userId);
             int userEntryCount = userRaffleItem == null ? 0 : userRaffleItem.getEntryCount();
@@ -74,14 +74,14 @@ public class VipRaffleListener extends CommandBase {
         
     }
     
-    private ArrayList<String> performRaffle(LinkedList<VipRaffleItem> raffleItems) {
+    private List<String> performRaffle(List<VipRaffleItem> raffleItems) {
         int totalEntries = 0;
         for (VipRaffleItem raffleItem : raffleItems) {
             totalEntries += raffleItem.getEntryCount();
         }
         
         Random random = new Random();
-        ArrayList<String> winnerIds = new ArrayList<>();
+        List<String> winnerIds = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             int index = 0;
             int winningIndex = random.nextInt(totalEntries);

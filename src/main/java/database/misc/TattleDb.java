@@ -8,6 +8,7 @@ import org.bson.Document;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class TattleDb extends GbCollection {
@@ -52,9 +53,9 @@ public class TattleDb extends GbCollection {
         return new TattleItem(tattle.getString(ID_KEY), tattle.getString(TATTLE_KEY));
     }
     
-    public ArrayList<TattleItem> getAllTattles() {
+    public List<TattleItem> getAllTattles() {
         FindIterable<Document> documents = findAll();
-        ArrayList<TattleItem> tattles = new ArrayList<>();
+        List<TattleItem> tattles = new ArrayList<>();
         for (Document document : documents) {
             tattles.add(new TattleItem(document.getString(ID_KEY), document.getString(TATTLE_KEY)));
         }

@@ -4,7 +4,7 @@ import database.GbCollection;
 import database.GbDatabase;
 import org.bson.Document;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class BitWarDb extends GbCollection {
     private static final String COLLECTION_NAME = "bit_war";
@@ -35,7 +35,7 @@ public class BitWarDb extends GbCollection {
         }
     }
 
-    public void resetBitWar(String bitWar, ArrayList<String> teams) {
+    public void resetBitWar(String bitWar, List<String> teams) {
         Document result = findFirstEquals(ID_KEY, bitWar);
         if (result != null) {
             for (String team : teams) {

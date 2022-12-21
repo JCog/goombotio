@@ -25,7 +25,7 @@ public class MinecraftWhitelistUpdater {
     private static final String FILENAME = "whitelist.json";
     private static final int INTERVAL = 1; //minutes
 
-    private final Type whitelistType = new TypeToken<ArrayList<Map<String,String>>>() {
+    private final Type whitelistType = new TypeToken<List<Map<String,String>>>() {
     }.getType();
     private final Gson gson = new Gson();
     private final JSch jsch = new JSch();
@@ -66,8 +66,8 @@ public class MinecraftWhitelistUpdater {
         scheduledFuture = scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                ArrayList<Map<String,String>> currentWhitelist = readInWhitelist();
-                ArrayList<Map<String,String>> newWhitelist;
+                List<Map<String,String>> currentWhitelist = readInWhitelist();
+                List<Map<String,String>> newWhitelist;
                 try {
                     newWhitelist = createWhitelist();
                 } catch (HystrixRuntimeException e) {
@@ -94,7 +94,7 @@ public class MinecraftWhitelistUpdater {
         return subOnly;
     }
 
-    private ArrayList<Map<String,String>> readInWhitelist() {
+    private List<Map<String,String>> readInWhitelist() {
         try (FileReader reader = new FileReader(FILENAME)) {
             return gson.fromJson(reader, whitelistType);
         } catch (IOException e) {
@@ -104,8 +104,8 @@ public class MinecraftWhitelistUpdater {
         return new ArrayList<>();
     }
 
-    private ArrayList<Map<String,String>> createWhitelist() throws HystrixRuntimeException {
-        ArrayList<MinecraftUser> whitelist = new ArrayList<>();
+    private List<Map<String,String>> createWhitelist() throws HystrixRuntimeException {
+        List<MinecraftUser> whitelist = new ArrayList<>();
         if (subOnly) {
             List<Subscription> subList = twitchApi.getSubList(streamerUser.getId());
             for (Subscription sub : subList) {
@@ -117,8 +117,8 @@ public class MinecraftWhitelistUpdater {
         } else {
             whitelist.addAll(minecraftUserDb.getAllUsers());
         }
-
-        ArrayList<Map<String,String>> whitelistJson = new ArrayList<>();
+    
+        List<Map<String,String>> whitelistJson = new ArrayList<>();
         for (MinecraftUser user : whitelist) {
             Map<String,String> obj = new HashMap<>();
             obj.put("name", user.getMcUsername());
@@ -128,7 +128,7 @@ public class MinecraftWhitelistUpdater {
         return whitelistJson;
     }
 
-    private boolean whitelistsEqual(ArrayList<Map<String,String>> first, ArrayList<Map<String,String>> second) {
+    private boolean whitelistsEqual(List<Map<String,String>> first, List<Map<String,String>> second) {
         if (first.size() != second.size()) {
             return false;
         }
@@ -152,7 +152,7 @@ public class MinecraftWhitelistUpdater {
         return true;
     }
 
-    private void updateLocalWhitelist(ArrayList<Map<String,String>> whitelist) {
+    private void updateLocalWhitelist(List<Map<String,String>> whitelist) {
         boolean successful = FileWriter.writeToFile("", FILENAME, gson.toJson(whitelist));
         if (!successful) {
             System.out.println("Error writing Minecraft whitelist to file");

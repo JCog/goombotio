@@ -14,6 +14,7 @@ import util.TwitchApi;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,10 +36,10 @@ public class LinkListener implements TwitchEventListener {
 
     @Override
     public void onChannelMessage(ChannelMessageEvent messageEvent) {
-        ArrayList<String> clipUrls = getMatches(messageEvent.getMessage(), clipPattern);
-        ArrayList<String> videoUrls = getMatches(messageEvent.getMessage(), videoPattern);
-        ArrayList<String> youtubeVideoIds = getMatches(messageEvent.getMessage(), youtubePattern);
-        ArrayList<String> tweetIds = getMatches(messageEvent.getMessage(), tweetPattern);
+        List<String> clipUrls = getMatches(messageEvent.getMessage(), clipPattern);
+        List<String> videoUrls = getMatches(messageEvent.getMessage(), videoPattern);
+        List<String> youtubeVideoIds = getMatches(messageEvent.getMessage(), youtubePattern);
+        List<String> tweetIds = getMatches(messageEvent.getMessage(), tweetPattern);
 
         for (String id : clipUrls) {
             twitchApi.channelMessage(getClipDetails(id));
@@ -54,8 +55,8 @@ public class LinkListener implements TwitchEventListener {
         }
     }
 
-    private ArrayList<String> getMatches(String message, Pattern pattern) {
-        ArrayList<String> output = new ArrayList<>();
+    private List<String> getMatches(String message, Pattern pattern) {
+        List<String> output = new ArrayList<>();
         Matcher matcher = pattern.matcher(message);
         while (matcher.find()) {
             output.add(matcher.group(1));

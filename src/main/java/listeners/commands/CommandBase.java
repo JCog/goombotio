@@ -111,7 +111,7 @@ public abstract class CommandBase implements TwitchEventListener {
     }
     
     private Set<String> compileCommandPattern(String[] commandWords) {
-        HashSet<String> out = new HashSet<>();
+        Set<String> out = new HashSet<>();
         Collections.addAll(out, commandWords);
         return out;
     }

@@ -8,6 +8,7 @@ import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -23,7 +24,7 @@ public class GenericCommandListener extends CommandBase {
     private final CommandDb commandDb;
     private final MessageExpressionParser commandParser;
     private final TwitchApi twitchApi;
-    private final HashSet<String> activeCooldowns = new HashSet<>();
+    private final Set<String> activeCooldowns = new HashSet<>();
 
 
     public GenericCommandListener(
