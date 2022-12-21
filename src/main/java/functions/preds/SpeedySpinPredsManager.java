@@ -45,7 +45,7 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
         SPOODLY_SPUN
     }
 
-    private final ArrayList<PapePredsObject> predictionList = new ArrayList<>();
+    private final Map<String, PapePredsObject> predictionList = new HashMap<>();
     private final SpeedySpinLeaderboardDb speedySpinLeaderboardDb;
     private final User streamer;
     
@@ -74,39 +74,44 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
         isEnabled = false;
         waitingForAnswer = false;
 
-        ArrayList<String> winners = getWinners(one, two, three);
+        List<String> winners = getWinners(one, two, three);
         List<String> unsubbedWinners = getUnsubbedWinners(winners);
         StringBuilder message = new StringBuilder();
-        if (winners.size() == 0) {
-            message.append("Nobody guessed it. jcogThump");
-        } else if (winners.size() == 1) {
-            message.append(String.format(
-                    "Congrats to @%s%s on guessing correctly! jcogChamp",
-                    winners.get(0),
-                    unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : ""
-            ));
-        } else if (winners.size() == 2) {
-            message.append(String.format(
-                    "Congrats to @%s%s and @%s%s on guessing correctly! jcogChamp",
-                    winners.get(0),
-                    unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : "",
-                    winners.get(1),
-                    unsubbedWinners.contains(winners.get(1).toLowerCase()) ? "*" : ""
-            ));
-        } else {
-            message.append("Congrats to ");
-            for (int i = 0; i < winners.size() - 1; i++) {
-                message.append("@").append(winners.get(i));
-                if (unsubbedWinners.contains(winners.get(i).toLowerCase())) {
+        switch (winners.size()) {
+            case 0:
+                message.append("Nobody guessed it. jcogThump");
+                break;
+            case 1:
+                message.append(String.format(
+                        "Congrats to @%s%s on guessing correctly! jcogChamp",
+                        winners.get(0),
+                        unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : ""
+                ));
+                break;
+            case 2:
+                message.append(String.format(
+                        "Congrats to @%s%s and @%s%s on guessing correctly! jcogChamp",
+                        winners.get(0),
+                        unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : "",
+                        winners.get(1),
+                        unsubbedWinners.contains(winners.get(1).toLowerCase()) ? "*" : ""
+                ));
+                break;
+            default:
+                message.append("Congrats to ");
+                for (int i = 0; i < winners.size() - 1; i++) {
+                    message.append("@").append(winners.get(i));
+                    if (unsubbedWinners.contains(winners.get(i).toLowerCase())) {
+                        message.append("*");
+                    }
+                    message.append(", ");
+                }
+                message.append("and @").append(winners.get(winners.size() - 1));
+                if (unsubbedWinners.contains(winners.get(winners.size() - 1).toLowerCase())) {
                     message.append("*");
                 }
-                message.append(", ");
-            }
-            message.append("and @").append(winners.get(winners.size() - 1));
-            if (unsubbedWinners.contains(winners.get(winners.size() - 1).toLowerCase())) {
-                message.append("*");
-            }
-            message.append(" on guessing correctly! jcogChamp");
+                message.append(" on guessing correctly! jcogChamp");
+                break;
         }
         message.append(" Use !raffle to check your updated entry count.");
     
@@ -119,24 +124,14 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
         ));
     
         // update discord leaderboards
-        ArrayList<SpeedySpinItem> winsAllTime = speedySpinLeaderboardDb.getAllSortedWins();
-        ArrayList<String> winsNames = winsAllTime.stream()
-                .map(SpeedySpinItem::getDisplayName)
-                .collect(Collectors.toCollection(ArrayList::new));
-        ArrayList<Integer> winsCounts = winsAllTime.stream()
-                .map(SpeedySpinItem::getWins)
-                .collect(Collectors.toCollection(ArrayList::new));
-    
+        List<SpeedySpinItem> wins = speedySpinLeaderboardDb.getAllSortedWins();
+        List<String> winsNames = wins.stream().map(SpeedySpinItem::getDisplayName).collect(Collectors.toList());
+        List<Integer> winsCounts = wins.stream().map(SpeedySpinItem::getWins).collect(Collectors.toList());
         updateDiscordLeaderboard(DISCORD_CHANNEL_WINS, "Badge Shop Prediction Wins:", winsNames, winsCounts);
     
-        ArrayList<SpeedySpinItem> pointsAllTime = speedySpinLeaderboardDb.getAllSortedPoints();
-        ArrayList<String> pointsNames = pointsAllTime.stream()
-                .map(SpeedySpinItem::getDisplayName)
-                .collect(Collectors.toCollection(ArrayList::new));
-        ArrayList<Integer> pointsCounts = pointsAllTime.stream()
-                .map(SpeedySpinItem::getPoints)
-                .collect(Collectors.toCollection(ArrayList::new));
-    
+        List<SpeedySpinItem> points = speedySpinLeaderboardDb.getAllSortedPoints();
+        List<String> pointsNames = points.stream().map(SpeedySpinItem::getDisplayName).collect(Collectors.toList());
+        List<Integer> pointsCounts = points.stream().map(SpeedySpinItem::getPoints).collect(Collectors.toList());
         updateDiscordLeaderboard(DISCORD_CHANNEL_POINTS, "Badge Shop Prediction Points:", pointsNames, pointsCounts);
     }
 
@@ -146,7 +141,7 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
 
         if (split.length == 3) {
             //using FFZ emotes
-            ArrayList<String> badgeGuess = new ArrayList<>();
+            List<String> badgeGuess = new ArrayList<>();
             for (String word : split) {
                 if (BADGE_CHOICES.contains(word.toLowerCase()) && !badgeGuess.contains(word.toLowerCase())) {
                     badgeGuess.add(word.toLowerCase());
@@ -154,8 +149,7 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
             }
 
             if (badgeGuess.size() == 3) {
-                predictionList.add(new PapePredsObject(
-                        userId,
+                predictionList.put(userId, new PapePredsObject(
                         displayName,
                         stringToBadge(badgeGuess.get(0)),
                         stringToBadge(badgeGuess.get(1)),
@@ -171,7 +165,7 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
             }
         } else if (split.length == 1 && split[0].matches("[1-4]{3}")) {
             //using numbers, e.g. "412"
-            Vector<Integer> badgeGuess = new Vector<>();
+            List<Integer> badgeGuess = new ArrayList<>();
             for (int i = 0; i < split[0].length(); i++) {
                 int guess = Character.getNumericValue(split[0].charAt(i));
                 if (!badgeGuess.contains(guess)) {
@@ -184,7 +178,7 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
                 Badge badge2 = intToBadge(badgeGuess.get(1));
                 Badge badge3 = intToBadge(badgeGuess.get(2));
 
-                predictionList.add(new PapePredsObject(userId, displayName, badge1, badge2, badge3));
+                predictionList.put(userId, new PapePredsObject(displayName, badge1, badge2, badge3));
 
                 System.out.printf(
                         "%s has predicted %s %s %s%n",
@@ -199,19 +193,19 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private ArrayList<String> getWinners(Badge leftAnswer, Badge middleAnswer, Badge rightAnswer) {
+    private List<String> getWinners(Badge leftAnswer, Badge middleAnswer, Badge rightAnswer) {
         Set<Badge> answerSet = new HashSet<>();
         answerSet.add(leftAnswer);
         answerSet.add(middleAnswer);
         answerSet.add(rightAnswer);
 
-        ArrayList<String> winners = new ArrayList<>();
-        for (PapePredsObject pred : predictionList) {
-            String userId = pred.userId;
-            String displayName = pred.displayName;
-            Badge leftGuess = pred.left;
-            Badge middleGuess = pred.middle;
-            Badge rightGuess = pred.right;
+        List<String> winners = new ArrayList<>();
+        for (Map.Entry<String, PapePredsObject> pred : predictionList.entrySet()) {
+            String userId = pred.getKey();
+            String displayName = pred.getValue().displayName;
+            Badge leftGuess = pred.getValue().left;
+            Badge middleGuess = pred.getValue().middle;
+            Badge rightGuess = pred.getValue().right;
             Set<Badge> guessSet = new HashSet<>();
             guessSet.add(leftGuess);
             guessSet.add(middleGuess);
@@ -219,7 +213,8 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
 
             if (leftGuess == leftAnswer && middleGuess == middleAnswer && rightGuess == rightAnswer) {
                 winners.add(displayName);
-                speedySpinLeaderboardDb.addPointsAndWins(userId, displayName, POINTS_3, 1);
+                speedySpinLeaderboardDb.addWin(userId, displayName);
+                speedySpinLeaderboardDb.addPoints(userId, displayName, POINTS_3);
                 vipRaffleDb.incrementEntryCount(userId, REWARD_3_CORRECT);
                 out.printf("%s guessed 3 correctly. Adding %d points and a win.%n", displayName,
                            POINTS_3);
@@ -246,12 +241,12 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
         return winners;
     }
     
-    private ArrayList<String> getUnsubbedWinners(ArrayList<String> winners) {
+    private List<String> getUnsubbedWinners(List<String> winners) {
         if (winners.size() == 0) {
             return new ArrayList<>();
         }
     
-        ArrayList<String> unsubbedWinners = new ArrayList<>();
+        List<String> unsubbedWinners = new ArrayList<>();
         List<String> subList;
         try {
             subList = twitchApi.getSubList(streamer.getId()).stream()
@@ -312,20 +307,17 @@ public class SpeedySpinPredsManager extends PredsManagerBase {
     }
     
     private static class PapePredsObject {
-        private final String userId;
         private final String displayName;
         private final SpeedySpinPredsManager.Badge left;
         private final SpeedySpinPredsManager.Badge middle;
         private final SpeedySpinPredsManager.Badge right;
         
         private PapePredsObject(
-                String userId,
                 String displayName,
                 SpeedySpinPredsManager.Badge left,
                 SpeedySpinPredsManager.Badge middle,
                 SpeedySpinPredsManager.Badge right
         ) {
-            this.userId = userId;
             this.displayName = displayName;
             this.left = left;
             this.middle = middle;

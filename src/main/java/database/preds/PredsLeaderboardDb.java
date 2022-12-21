@@ -9,6 +9,7 @@ import org.bson.Document;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public abstract class PredsLeaderboardDb extends GbCollection {
     static final String NAME_KEY = "name";
@@ -17,11 +18,6 @@ public abstract class PredsLeaderboardDb extends GbCollection {
 
     protected PredsLeaderboardDb(GbDatabase gbDatabase, String collectionName) {
         super(gbDatabase, collectionName);
-    }
-
-    public void addPointsAndWins(String userId, String displayName, int points, int wins) {
-        addPoints(userId, displayName, points);
-        addWins(userId, displayName, wins);
     }
 
     public void addPoints(String userId, String displayName, int points) {
@@ -53,7 +49,7 @@ public abstract class PredsLeaderboardDb extends GbCollection {
         }
     }
 
-    public void addWins(String userId, String displayName, int wins) {
+    public void addWin(String userId, String displayName) {
         String monthlyPoints = getMonthlyPointsKey();
         long id = Long.parseLong(userId);
 
@@ -64,10 +60,10 @@ public abstract class PredsLeaderboardDb extends GbCollection {
                     .append(NAME_KEY, displayName)
                     .append(POINTS_KEY, 0)
                     .append(monthlyPoints, 0)
-                    .append(WINS_KEY, wins);
+                    .append(WINS_KEY, 1);
             insertOne(document);
         } else {
-            int newWins = result.getInteger(WINS_KEY) + wins;
+            int newWins = result.getInteger(WINS_KEY) + 1;
             updateOne(id, new Document(WINS_KEY, newWins));
         }
     }
@@ -120,8 +116,8 @@ public abstract class PredsLeaderboardDb extends GbCollection {
     }
 
     //returns IDs of top monthly scorers
-    public ArrayList<Long> getTopMonthlyScorers() {
-        ArrayList<Long> topMonthlyScorers = new ArrayList<>();
+    public List<Long> getTopMonthlyScorers() {
+        List<Long> topMonthlyScorers = new ArrayList<>();
 
         for (Document next : findAll().sort(Sorts.descending(getMonthlyPointsKey()))) {
             if (next.get(getMonthlyPointsKey()) == null) {
@@ -135,8 +131,8 @@ public abstract class PredsLeaderboardDb extends GbCollection {
     }
 
     //returns id's of top all-time scorers, up to the number of results specified by limit
-    public ArrayList<Long> getTopScorers(Integer limit) {
-        ArrayList<Long> topScorers = new ArrayList<>();
+    public List<Long> getTopScorers(Integer limit) {
+        List<Long> topScorers = new ArrayList<>();
 
         MongoCursor<Document> result = findAll().sort(Sorts.descending(POINTS_KEY)).iterator();
         while (result.hasNext() && (limit == null || topScorers.size() < limit)) {
@@ -152,13 +148,13 @@ public abstract class PredsLeaderboardDb extends GbCollection {
     }
 
     //returns id's of top all-time scorers
-    public ArrayList<Long> getTopScorers() {
+    public List<Long> getTopScorers() {
         return getTopScorers(null);
     }
 
     //returns id's of top winners
-    public ArrayList<Long> getTopWinners() {
-        ArrayList<Long> topScorers = new ArrayList<>();
+    public List<Long> getTopWinners() {
+        List<Long> topScorers = new ArrayList<>();
 
         for (Document next : findAll().sort(Sorts.descending(WINS_KEY))) {
             if (next.get(WINS_KEY) == null) {

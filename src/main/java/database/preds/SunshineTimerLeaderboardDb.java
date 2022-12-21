@@ -6,6 +6,7 @@ import database.GbDatabase;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SunshineTimerLeaderboardDb extends PredsLeaderboardDb {
     private static final String COLLECTION_NAME = "sunshinetimer";
@@ -14,10 +15,10 @@ public class SunshineTimerLeaderboardDb extends PredsLeaderboardDb {
         super(gbDatabase, COLLECTION_NAME);
     }
     
-    public ArrayList<SpeedySpinLeaderboardDb.SpeedySpinItem> getAllSortedPoints() {
-        ArrayList<SpeedySpinLeaderboardDb.SpeedySpinItem> items = new ArrayList<>();
+    public List<PiantaSixItem> getAllSortedPoints() {
+        List<PiantaSixItem> items = new ArrayList<>();
         for (Document doc : findAll().sort(Sorts.descending(POINTS_KEY))) {
-            items.add(new SpeedySpinLeaderboardDb.SpeedySpinItem(
+            items.add(new PiantaSixItem(
                     doc.getLong(ID_KEY),
                     doc.getString(NAME_KEY),
                     doc.getInteger(WINS_KEY),

@@ -5,12 +5,11 @@ import database.misc.VipRaffleDb;
 import functions.DiscordBotController;
 import util.TwitchApi;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public abstract class PredsManagerBase {
     private static final String STOP_MESSAGE = "Predictions are up! Let's see how everyone did...";
-    
-    static final int DISCORD_MAX_CHARS = 2000;
+    private static final int DISCORD_MAX_CHARS = 2000;
     
     final DiscordBotController discord;
     final TwitchApi twitchApi;
@@ -82,7 +81,7 @@ public abstract class PredsManagerBase {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     void updateDiscordLeaderboard(
-            String discordChannel, String messageTitle, ArrayList<String> names, ArrayList<Integer> values
+            String discordChannel, String messageTitle, List<String> names, List<Integer> values
     ) {
         StringBuilder message = new StringBuilder();
         message.append(messageTitle).append("\n```");

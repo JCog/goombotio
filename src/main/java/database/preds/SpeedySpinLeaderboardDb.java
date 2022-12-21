@@ -6,6 +6,7 @@ import database.GbDatabase;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SpeedySpinLeaderboardDb extends PredsLeaderboardDb {
     private static final String COLLECTION_NAME = "speedyspin";
@@ -14,8 +15,8 @@ public class SpeedySpinLeaderboardDb extends PredsLeaderboardDb {
         super(gbDatabase, COLLECTION_NAME);
     }
     
-    public ArrayList<SpeedySpinItem> getAllSortedWins() {
-        ArrayList<SpeedySpinItem> items = new ArrayList<>();
+    public List<SpeedySpinItem> getAllSortedWins() {
+        List<SpeedySpinItem> items = new ArrayList<>();
         for (Document doc : findAll().sort(Sorts.descending(WINS_KEY))) {
             if (doc.getInteger(WINS_KEY) > 0) {
                 items.add(new SpeedySpinItem(
@@ -29,8 +30,8 @@ public class SpeedySpinLeaderboardDb extends PredsLeaderboardDb {
         return items;
     }
     
-    public ArrayList<SpeedySpinItem> getAllSortedPoints() {
-        ArrayList<SpeedySpinItem> items = new ArrayList<>();
+    public List<SpeedySpinItem> getAllSortedPoints() {
+        List<SpeedySpinItem> items = new ArrayList<>();
         for (Document doc : findAll().sort(Sorts.descending(POINTS_KEY))) {
             items.add(new SpeedySpinItem(
                     doc.getLong(ID_KEY),

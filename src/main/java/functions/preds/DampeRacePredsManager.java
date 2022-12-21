@@ -8,6 +8,8 @@ import util.TwitchApi;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DampeRacePredsManager extends PredsManagerBase {
@@ -40,29 +42,33 @@ public class DampeRacePredsManager extends PredsManagerBase {
     @Override
     public void submitPredictions(String answer) {
         Integer answerSeconds = guessToSeconds(answer);
-        ArrayList<TimeGuess> winners = new ArrayList<>();
-        for (TimeGuess guess : guesses.values()) {
+        List<TimeGuess> winners = new ArrayList<>();
+        for (Map.Entry<String, TimeGuess> guess : guesses.entrySet()) {
+            String userId = guess.getKey();
+            String displayName = guess.getValue().displayName;
+            int seconds = guess.getValue().seconds;
+            
             boolean isWinner = false;
             int newEntryCount;
             
-            int secondsOff = Math.abs(guess.seconds - answerSeconds);
+            int secondsOff = Math.abs(seconds - answerSeconds);
             switch (secondsOff) {
                 case 0:
                     isWinner = true;
-                    winners.add(guess);
-                    dampeRaceLeaderboardDb.addWin(guess.userId, guess.displayName);
+                    winners.add(guess.getValue());
+                    dampeRaceLeaderboardDb.addWin(userId, displayName);
                     newEntryCount = REWARD_CORRECT;
                     break;
                 case 1: newEntryCount = REWARD_1_OFF; break;
                 case 2: newEntryCount = REWARD_2_OFF; break;
                 default: newEntryCount = REWARD_PARTICIPATION; break;
             }
-            vipRaffleDb.incrementEntryCount(guess.userId, newEntryCount);
+            vipRaffleDb.incrementEntryCount(userId, newEntryCount);
             System.out.printf(
                     "+%d entries %sto %s%n",
                     newEntryCount,
                     isWinner ? "and a win " : "",
-                    guess.displayName
+                    displayName
             );
         }
     
@@ -72,7 +78,6 @@ public class DampeRacePredsManager extends PredsManagerBase {
                     "though! Use !raffle to check your updated entry count."
             );
         } else {
-    
             StringBuilder winnerString = new StringBuilder();
             switch (winners.size()) {
                 case 1:
@@ -99,14 +104,9 @@ public class DampeRacePredsManager extends PredsManagerBase {
         }
         
         // update discord leaderboard
-        ArrayList<DampeRaceLbItem> winnersAllTime = dampeRaceLeaderboardDb.getWinners();
-        ArrayList<String> names = winnersAllTime.stream()
-                .map(DampeRaceLbItem::getDisplayName)
-                .collect(Collectors.toCollection(ArrayList::new));
-        ArrayList<Integer> winCounts = winnersAllTime.stream()
-                .map(DampeRaceLbItem::getWinCount)
-                .collect(Collectors.toCollection(ArrayList::new));
-        
+        List<DampeRaceLbItem> winnersAll = dampeRaceLeaderboardDb.getWinners();
+        List<String> names = winnersAll.stream().map(DampeRaceLbItem::getDisplayName).collect(Collectors.toList());
+        List<Integer> winCounts = winnersAll.stream().map(DampeRaceLbItem::getWinCount).collect(Collectors.toList());
         updateDiscordLeaderboard(DISCORD_CHANNEL, "Dampe Race Prediction Wins:", names, winCounts);
     }
     
@@ -122,7 +122,7 @@ public class DampeRacePredsManager extends PredsManagerBase {
         } else {
             System.out.printf("%s has guessed %d seconds.%n", displayName, userGuess);
         }
-        guesses.put(userId, new TimeGuess(userId, displayName, userGuess));
+        guesses.put(userId, new TimeGuess(displayName, userGuess));
     }
     
     private Integer guessToSeconds(String userMessage) {
@@ -141,19 +141,12 @@ public class DampeRacePredsManager extends PredsManagerBase {
     }
     
     private static class TimeGuess {
-    
-        public final String userId;
         public final String displayName;
         public final int seconds;
         
-        public TimeGuess(String userId, String displayName, int seconds) {
-            this.userId = userId;
+        public TimeGuess(String displayName, int seconds) {
             this.displayName = displayName;
             this.seconds = seconds;
-        }
-        
-        public String getUserId() {
-            return userId;
         }
     }
 }

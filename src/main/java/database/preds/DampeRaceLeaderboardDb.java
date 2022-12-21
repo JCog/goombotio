@@ -7,6 +7,7 @@ import database.GbDatabase;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class DampeRaceLeaderboardDb extends GbCollection {
     private static final String COLLECTION_NAME = "dampe_race";
@@ -40,9 +41,9 @@ public class DampeRaceLeaderboardDb extends GbCollection {
         }
     }
     
-    public ArrayList<DampeRaceLbItem> getWinners() {
+    public List<DampeRaceLbItem> getWinners() {
         FindIterable<Document> winnerDocs = findAll().sort(Sorts.descending(WINS_KEY));
-        ArrayList<DampeRaceLbItem> winnerItems = new ArrayList<>();
+        List<DampeRaceLbItem> winnerItems = new ArrayList<>();
         for (Document winnerDoc : winnerDocs) {
             winnerItems.add(new DampeRaceLbItem(
                     winnerDoc.getString(ID_KEY),

@@ -12,6 +12,7 @@ import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class LeaderboardListener extends CommandBase {
@@ -162,9 +163,9 @@ public class LeaderboardListener extends CommandBase {
     }
 
     private String buildAllTimeLeaderboardString() {
-        ArrayList<Long> topScorers = leaderboard.getTopScorers(5);
-        ArrayList<Integer> topPoints = new ArrayList<>();
-        ArrayList<String> topNames = new ArrayList<>();
+        List<Long> topScorers = leaderboard.getTopScorers(5);
+        List<Integer> topPoints = new ArrayList<>();
+        List<String> topNames = new ArrayList<>();
         for (Long topScorer : topScorers) {
             topPoints.add(leaderboard.getPoints(topScorer));
             topNames.add(leaderboard.getUsername(topScorer));
@@ -172,7 +173,7 @@ public class LeaderboardListener extends CommandBase {
 
         int prevPoints = -1;
         int prevRank = -1;
-        ArrayList<String> leaderboardStrings = new ArrayList<>();
+        List<String> leaderboardStrings = new ArrayList<>();
         for (int i = 0; i < topNames.size(); i++) {
             if (topPoints.get(i) != prevPoints) {
                 prevRank = i + 1;
