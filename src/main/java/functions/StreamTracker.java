@@ -1,7 +1,6 @@
 package functions;
 
 import com.github.twitch4j.helix.domain.Stream;
-import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.tmi.domain.Chatters;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
@@ -25,20 +24,14 @@ public class StreamTracker {
 
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
-    private final User streamerUser;
     private final ScheduledExecutorService scheduler;
 
     private StreamData streamData;
     private ScheduledFuture<?> scheduledFuture;
 
-    public StreamTracker(DbManager dbManager,
-                         TwitchApi twitchApi,
-                         User streamerUser,
-                         ScheduledExecutorService scheduler
-    ) {
+    public StreamTracker(DbManager dbManager, TwitchApi twitchApi, ScheduledExecutorService scheduler) {
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
-        this.streamerUser = streamerUser;
         this.scheduler = scheduler;
 
         streamData = null;
@@ -51,7 +44,7 @@ public class StreamTracker {
             public void run() {
                 Stream stream;
                 try {
-                    stream = twitchApi.getStream(streamerUser.getLogin());
+                    stream = twitchApi.getStream(twitchApi.getStreamerUser().getLogin());
                 } catch (HystrixRuntimeException e) {
                     e.printStackTrace();
                     System.out.println("Error retrieving stream for StreamTracker, skipping interval");
@@ -76,7 +69,7 @@ public class StreamTracker {
                         return;
                     }
                     if (streamData == null) {
-                        streamData = new StreamData(dbManager, twitchApi, streamerUser);
+                        streamData = new StreamData(dbManager, twitchApi);
                     }
                     streamData.updateUsersMinutes(usersOnline);
                     streamData.updateViewerCounts(stream.getViewerCount());

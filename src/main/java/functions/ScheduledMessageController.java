@@ -3,7 +3,6 @@ package functions;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.common.events.domain.EventUser;
 import com.github.twitch4j.helix.domain.Stream;
-import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.misc.SocialSchedulerDb;
@@ -30,8 +29,6 @@ public class ScheduledMessageController {
     private final TwitchApi twitchApi;
     private final ScheduledExecutorService scheduler;
     private final MessageExpressionParser commandParser;
-    private final User botUser;
-    private final User streamerUser;
     private final int intervalLength;
 
     private boolean running;
@@ -48,15 +45,11 @@ public class ScheduledMessageController {
             TwitchApi twitchApi,
             ScheduledExecutorService scheduler,
             MessageExpressionParser messageExpressionParser,
-            User streamerUser,
-            User botUser,
             int intervalLength
     ) {
         this.twitchApi = twitchApi;
         this.scheduler = scheduler;
         this.commandParser = messageExpressionParser;
-        this.botUser = botUser;
-        this.streamerUser = streamerUser;
         this.intervalLength = intervalLength;
         socialSchedulerDb = dbManager.getSocialSchedulerDb();
         running = false;
@@ -87,7 +80,7 @@ public class ScheduledMessageController {
         if (running) {
             Stream stream;
             try {
-                stream = twitchApi.getStream(streamerUser.getLogin());
+                stream = twitchApi.getStream(twitchApi.getStreamerUser().getLogin());
             } catch (HystrixRuntimeException e) {
                 e.printStackTrace();
                 System.out.println("Error retrieving stream for SocialScheduler");
@@ -132,7 +125,7 @@ public class ScheduledMessageController {
         public void onChannelMessage(ChannelMessageEvent messageEvent) {
             EventUser sender = messageEvent.getUser();
             // chat is active as long as posters aren't the streamer or bot
-            if (!sender.getId().equals(streamerUser.getId()) && !sender.getId().equals(botUser.getId())) {
+            if (!sender.getId().equals(twitchApi.getStreamerUser().getId()) && !sender.getId().equals(twitchApi.getBotUser().getId())) {
                 activeChat = true;
             }
         }

@@ -2,7 +2,6 @@ package listeners.commands.preds;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Stream;
-import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import functions.DiscordBotController;
@@ -33,7 +32,6 @@ public class PredsManagerListener extends CommandBase {
     private final TwitchApi twitchApi;
     private final DiscordBotController discord;
     private final PredsGuessListener predsGuessListener;
-    private final User streamerUser;
 
     private PredsManagerBase predsManager;
 
@@ -42,15 +40,13 @@ public class PredsManagerListener extends CommandBase {
             DbManager dbManager,
             TwitchApi twitchApi,
             DiscordBotController discord,
-            PredsGuessListener predsGuessListener,
-            User streamerUser
+            PredsGuessListener predsGuessListener
     ) {
         super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN_PREDS, PATTERN_PREDS_CANCEL);
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.discord = discord;
         this.predsGuessListener = predsGuessListener;
-        this.streamerUser = streamerUser;
         predsManager = null;
     }
 
@@ -62,7 +58,7 @@ public class PredsManagerListener extends CommandBase {
                     String gameId = "";
                     Stream stream;
                     try {
-                        stream = twitchApi.getStream(streamerUser.getLogin());
+                        stream = twitchApi.getStream(twitchApi.getStreamerUser().getLogin());
                     } catch (HystrixRuntimeException e) {
                         e.printStackTrace();
                         twitchApi.channelMessage("Error retrieving current game");

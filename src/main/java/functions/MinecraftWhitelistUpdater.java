@@ -1,7 +1,6 @@
 package functions;
 
 import com.github.twitch4j.helix.domain.Subscription;
-import com.github.twitch4j.helix.domain.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jcraft.jsch.*;
@@ -31,7 +30,6 @@ public class MinecraftWhitelistUpdater {
     private final JSch jsch = new JSch();
     private final MinecraftUserDb minecraftUserDb;
     private final TwitchApi twitchApi;
-    private final User streamerUser;
     private final ScheduledExecutorService scheduler;
     private final String server;
     private final String user;
@@ -44,7 +42,6 @@ public class MinecraftWhitelistUpdater {
     public MinecraftWhitelistUpdater(
             DbManager dbManager,
             TwitchApi twitchApi,
-            User streamerUser,
             ScheduledExecutorService scheduler,
             String server,
             String user,
@@ -52,7 +49,6 @@ public class MinecraftWhitelistUpdater {
             String whitelistLocation
     ) {
         this.twitchApi = twitchApi;
-        this.streamerUser = streamerUser;
         this.scheduler = scheduler;
         this.server = server;
         this.user = user;
@@ -107,7 +103,7 @@ public class MinecraftWhitelistUpdater {
     private List<Map<String,String>> createWhitelist() throws HystrixRuntimeException {
         List<MinecraftUser> whitelist = new ArrayList<>();
         if (subOnly) {
-            List<Subscription> subList = twitchApi.getSubList(streamerUser.getId());
+            List<Subscription> subList = twitchApi.getSubList(twitchApi.getStreamerUser().getId());
             for (Subscription sub : subList) {
                 MinecraftUser user = minecraftUserDb.getUser(sub.getUserId());
                 if (user != null) {

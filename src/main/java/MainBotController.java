@@ -1,4 +1,3 @@
-import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import functions.*;
 import listeners.channelpoints.DethroneListener;
@@ -36,8 +35,6 @@ public class MainBotController {
     private final DiscordBotController discordBotController;
     private final ChatLogger chatLogger;
     private final TwitchApi twitchApi;
-    private final User botUser;
-    private final User streamerUser;
     private final StreamTracker streamTracker;
     private final MessageExpressionParser messageExpressionParser;
     private final ScheduledMessageController scheduledMessageController;
@@ -69,50 +66,35 @@ public class MainBotController {
                 settings.getTwitchBotAuthToken(),
                 settings.isSilentMode()
         );
-        botUser = twitchApi.getBotUser();
-        if (botUser == null) {
-            out.println("Error retrieving bot user");
-            System.exit(1);
-        }
-        streamerUser = twitchApi.getStreamerUser();
-        if (streamerUser == null) {
-            out.println("Error retrieving streamer user");
-            System.exit(1);
-        }
         streamTracker = new StreamTracker(
                 dbManager,
                 twitchApi,
-                streamerUser,
                 scheduler
         );
-        messageExpressionParser = new MessageExpressionParser(dbManager, twitchApi, streamerUser);
+        messageExpressionParser = new MessageExpressionParser(dbManager, twitchApi);
         scheduledMessageController = new ScheduledMessageController(
                 dbManager,
                 twitchApi,
                 scheduler,
                 messageExpressionParser,
-                streamerUser,
-                botUser,
                 SOCIAL_INTERVAL_LENGTH
         );
         followLogger = new FollowLogger(
                 dbManager,
                 twitchApi,
                 streamTracker,
-                streamerUser,
                 scheduler
         );
         minecraftWhitelistUpdater = new MinecraftWhitelistUpdater(
                 dbManager,
                 twitchApi,
-                streamerUser,
                 scheduler,
                 settings.getMinecraftServer(),
                 settings.getMinecraftUser(),
                 settings.getMinecraftPassword(),
                 settings.getMinecraftWhitelistLocation()
         );
-        subPointUpdater = new SubPointUpdater(twitchApi, streamerUser, settings);
+        subPointUpdater = new SubPointUpdater(twitchApi, settings);
     }
 
     public synchronized void run(long startTime) {
@@ -160,24 +142,23 @@ public class MainBotController {
 //        twitchApi.registerEventListener(new BitWarResetCommandListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new CommandManagerListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new GenericCommandListener(scheduler, messageExpressionParser, dbManager, twitchApi));
-        twitchApi.registerEventListener(new LeaderboardListener(scheduler, dbManager, twitchApi, streamerUser));
+        twitchApi.registerEventListener(new LeaderboardListener(scheduler, dbManager, twitchApi));
         twitchApi.registerEventListener(new MinecraftListener(scheduler, twitchApi, dbManager, minecraftWhitelistUpdater));
 //        twitchApi.registerEventListener(new ModListener(scheduler, twitchApi));
-        twitchApi.registerEventListener(new QuoteListener(scheduler, dbManager, twitchApi, streamerUser));
+        twitchApi.registerEventListener(new QuoteListener(scheduler, dbManager, twitchApi));
         twitchApi.registerEventListener(new PermanentVipListener(scheduler, twitchApi, dbManager));
-        twitchApi.registerEventListener(new PredsManagerListener(
-                scheduler, dbManager, twitchApi, discordBotController, predsGuessListener, streamerUser));
+        twitchApi.registerEventListener(new PredsManagerListener(scheduler, dbManager, twitchApi, discordBotController, predsGuessListener));
         twitchApi.registerEventListener(new ScheduledMessageManagerListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new TattleListener(scheduler, dbManager, twitchApi));
         twitchApi.registerEventListener(new VipRaffleListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new WatchTimeListener(scheduler, twitchApi, dbManager, streamTracker));
-        twitchApi.registerEventListener(new WrListener(scheduler, twitchApi, streamerUser));
+        twitchApi.registerEventListener(new WrListener(scheduler, twitchApi));
         
         twitchApi.registerEventListener(predsGuessListener);
         
         // Channel Point Listeners
-        twitchApi.registerEventListener(new DethroneListener(twitchApi, streamerUser.getId()));
-        twitchApi.registerEventListener(new VipRaffleRewardListener(twitchApi, dbManager, streamerUser));
+        twitchApi.registerEventListener(new DethroneListener(twitchApi));
+        twitchApi.registerEventListener(new VipRaffleRewardListener(twitchApi, dbManager));
 
         // General Listeners
 //        twitchApi.registerEventListener(new BitWarCheerListener(twitchApi, dbManager));

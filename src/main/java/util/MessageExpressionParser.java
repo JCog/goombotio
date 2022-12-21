@@ -68,11 +68,9 @@ public class MessageExpressionParser {
 
     private final CommandDb commandDb;
     private final TwitchApi twitchApi;
-    private final User streamerUser;
 
-    public MessageExpressionParser(DbManager dbManager, TwitchApi twitchApi, User streamerUser) {
+    public MessageExpressionParser(DbManager dbManager, TwitchApi twitchApi) {
         this.twitchApi = twitchApi;
-        this.streamerUser = streamerUser;
         commandDb = dbManager.getCommandDb();
     }
     
@@ -158,7 +156,7 @@ public class MessageExpressionParser {
                 }
             }
             case TYPE_CHANNEL: {
-                return streamerUser.getLogin();
+                return twitchApi.getStreamerUser().getLogin();
             }
             case TYPE_CHOOSE: {
                 if (content.isEmpty()) {
@@ -234,7 +232,7 @@ public class MessageExpressionParser {
             case TYPE_UPTIME: {
                 Stream stream;
                 try {
-                    stream = twitchApi.getStream(streamerUser.getLogin());
+                    stream = twitchApi.getStream(twitchApi.getStreamerUser().getLogin());
                 } catch (HystrixRuntimeException e) {
                     e.printStackTrace();
                     return "error retrieving stream data";
@@ -311,7 +309,7 @@ public class MessageExpressionParser {
         }
         Follow follow;
         try {
-            follow = twitchApi.getFollow(user.getId(), streamerUser.getId());
+            follow = twitchApi.getFollow(user.getId(), twitchApi.getStreamerUser().getId());
         } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             return String.format("Error retrieving follow age for %s", userName);
@@ -328,7 +326,7 @@ public class MessageExpressionParser {
                 return String.format(
                         "%s followed %s today",
                         user.getDisplayName(),
-                        streamerUser.getDisplayName()
+                        twitchApi.getStreamerUser().getDisplayName()
                 );
             }
             StringBuilder timeString = new StringBuilder();
@@ -342,14 +340,14 @@ public class MessageExpressionParser {
             return String.format(
                     "%s has been following %s for %s",
                     user.getDisplayName(),
-                    streamerUser.getDisplayName(),
+                    twitchApi.getStreamerUser().getDisplayName(),
                     timeString
             );
         } else {
             return String.format(
                     "%s is not following %s",
                     user.getDisplayName(),
-                    streamerUser.getDisplayName()
+                    twitchApi.getStreamerUser().getDisplayName()
             );
         }
     }

@@ -2,7 +2,6 @@ package listeners.commands;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Stream;
-import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
@@ -24,23 +23,20 @@ public class WrListener extends CommandBase {
     private static final String GAME_ID_OOT = "11557";
 
     private final TwitchApi twitchApi;
-    private final User streamerUser;
 
     public WrListener(
             ScheduledExecutorService scheduler,
-            TwitchApi twitchApi,
-            User streamerUser
+            TwitchApi twitchApi
     ) {
         super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN);
         this.twitchApi = twitchApi;
-        this.streamerUser = streamerUser;
     }
 
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         Stream stream;
         try {
-            stream = twitchApi.getStream(streamerUser.getLogin());
+            stream = twitchApi.getStream(twitchApi.getStreamerUser().getLogin());
         } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             twitchApi.channelMessage("Error retrieving stream data");

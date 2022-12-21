@@ -1,7 +1,6 @@
 package listeners.commands.quotes;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.github.twitch4j.helix.domain.User;
 import database.DbManager;
 import database.misc.QuoteDb;
 import listeners.commands.CommandBase;
@@ -36,13 +35,11 @@ public class QuoteListener extends CommandBase {
     private final QuoteDb quoteDb;
     private final Random random;
     private final QuoteUndoEngine quoteUndoEngine;
-    private final User streamerUser;
 
     public QuoteListener(
             ScheduledExecutorService scheduler,
             DbManager dbManager,
-            TwitchApi twitchApi,
-            User streamerUser
+            TwitchApi twitchApi
     ) {
         super(
                 scheduler,
@@ -58,7 +55,6 @@ public class QuoteListener extends CommandBase {
                 PATTERN_REDO_QUOTE
         );
         this.twitchApi = twitchApi;
-        this.streamerUser = streamerUser;
         quoteDb = dbManager.getQuoteDb();
         random = new Random();
         quoteUndoEngine = new QuoteUndoEngine(twitchApi, quoteDb);
@@ -105,7 +101,7 @@ public class QuoteListener extends CommandBase {
             case PATTERN_ADD_QUOTE: {
                 if (userLevel.value >= USER_LEVEL.VIP.value) {
                     //only allow VIPs to add quotes if the stream is live
-                    if (userLevel.value == USER_LEVEL.VIP.value && twitchApi.getStream(streamerUser.getLogin()) == null) {
+                    if (userLevel.value == USER_LEVEL.VIP.value && twitchApi.getStream(twitchApi.getStreamerUser().getLogin()) == null) {
                         twitchApi.channelMessage(ERROR_NOT_LIVE);
                         break;
                     }

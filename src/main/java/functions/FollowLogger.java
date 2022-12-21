@@ -25,7 +25,6 @@ public class FollowLogger {
     private final WatchTimeDb watchTimeDb;
     private final TwitchApi twitchApi;
     private final StreamTracker streamTracker;
-    private final User streamerUser;
     private final ScheduledExecutorService scheduler;
 
     private Set<String> oldFollowerIdList;
@@ -36,12 +35,10 @@ public class FollowLogger {
             DbManager dbManager,
             TwitchApi twitchApi,
             StreamTracker streamTracker,
-            User streamerUser,
             ScheduledExecutorService scheduler
     ) {
         this.twitchApi = twitchApi;
         this.streamTracker = streamTracker;
-        this.streamerUser = streamerUser;
         this.scheduler = scheduler;
         watchTimeDb = dbManager.getWatchTimeDb();
 
@@ -157,7 +154,7 @@ public class FollowLogger {
     }
 
     private Set<String> fetchFollowerIds() throws HystrixRuntimeException {
-        List<Follow> followers = twitchApi.getFollowers(streamerUser.getId());
+        List<Follow> followers = twitchApi.getFollowers(twitchApi.getStreamerUser().getId());
         Set<String> followerIds = new HashSet<>();
         for (Follow follow : followers) {
             followerIds.add(follow.getFromId());

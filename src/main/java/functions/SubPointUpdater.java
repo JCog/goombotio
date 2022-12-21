@@ -1,6 +1,5 @@
 package functions;
 
-import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.apache.commons.lang.SystemUtils;
 import util.FileWriter;
@@ -18,15 +17,13 @@ public class SubPointUpdater {
     private static final int INTERVAL = 60 * 1000;
     
     private final Timer timer = new Timer();
-    private final User streamerUser;
     private final TwitchApi twitchApi;
     private final Settings settings;
     
     private int subPoints;
     
-    public SubPointUpdater(TwitchApi twitchApi, User streamerUser, Settings settings) {
+    public SubPointUpdater(TwitchApi twitchApi, Settings settings) {
         this.twitchApi = twitchApi;
-        this.streamerUser = streamerUser;
         this.settings = settings;
         subPoints = 0;
     }
@@ -47,7 +44,7 @@ public class SubPointUpdater {
     
     private void updateSubTierCounts() {
         try {
-            subPoints = twitchApi.getSubPoints(streamerUser.getId());
+            subPoints = twitchApi.getSubPoints(twitchApi.getStreamerUser().getId());
         } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             out.println("Failed to get sub points. Will try again at next interval");

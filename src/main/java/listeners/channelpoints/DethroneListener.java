@@ -16,13 +16,10 @@ public class DethroneListener implements TwitchEventListener {
     private static final String DETHRONE_REWARD_TITLE = "Dethrone";
     private static final String DETHRONE_REWARD_PROMPT = " currently sits on the throne. Redeem this to take their spot and increase the cost for the next person!";
     
-    
     private final TwitchApi twitchApi;
-    private final String streamerId;
     
-    public DethroneListener(TwitchApi twitchApi, String streamerId) {
+    public DethroneListener(TwitchApi twitchApi) {
         this.twitchApi = twitchApi;
-        this.streamerId = streamerId;
     }
     
     @Override
@@ -39,7 +36,7 @@ public class DethroneListener implements TwitchEventListener {
         CustomReward customReward;
         try {
             customReward = twitchApi.getCustomRewards(
-                    streamerId,
+                    twitchApi.getStreamerUser().getId(),
                     Collections.singletonList(channelPointsReward.getId()),
                     true
             ).get(0);
@@ -58,7 +55,7 @@ public class DethroneListener implements TwitchEventListener {
                 .withPrompt(newUser + DETHRONE_REWARD_PROMPT);
         boolean success;
         try {
-            twitchApi.updateCustomReward(streamerId, channelPointsReward.getId(), newReward);
+            twitchApi.updateCustomReward(twitchApi.getStreamerUser().getId(), channelPointsReward.getId(), newReward);
             success = true;
         } catch (HystrixRuntimeException e) {
             success = false;
@@ -68,7 +65,7 @@ public class DethroneListener implements TwitchEventListener {
         
         try {
             twitchApi.updateRedemptionStatus(
-                    streamerId,
+                    twitchApi.getStreamerUser().getId(),
                     channelPointsReward.getId(),
                     Collections.singletonList(event.getRedemption().getId()),
                     success ? RedemptionStatus.FULFILLED : RedemptionStatus.CANCELED

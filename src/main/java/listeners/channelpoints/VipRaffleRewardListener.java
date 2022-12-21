@@ -2,7 +2,6 @@ package listeners.channelpoints;
 
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
 import com.github.twitch4j.helix.domain.Moderator;
-import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.pubsub.domain.ChannelPointsReward;
 import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -26,13 +25,11 @@ public class VipRaffleRewardListener implements TwitchEventListener {
     private final TwitchApi twitchApi;
     private final PermanentVipsDb permanentVipsDb;
     private final VipRaffleDb vipRaffleDb;
-    private final User streamerUser;
     
-    public VipRaffleRewardListener(TwitchApi twitchApi, DbManager dbManager, User streamerUser) {
+    public VipRaffleRewardListener(TwitchApi twitchApi, DbManager dbManager) {
         this.twitchApi = twitchApi;
         this.permanentVipsDb = dbManager.getPermanentVipsDb();
         this.vipRaffleDb = dbManager.getVipRaffleDb();
-        this.streamerUser = streamerUser;
     }
     
     @Override
@@ -47,14 +44,14 @@ public class VipRaffleRewardListener implements TwitchEventListener {
     private void handleRaffleEntryAddition(RewardRedeemedEvent event) {
         String userId = event.getRedemption().getUser().getId();
         String displayName = event.getRedemption().getUser().getDisplayName();
-        Set<String> modIds = twitchApi.getMods(streamerUser.getId())
+        Set<String> modIds = twitchApi.getMods(twitchApi.getStreamerUser().getId())
                 .stream()
                 .map(Moderator::getUserId)
                 .collect(Collectors.toSet());
     
         boolean shouldFulfill;
         // mods, permanent VIPs, and the streamer are all ineligible for the VIP raffle
-        if (modIds.contains(userId) || permanentVipsDb.isPermanentVip(userId) || userId.equals(streamerUser.getId())) {
+        if (modIds.contains(userId) || permanentVipsDb.isPermanentVip(userId) || userId.equals(twitchApi.getStreamerUser().getId())) {
             twitchApi.channelMessage(String.format(
                     "@%s You're not eligible for the VIP raffle. Your points will be refunded.",
                     displayName

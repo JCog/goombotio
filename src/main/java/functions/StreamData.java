@@ -22,19 +22,17 @@ public class StreamData {
     private final StreamStatsDb streamStatsDb;
     private final WatchTimeDb watchTimeDb;
     private final TwitchApi twitchApi;
-    private final User streamerUser;
     private final Date startTime;
 
     private Date endTime;
 
-    public StreamData(DbManager dbManager, TwitchApi twitchApi, User streamerUser) {
+    public StreamData(DbManager dbManager, TwitchApi twitchApi) {
         this.twitchApi = twitchApi;
-        this.streamerUser = streamerUser;
         streamStatsDb = dbManager.getStreamStatsDb();
         watchTimeDb = dbManager.getWatchTimeDb();
 
         out.println("---------------------");
-        out.println(streamerUser.getDisplayName() + " is now live.");
+        out.println(twitchApi.getStreamerUser().getDisplayName() + " is now live.");
         out.println("---------------------");
         startTime = new Date();
     }
@@ -52,7 +50,7 @@ public class StreamData {
 
     public void endStream() {
         out.println("---------------------");
-        out.println(streamerUser.getDisplayName() + " has gone offline.");
+        out.println(twitchApi.getStreamerUser().getDisplayName() + " has gone offline.");
         out.println("---------------------");
         endTime = new Date();
 

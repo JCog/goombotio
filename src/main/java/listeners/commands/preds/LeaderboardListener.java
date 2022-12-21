@@ -2,7 +2,6 @@ package listeners.commands.preds;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Stream;
-import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.preds.PredsLeaderboardDbBase;
@@ -49,15 +48,13 @@ public class LeaderboardListener extends CommandBase {
 
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
-    private final User streamerUser;
 
     private PredsLeaderboardDbBase leaderboard;
 
     public LeaderboardListener(
             ScheduledExecutorService scheduler,
             DbManager dbManager,
-            TwitchApi twitchApi,
-            User streamerUser
+            TwitchApi twitchApi
     ) {
         super(
                 scheduler,
@@ -72,7 +69,6 @@ public class LeaderboardListener extends CommandBase {
         );
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
-        this.streamerUser = streamerUser;
         updateLeaderboardType();
     }
 
@@ -142,7 +138,7 @@ public class LeaderboardListener extends CommandBase {
     private String getGameId() {
         Stream stream;
         try {
-            stream = twitchApi.getStream(streamerUser.getLogin());
+            stream = twitchApi.getStream(twitchApi.getStreamerUser().getLogin());
         } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             System.out.println("Error retrieving stream data");
