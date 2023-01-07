@@ -34,8 +34,14 @@ public class VipRaffleListener extends CommandBase {
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         if (userLevel == USER_LEVEL.BROADCASTER) {
-            List<String> ids = performRaffle(new LinkedList<>(vipRaffleDb.getAllVipRaffleItemsCurrentMonth()));
-            List<User> winners = twitchApi.getUserListByIds(ids);
+            LinkedList<VipRaffleItem> vipRaffleItems = new LinkedList<>(vipRaffleDb.getAllVipRaffleItemsPrevMonth());
+            int i = 1;
+            for (VipRaffleItem raffleItem : vipRaffleItems) {
+                System.out.printf("%d. %s (%d)%n", i++, raffleItem.getDisplayName(), raffleItem.getEntryCount());
+            }
+            
+            List<String> ids = performRaffle(vipRaffleItems);
+            List<User> winners = twitchApi.getUserListByIds(ids); // usernames may have changed
             twitchApi.channelMessage(String.format(
                     "The winners of the raffle are %s, %s, %s, %s, and %s. Congrats on winning VIP for the month! jcogChamp",
                     winners.get(0).getDisplayName(),
@@ -44,6 +50,7 @@ public class VipRaffleListener extends CommandBase {
                     winners.get(3).getDisplayName(),
                     winners.get(4).getDisplayName()
             ));
+            
             for (User winner : winners) {
                 System.out.printf("/vip %s%n", winner.getDisplayName());
             }

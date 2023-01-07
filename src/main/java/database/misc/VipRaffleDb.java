@@ -1,6 +1,7 @@
 package database.misc;
 
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.model.Sorts;
 import database.GbCollection;
 import database.GbDatabase;
 import org.bson.Document;
@@ -60,12 +61,16 @@ public class VipRaffleDb extends GbCollection {
     }
     
     public List<VipRaffleItem> getAllVipRaffleItems(int year, int month) {
-        FindIterable<Document> documents = findAll();
-        List<VipRaffleItem> vipRaffleItems = new ArrayList<>();
         String monthlyEntriesKey = getMonthlyEntriesKey(year, month);
+        FindIterable<Document> documents = findAll().sort(Sorts.descending(monthlyEntriesKey));
+        List<VipRaffleItem> vipRaffleItems = new ArrayList<>();
         for (Document document : documents) {
             if (document.containsKey(monthlyEntriesKey)) {
-                vipRaffleItems.add(new VipRaffleItem(document.getString(ID_KEY), document.getInteger(monthlyEntriesKey)));
+                vipRaffleItems.add(new VipRaffleItem(
+                        document.getString(ID_KEY),
+                        document.getString(NAME_KEY),
+                        document.getInteger(monthlyEntriesKey)
+                ));
             }
         }
         return vipRaffleItems;
@@ -75,7 +80,11 @@ public class VipRaffleDb extends GbCollection {
     public VipRaffleItem getVipRaffleItem(String twitchId) {
         Document result = getVipRaffleDocument(twitchId);
         if (result != null) {
-            return new VipRaffleItem(result.getString(ID_KEY), result.getInteger(getMonthlyEntriesKey()));
+            return new VipRaffleItem(
+                    result.getString(ID_KEY),
+                    result.getString(NAME_KEY),
+                    result.getInteger(getMonthlyEntriesKey())
+            );
         }
         return null;
     }
@@ -84,7 +93,11 @@ public class VipRaffleDb extends GbCollection {
     public VipRaffleItem getVipRaffleItem(String twitchId, int year, int month) {
         Document result = getVipRaffleDocument(twitchId);
         if (result != null) {
-            return new VipRaffleItem(result.getString(ID_KEY), result.getInteger(getMonthlyEntriesKey(year, month)));
+            return new VipRaffleItem(
+                    result.getString(ID_KEY),
+                    result.getString(NAME_KEY),
+                    result.getInteger(getMonthlyEntriesKey(year, month))
+            );
         }
         return null;
     }
@@ -104,10 +117,12 @@ public class VipRaffleDb extends GbCollection {
     
     public static class VipRaffleItem {
         private final String twitchId;
+        private final String displayName;
         private final int entryCount;
         
-        public VipRaffleItem(String twitchId, int entryCount) {
+        public VipRaffleItem(String twitchId, String displayName, int entryCount) {
             this.twitchId = twitchId;
+            this.displayName = displayName;
             this.entryCount = entryCount;
         }
         
@@ -115,6 +130,10 @@ public class VipRaffleDb extends GbCollection {
             return twitchId;
         }
         
+        public String getDisplayName() {
+            return displayName;
+        }
+    
         public int getEntryCount() {
             return entryCount;
         }
