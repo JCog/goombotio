@@ -29,6 +29,7 @@ public class BadgeShopPredsManager extends PredsManagerBase {
     private static final int REWARD_3_CORRECT = 20;
     private static final int REWARD_2_CORRECT = 5;
     private static final int REWARD_1_CORRECT = 2;
+    private static final int REWARD_WRONG_ORDER = 2;
     private static final int REWARD_0_CORRECT = 1;
     private static final Set<String> BADGE_CHOICES = new HashSet<>(Arrays.asList(
             "badspin1",
@@ -233,7 +234,7 @@ public class BadgeShopPredsManager extends PredsManagerBase {
                 out.printf("%s guessed 1 correctly. Adding %d point.%n", displayName, POINTS_1);
             } else if (answerSet.equals(guessSet)) {
                 badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_WRONG_ORDER);
-                vipRaffleEntries = REWARD_0_CORRECT;
+                vipRaffleEntries = REWARD_WRONG_ORDER;
                 out.printf("%s guessed 0 correctly, but got all 3 badges. Adding %d point.%n",
                         displayName, POINTS_WRONG_ORDER);
             } else {
