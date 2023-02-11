@@ -260,6 +260,7 @@ public class BadgeShopPredsManager extends PredsManagerBase {
             subList = twitchApi.getSubList(twitchApi.getStreamerUser().getId())
                     .stream()
                     .map(Subscription::getUserLogin)
+                    .map(String::toLowerCase)
                     .collect(Collectors.toList());
         } catch (HystrixRuntimeException e) {
             out.println("Unable to get sub status of winners.");
