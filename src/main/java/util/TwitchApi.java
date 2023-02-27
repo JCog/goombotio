@@ -24,7 +24,8 @@ import java.util.*;
 import static java.lang.System.out;
 
 public class TwitchApi {
-    private final String authToken;
+    private final String channelAuthToken;
+    private final String botAuthToken;
     private final TwitchClient twitchClient;
     private final User streamerUser;
     private final User botUser;
@@ -42,7 +43,8 @@ public class TwitchApi {
     ) {
         out.printf("Establishing Twitch connection (channel=%s, chat=%s)... ", streamerUsername, botUsername);
         this.chatLogger = chatLogger;
-        this.authToken = channelAuthToken;
+        this.channelAuthToken = channelAuthToken;
+        this.botAuthToken = botAuthToken;
         this.silentChat = silentChat;
         
         OAuth2Credential oauth = new OAuth2Credential("twitch", channelAuthToken);
@@ -124,11 +126,21 @@ public class TwitchApi {
      * @param message message to send
      */
     public void channelAnnouncement(String message) {
+        channelAnnouncement(message, AnnouncementColor.PRIMARY);
+    }
+    
+    public void channelAnnouncement(String message, AnnouncementColor color) {
         String output = message.trim();
         if (output.isEmpty()) {
             return;
         }
-        sendMessage("/announce " + output);
+        twitchClient.getHelix().sendChatAnnouncement(
+                botAuthToken,
+                streamerUser.getId(),
+                botUser.getId(),
+                output,
+                AnnouncementColor.PRIMARY
+        ).execute();
     }
     
     private void sendMessage(String message) {
@@ -151,7 +163,7 @@ public class TwitchApi {
     @Nullable
     public Clip getClipById(String id) throws HystrixRuntimeException {
         ClipList clipList = twitchClient.getHelix().getClips(
-                authToken,
+                channelAuthToken,
                 null,
                 null,
                 id,
@@ -170,7 +182,7 @@ public class TwitchApi {
     @Nullable
     public Follow getFollow(String fromId, String toId) throws HystrixRuntimeException {
         FollowList followList = twitchClient.getHelix().getFollowers(
-                authToken,
+                channelAuthToken,
                 fromId,
                 toId,
                 null,
@@ -184,7 +196,7 @@ public class TwitchApi {
 
     public int getFollowerCount(String userId) throws HystrixRuntimeException {
         FollowList followList = twitchClient.getHelix().getFollowers(
-                authToken,
+                channelAuthToken,
                 null,
                 userId,
                 null,
@@ -199,7 +211,7 @@ public class TwitchApi {
 
         do {
             FollowList followList = twitchClient.getHelix().getFollowers(
-                    authToken,
+                    channelAuthToken,
                     null,
                     userId,
                     cursor,
@@ -217,7 +229,7 @@ public class TwitchApi {
 
         do {
             FollowList followList = twitchClient.getHelix().getFollowers(
-                    authToken,
+                    channelAuthToken,
                     userId,
                     null,
                     cursor,
@@ -232,7 +244,7 @@ public class TwitchApi {
     @Nullable
     public Game getGameById(String gameId) throws HystrixRuntimeException {
         GameList gameList = twitchClient.getHelix().getGames(
-                authToken,
+                channelAuthToken,
                 Collections.singletonList(gameId),
                 null
         ).execute();
@@ -245,7 +257,7 @@ public class TwitchApi {
     @Nullable
     public Game getGameByName(String name) throws HystrixRuntimeException {
         GameList gameList = twitchClient.getHelix().getGames(
-                authToken,
+                channelAuthToken,
                 null,
                 Collections.singletonList(name)
         ).execute();
@@ -261,7 +273,7 @@ public class TwitchApi {
 
         do {
             ModeratorList moderatorList = twitchClient.getHelix().getModerators(
-                    authToken,
+                    channelAuthToken,
                     userId,
                     null,
                     cursor,
@@ -276,7 +288,7 @@ public class TwitchApi {
     @Nullable
     public Stream getStream(String streamer) throws HystrixRuntimeException {
         StreamList streamList = twitchClient.getHelix().getStreams(
-                authToken,
+                channelAuthToken,
                 "",
                 "",
                 1,
@@ -296,7 +308,7 @@ public class TwitchApi {
 
         do {
             SubscriptionList subscriptionList = twitchClient.getHelix().getSubscriptions(
-                    authToken,
+                    channelAuthToken,
                     userId,
                     cursor,
                     null,
@@ -310,7 +322,7 @@ public class TwitchApi {
     
     public int getSubPoints(String userId) throws HystrixRuntimeException {
         SubscriptionList subscriptionList = twitchClient.getHelix().getSubscriptions(
-                authToken,
+                channelAuthToken,
                 userId,
                 null,
                 null,
@@ -322,7 +334,7 @@ public class TwitchApi {
     @Nullable
     public User getUserById(String userId) throws HystrixRuntimeException {
         UserList userList = twitchClient.getHelix().getUsers(
-                authToken,
+                channelAuthToken,
                 Collections.singletonList(userId),
                 null
         ).execute();
@@ -335,7 +347,7 @@ public class TwitchApi {
     @Nullable
     public User getUserByUsername(String username) throws HystrixRuntimeException {
         UserList userList = twitchClient.getHelix().getUsers(
-                authToken,
+                channelAuthToken,
                 null,
                 Collections.singletonList(username)
         ).execute();
@@ -354,7 +366,7 @@ public class TwitchApi {
                 usersHundred.add(iterator.next());
             }
             UserList resultList = twitchClient.getHelix().getUsers(
-                    authToken,
+                    channelAuthToken,
                     usersHundred,
                     null
             ).execute();
@@ -373,7 +385,7 @@ public class TwitchApi {
                 usersHundred.add(iterator.next());
             }
             UserList resultList = twitchClient.getHelix().getUsers(
-                    authToken,
+                    channelAuthToken,
                     null,
                     usersHundred
             ).execute();
@@ -386,7 +398,7 @@ public class TwitchApi {
     @Nullable
     public Video getVideoById(String videoId) throws HystrixRuntimeException {
         VideoList videoList = twitchClient.getHelix().getVideos(
-                authToken,
+                channelAuthToken,
                 videoId,
                 null,
                 null,
@@ -407,20 +419,20 @@ public class TwitchApi {
     ///////////////////////////// Channel Points /////////////////////////////
     
     public CustomReward createCustomReward(String broadcasterId, CustomReward customReward) throws  HystrixRuntimeException {
-        CustomRewardList customRewardList = twitchClient.getHelix().createCustomReward(authToken, broadcasterId, customReward).execute();
+        CustomRewardList customRewardList = twitchClient.getHelix().createCustomReward(channelAuthToken, broadcasterId, customReward).execute();
         return customRewardList.getRewards().get(0);
     }
     
     public void deleteCustomReward(String broadcasterId, String rewardId) throws HystrixRuntimeException {
-        twitchClient.getHelix().deleteCustomReward(authToken, broadcasterId, rewardId).execute();
+        twitchClient.getHelix().deleteCustomReward(channelAuthToken, broadcasterId, rewardId).execute();
     }
     
     public List<CustomReward> getCustomRewards(String broadcasterId, Collection<String> rewardIds, Boolean onlyManageableRewards) throws HystrixRuntimeException {
-        return twitchClient.getHelix().getCustomRewards(authToken, broadcasterId, rewardIds, onlyManageableRewards).execute().getRewards();
+        return twitchClient.getHelix().getCustomRewards(channelAuthToken, broadcasterId, rewardIds, onlyManageableRewards).execute().getRewards();
     }
     
     public CustomReward updateCustomReward(String broadcasterId, String rewardId, CustomReward updatedReward) throws  HystrixRuntimeException {
-        CustomRewardList customRewardList = twitchClient.getHelix().updateCustomReward(authToken, broadcasterId, rewardId, updatedReward).execute();
+        CustomRewardList customRewardList = twitchClient.getHelix().updateCustomReward(channelAuthToken, broadcasterId, rewardId, updatedReward).execute();
         return customRewardList.getRewards().get(0);
     }
     
@@ -430,7 +442,7 @@ public class TwitchApi {
     
         do {
             CustomRewardRedemptionList redemptionList = twitchClient.getHelix().getCustomRewardRedemption(
-                    authToken,
+                    channelAuthToken,
                     broadcasterId,
                     rewardId,
                     redemptionIds,
@@ -446,7 +458,7 @@ public class TwitchApi {
     }
     
     public void updateRedemptionStatus(String broadcasterId, String rewardId, Collection<String> redemptionIds, RedemptionStatus newStatus) throws HystrixRuntimeException {
-        CustomRewardRedemptionList redemptionList = twitchClient.getHelix().updateRedemptionStatus(authToken, broadcasterId, rewardId, redemptionIds, newStatus).execute();
+        CustomRewardRedemptionList redemptionList = twitchClient.getHelix().updateRedemptionStatus(channelAuthToken, broadcasterId, rewardId, redemptionIds, newStatus).execute();
         for (CustomRewardRedemption redemption : redemptionList.getRedemptions()) {
             out.printf("Custom reward redemption \"%s\" has been %s for %s%n",
                     redemption.getReward().getTitle(),

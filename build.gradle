@@ -28,7 +28,7 @@ dependencies {
     implementation group: 'com.squareup.retrofit2', name: 'retrofit', version: '2.9.0'
     implementation group: 'com.google.code.gson', name: 'gson', version: '2.10'
     implementation group: 'org.slf4j', name: 'slf4j-nop', version: '2.0.5'
-    implementation group: 'com.github.twitch4j', name: 'twitch4j', version: '1.12.0'
+    implementation group: 'com.github.twitch4j', name: 'twitch4j', version: '1.14.0'
     implementation group: 'org.twitter4j', name: 'twitter4j-core', version: '4.0.7' // outdated but has breaking changes
     implementation group: 'org.ini4j', name: 'ini4j', version: '0.5.4'
     implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
