@@ -53,9 +53,14 @@ public class VipRaffleDb extends GbCollection {
     
     public List<VipRaffleItem> getAllVipRaffleItemsPrevMonth() {
         Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR) - 1;
+        int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
-        month = (month == Calendar.JANUARY) ? Calendar.DECEMBER : month - 1;
+        if (month == Calendar.JANUARY) {
+            year--;
+            month = Calendar.DECEMBER;
+        } else {
+            month--;
+        }
         
         return getAllVipRaffleItems(year, month);
     }
