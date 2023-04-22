@@ -14,7 +14,6 @@ import com.github.twitch4j.pubsub.events.ChannelBitsEvent;
 import com.github.twitch4j.pubsub.events.ChannelSubGiftEvent;
 import com.github.twitch4j.pubsub.events.ChannelSubscribeEvent;
 import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
-import com.github.twitch4j.tmi.domain.Chatters;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import listeners.TwitchEventListener;
 import org.jetbrains.annotations.Nullable;
@@ -154,11 +153,23 @@ public class TwitchApi {
     
     //////////////////////////////////////////////////////////////////////////
     
-    public Chatters getChatters() throws HystrixRuntimeException {
-        return twitchClient.getMessagingInterface().getChatters(streamerUser.getLogin()).execute();
+    public List<Chatter> getChatters() throws HystrixRuntimeException {
+        String cursor = null;
+        List<Chatter> chattersOutput = new ArrayList<>();
+        
+        do {
+            ChattersList followList = twitchClient.getHelix().getChatters(
+                    channelAuthToken,
+                    streamerUser.getId(),
+                    streamerUser.getId(),
+                    1000,
+                    cursor
+            ).execute();
+            cursor = followList.getPagination().getCursor();
+            chattersOutput.addAll(followList.getChatters());
+        } while (cursor != null);
+        return chattersOutput;
     }
-    
-    //////////////////////////////////////////////////////////////////////////
     
     @Nullable
     public Clip getClipById(String id) throws HystrixRuntimeException {

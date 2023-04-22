@@ -1,17 +1,14 @@
 package functions;
 
+import com.github.twitch4j.helix.domain.Chatter;
 import com.github.twitch4j.helix.domain.Stream;
-import com.github.twitch4j.tmi.domain.Chatters;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import util.ReportBuilder;
 import util.TwitchApi;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +36,7 @@ public class StreamTracker {
 
     public void start() {
 
+        //TODO: make this use userIds instead of just userLogin
         scheduledFuture = scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -50,7 +48,7 @@ public class StreamTracker {
                     System.out.println("Error retrieving stream for StreamTracker, skipping interval");
                     return;
                 }
-                Chatters chatters;
+                List<Chatter> chatters;
                 try {
                     chatters = twitchApi.getChatters();
                 } catch (HystrixRuntimeException e) {
@@ -60,9 +58,9 @@ public class StreamTracker {
                 }
                 if (stream != null) {
                     Set<String> usersOnline = new HashSet<>();
-                    for (String user : chatters.getAllViewers()) {
-                        if (!blacklist.contains(user)) {
-                            usersOnline.add(user);
+                    for (Chatter user : chatters) {
+                        if (!blacklist.contains(user.getUserLogin())) {
+                            usersOnline.add(user.getUserLogin());
                         }
                     }
                     if (usersOnline.isEmpty()) {
