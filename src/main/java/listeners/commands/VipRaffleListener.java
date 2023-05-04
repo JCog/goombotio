@@ -1,7 +1,10 @@
 package listeners.commands;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.helix.domain.Follow;
+import com.github.twitch4j.helix.domain.Moderator;
 import com.github.twitch4j.helix.domain.User;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.misc.VipRaffleDb;
 import listeners.TwitchEventListener;
@@ -13,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 
 import static database.misc.VipRaffleDb.VipRaffleItem;
 
@@ -34,7 +38,29 @@ public class VipRaffleListener extends CommandBase {
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         if (userLevel == USER_LEVEL.BROADCASTER) {
-            LinkedList<VipRaffleItem> vipRaffleItems = new LinkedList<>(vipRaffleDb.getAllVipRaffleItemsPrevMonth());
+            twitchApi.channelMessage("Performing VIP raffle...");
+            List<Follow> followList;
+            List<Moderator> modList;
+            try {
+                followList = twitchApi.getFollowers(twitchApi.getStreamerUser().getId());
+                modList = twitchApi.getMods(twitchApi.getStreamerUser().getId());
+            } catch (HystrixRuntimeException e) {
+                twitchApi.channelMessage("Twitch API error, please try again.");
+                return;
+            }
+            List<String> followListIds = followList.stream()
+                    .map(Follow::getFromId)
+                    .collect(Collectors.toList());
+            List<String> modListIds = modList.stream()
+                    .map(Moderator::getUserId)
+                    .collect(Collectors.toList());
+            
+            // filter out non-followers and mods
+            List<VipRaffleItem> vipRaffleItems = new LinkedList<>(vipRaffleDb.getAllVipRaffleItemsPrevMonth())
+                    .stream()
+                    .filter(x -> followListIds.contains(x.getTwitchId()))
+                    .filter(x -> !modListIds.contains(x.getTwitchId()))
+                    .collect(Collectors.toList());
             int i = 1;
             for (VipRaffleItem raffleItem : vipRaffleItems) {
                 System.out.printf("%d. %s (%d)%n", i++, raffleItem.getDisplayName(), raffleItem.getEntryCount());
