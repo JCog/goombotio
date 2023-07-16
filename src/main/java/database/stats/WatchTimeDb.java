@@ -106,6 +106,26 @@ public class WatchTimeDb extends GbCollection {
         }
         return 0;
     }
+    
+    public int getMonthlyMinutesByUsername(String username) {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        return getMonthlyMinutesByUsername(username, year, month);
+    }
+    public int getMonthlyMinutesByUsername(String username, int year, int month) {
+        String userLower = username.toLowerCase();
+        String monthlyMinutesKey = getMonthlyMinutesKey(year, month);
+        
+        Document result = findFirstEquals(NAME_KEY, userLower);
+        if (result != null) {
+            Integer minutes = result.getInteger(monthlyMinutesKey);
+            if (minutes != null) {
+                return minutes;
+            }
+        }
+        return 0;
+    }
 
     @Nullable
     public Date getFirstSeenByUsername(String username) {
