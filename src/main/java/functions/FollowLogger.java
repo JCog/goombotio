@@ -1,6 +1,6 @@
 package functions;
 
-import com.github.twitch4j.helix.domain.Follow;
+import com.github.twitch4j.helix.domain.InboundFollow;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
@@ -154,10 +154,10 @@ public class FollowLogger {
     }
 
     private Set<String> fetchFollowerIds() throws HystrixRuntimeException {
-        List<Follow> followers = twitchApi.getFollowers(twitchApi.getStreamerUser().getId());
+        List<InboundFollow> followers = twitchApi.getChannelFollowers(twitchApi.getStreamerUser().getId());
         Set<String> followerIds = new HashSet<>();
-        for (Follow follow : followers) {
-            followerIds.add(follow.getFromId());
+        for (InboundFollow follow : followers) {
+            followerIds.add(follow.getUserId());
         }
         return followerIds;
     }

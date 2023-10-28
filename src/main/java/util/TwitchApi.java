@@ -216,17 +216,17 @@ public class TwitchApi {
         return followList.getTotal();
     }
 
-    public List<Follow> getFollowers(String userId) throws HystrixRuntimeException {
+    public List<InboundFollow> getChannelFollowers(String userId) throws HystrixRuntimeException {
         String cursor = null;
-        List<Follow> followsOutput = new ArrayList<>();
+        List<InboundFollow> followsOutput = new ArrayList<>();
 
         do {
-            FollowList followList = twitchClient.getHelix().getFollowers(
+            InboundFollowers followList = twitchClient.getHelix().getChannelFollowers(
                     channelAuthToken,
-                    null,
                     userId,
-                    cursor,
-                    100
+                    null,
+                    100,
+                    cursor
             ).execute();
             cursor = followList.getPagination().getCursor();
             followsOutput.addAll(followList.getFollows());
@@ -234,17 +234,17 @@ public class TwitchApi {
         return followsOutput;
     }
 
-    public List<Follow> getFollowList(String userId) throws HystrixRuntimeException {
+    public List<OutboundFollow> getFollowedChannels(String userId) throws HystrixRuntimeException {
         String cursor = null;
-        List<Follow> followsOutput = new ArrayList<>();
+        List<OutboundFollow> followsOutput = new ArrayList<>();
 
         do {
-            FollowList followList = twitchClient.getHelix().getFollowers(
+            OutboundFollowing followList = twitchClient.getHelix().getFollowedChannels(
                     channelAuthToken,
                     userId,
                     null,
-                    cursor,
-                    100
+                    100,
+                    cursor
             ).execute();
             cursor = followList.getPagination().getCursor();
             followsOutput.addAll(followList.getFollows());

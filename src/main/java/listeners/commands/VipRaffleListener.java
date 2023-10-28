@@ -1,7 +1,7 @@
 package listeners.commands;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.github.twitch4j.helix.domain.Follow;
+import com.github.twitch4j.helix.domain.InboundFollow;
 import com.github.twitch4j.helix.domain.Moderator;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -39,17 +39,17 @@ public class VipRaffleListener extends CommandBase {
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         if (userLevel == USER_LEVEL.BROADCASTER) {
             twitchApi.channelMessage("Performing VIP raffle...");
-            List<Follow> followList;
+            List<InboundFollow> followList;
             List<Moderator> modList;
             try {
-                followList = twitchApi.getFollowers(twitchApi.getStreamerUser().getId());
+                followList = twitchApi.getChannelFollowers(twitchApi.getStreamerUser().getId());
                 modList = twitchApi.getMods(twitchApi.getStreamerUser().getId());
             } catch (HystrixRuntimeException e) {
                 twitchApi.channelMessage("Twitch API error, please try again.");
                 return;
             }
             List<String> followListIds = followList.stream()
-                    .map(Follow::getFromId)
+                    .map(InboundFollow::getUserId)
                     .collect(Collectors.toList());
             List<String> modListIds = modList.stream()
                     .map(Moderator::getUserId)
