@@ -2,7 +2,7 @@ package util;
 
 import com.fathzer.soft.javaluator.DoubleEvaluator;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.github.twitch4j.helix.domain.Follow;
+import com.github.twitch4j.helix.domain.InboundFollow;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -307,16 +307,16 @@ public class MessageExpressionParser {
         if (user == null) {
             return String.format("Unknown user \"%s\"", userName);
         }
-        Follow follow;
+        InboundFollow follow;
         try {
-            follow = twitchApi.getFollow(user.getId(), twitchApi.getStreamerUser().getId());
+            follow = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), user.getId()).get(0);
         } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             return String.format("Error retrieving follow age for %s", userName);
         }
 
         if (follow != null) {
-            LocalDate followDate = follow.getFollowedAtInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate followDate = follow.getFollowedAt().atZone(ZoneId.systemDefault()).toLocalDate();
             LocalDate today = LocalDate.now();
             Period period = Period.between(followDate, today);
             int years = period.getYears();
