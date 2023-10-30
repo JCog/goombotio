@@ -22,7 +22,7 @@ public class LinkListener implements TwitchEventListener {
     private static final Pattern clipPattern = Pattern.compile("(?:www\\.|clips\\.)?twitch\\.tv/(?:[a-zA-Z0-9_]+/clip/)?([a-zA-Z0-9-_]+)");
     private static final Pattern videoPattern = Pattern.compile("(?:www\\.)?twitch\\.tv/videos/([0-9]+)");
     private static final Pattern youtubePattern = Pattern.compile("(?:www\\.)?(?:youtube\\.com/watch\\?[a-zA-Z0-9_=&]*v=|youtu\\.be/)([a-zA-Z0-9_\\-]{1,11})");
-    private static final Pattern tweetPattern = Pattern.compile("(?:www\\.)?(?:twitter\\.com/[a-zA-Z0-9_]+/status/)([0-9]+)");
+    private static final Pattern tweetPattern = Pattern.compile("(?:www\\.)?(?:twitter|x)\\.com/[a-zA-Z0-9_]+/status/([0-9]+)");
 
     private final TwitchApi twitchApi;
     private final Twitter twitter;
