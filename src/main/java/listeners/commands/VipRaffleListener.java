@@ -132,8 +132,8 @@ public class VipRaffleListener extends CommandBase {
                 continue;
             }
             
-            List<InboundFollow> channelFollower = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), winner.getTwitchId());
-            if (channelFollower.isEmpty()) {
+            InboundFollow channelFollower = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), winner.getTwitchId());
+            if (channelFollower == null) {
                 continue;
             }
             

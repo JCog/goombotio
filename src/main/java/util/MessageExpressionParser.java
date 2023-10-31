@@ -309,7 +309,7 @@ public class MessageExpressionParser {
         }
         InboundFollow follow;
         try {
-            follow = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), user.getId()).get(0);
+            follow = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), user.getId());
         } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             return String.format("Error retrieving follow age for %s", userName);
