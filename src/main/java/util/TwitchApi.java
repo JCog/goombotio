@@ -153,6 +153,39 @@ public class TwitchApi {
     
     //////////////////////////////////////////////////////////////////////////
     
+    public BannedUser getBannedUser(String userId) throws HystrixRuntimeException {
+        BannedUserList bannedUserList = twitchClient.getHelix().getBannedUsers(
+                channelAuthToken,
+                streamerUser.getId(),
+                Collections.singletonList(userId),
+                null,
+                null,
+                1
+        ).execute();
+        if (bannedUserList.getResults().isEmpty()) {
+            return null;
+        }
+        return bannedUserList.getResults().get(0);
+    }
+    
+    public List<BannedUser> getBannedUsers() throws HystrixRuntimeException {
+        String cursor = null;
+        List<BannedUser> bannedUserOutput = new ArrayList<>();
+        do {
+            BannedUserList bannedUserList = twitchClient.getHelix().getBannedUsers(
+                    channelAuthToken,
+                    streamerUser.getId(),
+                    null,
+                    cursor,
+                    null,
+                    100
+            ).execute();
+            cursor = bannedUserList.getPagination().getCursor();
+            bannedUserOutput.addAll(bannedUserList.getResults());
+        } while (cursor != null);
+        return bannedUserOutput;
+    }
+    
     public List<Chatter> getChatters() throws HystrixRuntimeException {
         String cursor = null;
         List<Chatter> chattersOutput = new ArrayList<>();

@@ -1,6 +1,7 @@
 package listeners.commands;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.helix.domain.BannedUser;
 import com.github.twitch4j.helix.domain.InboundFollow;
 import com.github.twitch4j.helix.domain.Moderator;
 import com.github.twitch4j.helix.domain.User;
@@ -124,13 +125,24 @@ public class VipRaffleListener extends CommandBase {
                 continue;
             }
             
-            List<InboundFollow> channelFollower = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), winner.getTwitchId());
-            
-            if (!modListIds.contains(winner.getTwitchId()) && !channelFollower.isEmpty()) {
-                winnerIds.add(winner.getTwitchId());
-            }
             totalWeight -= winner.getEntryCount();
             raffleItems.remove(winner);
+            
+            if (modListIds.contains(winner.getTwitchId())) {
+                continue;
+            }
+            
+            List<InboundFollow> channelFollower = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), winner.getTwitchId());
+            if (channelFollower.isEmpty()) {
+                continue;
+            }
+            
+            BannedUser bannedUser = twitchApi.getBannedUser(winner.getTwitchId());
+            if (bannedUser != null) {
+                continue;
+            }
+            
+            winnerIds.add(winner.getTwitchId());
         }
         
         return winnerIds;
