@@ -39,34 +39,20 @@ public class VipRaffleListener extends CommandBase {
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         if (userLevel == USER_LEVEL.BROADCASTER) {
             twitchApi.channelMessage("Performing VIP raffle...");
-            List<InboundFollow> followList;
-            List<Moderator> modList;
-            try {
-                followList = twitchApi.getChannelFollowers(twitchApi.getStreamerUser().getId());
-                modList = twitchApi.getMods(twitchApi.getStreamerUser().getId());
-            } catch (HystrixRuntimeException e) {
-                twitchApi.channelMessage("Twitch API error, please try again.");
-                return;
-            }
-            List<String> followListIds = followList.stream()
-                    .map(InboundFollow::getUserId)
-                    .collect(Collectors.toList());
-            List<String> modListIds = modList.stream()
-                    .map(Moderator::getUserId)
-                    .collect(Collectors.toList());
             
-            // filter out non-followers and mods
-            List<VipRaffleItem> vipRaffleItems = new LinkedList<>(vipRaffleDb.getAllVipRaffleItemsPrevMonth())
-                    .stream()
-                    .filter(x -> followListIds.contains(x.getTwitchId()))
-                    .filter(x -> !modListIds.contains(x.getTwitchId()))
-                    .collect(Collectors.toList());
+            List<VipRaffleItem> vipRaffleItems = new LinkedList<>(vipRaffleDb.getAllVipRaffleItemsPrevMonth());
             int i = 1;
             for (VipRaffleItem raffleItem : vipRaffleItems) {
                 System.out.printf("%d. %s (%d)%n", i++, raffleItem.getDisplayName(), raffleItem.getEntryCount());
             }
             
-            List<String> ids = performRaffle(vipRaffleItems);
+            List<String> ids;
+            try {
+                ids = performRaffle(vipRaffleItems);
+            } catch (HystrixRuntimeException e) {
+                twitchApi.channelMessage("Twitch API error, please try again.");
+                return;
+            }
             List<User> winners = twitchApi.getUserListByIds(ids); // usernames may have changed
             twitchApi.channelMessage(String.format(
                     "The winners of the raffle are %s, %s, %s, %s, and %s. Congrats on winning VIP for the month! jcogChamp",
@@ -107,26 +93,44 @@ public class VipRaffleListener extends CommandBase {
         
     }
     
-    private List<String> performRaffle(List<VipRaffleItem> raffleItems) {
-        int totalEntries = 0;
-        for (VipRaffleItem raffleItem : raffleItems) {
-            totalEntries += raffleItem.getEntryCount();
-        }
+    private List<String> performRaffle(List<VipRaffleItem> raffleItems) throws HystrixRuntimeException {
+        List<Moderator> modList = twitchApi.getMods(twitchApi.getStreamerUser().getId());
+        List<String> modListIds = modList.stream()
+                .map(Moderator::getUserId)
+                .collect(Collectors.toList());
+        
         
         Random random = new Random();
         List<String> winnerIds = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            int index = 0;
-            int winningIndex = random.nextInt(totalEntries);
-            for (VipRaffleItem raffleItem : raffleItems) {
-                if (winningIndex <= index) {
-                    winnerIds.add(raffleItem.getTwitchId());
-                    raffleItems.remove(raffleItem);
-                    totalEntries -= raffleItem.getEntryCount();
+        
+        double totalWeight = 0;
+        for (VipRaffleItem item : raffleItems) {
+            totalWeight += item.getEntryCount();
+        }
+        
+        while (winnerIds.size() < 5) {
+            double indexWinner = random.nextDouble() * totalWeight;
+            double indexCurrent = 0;
+            VipRaffleItem winner = null;
+            for (VipRaffleItem item : raffleItems) {
+                indexCurrent += item.getEntryCount();
+                if (indexCurrent >= indexWinner) {
+                    winner = item;
                     break;
                 }
-                index += raffleItem.getEntryCount();
             }
+            if (winner == null) {
+                // should never happen
+                continue;
+            }
+            
+            List<InboundFollow> channelFollower = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), winner.getTwitchId());
+            
+            if (!modListIds.contains(winner.getTwitchId()) && !channelFollower.isEmpty()) {
+                winnerIds.add(winner.getTwitchId());
+            }
+            totalWeight -= winner.getEntryCount();
+            raffleItems.remove(winner);
         }
         
         return winnerIds;
