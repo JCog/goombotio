@@ -95,10 +95,18 @@ public class VipRaffleListener extends CommandBase {
     }
     
     private List<String> performRaffle(List<VipRaffleItem> raffleItems) throws HystrixRuntimeException {
-        List<Moderator> modList = twitchApi.getMods(twitchApi.getStreamerUser().getId());
-        List<String> modListIds = modList.stream()
+        List<String> filteredIds = raffleItems.stream()
+                .map(VipRaffleItem::getTwitchId)
+                .collect(Collectors.toList());
+        List<String> bannedUserIds = twitchApi.getBannedUsers(filteredIds).stream()
+                .map(BannedUser::getUserId)
+                .collect(Collectors.toList());
+        List<String> modListIds = twitchApi.getMods(twitchApi.getStreamerUser().getId()).stream()
                 .map(Moderator::getUserId)
                 .collect(Collectors.toList());
+        
+        filteredIds.removeAll(bannedUserIds);
+        filteredIds.removeAll(modListIds);
         
         
         Random random = new Random();
@@ -127,18 +135,15 @@ public class VipRaffleListener extends CommandBase {
             
             totalWeight -= winner.getEntryCount();
             raffleItems.remove(winner);
-            
-            if (modListIds.contains(winner.getTwitchId())) {
+    
+            // skip if banned user or mod
+            if (!filteredIds.contains(winner.getTwitchId())) {
                 continue;
             }
             
+            // skip users that don't follow the channel
             InboundFollow channelFollower = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), winner.getTwitchId());
             if (channelFollower == null) {
-                continue;
-            }
-            
-            BannedUser bannedUser = twitchApi.getBannedUser(winner.getTwitchId());
-            if (bannedUser != null) {
                 continue;
             }
             
