@@ -47,13 +47,15 @@ public class VipRaffleListener extends CommandBase {
             }
             
             List<String> ids;
+            List<User> winners;
             try {
                 ids = performRaffle(vipRaffleItems);
+                winners = twitchApi.getUserListByIds(ids); // usernames may have changed
             } catch (HystrixRuntimeException e) {
                 twitchApi.channelMessage("Twitch API error, please try again.");
                 return;
             }
-            List<User> winners = twitchApi.getUserListByIds(ids); // usernames may have changed
+            //TODO: handle < 5 raffle participants
             twitchApi.channelMessage(String.format(
                     "The winners of the raffle are %s, %s, %s, %s, and %s. Congrats on winning VIP for the month! jcogChamp",
                     winners.get(0).getDisplayName(),
