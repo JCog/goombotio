@@ -8,7 +8,6 @@ import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.misc.VipRaffleDb;
-import listeners.TwitchEventListener;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
@@ -69,7 +68,10 @@ public class VipRaffleListener extends CommandBase {
             }
         } else {
             String userId = messageEvent.getMessageEvent().getUser().getId();
-            String userDisplayName = TwitchEventListener.getDisplayName(messageEvent.getMessageEvent().getTags());
+            String userDisplayName = messageEvent.getMessageEvent().getUserName();
+            if (messageEvent.getMessageEvent().getUserDisplayName().isPresent()) {
+                userDisplayName = messageEvent.getMessageEvent().getUserDisplayName().get();
+            }
             List<VipRaffleItem> raffleItems = vipRaffleDb.getAllVipRaffleItemsCurrentMonth();
     
             VipRaffleItem userRaffleItem = vipRaffleDb.getVipRaffleItem(userId);
