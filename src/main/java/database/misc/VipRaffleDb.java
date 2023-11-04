@@ -83,37 +83,28 @@ public class VipRaffleDb extends GbCollection {
     
     @Nullable
     public VipRaffleItem getVipRaffleItem(String twitchId) {
-        Document result = getVipRaffleDocument(twitchId);
-        if (result != null) {
-            return new VipRaffleItem(
-                    result.getString(ID_KEY),
-                    result.getString(NAME_KEY),
-                    result.getInteger(getMonthlyEntriesKey())
-            );
-        }
-        return null;
+        Calendar calendar = Calendar.getInstance();
+        return getVipRaffleItem(twitchId, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH));
     }
     
     @Nullable
     public VipRaffleItem getVipRaffleItem(String twitchId, int year, int month) {
         Document result = getVipRaffleDocument(twitchId);
-        if (result != null) {
-            return new VipRaffleItem(
-                    result.getString(ID_KEY),
-                    result.getString(NAME_KEY),
-                    result.getInteger(getMonthlyEntriesKey(year, month))
-            );
+        
+        String monthlyEntriesKey = getMonthlyEntriesKey(year, month);
+        if (result == null || !result.containsKey(monthlyEntriesKey)) {
+            return null;
         }
-        return null;
+        
+        return new VipRaffleItem(
+                result.getString(ID_KEY),
+                result.getString(NAME_KEY),
+                result.getInteger(monthlyEntriesKey)
+        );
     }
     
     private Document getVipRaffleDocument(String twitchId) {
         return findFirstEquals(ID_KEY, twitchId);
-    }
-    
-    private String getMonthlyEntriesKey() {
-        Calendar calendar = Calendar.getInstance();
-        return getMonthlyEntriesKey(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH));
     }
     
     private String getMonthlyEntriesKey(int year, int month) {
