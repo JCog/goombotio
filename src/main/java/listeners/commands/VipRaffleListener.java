@@ -7,6 +7,7 @@ import com.github.twitch4j.helix.domain.Moderator;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
+import database.misc.VipDb;
 import database.misc.VipRaffleDb;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
@@ -28,11 +29,13 @@ public class VipRaffleListener extends CommandBase {
     
     private final TwitchApi twitchApi;
     private final VipRaffleDb vipRaffleDb;
+    private final VipDb vipDb;
     
     public VipRaffleListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
         super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN);
         this.twitchApi = twitchApi;
         this.vipRaffleDb = dbManager.getVipRaffleDb();
+        this.vipDb = dbManager.getVipDb();
     }
     
     @Override
@@ -108,9 +111,11 @@ public class VipRaffleListener extends CommandBase {
         List<String> modListIds = twitchApi.getMods(twitchApi.getStreamerUser().getId()).stream()
                 .map(Moderator::getUserId)
                 .collect(Collectors.toList());
+        List<String> blacklistIds = vipDb.getAllBlacklistedUserIds();
         
         filteredIds.removeAll(bannedUserIds);
         filteredIds.removeAll(modListIds);
+        filteredIds.removeAll(blacklistIds);
         
         
         Random random = new Random();
