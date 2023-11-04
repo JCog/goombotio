@@ -1,7 +1,7 @@
 package functions.preds;
 
 import database.DbManager;
-import database.misc.PermanentVipsDb;
+import database.misc.VipDb;
 import database.misc.VipRaffleDb;
 import database.preds.PredsLeaderboardDbBase.PredsItem;
 import functions.DiscordBotController;
@@ -17,7 +17,7 @@ public abstract class PredsManagerBase {
     final DiscordBotController discord;
     final TwitchApi twitchApi;
     final VipRaffleDb vipRaffleDb;
-    final PermanentVipsDb permanentVipsDb;
+    final VipDb vipDb;
     final String startMessage;
     final String answerRegex;
 
@@ -33,7 +33,7 @@ public abstract class PredsManagerBase {
     ) {
         this.twitchApi = twitchApi;
         this.vipRaffleDb = dbManager.getVipRaffleDb();
-        this.permanentVipsDb = dbManager.getPermanentVipsDb();
+        this.vipDb = dbManager.getVipDb();
         this.discord = discord;
         this.startMessage = startMessage;
         this.answerRegex = answerRegex;

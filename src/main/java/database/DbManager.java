@@ -21,7 +21,7 @@ public class DbManager {
     private final BitWarDb bitWarDb;
     private final CommandDb commandDb;
     private final MinecraftUserDb minecraftUserDb;
-    private final PermanentVipsDb permanentVipsDb;
+    private final VipDb vipDb;
     private final QuoteDb quoteDb;
     private final SocialSchedulerDb socialSchedulerDb;
     private final TattleDb tattleDb;
@@ -54,11 +54,11 @@ public class DbManager {
         bitWarDb = new BitWarDb(gbDatabase);
         commandDb = new CommandDb(gbDatabase);
         minecraftUserDb = new MinecraftUserDb(gbDatabase);
-        permanentVipsDb = new PermanentVipsDb(gbDatabase);
         quoteDb = new QuoteDb(gbDatabase);
         socialSchedulerDb = new SocialSchedulerDb(gbDatabase);
         tattleDb = new TattleDb(gbDatabase);
         viewerQueueDb = new ViewerQueueDb(gbDatabase);
+        vipDb = new VipDb(gbDatabase);
         vipRaffleDb = new VipRaffleDb(gbDatabase);
     
         dampeRaceLeaderboardDb = new DampeRaceLeaderboardDb(gbDatabase);
@@ -102,10 +102,6 @@ public class DbManager {
     public MinecraftUserDb getMinecraftUserDb() {
         return minecraftUserDb;
     }
-    
-    public PermanentVipsDb getPermanentVipsDb() {
-        return permanentVipsDb;
-    }
 
     public QuoteDb getQuoteDb() {
         return quoteDb;
@@ -121,6 +117,10 @@ public class DbManager {
 
     public ViewerQueueDb getViewerQueueDb() {
         return viewerQueueDb;
+    }
+    
+    public VipDb getVipDb() {
+        return vipDb;
     }
     
     public VipRaffleDb getVipRaffleDb() {

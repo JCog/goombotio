@@ -242,7 +242,7 @@ public class BadgeShopPredsManager extends PredsManagerBase {
                 out.printf("%s guessed 0 correctly.%n", displayName);
             }
     
-            if (!modIds.contains(userId) && !permanentVipsDb.isPermanentVip(userId)) {
+            if (!modIds.contains(userId) && !vipDb.isPermanentVip(userId)) {
                 vipRaffleDb.incrementEntryCount(userId, displayName, vipRaffleEntries);
             }
         }

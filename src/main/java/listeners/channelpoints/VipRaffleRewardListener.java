@@ -6,7 +6,7 @@ import com.github.twitch4j.pubsub.domain.ChannelPointsReward;
 import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
-import database.misc.PermanentVipsDb;
+import database.misc.VipDb;
 import database.misc.VipRaffleDb;
 import listeners.TwitchEventListener;
 import util.TwitchApi;
@@ -23,12 +23,12 @@ public class VipRaffleRewardListener implements TwitchEventListener {
     private static final int ENTRY_COUNT = 4;
     
     private final TwitchApi twitchApi;
-    private final PermanentVipsDb permanentVipsDb;
+    private final VipDb vipDb;
     private final VipRaffleDb vipRaffleDb;
     
     public VipRaffleRewardListener(TwitchApi twitchApi, DbManager dbManager) {
         this.twitchApi = twitchApi;
-        this.permanentVipsDb = dbManager.getPermanentVipsDb();
+        this.vipDb = dbManager.getVipDb();
         this.vipRaffleDb = dbManager.getVipRaffleDb();
     }
     
@@ -51,7 +51,7 @@ public class VipRaffleRewardListener implements TwitchEventListener {
     
         boolean shouldFulfill;
         // mods, permanent VIPs, and the streamer are all ineligible for the VIP raffle
-        if (modIds.contains(userId) || permanentVipsDb.isPermanentVip(userId) || userId.equals(twitchApi.getStreamerUser().getId())) {
+        if (modIds.contains(userId) || vipDb.isPermanentVip(userId) || userId.equals(twitchApi.getStreamerUser().getId())) {
             twitchApi.channelMessage(String.format(
                     "@%s You're not eligible for the VIP raffle. Your points will be refunded.",
                     displayName

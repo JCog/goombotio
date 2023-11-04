@@ -4,7 +4,7 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
-import database.misc.PermanentVipsDb;
+import database.misc.VipDb;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
@@ -18,12 +18,12 @@ public class PermanentVipListener extends CommandBase {
     private static final String PATTERN_DELETE = "!vipdelete";
     
     private final TwitchApi twitchApi;
-    private final PermanentVipsDb permanentVipsDb;
+    private final VipDb vipDb;
 
     public PermanentVipListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
         super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN_ADD, PATTERN_DELETE);
         this.twitchApi = twitchApi;
-        this.permanentVipsDb = dbManager.getPermanentVipsDb();
+        this.vipDb = dbManager.getVipDb();
     }
 
     @Override
@@ -51,17 +51,13 @@ public class PermanentVipListener extends CommandBase {
     
         switch (command) {
             case PATTERN_ADD: {
-                permanentVipsDb.addVip(user.getId());
+                vipDb.editPermanentProp(user.getId(), true);
                 twitchApi.channelMessage(String.format("%s added to permanent VIP list", user.getDisplayName()));
                 break;
             }
             case PATTERN_DELETE: {
-                if (permanentVipsDb.deleteVip(user.getId())) {
-                    twitchApi.channelMessage(String.format("%s removed from permanent VIP list", user.getDisplayName()));
-                } else {
-                    twitchApi.channelMessage(String.format("%s not found in permanent VIP list", user.getDisplayName()));
-                }
-                
+                vipDb.editPermanentProp(user.getId(), false);
+                twitchApi.channelMessage(String.format("%s removed from permanent VIP list", user.getDisplayName()));
             }
         }
     }

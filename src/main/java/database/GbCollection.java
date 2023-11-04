@@ -1,5 +1,6 @@
 package database;
 
+import com.mongodb.MongoNamespace;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Sorts;
@@ -98,6 +99,13 @@ public abstract class GbCollection {
     protected Document findFirstEquals(String key, long value) {
         return collection.find(eq(key, value)).first();
     }
+    
+    /*
+    Finds all documents where the value of the key name equals the specified value
+     */
+    protected FindIterable<Document> findEquals(String key, boolean value) {
+        return collection.find(eq(key, value));
+    }
 
     /*
     Finds all documents in the collection that contain the given field
@@ -136,5 +144,12 @@ public abstract class GbCollection {
      */
     protected FindIterable<Document> sortDescending(FindIterable<Document> iterable, String sortField) {
         return iterable.sort(Sorts.descending(sortField));
+    }
+    
+    /*
+    Renames the current collection to the specified name
+     */
+    protected void renameCollection(String name) {
+        collection.renameCollection(new MongoNamespace(collection.getNamespace().getDatabaseName(), name));
     }
 }

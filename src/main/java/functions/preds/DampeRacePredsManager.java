@@ -66,7 +66,7 @@ public class DampeRacePredsManager extends PredsManagerBase {
                 default: newEntryCount = REWARD_PARTICIPATION; break;
             }
             
-            if (!modIds.contains(userId) && !permanentVipsDb.isPermanentVip(userId)) {
+            if (!modIds.contains(userId) && !vipDb.isPermanentVip(userId)) {
                 vipRaffleDb.incrementEntryCount(userId, displayName, newEntryCount);
                 System.out.printf("+%d entries %sto %s%n", newEntryCount, isWinner ? "and a win " : "", displayName);
             } else if (isWinner) {
