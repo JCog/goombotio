@@ -25,6 +25,7 @@ public class VipRaffleListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
     private static final int COOLDOWN = 1000;
+    private static final int WINNER_COUNT = 5;
     private static final String PATTERN = "!raffle";
     
     private final TwitchApi twitchApi;
@@ -44,9 +45,13 @@ public class VipRaffleListener extends CommandBase {
             twitchApi.channelMessage("Performing VIP raffle...");
             
             List<VipRaffleItem> vipRaffleItems = new LinkedList<>(vipRaffleDb.getAllVipRaffleItemsPrevMonth());
-            int i = 1;
-            for (VipRaffleItem raffleItem : vipRaffleItems) {
-                System.out.printf("%d. %s (%d)%n", i++, raffleItem.getDisplayName(), raffleItem.getEntryCount());
+            for (int i = 0; i < vipRaffleItems.size(); i++) {
+                System.out.printf(
+                        "%d. %s (%d)%n",
+                        i + 1,
+                        vipRaffleItems.get(i).getDisplayName(),
+                        vipRaffleItems.get(i).getEntryCount()
+                );
             }
             
             List<String> ids;
@@ -58,15 +63,32 @@ public class VipRaffleListener extends CommandBase {
                 twitchApi.channelMessage("Twitch API error, please try again.");
                 return;
             }
-            //TODO: handle < 5 raffle participants
-            twitchApi.channelMessage(String.format(
-                    "The winners of the raffle are %s, %s, %s, %s, and %s. Congrats on winning VIP for the month! jcogChamp",
-                    winners.get(0).getDisplayName(),
-                    winners.get(1).getDisplayName(),
-                    winners.get(2).getDisplayName(),
-                    winners.get(3).getDisplayName(),
-                    winners.get(4).getDisplayName()
-            ));
+            
+            if (winners.size() == 0) {
+                twitchApi.channelMessage("There are no raffle entries, so nobody wins.");
+            } else if (winners.size() == 1) {
+                twitchApi.channelMessage(String.format(
+                        "The winner of the raffle is %s. Congrats on winning VIP for the month! jcogChamp",
+                        winners.get(0).getDisplayName()
+                ));
+            } else if (winners.size() == 2) {
+                twitchApi.channelMessage(String.format(
+                        "The winners of the raffle are %s and %s. Congrats on winning VIP for the month! jcogChamp",
+                        winners.get(0).getDisplayName(),
+                        winners.get(1).getDisplayName()
+                ));
+            } else {
+                StringBuilder output = new StringBuilder();
+                output.append("The winners of the raffle are ");
+                for (int i = 0; i < winners.size() - 1; i++) {
+                    output.append(String.format("%s, ", winners.get(i).getDisplayName()));
+                }
+                output.append(String.format(
+                        "and %s. Congrats on winning VIP for the month! jcogChamp",
+                        winners.get(winners.size() - 1).getDisplayName()
+                ));
+                twitchApi.channelMessage(output.toString());
+            }
             
             for (User winner : winners) {
                 System.out.printf("/vip %s%n", winner.getDisplayName());
@@ -126,7 +148,7 @@ public class VipRaffleListener extends CommandBase {
             totalWeight += item.getEntryCount();
         }
         
-        while (winnerIds.size() < 5) {
+        while (winnerIds.size() < WINNER_COUNT && raffleItems.size() > 0) {
             double indexWinner = random.nextDouble() * totalWeight;
             double indexCurrent = 0;
             VipRaffleItem winner = null;
@@ -145,7 +167,7 @@ public class VipRaffleListener extends CommandBase {
             totalWeight -= winner.getEntryCount();
             raffleItems.remove(winner);
     
-            // skip if banned user or mod
+            // skip if banned user, mod, or blacklisted
             if (!filteredIds.contains(winner.getTwitchId())) {
                 continue;
             }
