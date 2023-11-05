@@ -148,6 +148,7 @@ public class MainBotController {
         twitchApi.registerEventListener(new QuoteListener(scheduler, dbManager, twitchApi));
         twitchApi.registerEventListener(new PermanentVipListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new PredsManagerListener(scheduler, dbManager, twitchApi, discordBotController, predsGuessListener));
+        twitchApi.registerEventListener(new RacetimeListener(scheduler, twitchApi));
         twitchApi.registerEventListener(new ScheduledMessageManagerListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new TattleListener(scheduler, dbManager, twitchApi));
         twitchApi.registerEventListener(new VipRaffleListener(scheduler, twitchApi, dbManager));
