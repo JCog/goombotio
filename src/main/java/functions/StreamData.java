@@ -160,7 +160,7 @@ public class StreamData {
         for (User user : allViewers) {
             int followCount;
             try {
-                followCount = twitchApi.getFollowerCount(user.getId());
+                followCount = twitchApi.getChannelFollowersCount(user.getId());
             } catch (HystrixRuntimeException e) {
                 e.printStackTrace();
                 out.printf("Error retrieving follower count for %s%n", user.getDisplayName());

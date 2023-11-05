@@ -219,35 +219,8 @@ public class TwitchApi {
         }
         return clipList.getData().get(0);
     }
-
-    @Nullable
-    public Follow getFollow(String fromId, String toId) throws HystrixRuntimeException {
-        FollowList followList = twitchClient.getHelix().getFollowers(
-                channelAuthToken,
-                fromId,
-                toId,
-                null,
-                1
-        ).execute();
-        if (followList.getFollows().isEmpty()) {
-            return null;
-        }
-        return followList.getFollows().get(0);
-    }
-
-    public int getFollowerCount(String userId) throws HystrixRuntimeException {
-        FollowList followList = twitchClient.getHelix().getFollowers(
-                channelAuthToken,
-                null,
-                userId,
-                null,
-                null
-        ).execute();
-        return followList.getTotal();
-    }
     
     public InboundFollow getChannelFollower(String channelId, String followerId) throws HystrixRuntimeException {
-        String cursor = null;
         InboundFollowers followList = twitchClient.getHelix().getChannelFollowers(
                 channelAuthToken,
                 channelId,
@@ -274,9 +247,22 @@ public class TwitchApi {
                     cursor
             ).execute();
             cursor = followList.getPagination().getCursor();
-            followsOutput.addAll(followList.getFollows());
+            if (followList.getFollows() != null) {
+                followsOutput.addAll(followList.getFollows());
+            }
         } while (cursor != null);
         return followsOutput;
+    }
+    
+    public int getChannelFollowersCount(String channelId) throws HystrixRuntimeException {
+        InboundFollowers inboundFollowers = twitchClient.getHelix().getChannelFollowers(
+                channelAuthToken,
+                channelId,
+                null,
+                null,
+                null
+        ).execute();
+        return inboundFollowers.getTotal();
     }
     
     public List<ChannelVip> getChannelVips() throws HystrixRuntimeException {
@@ -313,7 +299,9 @@ public class TwitchApi {
                     cursor
             ).execute();
             cursor = followList.getPagination().getCursor();
-            followsOutput.addAll(followList.getFollows());
+            if (followList.getFollows() != null) {
+                followsOutput.addAll(followList.getFollows());
+            }
         } while (cursor != null);
         return followsOutput;
     }
@@ -323,6 +311,7 @@ public class TwitchApi {
         GameList gameList = twitchClient.getHelix().getGames(
                 channelAuthToken,
                 Collections.singletonList(gameId),
+                null,
                 null
         ).execute();
         if (gameList.getGames().isEmpty()) {
@@ -336,7 +325,8 @@ public class TwitchApi {
         GameList gameList = twitchClient.getHelix().getGames(
                 channelAuthToken,
                 null,
-                Collections.singletonList(name)
+                Collections.singletonList(name),
+                null
         ).execute();
         if (gameList.getGames().isEmpty()) {
             return null;
@@ -476,16 +466,16 @@ public class TwitchApi {
     public Video getVideoById(String videoId) throws HystrixRuntimeException {
         VideoList videoList = twitchClient.getHelix().getVideos(
                 channelAuthToken,
-                videoId,
+                Collections.singletonList(videoId),
                 null,
                 null,
                 null,
                 null,
                 null,
                 null,
+                1,
                 null,
-                null,
-                1
+                null
         ).execute();
         if (videoList.getVideos().isEmpty()) {
             return null;
