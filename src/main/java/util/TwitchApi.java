@@ -278,6 +278,27 @@ public class TwitchApi {
         } while (cursor != null);
         return followsOutput;
     }
+    
+    public List<ChannelVip> getChannelVips() throws HystrixRuntimeException {
+        return getChannelVips(null);
+    }
+    
+    public List<ChannelVip> getChannelVips(List<String> userIds) throws HystrixRuntimeException {
+        String cursor = null;
+        List<ChannelVip> vipListOutput = new ArrayList<>();
+        do {
+            ChannelVipList vipList = twitchClient.getHelix().getChannelVips(
+                    channelAuthToken,
+                    streamerUser.getId(),
+                    userIds,
+                    100,
+                    cursor
+            ).execute();
+            cursor = vipList.getPagination().getCursor();
+            vipListOutput.addAll(vipList.getData());
+        } while (cursor != null);
+        return vipListOutput;
+    }
 
     public List<OutboundFollow> getFollowedChannels(String userId) throws HystrixRuntimeException {
         String cursor = null;
@@ -470,6 +491,14 @@ public class TwitchApi {
             return null;
         }
         return videoList.getVideos().get(0);
+    }
+    
+    public void vipAdd(String userId) throws HystrixRuntimeException {
+        twitchClient.getHelix().addChannelVip(channelAuthToken, streamerUser.getId(), userId).execute();
+    }
+    
+    public void vipRemove(String userId) throws HystrixRuntimeException {
+        twitchClient.getHelix().removeChannelVip(channelAuthToken, streamerUser.getId(), userId).execute();
     }
     
     ///////////////////////////// Channel Points /////////////////////////////

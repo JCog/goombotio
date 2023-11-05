@@ -1,10 +1,7 @@
 package listeners.commands;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.github.twitch4j.helix.domain.BannedUser;
-import com.github.twitch4j.helix.domain.InboundFollow;
-import com.github.twitch4j.helix.domain.Moderator;
-import com.github.twitch4j.helix.domain.User;
+import com.github.twitch4j.helix.domain.*;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.misc.VipDb;
@@ -54,11 +51,11 @@ public class VipRaffleListener extends CommandBase {
                 );
             }
             
-            List<String> ids;
+            List<String> newWinnerIds;
             List<User> winners;
             try {
-                ids = performRaffle(vipRaffleItems);
-                winners = twitchApi.getUserListByIds(ids); // usernames may have changed
+                newWinnerIds = performRaffle(vipRaffleItems);
+                winners = twitchApi.getUserListByIds(newWinnerIds); // usernames may have changed
             } catch (HystrixRuntimeException e) {
                 twitchApi.channelMessage("Twitch API error, please try again.");
                 return;
@@ -90,8 +87,63 @@ public class VipRaffleListener extends CommandBase {
                 twitchApi.channelMessage(output.toString());
             }
             
-            for (User winner : winners) {
-                System.out.printf("/vip %s%n", winner.getDisplayName());
+            
+            // don't touch repeat winners
+            List<String> oldWinnerIds = vipDb.getAllRaffleWinnerUserIds();
+            List<String> repeatWinners = new ArrayList<>();
+            for (String userId : newWinnerIds) {
+                if (oldWinnerIds.contains(userId)) {
+                    repeatWinners.add(userId);
+                }
+            }
+            oldWinnerIds.removeAll(repeatWinners);
+            newWinnerIds.removeAll(repeatWinners);
+            
+            List<String> currentVipIds;
+            try {
+                currentVipIds = twitchApi.getChannelVips().stream()
+                        .map(ChannelVip::getUserId)
+                        .collect(Collectors.toList());
+            } catch (HystrixRuntimeException e) {
+                twitchApi.channelMessage("Twitch API error getting current VIPs. Unable to automatically update.");
+                return;
+            }
+            
+            // remove old VIPs
+            boolean addRemoveError = false; // don't want to overload chat in case of multiple API errors
+            for (String oldId : oldWinnerIds) {
+                vipDb.editRaffleWinnerProp(oldId, false);
+                
+                if (!vipDb.hasVip(oldId) && currentVipIds.contains(oldId)) {
+                    try {
+                        twitchApi.vipRemove(oldId);
+                        System.out.println("VIP removed from user " + oldId);
+                    } catch (HystrixRuntimeException e) {
+                        if (!addRemoveError) {
+                            twitchApi.channelMessage("Error(s) adding/remove VIPs. Please check logs.");
+                            addRemoveError = true;
+                        }
+                        System.out.println("Error removing VIP from user " + oldId);
+                    }
+                }
+            }
+            
+            // add new VIPs
+            for (String newId : newWinnerIds) {
+                vipDb.editRaffleWinnerProp(newId, true);
+                
+                if (!currentVipIds.contains(newId)) {
+                    try {
+                        twitchApi.vipAdd(newId);
+                        System.out.println("VIP added to user " + newId);
+                    } catch (HystrixRuntimeException e) {
+                        if (!addRemoveError) {
+                            twitchApi.channelMessage("Error(s) adding/remove VIPs. Please check logs.");
+                            addRemoveError = true;
+                        }
+                        System.out.println("Error adding VIP to user " + newId);
+                    }
+                }
             }
         } else {
             String userId = messageEvent.getMessageEvent().getUser().getId();
