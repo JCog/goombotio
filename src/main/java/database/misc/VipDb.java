@@ -60,7 +60,7 @@ public class VipDb extends GbCollection {
     public void editThroneProp(String userId, boolean throne) {
         initUser(userId);
         Document document = new Document(ID_KEY, userId)
-                .append(BLACKLISTED_KEY, throne);
+                .append(THRONE_KEY, throne);
         updateOne(userId, document);
     }
     
