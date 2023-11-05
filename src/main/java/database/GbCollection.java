@@ -92,11 +92,18 @@ public abstract class GbCollection {
     protected Document findFirstEquals(String key, String value) {
         return collection.find(eq(key, value)).first();
     }
-
+    
     /*
     Finds the first document where the value of the key name equals the specified value
      */
     protected Document findFirstEquals(String key, long value) {
+        return collection.find(eq(key, value)).first();
+    }
+    
+    /*
+    Finds the first document where the value of the key name equals the specified value
+     */
+    protected Document findFirstEquals(String key, boolean value) {
         return collection.find(eq(key, value)).first();
     }
     

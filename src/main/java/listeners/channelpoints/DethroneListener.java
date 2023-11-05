@@ -1,25 +1,32 @@
 package listeners.channelpoints;
 
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
+import com.github.twitch4j.helix.domain.ChannelVip;
 import com.github.twitch4j.helix.domain.CustomReward;
 import com.github.twitch4j.pubsub.domain.ChannelPointsReward;
 import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import database.DbManager;
+import database.misc.VipDb;
 import listeners.TwitchEventListener;
 import util.TwitchApi;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.System.out;
 
 public class DethroneListener implements TwitchEventListener {
     private static final String DETHRONE_REWARD_TITLE = "Dethrone";
-    private static final String DETHRONE_REWARD_PROMPT = " currently sits on the throne. Redeem this to take their spot and increase the cost for the next person!";
+    private static final String DETHRONE_REWARD_PROMPT = " currently sits on the throne. Redeem this to take their spot, earn VIP, and increase the cost for the next person!";
     
     private final TwitchApi twitchApi;
+    private final VipDb vipDb;
     
-    public DethroneListener(TwitchApi twitchApi) {
+    public DethroneListener(TwitchApi twitchApi, DbManager dbManager) {
         this.twitchApi = twitchApi;
+        this.vipDb = dbManager.getVipDb();
     }
     
     @Override
@@ -46,13 +53,13 @@ public class DethroneListener implements TwitchEventListener {
             return;
         }
         
-        String oldUser = channelPointsReward.getTitle().split("\\s")[1];
-        String newUser = event.getRedemption().getUser().getDisplayName();
+        String oldUsername = channelPointsReward.getTitle().split("\\s")[1];
+        String newUsername = event.getRedemption().getUser().getDisplayName();
         int newCost = getNextIncreasedCost(customReward.getCost());
         CustomReward newReward = customReward
                 .withCost(newCost)
-                .withTitle(DETHRONE_REWARD_TITLE + " " + newUser)
-                .withPrompt(newUser + DETHRONE_REWARD_PROMPT);
+                .withTitle(DETHRONE_REWARD_TITLE + " " + newUsername)
+                .withPrompt(newUsername + DETHRONE_REWARD_PROMPT);
         boolean success;
         try {
             twitchApi.updateCustomReward(twitchApi.getStreamerUser().getId(), channelPointsReward.getId(), newReward);
@@ -73,8 +80,45 @@ public class DethroneListener implements TwitchEventListener {
         } catch (HystrixRuntimeException e) {
             twitchApi.channelMessage(String.format("@JCog error %s Dethrone reward. Please do so manually while shaking your fist at twitch.", success ? "fulfilling" : "refunding"));
         }
-        if (success) {
-            twitchApi.channelMessage(String.format("%s has taken the throne from %s! The cost to dethrone them has increased to %d. jcogBan", newUser, oldUser, newCost));
+        
+        if (!success) {
+            return;
+        }
+        
+        twitchApi.channelMessage(String.format("%s has taken the throne from %s! The cost to dethrone them has increased to %d. jcogBan", newUsername, oldUsername, newCost));
+        
+        // update VIPs
+        List<String> vipIds;
+        try {
+            vipIds = twitchApi.getChannelVips().stream().map(ChannelVip::getUserId).collect(Collectors.toList());
+        } catch (HystrixRuntimeException e) {
+            twitchApi.channelMessage("API error getting current VIPs");
+            return;
+        }
+        
+        String newUserId = event.getRedemption().getUser().getId();
+        String oldUserId = vipDb.getThroneUserId();
+        vipDb.editThroneProp(newUserId, true);
+        vipDb.editThroneProp(oldUserId, false);
+        
+        // add new VIP
+        if (!vipIds.contains(newUserId)) {
+            try {
+                twitchApi.vipAdd(newUserId);
+            } catch (HystrixRuntimeException e) {
+                twitchApi.channelMessage("API error adding new VIP");
+                out.printf("API error adding %s (%s) as VIP\n", newUsername, newUserId);
+            }
+        }
+        
+        // remove old VIP
+        if (!vipDb.hasVip(oldUserId)) {
+            try {
+                twitchApi.vipRemove(oldUserId);
+            } catch (HystrixRuntimeException e) {
+                twitchApi.channelMessage("API error removing old VIP");
+                out.printf("API error removing %s (%s) as VIP\n", oldUsername, oldUserId);
+            }
         }
     }
     

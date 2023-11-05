@@ -93,7 +93,9 @@ public class VipDb extends GbCollection {
         return permanent || raffleWinner || throne;
     }
     
-    
+    public String getThroneUserId() {
+        return findFirstEquals(THRONE_KEY, true).getString(ID_KEY);
+    }
     
     public List<String> getAllPermanentVipUserIds() {
         return findEquals(PERMANENT_KEY, true).map(document -> document.getString(ID_KEY)).into(new ArrayList<>());

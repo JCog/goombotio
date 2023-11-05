@@ -157,7 +157,7 @@ public class MainBotController {
         twitchApi.registerEventListener(predsGuessListener);
         
         // Channel Point Listeners
-        twitchApi.registerEventListener(new DethroneListener(twitchApi));
+        twitchApi.registerEventListener(new DethroneListener(twitchApi, dbManager));
         twitchApi.registerEventListener(new VipRaffleRewardListener(twitchApi, dbManager));
 
         // General Listeners
