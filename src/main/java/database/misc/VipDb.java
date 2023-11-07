@@ -30,6 +30,8 @@ public class VipDb extends GbCollection {
         return user;
     }
     
+    
+    
     public void updateUsername(String userId, String username) {
         initUser(userId);
         Document document = new Document(ID_KEY, userId)
@@ -37,32 +39,27 @@ public class VipDb extends GbCollection {
         updateOne(userId, document);
     }
     
-    public void editPermanentProp(String userId, boolean permanent) {
+    private void updateProperty(String userId, boolean property, String propertyKey) {
         initUser(userId);
         Document document = new Document(ID_KEY, userId)
-                .append(PERMANENT_KEY, permanent);
+                .append(propertyKey, property);
         updateOne(userId, document);
+    }
+    
+    public void editPermanentProp(String userId, boolean permanent) {
+        updateProperty(userId, permanent, PERMANENT_KEY);
     }
     
     public void editBlacklistProp(String userId, boolean blacklist) {
-        initUser(userId);
-        Document document = new Document(ID_KEY, userId)
-                .append(BLACKLISTED_KEY, blacklist);
-        updateOne(userId, document);
+        updateProperty(userId, blacklist, BLACKLISTED_KEY);
     }
     
     public void editRaffleWinnerProp(String userId, boolean raffleWinner) {
-        initUser(userId);
-        Document document = new Document(ID_KEY, userId)
-                .append(RAFFLE_WINNER_KEY, raffleWinner);
-        updateOne(userId, document);
+        updateProperty(userId, raffleWinner, RAFFLE_WINNER_KEY);
     }
     
     public void editThroneProp(String userId, boolean throne) {
-        initUser(userId);
-        Document document = new Document(ID_KEY, userId)
-                .append(THRONE_KEY, throne);
-        updateOne(userId, document);
+        updateProperty(userId, throne, THRONE_KEY);
     }
     
     
@@ -117,16 +114,20 @@ public class VipDb extends GbCollection {
         return document.getString(ID_KEY);
     }
     
+    private List<String> getAllWithProp(String propertyKey) {
+        return findEquals(propertyKey, true).map(document -> document.getString(ID_KEY)).into(new ArrayList<>());
+    }
+    
     public List<String> getAllPermanentVipUserIds() {
-        return findEquals(PERMANENT_KEY, true).map(document -> document.getString(ID_KEY)).into(new ArrayList<>());
+        return getAllWithProp(PERMANENT_KEY);
     }
     
     public List<String> getAllBlacklistedUserIds() {
-        return findEquals(BLACKLISTED_KEY, true).map(document -> document.getString(ID_KEY)).into(new ArrayList<>());
+        return getAllWithProp(BLACKLISTED_KEY);
     }
     
     public List<String> getAllRaffleWinnerUserIds() {
-        return findEquals(RAFFLE_WINNER_KEY, true).map(document -> document.getString(ID_KEY)).into(new ArrayList<>());
+        return getAllWithProp(RAFFLE_WINNER_KEY);
     }
     
     public List<String> getAllIds() {
