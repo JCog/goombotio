@@ -99,12 +99,18 @@ public class DethroneListener implements TwitchEventListener {
         String newUserId = event.getRedemption().getUser().getId();
         String oldUserId = vipDb.getThroneUserId();
         vipDb.editThroneProp(newUserId, true);
-        vipDb.editThroneProp(oldUserId, false);
+        if (oldUserId == null) {
+            twitchApi.channelMessage("Error finding existing throne holder ID. Unable to remove VIP.");
+            out.println("Error finding existing throne holder ID. Unable to remove VIP.");
+        } else {
+            vipDb.editThroneProp(oldUserId, false);
+        }
         
         // add new VIP
         if (!vipIds.contains(newUserId)) {
             try {
                 twitchApi.vipAdd(newUserId);
+                System.out.println("VIP added to user " + newUserId);
             } catch (HystrixRuntimeException e) {
                 twitchApi.channelMessage("API error adding new VIP");
                 out.printf("API error adding %s (%s) as VIP\n", newUsername, newUserId);
@@ -112,9 +118,10 @@ public class DethroneListener implements TwitchEventListener {
         }
         
         // remove old VIP
-        if (!vipDb.hasVip(oldUserId)) {
+        if (oldUserId != null && !vipDb.hasVip(oldUserId)) {
             try {
                 twitchApi.vipRemove(oldUserId);
+                System.out.println("VIP removed from user " + newUserId);
             } catch (HystrixRuntimeException e) {
                 twitchApi.channelMessage("API error removing old VIP");
                 out.printf("API error removing %s (%s) as VIP\n", oldUsername, oldUserId);

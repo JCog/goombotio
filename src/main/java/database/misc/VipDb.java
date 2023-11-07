@@ -1,5 +1,6 @@
 package database.misc;
 
+import com.mongodb.lang.Nullable;
 import database.GbCollection;
 import database.GbDatabase;
 import org.bson.Document;
@@ -66,26 +67,41 @@ public class VipDb extends GbCollection {
     
     
     
+    private boolean isProperty(String userId, String propertyKey) {
+        Document document = findFirstEquals(ID_KEY, userId);
+        if (document == null) {
+            return false;
+        }
+        Boolean result = document.getBoolean(propertyKey);
+        if (document.getBoolean(propertyKey) == null) {
+            return false;
+        }
+        return result;
+    }
+    
     public boolean isPermanentVip(String userId) {
-        return findFirstEquals(ID_KEY, userId).getBoolean(PERMANENT_KEY);
+        return isProperty(userId, PERMANENT_KEY);
     }
     
     public boolean isBlacklisted(String userId) {
-        return findFirstEquals(ID_KEY, userId).getBoolean(BLACKLISTED_KEY);
+        return isProperty(userId, BLACKLISTED_KEY);
     }
     
     public boolean isRaffleWinnerVip(String userId) {
-        return findFirstEquals(ID_KEY, userId).getBoolean(RAFFLE_WINNER_KEY);
+        return isProperty(userId, RAFFLE_WINNER_KEY);
     }
     
     public boolean isThroneVip(String userId) {
-        return findFirstEquals(ID_KEY, userId).getBoolean(THRONE_KEY);
+        return isProperty(userId, THRONE_KEY);
     }
     
     
     
     public boolean hasVip(String userId) {
-        Document user = initUser(userId);
+        Document user = findFirstEquals(ID_KEY, userId);
+        if (user == null) {
+            return false;
+        }
         boolean permanent = user.containsKey(PERMANENT_KEY) && user.getBoolean(PERMANENT_KEY);
         boolean raffleWinner = user.containsKey(RAFFLE_WINNER_KEY) && user.getBoolean(RAFFLE_WINNER_KEY);
         boolean throne = user.containsKey(THRONE_KEY) && user.getBoolean(THRONE_KEY);
@@ -93,8 +109,12 @@ public class VipDb extends GbCollection {
         return permanent || raffleWinner || throne;
     }
     
-    public String getThroneUserId() {
-        return findFirstEquals(THRONE_KEY, true).getString(ID_KEY);
+    public @Nullable String getThroneUserId() {
+        Document document = findFirstEquals(THRONE_KEY, true);
+        if (document == null) {
+            return null;
+        }
+        return document.getString(ID_KEY);
     }
     
     public List<String> getAllPermanentVipUserIds() {

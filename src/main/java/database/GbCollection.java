@@ -4,6 +4,7 @@ import com.mongodb.MongoNamespace;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Sorts;
+import com.mongodb.lang.Nullable;
 import org.bson.Document;
 
 import static com.mongodb.client.model.Filters.*;
@@ -89,21 +90,21 @@ public abstract class GbCollection {
     /*
     Finds the first document where the value of the key name equals the specified value
      */
-    protected Document findFirstEquals(String key, String value) {
+    protected @Nullable Document findFirstEquals(String key, String value) {
         return collection.find(eq(key, value)).first();
     }
     
     /*
     Finds the first document where the value of the key name equals the specified value
      */
-    protected Document findFirstEquals(String key, long value) {
+    protected @Nullable Document findFirstEquals(String key, long value) {
         return collection.find(eq(key, value)).first();
     }
     
     /*
     Finds the first document where the value of the key name equals the specified value
      */
-    protected Document findFirstEquals(String key, boolean value) {
+    protected @Nullable Document findFirstEquals(String key, boolean value) {
         return collection.find(eq(key, value)).first();
     }
     
