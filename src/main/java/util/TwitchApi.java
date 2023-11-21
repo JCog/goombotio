@@ -154,6 +154,10 @@ public class TwitchApi {
     
     //////////////////////////////////////////////////////////////////////////
     
+    public List<AdSchedule> getAdSchedule() throws HystrixRuntimeException {
+        return twitchClient.getHelix().getAdSchedule(botAuthToken, streamerUser.getId()).execute().getData();
+    }
+    
     public BannedUser getBannedUser(String userId) throws HystrixRuntimeException {
         List<BannedUser> bannedUsers = getBannedUsers(Collections.singletonList(userId));
         if (bannedUsers.isEmpty()) {

@@ -139,6 +139,7 @@ public class MainBotController {
         PredsGuessListener predsGuessListener = new PredsGuessListener();
 
         // Command Listeners
+        twitchApi.registerEventListener(new AdCommandListener(scheduler, twitchApi));
 //        twitchApi.registerEventListener(new BitWarResetCommandListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new CommandManagerListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new GenericCommandListener(scheduler, messageExpressionParser, dbManager, twitchApi));
