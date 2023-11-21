@@ -126,10 +126,10 @@ public class TwitchApi {
      * @param message message to send
      */
     public void channelAnnouncement(String message) {
-        channelAnnouncement(message, AnnouncementColor.PRIMARY);
+        channelAnnouncement(message, com.github.twitch4j.common.enums.AnnouncementColor.PRIMARY);
     }
     
-    public void channelAnnouncement(String message, AnnouncementColor color) {
+    public void channelAnnouncement(String message, com.github.twitch4j.common.enums.AnnouncementColor color) {
         String output = message.trim();
         if (output.isEmpty()) {
             return;
@@ -139,7 +139,7 @@ public class TwitchApi {
                 streamerUser.getId(),
                 botUser.getId(),
                 output,
-                AnnouncementColor.PRIMARY
+                com.github.twitch4j.common.enums.AnnouncementColor.PRIMARY
         ).execute();
     }
     
@@ -154,8 +154,12 @@ public class TwitchApi {
     
     //////////////////////////////////////////////////////////////////////////
     
-    public List<AdSchedule> getAdSchedule() throws HystrixRuntimeException {
-        return twitchClient.getHelix().getAdSchedule(botAuthToken, streamerUser.getId()).execute().getData();
+    public List<AdSchedule> getAdSchedule() {
+        try {
+            return twitchClient.getHelix().getAdSchedule(botAuthToken, streamerUser.getId()).execute().getData();
+        } catch (HystrixRuntimeException e) {
+            return new ArrayList<>();
+        }
     }
     
     public BannedUser getBannedUser(String userId) throws HystrixRuntimeException {
@@ -212,10 +216,11 @@ public class TwitchApi {
                 channelAuthToken,
                 null,
                 null,
-                id,
+                Collections.singletonList(id),
                 null,
                 null,
                 1,
+                null,
                 null,
                 null
         ).execute();
