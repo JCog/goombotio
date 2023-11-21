@@ -5,10 +5,7 @@ import com.github.twitch4j.events.ChannelChangeGameEvent;
 import com.github.twitch4j.events.ChannelChangeTitleEvent;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
-import com.github.twitch4j.pubsub.events.ChannelBitsEvent;
-import com.github.twitch4j.pubsub.events.ChannelSubGiftEvent;
-import com.github.twitch4j.pubsub.events.ChannelSubscribeEvent;
-import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
+import com.github.twitch4j.pubsub.events.*;
 
 import java.util.Map;
 
@@ -19,6 +16,8 @@ public interface TwitchEventListener {
     }
     
     ////////////////// Events //////////////////
+    default void onMidrollRequest(MidrollRequestEvent adsEvent) {}
+    
     default void onChannelMessage(ChannelMessageEvent messageEvent) {}
     
     default void onGoLive(ChannelGoLiveEvent goLiveEvent) {}

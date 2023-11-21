@@ -10,10 +10,7 @@ import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
 import com.github.twitch4j.helix.domain.*;
-import com.github.twitch4j.pubsub.events.ChannelBitsEvent;
-import com.github.twitch4j.pubsub.events.ChannelSubGiftEvent;
-import com.github.twitch4j.pubsub.events.ChannelSubscribeEvent;
-import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
+import com.github.twitch4j.pubsub.events.*;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import listeners.TwitchEventListener;
 import org.jetbrains.annotations.Nullable;
@@ -71,6 +68,8 @@ public class TwitchApi {
         }
     
         // PubSub
+        twitchClient.getPubSub().listenForAdsEvents(oauth, streamerUser.getId());
+        twitchClient.getPubSub().listenForAdsManagerEvents(oauth, streamerUser.getId(), streamerUser.getId());
         twitchClient.getPubSub().listenForCheerEvents(oauth, streamerUser.getId());
         twitchClient.getPubSub().listenForChannelPointsRedemptionEvents(oauth, streamerUser.getId());
         twitchClient.getPubSub().listenForSubscriptionEvents(oauth, streamerUser.getId());
@@ -87,6 +86,8 @@ public class TwitchApi {
     }
     
     public void registerEventListener(TwitchEventListener eventListener) {
+        twitchClient.getEventManager().onEvent(MidrollRequestEvent.class, eventListener::onMidrollRequest);
+        
         twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, eventListener::onChannelMessage);
         twitchClient.getEventManager().onEvent(ChannelGoLiveEvent.class, eventListener::onGoLive);
         twitchClient.getEventManager().onEvent(ChannelGoOfflineEvent.class, eventListener::onGoOffline);
