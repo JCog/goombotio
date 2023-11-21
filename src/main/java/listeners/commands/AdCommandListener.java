@@ -34,7 +34,9 @@ public class AdCommandListener extends CommandBase {
         AdSchedule adSchedule = adScheduleList.get(0);
         Instant nextAdInstant = adSchedule.getNextAdAt();
         long minutesLeft = ChronoUnit.MINUTES.between(Instant.now(), nextAdInstant);
-        if (minutesLeft == 0) {
+        if (minutesLeft < 0) {
+            twitchApi.channelMessage("There are currently no ads scheduled.");
+        } else if (minutesLeft == 0) {
             twitchApi.channelMessage("The next ad will run at any moment now.");
         } else {
             twitchApi.channelMessage(String.format(
