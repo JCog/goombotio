@@ -163,7 +163,7 @@ public class MainBotController {
         twitchApi.registerEventListener(new VipRaffleRewardListener(twitchApi, dbManager));
 
         // General Listeners
-        twitchApi.registerEventListener(new AdListener(twitchApi));
+        twitchApi.registerEventListener(new AdEventListener(twitchApi));
 //        twitchApi.registerEventListener(new BitWarCheerListener(twitchApi, dbManager));
         twitchApi.registerEventListener(new ChatLoggerListener(chatLogger));
         twitchApi.registerEventListener(new CloudListener(twitchApi));

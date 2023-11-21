@@ -38,9 +38,8 @@ public class AdCommandListener extends CommandBase {
             twitchApi.channelMessage("The next ad will run at any moment now.");
         } else {
             twitchApi.channelMessage(String.format(
-                    "The next ad is scheduled to run in about %d minute%s.",
-                    minutesLeft,
-                    minutesLeft == 1 ? "" : "s"
+                    "The next ad is scheduled to run in about %d minutes.",
+                    minutesLeft + 1
             ));
         }
     }
