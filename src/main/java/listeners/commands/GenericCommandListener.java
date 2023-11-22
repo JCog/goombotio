@@ -41,12 +41,22 @@ public class GenericCommandListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
-        if (messageEvent.getMessage().matches(".*\\$\\(.*\\).*") && !isReservedCommand(command)) {
-            System.out.printf(
-                    "Ignoring user (%s) attempt at custom variable: %s%n",
-                    messageEvent.getUser().getName(),
-                    messageEvent.getMessage()
-            );
+        // on the off chance there is a reserved command also in the DB, this will prevent the DB one from running
+        if (isReservedCommand(command)) {
+            return;
+        }
+        
+        if (messageEvent.getMessage().matches(".*[()].*")) {
+            String displayName;
+            if (messageEvent.getMessageEvent().getUserDisplayName().isPresent()) {
+                displayName = messageEvent.getMessageEvent().getUserDisplayName().get();
+            } else {
+                displayName = messageEvent.getUser().getName();
+            }
+            twitchApi.channelMessage(String.format(
+                    "@%s Please don't use parentheses when using commands.",
+                    displayName
+            ));
             return;
         }
 
