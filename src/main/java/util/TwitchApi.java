@@ -48,11 +48,11 @@ public class TwitchApi {
                 .withClientId(channelClientId)
                 .withDefaultAuthToken(oauth)
                 .withChatAccount(new OAuth2Credential("twitch", botAuthToken))
-                .withEnableTMI(true)
                 .withEnableHelix(true)
                 .withEnablePubSub(true)
                 .withEnableChat(true)
                 .build();
+        twitchClient.getChat().leaveChannel(botUsername);
         twitchClient.getChat().joinChannel(streamerUsername);
         twitchClient.getClientHelper().enableStreamEventListener(streamerUsername);
         
