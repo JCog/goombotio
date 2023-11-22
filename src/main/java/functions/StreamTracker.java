@@ -4,24 +4,25 @@ import com.github.twitch4j.helix.domain.Chatter;
 import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
+import database.misc.StatsBlacklistDb;
 import util.ReportBuilder;
 import util.TwitchApi;
 
-import java.io.File;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TimerTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class StreamTracker {
-    private static final String BLACKLIST_FILENAME = "blacklist.txt";
     private static final int INTERVAL = 1; //minutes
-
-    private final Set<String> blacklist = blacklistInit();
 
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
     private final ScheduledExecutorService scheduler;
+    private final StatsBlacklistDb statsBlacklistDb;
 
     private StreamData streamData;
     private ScheduledFuture<?> scheduledFuture;
@@ -30,13 +31,12 @@ public class StreamTracker {
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.scheduler = scheduler;
+        statsBlacklistDb = dbManager.getStatsBlacklistDb();
 
         streamData = null;
     }
 
     public void start() {
-
-        //TODO: make this use userIds instead of just userLogin
         scheduledFuture = scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -57,19 +57,21 @@ public class StreamTracker {
                     return;
                 }
                 if (stream != null) {
-                    Set<String> usersOnline = new HashSet<>();
+                    Set<String> onlineUserIds = new HashSet<>();
+                    Set<String> blacklistedUserIds = statsBlacklistDb.getAllIdsSet();
                     for (Chatter user : chatters) {
-                        if (!blacklist.contains(user.getUserLogin())) {
-                            usersOnline.add(user.getUserLogin());
+                        if (blacklistedUserIds.contains(user.getUserId())) {
+                            continue;
                         }
+                        onlineUserIds.add(user.getUserId());
                     }
-                    if (usersOnline.isEmpty()) {
+                    if (onlineUserIds.isEmpty()) {
                         return;
                     }
                     if (streamData == null) {
                         streamData = new StreamData(dbManager, twitchApi);
                     }
-                    streamData.updateUsersMinutes(usersOnline);
+                    streamData.updateUsersMinutes(onlineUserIds);
                     streamData.updateViewerCounts(stream.getViewerCount());
                 } else {
                     if (streamData != null) {
@@ -98,22 +100,5 @@ public class StreamTracker {
         } else {
             return streamData.getViewerMinutes(username.toLowerCase());
         }
-    }
-
-    private Set<String> blacklistInit() {
-        Set<String> blacklist = new HashSet<>();
-        try {
-            File file = new File(BLACKLIST_FILENAME);
-            Scanner sc = new Scanner(file);
-            while (sc.hasNextLine()) {
-                blacklist.add(sc.nextLine());
-            }
-            sc.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        System.out.printf("Loaded blacklist with %d entries%n", blacklist.size());
-        return blacklist;
     }
 }

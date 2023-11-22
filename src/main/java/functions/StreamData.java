@@ -56,7 +56,7 @@ public class StreamData {
 
         List<User> userList;
         try {
-            userList = twitchApi.getUserListByUsernames(userMinutes.keySet());
+            userList = twitchApi.getUserListByIds(userMinutes.keySet());
         } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             out.println("Error retrieving user data for stream, unable to save stream statistics");
@@ -64,10 +64,10 @@ public class StreamData {
         }
         //make sure this function is run before updating the database
         separateNewReturningViewers(userList);
-        streamStatsDb.addStream(watchTimeDb, startTime, endTime, viewerCounts, userMinutes);
+        streamStatsDb.addStream(watchTimeDb, startTime, endTime, viewerCounts, userMinutes, userList);
 
         for (User user : userList) {
-            int minutes = userMinutes.get(user.getLogin());
+            int minutes = userMinutes.get(user.getId());
             watchTimeDb.addMinutes(user.getId(), user.getLogin(), minutes);
         }
     }

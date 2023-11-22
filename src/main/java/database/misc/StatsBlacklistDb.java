@@ -5,7 +5,9 @@ import database.GbDatabase;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class StatsBlacklistDb extends GbCollection {
     private static final String COLLECTION_NAME = "stats_blacklist";
@@ -39,8 +41,12 @@ public class StatsBlacklistDb extends GbCollection {
     }
     
     
-    public List<String> getAllIds() {
+    public List<String> getAllIdsList() {
         return findAll().map(document -> document.getString(ID_KEY)).into(new ArrayList<>());
+    }
+    
+    public Set<String> getAllIdsSet() {
+        return findAll().map(document -> document.getString(ID_KEY)).into(new HashSet<>());
     }
     
 }
