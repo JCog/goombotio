@@ -24,6 +24,7 @@ public class DbManager {
     private final VipDb vipDb;
     private final QuoteDb quoteDb;
     private final SocialSchedulerDb socialSchedulerDb;
+    private final StatsBlacklistDb statsBlacklistDb;
     private final TattleDb tattleDb;
     private final ViewerQueueDb viewerQueueDb;
     private final VipRaffleDb vipRaffleDb;
@@ -56,6 +57,7 @@ public class DbManager {
         minecraftUserDb = new MinecraftUserDb(gbDatabase);
         quoteDb = new QuoteDb(gbDatabase);
         socialSchedulerDb = new SocialSchedulerDb(gbDatabase);
+        statsBlacklistDb = new StatsBlacklistDb(gbDatabase);
         tattleDb = new TattleDb(gbDatabase);
         viewerQueueDb = new ViewerQueueDb(gbDatabase);
         vipDb = new VipDb(gbDatabase);
@@ -109,6 +111,10 @@ public class DbManager {
 
     public SocialSchedulerDb getSocialSchedulerDb() {
         return socialSchedulerDb;
+    }
+    
+    public StatsBlacklistDb getStatsBlacklistDb() {
+        return statsBlacklistDb;
     }
 
     public TattleDb getTattleDb() {
