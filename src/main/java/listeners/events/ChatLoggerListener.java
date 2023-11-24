@@ -1,5 +1,6 @@
 package listeners.events;
 
+import com.github.twitch4j.chat.events.channel.ChannelMessageActionEvent;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.chat.events.channel.ModAnnouncementEvent;
 import listeners.TwitchEventListener;
@@ -20,5 +21,14 @@ public class ChatLoggerListener implements TwitchEventListener {
     @Override
     public void onAnnouncement(ModAnnouncementEvent announcementEvent) {
         chatLogger.logAnnouncement(announcementEvent);
+    }
+    
+    @Override
+    public void onChannelMessageAction(ChannelMessageActionEvent messageActionEvent) {
+        chatLogger.logMessage(
+                messageActionEvent.getUser().getId(),
+                messageActionEvent.getUser().getName(),
+                "/me " + messageActionEvent.getMessage()
+        );
     }
 }

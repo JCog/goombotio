@@ -3,6 +3,7 @@ package util;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
+import com.github.twitch4j.chat.events.channel.ChannelMessageActionEvent;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.chat.events.channel.ModAnnouncementEvent;
 import com.github.twitch4j.events.ChannelChangeGameEvent;
@@ -90,6 +91,7 @@ public class TwitchApi {
         twitchClient.getEventManager().onEvent(MidrollRequestEvent.class, eventListener::onMidrollRequest);
         
         twitchClient.getEventManager().onEvent(ModAnnouncementEvent.class, eventListener::onAnnouncement);
+        twitchClient.getEventManager().onEvent(ChannelMessageActionEvent.class, eventListener::onChannelMessageAction);
         twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, eventListener::onChannelMessage);
         twitchClient.getEventManager().onEvent(ChannelGoLiveEvent.class, eventListener::onGoLive);
         twitchClient.getEventManager().onEvent(ChannelGoOfflineEvent.class, eventListener::onGoOffline);
