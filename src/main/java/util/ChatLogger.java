@@ -1,6 +1,7 @@
 package util;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.chat.events.channel.ModAnnouncementEvent;
 import com.github.twitch4j.helix.domain.User;
 
 import java.io.BufferedWriter;
@@ -17,6 +18,7 @@ public class ChatLogger {
     private static final String LOCATION = "chat_logs/";
     private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss z";
     private static final String FILENAME_FORMAT = "yyyy-MM-dd";
+    private static final String ANNOUNCEMENT_COMMAND = "/announce ";
 
     private PrintWriter writer = null;
     private Calendar currentDate;
@@ -32,29 +34,54 @@ public class ChatLogger {
         }
     }
     
+    public void logAnnouncement(ModAnnouncementEvent announcementEvent) {
+        logMessage(
+                announcementEvent.getMessageEvent().getUserId(),
+                announcementEvent.getMessageEvent().getUser().getName(),
+                ANNOUNCEMENT_COMMAND + announcementEvent.getMessage()
+        );
+    }
+    
+    public void logAnnouncement(User user, String message) {
+        logMessage(
+                user.getId(),
+                user.getDisplayName(),
+                ANNOUNCEMENT_COMMAND + message
+        );
+    }
+    
     public void logMessage(ChannelMessageEvent messageEvent) {
-        logMessage(Long.parseLong(messageEvent.getUser().getId()), messageEvent.getUser().getName(), messageEvent.getMessage());
+        logMessage(
+                messageEvent.getUser().getId(),
+                messageEvent.getUser().getName(),
+                messageEvent.getMessage()
+        );
     }
     
     public void logMessage(User user, String message) {
-        logMessage(Long.parseLong(user.getId()), user.getDisplayName(), message);
+        logMessage(
+                user.getId(),
+                user.getDisplayName(),
+                message
+        );
     }
 
-    public void logMessage(long userId, String displayName, String message) {
+    public void logMessage(String userId, String displayName, String message) {
         if (isNewDayUTC()) {
             currentDate = getCurrentDateUTC();
             openNewFile();
         }
-        if (writer != null) {
-            writer.write(String.format(
-                    "%s %d %s: %s\n",
-                    getDateString(),
-                    userId,
-                    displayName,
-                    message
-            ));
-            writer.flush();
+        if (writer == null) {
+            return;
         }
+        writer.write(String.format(
+                "%s %s %s: %s\n",
+                getDateString(),
+                userId,
+                displayName,
+                message
+        ));
+        writer.flush();
     }
 
     private void openNewFile() {

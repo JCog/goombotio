@@ -1,6 +1,7 @@
 package listeners;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.chat.events.channel.ModAnnouncementEvent;
 import com.github.twitch4j.events.ChannelChangeGameEvent;
 import com.github.twitch4j.events.ChannelChangeTitleEvent;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
@@ -17,6 +18,8 @@ public interface TwitchEventListener {
     
     ////////////////// Events //////////////////
     default void onMidrollRequest(MidrollRequestEvent adsEvent) {}
+    
+    default void onAnnouncement(ModAnnouncementEvent announcementEvent) {}
     
     default void onChannelMessage(ChannelMessageEvent messageEvent) {}
     

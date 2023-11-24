@@ -4,6 +4,7 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.chat.events.channel.ModAnnouncementEvent;
 import com.github.twitch4j.events.ChannelChangeGameEvent;
 import com.github.twitch4j.events.ChannelChangeTitleEvent;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
@@ -88,6 +89,7 @@ public class TwitchApi {
     public void registerEventListener(TwitchEventListener eventListener) {
         twitchClient.getEventManager().onEvent(MidrollRequestEvent.class, eventListener::onMidrollRequest);
         
+        twitchClient.getEventManager().onEvent(ModAnnouncementEvent.class, eventListener::onAnnouncement);
         twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, eventListener::onChannelMessage);
         twitchClient.getEventManager().onEvent(ChannelGoLiveEvent.class, eventListener::onGoLive);
         twitchClient.getEventManager().onEvent(ChannelGoOfflineEvent.class, eventListener::onGoOffline);
@@ -134,13 +136,18 @@ public class TwitchApi {
         if (output.isEmpty()) {
             return;
         }
-        twitchClient.getHelix().sendChatAnnouncement(
-                botAuthToken,
-                streamerUser.getId(),
-                botUser.getId(),
-                output,
-                com.github.twitch4j.common.enums.AnnouncementColor.PRIMARY
-        ).execute();
+        if (silentChat) {
+            out.println("SILENT_CHAT: /announce " + message);
+        } else {
+            twitchClient.getHelix().sendChatAnnouncement(
+                    botAuthToken,
+                    streamerUser.getId(),
+                    botUser.getId(),
+                    output,
+                    com.github.twitch4j.common.enums.AnnouncementColor.PRIMARY
+            ).execute();
+            chatLogger.logAnnouncement(botUser, message);
+        }
     }
     
     private void sendMessage(String message) {
