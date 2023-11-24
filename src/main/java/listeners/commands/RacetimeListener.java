@@ -5,6 +5,7 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class RacetimeListener extends CommandBase {
@@ -25,10 +26,9 @@ public class RacetimeListener extends CommandBase {
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         String spectateUrl = RacetimeApi.getSpectateUrl(USERNAME, GAME_SLUG);
-        if (spectateUrl == null) {
-            twitchApi.channelMessage("There are currently no active races to spectate.");
-        } else {
-            twitchApi.channelMessage(spectateUrl);
-        }
+        twitchApi.channelMessage(Objects.requireNonNullElse(
+                spectateUrl,
+                "There are currently no active races to spectate."
+        ));
     }
 }

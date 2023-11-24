@@ -3,6 +3,7 @@ package listeners.commands;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import database.DbManager;
 import database.misc.CommandDb;
+import listeners.TwitchEventListener;
 import util.MessageExpressionParser;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
@@ -47,12 +48,7 @@ public class GenericCommandListener extends CommandBase {
         }
         
         if (messageEvent.getMessage().matches(".*[()].*")) {
-            String displayName;
-            if (messageEvent.getMessageEvent().getUserDisplayName().isPresent()) {
-                displayName = messageEvent.getMessageEvent().getUserDisplayName().get();
-            } else {
-                displayName = messageEvent.getUser().getName();
-            }
+            String displayName = TwitchEventListener.getDisplayName(messageEvent);
             twitchApi.channelMessage(String.format(
                     "@%s Please don't use parentheses when using commands.",
                     displayName

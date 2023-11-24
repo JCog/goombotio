@@ -9,12 +9,13 @@ import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import com.github.twitch4j.pubsub.events.*;
 
-import java.util.Map;
-
 public interface TwitchEventListener {
-    // TODO: should probably look into doing this in a more general way, without requiring the tags directly
-    static String getDisplayName(Map<String, String> eventTags) {
-        return eventTags.get("display-name");
+    static String getDisplayName(ChannelMessageEvent messageEvent) {
+        if (messageEvent.getMessageEvent().getUserDisplayName().isPresent()) {
+            return messageEvent.getMessageEvent().getUserDisplayName().get();
+        } else {
+            return messageEvent.getUser().getName();
+        }
     }
     
     ////////////////// Events //////////////////

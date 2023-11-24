@@ -226,7 +226,7 @@ public class MessageExpressionParser {
                         return userArgs[1];
                     }
                 } else {
-                    return TwitchEventListener.getDisplayName(messageEvent.getMessageEvent().getTags());
+                    return TwitchEventListener.getDisplayName(messageEvent);
                 }
             }
             case TYPE_UPTIME: {
@@ -250,7 +250,7 @@ public class MessageExpressionParser {
                 if (messageEvent == null) {
                     return ERROR_NON_COMMAND;
                 }
-                return TwitchEventListener.getDisplayName(messageEvent.getMessageEvent().getTags());
+                return TwitchEventListener.getDisplayName(messageEvent);
             }
             case TYPE_USER_ID: {
                 if (messageEvent == null) {

@@ -76,7 +76,7 @@ public class LeaderboardListener extends CommandBase {
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         String chatMessage = "";
         String userId = messageEvent.getUser().getId();
-        String displayName = TwitchEventListener.getDisplayName(messageEvent.getMessageEvent().getTags());
+        String displayName = TwitchEventListener.getDisplayName(messageEvent);
 
         updateLeaderboardType();
         if (leaderboard == null) {
