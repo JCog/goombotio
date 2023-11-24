@@ -44,6 +44,11 @@ public class MainBotController {
 
     public MainBotController() {
         settings = new Settings();
+        out.printf(
+                "\nWrite permission: %s\nSilent Chat: %s\n\n",
+                settings.hasWritePermission() ? "TRUE" : "FALSE",
+                settings.isSilentMode() ? "TRUE" : "FALSE"
+        );
         dbManager = new DbManager(
                 settings.getDbHost(),
                 settings.getDbPort(),
