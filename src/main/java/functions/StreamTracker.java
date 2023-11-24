@@ -72,7 +72,7 @@ public class StreamTracker {
                         streamData = new StreamData(dbManager, twitchApi);
                     }
                     streamData.updateUsersMinutes(onlineUserIds);
-                    streamData.updateViewerCounts(stream.getViewerCount());
+                    streamData.updateStreamViewCount(stream.getViewerCount());
                 } else {
                     if (streamData != null) {
                         streamData.endStream();
@@ -86,19 +86,19 @@ public class StreamTracker {
 
     public void stop() {
         scheduledFuture.cancel(false);
-        if (streamData != null) {
-            streamData.endStream();
-            ReportBuilder.generateReport(dbManager, streamData);
-            streamData = null;
+        if (streamData == null) {
+            return;
         }
+        streamData.endStream();
+        ReportBuilder.generateReport(dbManager, streamData);
+        streamData = null;
     }
 
     //returns the length of time the given user has been watching the stream, 0 if there's no stream
-    public int getViewerMinutes(String username) {
+    public int getViewerMinutesById(String userId) {
         if (streamData == null) {
             return 0;
-        } else {
-            return streamData.getViewerMinutes(username.toLowerCase());
         }
+        return streamData.getViewerMinutesById(userId);
     }
 }

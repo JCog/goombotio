@@ -42,7 +42,7 @@ public class WatchTimeListener extends CommandBase {
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         StringBuilder output = new StringBuilder();
         int minutes = watchTimeDb.getMinutesByEventUser(messageEvent.getUser())
-                      + streamTracker.getViewerMinutes(messageEvent.getUser().getName());
+                      + streamTracker.getViewerMinutesById(messageEvent.getUser().getId());
         output.append(String.format(
                 "@%s %s",
                 messageEvent.getUser().getName(),

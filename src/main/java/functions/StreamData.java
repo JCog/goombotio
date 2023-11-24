@@ -14,7 +14,7 @@ import static java.lang.System.out;
 
 public class StreamData {
 
-    private final Map<String,Integer> userMinutes = new HashMap<>();
+    private final Map<String,Integer> userMinutes = new HashMap<>(); // userId, minutes
     private final List<Integer> viewerCounts = new ArrayList<>();
     private final List<User> newViewers = new ArrayList<>();
     private final List<User> returningViewers = new ArrayList<>();
@@ -37,14 +37,14 @@ public class StreamData {
         startTime = new Date();
     }
 
-    public void updateUsersMinutes(Collection<String> userList) {
-        for (String user : userList) {
+    public void updateUsersMinutes(Collection<String> userIdList) {
+        for (String user : userIdList) {
             userMinutes.putIfAbsent(user, 0);
             userMinutes.put(user, userMinutes.get(user) + 1);
         }
     }
 
-    public void updateViewerCounts(int viewCount) {
+    public void updateStreamViewCount(int viewCount) {
         viewerCounts.add(viewCount);
     }
 
@@ -129,8 +129,8 @@ public class StreamData {
         return Math.toIntExact(TimeUnit.MILLISECONDS.toMinutes(duration));
     }
 
-    public int getViewerMinutes(String username) {
-        Integer minutes = userMinutes.get(username.toLowerCase());
+    public int getViewerMinutesById(String userId) {
+        Integer minutes = userMinutes.get(userId);
         return Objects.requireNonNullElse(minutes, 0);
     }
 
@@ -139,21 +139,21 @@ public class StreamData {
     }
 
     //probably want to replace this with something better at some point
-    public List<Map.Entry<String,Integer>> getOrderedWatchtimeList(List<User> userList) {
-        List<Map.Entry<String,Integer>> output = new ArrayList<>();
+    public List<Map.Entry<User,Integer>> getOrderedWatchtimeList(List<User> userList) {
+        List<Map.Entry<User,Integer>> output = new ArrayList<>();
         for (User user : userList) {
             output.add(new AbstractMap.SimpleEntry<>(
-                    user.getDisplayName(),
+                    user,
                     userMinutes.get(user.getLogin())
             ));
         }
-        output.sort(new SortMapDescending());
+        output.sort(new SortUserMapDescending());
         return output;
     }
 
     //probably want to replace this with something better at some point
-    public List<Map.Entry<String,Integer>> getTopFollowerCounts() {
-        List<Map.Entry<String,Integer>> followerCounts = new ArrayList<>();
+    public List<Map.Entry<User,Integer>> getTopFollowerCounts() {
+        List<Map.Entry<User,Integer>> followerCounts = new ArrayList<>();
         List<User> allViewers = new ArrayList<>(newViewers);
         allViewers.addAll(returningViewers);
 
@@ -166,9 +166,9 @@ public class StreamData {
                 out.printf("Error retrieving follower count for %s%n", user.getDisplayName());
                 continue;
             }
-            followerCounts.add(new AbstractMap.SimpleEntry<>(user.getDisplayName(), followCount));
+            followerCounts.add(new AbstractMap.SimpleEntry<>(user, followCount));
         }
-        followerCounts.sort(new SortMapDescending());
+        followerCounts.sort(new SortUserMapDescending());
         return followerCounts;
     }
 
@@ -187,11 +187,11 @@ public class StreamData {
             }
         }
     }
-
-    private static class SortMapDescending implements Comparator<Map.Entry<String,Integer>> {
-
+    
+    private static class SortUserMapDescending implements Comparator<Map.Entry<User,Integer>> {
+        
         @Override
-        public int compare(Map.Entry<String,Integer> o1, Map.Entry<String,Integer> o2) {
+        public int compare(Map.Entry<User,Integer> o1, Map.Entry<User,Integer> o2) {
             return o2.getValue() - o1.getValue();
         }
     }

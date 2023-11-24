@@ -95,7 +95,7 @@ public class FollowLogger {
                                 getDateString(),
                                 newFollowerUser.getDisplayName(),
                                 dateToString(watchTimeDb.getFirstSeenById(idLong)),
-                                watchTimeDb.getMinutesById(idLong) + streamTracker.getViewerMinutes(newFollowerUser.getLogin())
+                                watchTimeDb.getMinutesById(idLong) + streamTracker.getViewerMinutesById(newFollowerUser.getId())
                         ));
                     } else {
                         String name = watchTimeDb.getNameById(idLong);
@@ -128,7 +128,7 @@ public class FollowLogger {
                                 unfollowerUser.getDisplayName(),
                                 dateToString(watchTimeDb.getFirstSeenById(idLong)),
                                 dateToString(watchTimeDb.getLastSeenById(idLong)),
-                                watchTimeDb.getMinutesById(idLong) + streamTracker.getViewerMinutes(unfollowerUser.getLogin())
+                                watchTimeDb.getMinutesById(idLong) + streamTracker.getViewerMinutesById(unfollowerUser.getId())
                         ));
                     } else {
                         String name = watchTimeDb.getNameById(idLong);
