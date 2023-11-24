@@ -134,7 +134,7 @@ public class StreamData {
         return Objects.requireNonNullElse(minutes, 0);
     }
 
-    public Map<String,Integer> getAllViewerMinutes() {
+    public Map<String,Integer> getAllViewerMinutesById() {
         return userMinutes;
     }
 

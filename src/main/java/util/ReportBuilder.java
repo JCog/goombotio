@@ -69,24 +69,37 @@ public class ReportBuilder {
         int maxFollowers = 0;
         int maxMinutes = 0;
         for (int i = 0; i < 20 && i < biggestViewers.size(); i++) {
-            String name = biggestViewers.get(i).getKey().getDisplayName();
+            User user = biggestViewers.get(i).getKey();
+            int followerCount = biggestViewers.get(i).getValue();
+            
+            String name = user.getDisplayName();
             maxIndex = i + 1;
             maxNameLength = Math.max(maxNameLength, name.length());
-            maxFollowers = Math.max(maxFollowers, biggestViewers.get(i).getValue());
-            maxMinutes = Math.max(maxMinutes, streamData.getViewerMinutesById(name));
+            maxFollowers = Math.max(maxFollowers, followerCount);
+            maxMinutes = Math.max(maxMinutes, streamData.getViewerMinutesById(user.getId()));
         }
         for (int i = 0; i < 10 && i < biggestViewers.size(); i++) {
             int index = i + 1;
+            User user = biggestViewers.get(i).getKey();
+            int followerCount = biggestViewers.get(i).getValue();
+            
             String name = biggestViewers.get(i).getKey().getDisplayName();
-            int followers = biggestViewers.get(i).getValue();
-            int minutes = streamData.getViewerMinutesById(name);
-            allViewersReport.append(buildPaddedBiggestViewersString(index, name, followers, minutes,
-                                                                    maxIndex, maxNameLength, maxFollowers, maxMinutes));
+            int minutes = streamData.getViewerMinutesById(user.getId());
+            allViewersReport.append(buildPaddedBiggestViewersString(
+                    index,
+                    name,
+                    followerCount,
+                    minutes,
+                    maxIndex,
+                    maxNameLength,
+                    maxFollowers,
+                    maxMinutes
+            ));
         }
 
         allViewersReport.append("\n");
 
-        Map<String,Integer> usersMap = streamData.getAllViewerMinutes();
+        Map<String,Integer> usersMap = streamData.getAllViewerMinutesById();
         for (Integer value : usersMap.values()) {
             allWatchTime += value;
         }
@@ -100,14 +113,16 @@ public class ReportBuilder {
         int weightedAgeNumer = 0;
         int weightedAgeDenom = 0;
         for (Map.Entry<String,Integer> entry : usersMap.entrySet()) {
-            String name = entry.getKey();
+            String userId = entry.getKey();
             int minutes = entry.getValue();
-            Date firstSeen = watchTimeDb.getFirstSeenByUsername(name);
+            Date firstSeen = watchTimeDb.getFirstSeenById(Long.parseLong(userId));
             if (firstSeen == null) {
                 firstSeen = getDate();
             }
-            int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(getDate().getTime() - firstSeen.getTime(),
-                                                                TimeUnit.MILLISECONDS));
+            int ageDays = Math.toIntExact(TimeUnit.DAYS.convert(
+                    getDate().getTime() - firstSeen.getTime(),
+                    TimeUnit.MILLISECONDS
+            ));
 
             totalAge += ageDays;
             weightedAgeNumer += ageDays * minutes;
@@ -125,14 +140,16 @@ public class ReportBuilder {
         return allViewersReport.toString();
     }
 
-    private static String buildPaddedBiggestViewersString(int index,
-                                                          String name,
-                                                          int followers,
-                                                          int minutes,
-                                                          int maxIndex,
-                                                          int maxNameLength,
-                                                          int maxFollowers,
-                                                          int maxMinutes) {
+    private static String buildPaddedBiggestViewersString(
+            int index,
+            String name,
+            int followers,
+            int minutes,
+            int maxIndex,
+            int maxNameLength,
+            int maxFollowers,
+            int maxMinutes
+    ) {
         StringBuilder output = new StringBuilder();
         int indexPadding = ((int) Math.log10(maxIndex) + 1) - ((int) Math.log10(index) + 1);
         int namePadding = maxNameLength - name.length();
