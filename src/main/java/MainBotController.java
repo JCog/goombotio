@@ -39,7 +39,7 @@ public class MainBotController {
     private final MessageExpressionParser messageExpressionParser;
     private final ScheduledMessageController scheduledMessageController;
     private final FollowLogger followLogger;
-    private final MinecraftWhitelistUpdater minecraftWhitelistUpdater;
+//    private final MinecraftWhitelistUpdater minecraftWhitelistUpdater;
     private final SubPointUpdater subPointUpdater;
 
     public MainBotController() {
@@ -90,15 +90,15 @@ public class MainBotController {
                 streamTracker,
                 scheduler
         );
-        minecraftWhitelistUpdater = new MinecraftWhitelistUpdater(
-                dbManager,
-                twitchApi,
-                scheduler,
-                settings.getMinecraftServer(),
-                settings.getMinecraftUser(),
-                settings.getMinecraftPassword(),
-                settings.getMinecraftWhitelistLocation()
-        );
+//        minecraftWhitelistUpdater = new MinecraftWhitelistUpdater(
+//                dbManager,
+//                twitchApi,
+//                scheduler,
+//                settings.getMinecraftServer(),
+//                settings.getMinecraftUser(),
+//                settings.getMinecraftPassword(),
+//                settings.getMinecraftWhitelistLocation()
+//        );
         subPointUpdater = new SubPointUpdater(twitchApi, settings);
     }
 
@@ -108,7 +108,7 @@ public class MainBotController {
         followLogger.start();
         registerListeners();
         streamTracker.start();
-        minecraftWhitelistUpdater.start();
+//        minecraftWhitelistUpdater.start();
         subPointUpdater.start();
         out.println("success.");
 
@@ -129,7 +129,7 @@ public class MainBotController {
 
     public void closeAll() {
         subPointUpdater.stop();
-        minecraftWhitelistUpdater.stop();
+//        minecraftWhitelistUpdater.stop();
         streamTracker.stop();
         scheduledMessageController.stop();
         followLogger.stop();
@@ -149,7 +149,7 @@ public class MainBotController {
         twitchApi.registerEventListener(new CommandManagerListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new GenericCommandListener(scheduler, messageExpressionParser, dbManager, twitchApi));
         twitchApi.registerEventListener(new LeaderboardListener(scheduler, dbManager, twitchApi));
-        twitchApi.registerEventListener(new MinecraftListener(scheduler, twitchApi, dbManager, minecraftWhitelistUpdater));
+//        twitchApi.registerEventListener(new MinecraftListener(scheduler, twitchApi, dbManager, minecraftWhitelistUpdater));
 //        twitchApi.registerEventListener(new ModListener(scheduler, twitchApi));
         twitchApi.registerEventListener(new QuoteListener(scheduler, dbManager, twitchApi));
         twitchApi.registerEventListener(new PermanentVipListener(scheduler, twitchApi, dbManager));
