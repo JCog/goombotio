@@ -7,6 +7,7 @@ import org.bson.Document;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class StreamStatsDb extends GbCollection {
     private static final String COLLECTION_NAME = "streamstats";
@@ -33,18 +34,18 @@ public class StreamStatsDb extends GbCollection {
     /**
      * Adds a stream to the database
      *
-     * @param startTime      time the stream started
-     * @param endTime        time the stream ended
-     * @param viewerCounts   array of the viewer counts for every minute of the stream
-     * @param userMinutesMap map of user IDs and how long they spent watching each stream
-     * @param twitchUserList list of users from Twitch's API
+     * @param startTime        time the stream started
+     * @param endTime          time the stream ended
+     * @param viewerCounts     array of the viewer counts for every minute of the stream
+     * @param userIdMinutesMap map of user IDs and how long they spent watching each stream
+     * @param twitchUserList   list of users from Twitch's API
      */
     public void addStream(
             WatchTimeDb watchTimeDb,
             Date startTime,
             Date endTime,
             List<Integer> viewerCounts,
-            Map<String,Integer> userMinutesMap,
+            Map<String,Integer> userIdMinutesMap,
             List<User> twitchUserList
     ) {
         String streamKey = getNewStreamKey();
@@ -52,14 +53,19 @@ public class StreamStatsDb extends GbCollection {
                 .append(START_KEY, startTime)
                 .append(END_KEY, endTime)
                 .append(VIEW_COUNTS_KEY, viewerCounts);
-
+        
+        Map<String, String> userIdNameMap = twitchUserList.stream().collect(
+                Collectors.toMap(User::getId, User::getDisplayName)
+        );
+        
         List<Document> userList = new ArrayList<>();
-        for (User user : twitchUserList) {
-            String id = user.getId();
-            String username = user.getDisplayName();
-            int minutes = userMinutesMap.get(id);
-            boolean newUser = watchTimeDb.getMinutesByUsername(username) == 0;
-            userList.add(new Document(USER_ID, id)
+        for (Map.Entry<String,Integer> entry : userIdMinutesMap.entrySet()) {
+            String userId = entry.getKey();
+            int minutes = entry.getValue();
+            String username = userIdNameMap.get(userId);
+            boolean newUser = watchTimeDb.getMinutesById(Long.parseLong(userId)) == 0;
+            userList.add(
+                    new Document(USER_ID, userId)
                             .append(USERNAME_KEY, username)
                             .append(MINUTES_KEY, minutes)
                             .append(NEW_USER_KEY, newUser)
