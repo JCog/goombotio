@@ -156,7 +156,7 @@ public class TwitchApi {
     
     public List<AdSchedule> getAdSchedule() {
         try {
-            return twitchClient.getHelix().getAdSchedule(botAuthToken, streamerUser.getId()).execute().getData();
+            return twitchClient.getHelix().getAdSchedule(channelAuthToken, streamerUser.getId()).execute().getData();
         } catch (HystrixRuntimeException e) {
             return new ArrayList<>();
         }
