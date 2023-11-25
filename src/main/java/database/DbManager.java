@@ -3,6 +3,7 @@ package database;
 import database.emotes.*;
 import database.misc.*;
 import database.preds.BadgeShopLeaderboardDb;
+import database.preds.BoosterHillLeaderboardDb;
 import database.preds.DampeRaceLeaderboardDb;
 import database.preds.PiantaSixLeaderboardDb;
 import database.stats.StreamStatsDb;
@@ -33,6 +34,7 @@ public class DbManager {
     private final DampeRaceLeaderboardDb dampeRaceLeaderboardDb;
     private final BadgeShopLeaderboardDb badgeShopLeaderboardDb;
     private final PiantaSixLeaderboardDb piantaSixLeaderboardDb;
+    private final BoosterHillLeaderboardDb boosterHillLeaderboardDb;
 
     // stats DBs
     private final StreamStatsDb streamStatsDb;
@@ -66,6 +68,7 @@ public class DbManager {
         dampeRaceLeaderboardDb = new DampeRaceLeaderboardDb(gbDatabase);
         badgeShopLeaderboardDb = new BadgeShopLeaderboardDb(gbDatabase);
         piantaSixLeaderboardDb = new PiantaSixLeaderboardDb(gbDatabase);
+        boosterHillLeaderboardDb = new BoosterHillLeaderboardDb(gbDatabase);
 
         streamStatsDb = new StreamStatsDb(gbDatabase);
         watchTimeDb = new WatchTimeDb(gbDatabase);
@@ -143,6 +146,10 @@ public class DbManager {
 
     public PiantaSixLeaderboardDb getPiantaSixLeaderboardDb() {
         return piantaSixLeaderboardDb;
+    }
+    
+    public BoosterHillLeaderboardDb getBoosterHillLeaderboardDb() {
+        return boosterHillLeaderboardDb;
     }
 
     public StreamStatsDb getStreamStatsDb() {

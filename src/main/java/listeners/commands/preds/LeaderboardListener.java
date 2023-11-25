@@ -39,12 +39,17 @@ public class LeaderboardListener extends CommandBase {
             "right you'll get 50 points and a free gift sub! If nobody is exactly right, whoever's closest will get " +
             "an additional 10 point bonus, and at the end of every month, the top five scorers will be given a VIP " +
             "badge for the next month, so get guessing!";
+    private static final String PREDS_MESSASGE_SMRPG_SWITCH =
+            "Guess how many Flowers JCog will get during Booster Hill to win raffle entries for next month's VIP " +
+            "raffle! Get 2 for being two flowers off, 5 for being one off, or 20 for guessing correctly! You'll " +
+            "always get at least one entry just for participating, so get guessing!";
     private static final String PREDS_MESSAGE_DEFAULT =
             "Either the stream isn't live or the current game does not have a preds leaderboard.";
     
     private static final String GAME_ID_OOT = "11557";
     private static final String GAME_ID_PAPER_MARIO = "18231";
     private static final String GAME_ID_SUNSHINE = "6086";
+    private static final String GAME_ID_SMRPG_SWITCH = "1675405846";
 
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
@@ -109,6 +114,9 @@ public class LeaderboardListener extends CommandBase {
                             case GAME_ID_SUNSHINE:
                                 chatMessage = PREDS_MESSAGE_SMS;
                                 break;
+                            case GAME_ID_SMRPG_SWITCH:
+                                chatMessage = PREDS_MESSASGE_SMRPG_SWITCH;
+                                break;
                             default:
                                 chatMessage = PREDS_MESSAGE_DEFAULT;
                                 break;
@@ -129,6 +137,9 @@ public class LeaderboardListener extends CommandBase {
                 break;
             case GAME_ID_SUNSHINE:
                 leaderboard = dbManager.getPiantaSixLeaderboardDb();
+                break;
+            case GAME_ID_SMRPG_SWITCH:
+                leaderboard = dbManager.getBoosterHillLeaderboardDb();
                 break;
             default:
                 leaderboard = null;

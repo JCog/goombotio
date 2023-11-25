@@ -5,10 +5,7 @@ import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import functions.DiscordBotController;
-import functions.preds.BadgeShopPredsManager;
-import functions.preds.DampeRacePredsManager;
-import functions.preds.PiantaSixPredsManager;
-import functions.preds.PredsManagerBase;
+import functions.preds.*;
 import listeners.commands.CommandBase;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
@@ -27,6 +24,7 @@ public class PredsManagerListener extends CommandBase {
     private static final String GAME_ID_OOT = "11557";
     private static final String GAME_ID_PAPER_MARIO = "18231";
     private static final String GAME_ID_SUNSHINE = "6086";
+    private static final String GAME_ID_SMRPG_SWITCH = "1675405846";
 
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
@@ -78,6 +76,8 @@ public class PredsManagerListener extends CommandBase {
                         case GAME_ID_SUNSHINE:
                             predsManager = new PiantaSixPredsManager(dbManager, discord, twitchApi);
                             break;
+                        case GAME_ID_SMRPG_SWITCH:
+                            predsManager = new BoosterHillPredsManager(dbManager, discord, twitchApi);
                         default:
                             twitchApi.channelMessage("The current game is not compatible with preds.");
                             return;
