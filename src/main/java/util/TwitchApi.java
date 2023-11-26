@@ -370,9 +370,27 @@ public class TwitchApi {
         } while (cursor != null);
         return modsOutput;
     }
-
+    
     @Nullable
-    public Stream getStream(String streamer) throws HystrixRuntimeException {
+    public Stream getStreamByUserId(String userId) throws HystrixRuntimeException {
+        StreamList streamList = twitchClient.getHelix().getStreams(
+                channelAuthToken,
+                "",
+                "",
+                1,
+                null,
+                null,
+                Collections.singletonList(userId),
+                null
+        ).execute();
+        if (streamList.getStreams().isEmpty()) {
+            return null;
+        }
+        return streamList.getStreams().get(0);
+    }
+    
+    @Nullable
+    public Stream getStreamByUsername(String username) throws HystrixRuntimeException {
         StreamList streamList = twitchClient.getHelix().getStreams(
                 channelAuthToken,
                 "",
@@ -381,7 +399,8 @@ public class TwitchApi {
                 null,
                 null,
                 null,
-                Collections.singletonList(streamer)).execute();
+                Collections.singletonList(username)
+        ).execute();
         if (streamList.getStreams().isEmpty()) {
             return null;
         }

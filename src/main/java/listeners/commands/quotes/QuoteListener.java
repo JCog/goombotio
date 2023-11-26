@@ -101,7 +101,10 @@ public class QuoteListener extends CommandBase {
             case PATTERN_ADD_QUOTE: {
                 if (userLevel.value >= USER_LEVEL.VIP.value) {
                     //only allow VIPs to add quotes if the stream is live
-                    if (userLevel.value == USER_LEVEL.VIP.value && twitchApi.getStream(twitchApi.getStreamerUser().getLogin()) == null) {
+                    if (
+                            userLevel.value == USER_LEVEL.VIP.value &&
+                            twitchApi.getStreamByUsername(twitchApi.getStreamerUser().getLogin()) == null
+                    ) {
                         twitchApi.channelMessage(ERROR_NOT_LIVE);
                         break;
                     }
@@ -109,7 +112,11 @@ public class QuoteListener extends CommandBase {
                         twitchApi.channelMessage(ERROR_MISSING_ARGUMENTS);
                         break;
                     }
-                    QuoteItem quoteItem = quoteDb.addQuote(content, Long.parseLong(messageEvent.getUser().getId()), true);
+                    QuoteItem quoteItem = quoteDb.addQuote(
+                            content,
+                            Long.parseLong(messageEvent.getUser().getId()),
+                            true
+                    );
                     quoteUndoEngine.storeUndoAction(ADD, quoteItem);
                     twitchApi.channelMessage(String.format("Successfully added quote #%d", quoteItem.getIndex()));
                 }
@@ -148,7 +155,12 @@ public class QuoteListener extends CommandBase {
                         twitchApi.channelMessage(getBadIndexError(editSplit[0]));
                         break;
                     }
-                    QuoteItem quote = quoteDb.editQuote(editIndex, editSplit[1], Long.parseLong(messageEvent.getUser().getId()), true);
+                    QuoteItem quote = quoteDb.editQuote(
+                            editIndex,
+                            editSplit[1],
+                            Long.parseLong(messageEvent.getUser().getId()),
+                            true
+                    );
                     quoteUndoEngine.storeUndoAction(EDIT, quote);
                     twitchApi.channelMessage(String.format("Successfully edited quote #%d", editIndex));
                 }

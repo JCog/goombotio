@@ -42,7 +42,7 @@ public class StreamTracker {
             public void run() {
                 Stream stream;
                 try {
-                    stream = twitchApi.getStream(twitchApi.getStreamerUser().getLogin());
+                    stream = twitchApi.getStreamByUsername(twitchApi.getStreamerUser().getLogin());
                 } catch (HystrixRuntimeException e) {
                     e.printStackTrace();
                     System.out.println("Error retrieving stream for StreamTracker, skipping interval");

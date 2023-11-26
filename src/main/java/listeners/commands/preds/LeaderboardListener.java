@@ -132,6 +132,7 @@ public class LeaderboardListener extends CommandBase {
         switch (getGameId()) {
             case GAME_ID_OOT:
                 leaderboard = dbManager.getDampeRaceLeaderboardDb();
+                break;
             case GAME_ID_PAPER_MARIO:
                 leaderboard = dbManager.getBadgeShopLeaderboardDb();
                 break;
@@ -149,7 +150,7 @@ public class LeaderboardListener extends CommandBase {
     private String getGameId() {
         Stream stream;
         try {
-            stream = twitchApi.getStream(twitchApi.getStreamerUser().getLogin());
+            stream = twitchApi.getStreamByUsername(twitchApi.getStreamerUser().getLogin());
         } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             System.out.println("Error retrieving stream data");

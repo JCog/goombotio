@@ -56,7 +56,7 @@ public class PredsManagerListener extends CommandBase {
                     String gameId = "";
                     Stream stream;
                     try {
-                        stream = twitchApi.getStream(twitchApi.getStreamerUser().getLogin());
+                        stream = twitchApi.getStreamByUsername(twitchApi.getStreamerUser().getLogin());
                     } catch (HystrixRuntimeException e) {
                         e.printStackTrace();
                         twitchApi.channelMessage("Error retrieving current game");
@@ -78,6 +78,7 @@ public class PredsManagerListener extends CommandBase {
                             break;
                         case GAME_ID_SMRPG_SWITCH:
                             predsManager = new BoosterHillPredsManager(dbManager, discord, twitchApi);
+                            break;
                         default:
                             twitchApi.channelMessage("The current game is not compatible with preds.");
                             return;

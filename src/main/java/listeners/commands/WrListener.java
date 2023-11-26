@@ -36,7 +36,7 @@ public class WrListener extends CommandBase {
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         Stream stream;
         try {
-            stream = twitchApi.getStream(twitchApi.getStreamerUser().getLogin());
+            stream = twitchApi.getStreamByUsername(twitchApi.getStreamerUser().getLogin());
         } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             twitchApi.channelMessage("Error retrieving stream data");
