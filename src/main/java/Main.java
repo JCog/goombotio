@@ -8,7 +8,7 @@ public class Main {
         MainBotController mainBotController = new MainBotController();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            out.println("Stopping...");
+            out.println("Stopping...\n");
             mainBotController.closeAll();
         }));
 

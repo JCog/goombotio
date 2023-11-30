@@ -17,7 +17,7 @@ public class ReportBuilder {
     private final static String REPORT_LOCATION = "streamreports/";
 
     public static void generateReport(DbManager dbManager, StreamData streamData) {
-        out.println("Building report...");
+        out.println("\nBuilding report...");
 
         String filename = getReportFilename();
 
@@ -31,9 +31,9 @@ public class ReportBuilder {
                 generateReportReturningViewers(streamData);
         boolean successful = FileWriter.writeToFile(REPORT_LOCATION, filename, report);
         if (successful) {
-            out.printf("Report output to:\n%s%s\n", REPORT_LOCATION, filename);
+            out.printf("\nReport output to:\n%s%s\n\n", REPORT_LOCATION, filename);
         } else {
-            out.println("Error writing report to file");
+            out.print("\nError writing report to file\n\n");
         }
     }
 

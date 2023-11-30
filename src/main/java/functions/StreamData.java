@@ -31,9 +31,9 @@ public class StreamData {
         streamStatsDb = dbManager.getStreamStatsDb();
         watchTimeDb = dbManager.getWatchTimeDb();
 
-        out.println("---------------------");
+        out.println("\n---------------------");
         out.println(twitchApi.getStreamerUser().getDisplayName() + " is now live.");
-        out.println("---------------------");
+        out.println("---------------------\n");
         startTime = new Date();
     }
 
@@ -49,9 +49,9 @@ public class StreamData {
     }
 
     public void endStream() {
-        out.println("---------------------");
+        out.println("\n---------------------");
         out.println(twitchApi.getStreamerUser().getDisplayName() + " has gone offline.");
-        out.println("---------------------");
+        out.println("---------------------\n");
         endTime = new Date();
 
         List<User> userList;
