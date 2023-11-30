@@ -175,12 +175,11 @@ public class StreamData {
     ///////////////////////////////////////////////////////////////////////////
 
     private void separateNewReturningViewers(List<User> userList) {
-        Set<Long> allTimeUserIds = watchTimeDb.getAllUserIds();
+        Set<String> allTimeUserIds = watchTimeDb.getAllUserIds();
         returningViewers.clear();
         newViewers.clear();
         for (User user : userList) {
-            long userId = Long.parseLong(user.getId());
-            if (allTimeUserIds.contains(userId)) {
+            if (allTimeUserIds.contains(user.getId())) {
                 returningViewers.add(user);
             } else {
                 newViewers.add(user);

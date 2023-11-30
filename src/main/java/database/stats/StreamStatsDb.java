@@ -63,7 +63,7 @@ public class StreamStatsDb extends GbCollection {
             String userId = entry.getKey();
             int minutes = entry.getValue();
             String username = userIdNameMap.get(userId);
-            boolean newUser = watchTimeDb.getMinutesById(Long.parseLong(userId)) == 0;
+            boolean newUser = watchTimeDb.getMinutesById(userId) == 0;
             userList.add(
                     new Document(USER_ID, userId)
                             .append(USERNAME_KEY, username)

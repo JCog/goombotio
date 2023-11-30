@@ -24,23 +24,11 @@ public class WatchTimeDb extends GbCollection {
     }
 
     public void addMinutes(String id, String name, int minutes) {
-        long idLong;
-        try {
-            idLong = Long.parseLong(id);
-        } catch (NumberFormatException nfe) {
-            System.out.printf(
-                    "Error: ID \"%s\" (%s, %d minutes) cannot be parsed into long%n",
-                    id,
-                    name,
-                    minutes
-            );
-            return;
-        }
-        Document result = findFirstEquals(ID_KEY, idLong);
+        Document result = findFirstEquals(ID_KEY, id);
         String monthlyMinutesKey = getMonthlyMinutesKey();
 
         if (result == null) {
-            Document document = new Document(ID_KEY, idLong)
+            Document document = new Document(ID_KEY, id)
                     .append(NAME_KEY, name)
                     .append(MINUTES_KEY, minutes)
                     .append(monthlyMinutesKey, minutes)
@@ -57,10 +45,10 @@ public class WatchTimeDb extends GbCollection {
             }
             newMonthlyMinutes += minutes;
 
-            updateOne(idLong, new Document(NAME_KEY, name));
-            updateOne(idLong, new Document(MINUTES_KEY, newMinutes));
-            updateOne(idLong, new Document(monthlyMinutesKey, newMonthlyMinutes));
-            updateOne(idLong, new Document(LAST_SEEN_KEY, getDate()));
+            updateOne(id, new Document(NAME_KEY, name));
+            updateOne(id, new Document(MINUTES_KEY, newMinutes));
+            updateOne(id, new Document(monthlyMinutesKey, newMonthlyMinutes));
+            updateOne(id, new Document(LAST_SEEN_KEY, getDate()));
         }
     }
 
@@ -69,7 +57,7 @@ public class WatchTimeDb extends GbCollection {
         Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return new WatchtimeItem(
-                    result.getLong(ID_KEY),
+                    result.getString(ID_KEY),
                     result.getString(NAME_KEY),
                     result.getInteger(MINUTES_KEY),
                     result.getDate(FIRST_SEEN_KEY),
@@ -79,7 +67,7 @@ public class WatchTimeDb extends GbCollection {
         return null;
     }
 
-    public String getNameById(long id) {
+    public String getNameById(String id) {
         Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return result.getString(NAME_KEY);
@@ -88,7 +76,7 @@ public class WatchTimeDb extends GbCollection {
     }
 
     public int getMinutesByEventUser(EventUser user) {
-        return getMinutesById(Long.parseLong(user.getId()));
+        return getMinutesById(user.getId());
     }
 
     public int getMinutesByUsername(String username) {
@@ -99,7 +87,7 @@ public class WatchTimeDb extends GbCollection {
         return 0;
     }
 
-    public int getMinutesById(long id) {
+    public int getMinutesById(String id) {
         Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return result.getInteger(MINUTES_KEY);
@@ -139,7 +127,7 @@ public class WatchTimeDb extends GbCollection {
     }
 
     @Nullable
-    public Date getFirstSeenById(long userId) {
+    public Date getFirstSeenById(String userId) {
         Document result = findFirstEquals(ID_KEY, userId);
         if (result != null) {
             return result.getDate(FIRST_SEEN_KEY);
@@ -159,7 +147,7 @@ public class WatchTimeDb extends GbCollection {
     }
 
     @Nullable
-    public Date getLastSeenById(long id) {
+    public Date getLastSeenById(String id) {
         Document result = findFirstEquals(ID_KEY, id);
         if (result != null) {
             return result.getDate(LAST_SEEN_KEY);
@@ -180,13 +168,13 @@ public class WatchTimeDb extends GbCollection {
         return topUsers;
     }
 
-    public Set<Long> getAllUserIds() {
+    public Set<String> getAllUserIds() {
         MongoCursor<Document> result = findAll().iterator();
-        Set<Long> users = new HashSet<>();
+        Set<String> users = new HashSet<>();
 
         while (result.hasNext()) {
             Document document = result.next();
-            users.add(document.getLong(ID_KEY));
+            users.add(document.getString(ID_KEY));
         }
         return users;
     }
@@ -261,13 +249,13 @@ public class WatchTimeDb extends GbCollection {
     }
     
     public static class WatchtimeItem {
-        private final long id;
+        private final String id;
         private final String name;
         private final int minutes;
         private final Date firstSeen;
         private final Date lastSeen;
         
-        public WatchtimeItem(long id, String name, int minutes, Date firstSeen, Date lastSeen) {
+        public WatchtimeItem(String id, String name, int minutes, Date firstSeen, Date lastSeen) {
             this.id = id;
             this.name = name;
             this.minutes = minutes;
@@ -275,7 +263,7 @@ public class WatchTimeDb extends GbCollection {
             this.lastSeen = lastSeen;
         }
         
-        public long getId() {
+        public String getId() {
             return id;
         }
         

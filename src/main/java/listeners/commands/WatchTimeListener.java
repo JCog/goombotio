@@ -70,7 +70,7 @@ public class WatchTimeListener extends CommandBase {
 
     //watchdata has been tracked since the cutoff date
     private boolean isOldViewer(EventUser user) {
-        Date firstSeen = watchTimeDb.getFirstSeenById(Long.parseLong(user.getId()));
+        Date firstSeen = watchTimeDb.getFirstSeenById(user.getId());
         if (firstSeen == null) {
             return false;
         }

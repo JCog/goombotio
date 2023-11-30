@@ -88,23 +88,22 @@ public class FollowLogger {
                         );
                         newFollowerUser = null;
                     }
-                    long idLong = Long.parseLong(newFollowerId);
                     if (newFollowerUser != null) {
                         writer.write(String.format(
                                 "%s New follower: %s - First seen: %s - Watchtime: %d minutes\n",
                                 getDateString(),
                                 newFollowerUser.getDisplayName(),
-                                dateToString(watchTimeDb.getFirstSeenById(idLong)),
-                                watchTimeDb.getMinutesById(idLong) + streamTracker.getViewerMinutesById(newFollowerUser.getId())
+                                dateToString(watchTimeDb.getFirstSeenById(newFollowerId)),
+                                watchTimeDb.getMinutesById(newFollowerId) + streamTracker.getViewerMinutesById(newFollowerUser.getId())
                         ));
                     } else {
-                        String name = watchTimeDb.getNameById(idLong);
+                        String name = watchTimeDb.getNameById(newFollowerId);
                         writer.write(String.format(
                                 "%s New follower (invalid state): %s - First seen: %s - Watchtime: %d minutes\n",
                                 getDateString(),
                                 name.isEmpty() ? "id: " + newFollowerId : name,
-                                dateToString(watchTimeDb.getFirstSeenById(idLong)),
-                                watchTimeDb.getMinutesById(idLong)
+                                dateToString(watchTimeDb.getFirstSeenById(newFollowerId)),
+                                watchTimeDb.getMinutesById(newFollowerId)
                         ));
                     }
                 }
@@ -120,25 +119,24 @@ public class FollowLogger {
                         );
                         unfollowerUser = null;
                     }
-                    long idLong = Long.parseLong(unfollowerId);
                     if (unfollowerUser != null) {
                         writer.write(String.format(
                                 "%s Unfollower: %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",
                                 getDateString(),
                                 unfollowerUser.getDisplayName(),
-                                dateToString(watchTimeDb.getFirstSeenById(idLong)),
-                                dateToString(watchTimeDb.getLastSeenById(idLong)),
-                                watchTimeDb.getMinutesById(idLong) + streamTracker.getViewerMinutesById(unfollowerUser.getId())
+                                dateToString(watchTimeDb.getFirstSeenById(unfollowerId)),
+                                dateToString(watchTimeDb.getLastSeenById(unfollowerId)),
+                                watchTimeDb.getMinutesById(unfollowerId) + streamTracker.getViewerMinutesById(unfollowerUser.getId())
                         ));
                     } else {
-                        String name = watchTimeDb.getNameById(idLong);
+                        String name = watchTimeDb.getNameById(unfollowerId);
                         writer.write(String.format(
                                 "%s Unfollower (account deleted): %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",
                                 getDateString(),
                                 name.isEmpty() ? "id: " + unfollowerId : name,
-                                dateToString(watchTimeDb.getFirstSeenById(idLong)),
-                                dateToString(watchTimeDb.getLastSeenById(idLong)),
-                                watchTimeDb.getMinutesById(idLong)
+                                dateToString(watchTimeDb.getFirstSeenById(unfollowerId)),
+                                dateToString(watchTimeDb.getLastSeenById(unfollowerId)),
+                                watchTimeDb.getMinutesById(unfollowerId)
                         ));
                     }
                 }

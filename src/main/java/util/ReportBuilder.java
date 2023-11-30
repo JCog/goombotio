@@ -119,7 +119,7 @@ public class ReportBuilder {
             String userId = entry.getKey();
             int minutes = entry.getValue();
             
-            Date firstSeen = watchTimeDb.getFirstSeenById(Long.parseLong(userId));
+            Date firstSeen = watchTimeDb.getFirstSeenById(userId);
             if (firstSeen == null) {
                 firstSeen = getDate();
             }
