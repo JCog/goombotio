@@ -6,6 +6,7 @@ import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.events.channel.ChannelMessageActionEvent;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.chat.events.channel.ModAnnouncementEvent;
+import com.github.twitch4j.chat.events.channel.RaidEvent;
 import com.github.twitch4j.events.ChannelChangeGameEvent;
 import com.github.twitch4j.events.ChannelChangeTitleEvent;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
@@ -97,6 +98,7 @@ public class TwitchApi {
         twitchClient.getEventManager().onEvent(ChannelGoOfflineEvent.class, eventListener::onGoOffline);
         twitchClient.getEventManager().onEvent(ChannelChangeGameEvent.class, eventListener::onGameChange);
         twitchClient.getEventManager().onEvent(ChannelChangeTitleEvent.class, eventListener::onChangeTitle);
+        twitchClient.getEventManager().onEvent(RaidEvent.class, eventListener::onRaid);
         
         twitchClient.getEventManager().onEvent(ChannelBitsEvent.class, eventListener::onCheer);
         twitchClient.getEventManager().onEvent(RewardRedeemedEvent.class, eventListener::onChannelPointsRedemption);
@@ -158,6 +160,14 @@ public class TwitchApi {
         } else {
             twitchClient.getChat().sendMessage(streamerUser.getDisplayName(), message);
             chatLogger.logMessage(botUser, message);
+        }
+    }
+    
+    public void shoutout(String userId) {
+        try {
+            twitchClient.getHelix().sendShoutout(botAuthToken, streamerUser.getId(), userId, botUser.getId()).execute();
+        } catch (HystrixRuntimeException e) {
+            e.printStackTrace();
         }
     }
     

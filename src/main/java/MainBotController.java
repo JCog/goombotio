@@ -177,6 +177,7 @@ public class MainBotController {
         twitchApi.registerEventListener(new PyramidListener(twitchApi));
         twitchApi.registerEventListener(new RecentCheerListener(twitchApi));
         twitchApi.registerEventListener(scheduledMessageController.getListener());
+        twitchApi.registerEventListener(new ShoutoutListener(twitchApi));
         twitchApi.registerEventListener(new SubListener(twitchApi));
     }
 
