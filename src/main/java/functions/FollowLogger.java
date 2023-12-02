@@ -62,7 +62,6 @@ public class FollowLogger {
                 try {
                     updatedFollowerIds = fetchFollowerIds();
                 } catch (HystrixRuntimeException e) {
-                    e.printStackTrace();
                     System.out.printf(
                             "Error retrieving updated follower list. Trying again in %d min.%n",
                             INTERVAL
