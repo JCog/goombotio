@@ -13,6 +13,8 @@ public class ShoutoutListener implements TwitchEventListener {
     
     @Override
     public void onRaid(RaidEvent raidEvent) {
-        twitchApi.shoutout(raidEvent.getRaider().getId());
+        if (raidEvent.getViewers() > 1) {
+            twitchApi.shoutout(raidEvent.getRaider().getId());
+        }
     }
 }
