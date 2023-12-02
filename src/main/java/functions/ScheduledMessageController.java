@@ -1,7 +1,7 @@
 package functions;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.github.twitch4j.common.events.domain.EventUser;
+import com.github.twitch4j.chat.events.channel.RaidEvent;
 import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
@@ -20,9 +20,9 @@ import java.util.concurrent.TimeUnit;
 
 import static database.misc.SocialSchedulerDb.ScheduledMessage;
 
-public class ScheduledMessageController {
-
-    private final AnyMessageListener anyMessageListener = new AnyMessageListener();
+public class ScheduledMessageController implements TwitchEventListener {
+    private static final String FOLLOW_MESSAGE_ID = "follow";
+    
     private final Random random = new Random();
 
     private final SocialSchedulerDb socialSchedulerDb;
@@ -33,6 +33,7 @@ public class ScheduledMessageController {
 
     private boolean running;
     private boolean activeChat;
+    private boolean recentRaid;
     private String previousId = "";
 
     /**
@@ -54,6 +55,7 @@ public class ScheduledMessageController {
         socialSchedulerDb = dbManager.getSocialSchedulerDb();
         running = false;
         activeChat = false;
+        recentRaid = false;
     }
 
     /**
@@ -72,26 +74,35 @@ public class ScheduledMessageController {
         running = false;
     }
 
-    public AnyMessageListener getListener() {
-        return anyMessageListener;
-    }
-
     private void socialLoop() {
-        if (running) {
-            Stream stream;
-            try {
-                stream = twitchApi.getStreamByUsername(twitchApi.getStreamerUser().getLogin());
-            } catch (HystrixRuntimeException e) {
-                e.printStackTrace();
-                System.out.println("Error retrieving stream for SocialScheduler");
-                return;
-            }
-            if (activeChat && stream != null) {
+        if (!running || !activeChat) {
+            return;
+        }
+        
+        Stream stream;
+        try {
+            stream = twitchApi.getStreamByUsername(twitchApi.getStreamerUser().getLogin());
+        } catch (HystrixRuntimeException e) {
+            e.printStackTrace();
+            System.out.println("Error retrieving stream for SocialScheduler");
+            stream = null;
+        }
+        if (stream != null) {
+            if (recentRaid) {
+                ScheduledMessage message = socialSchedulerDb.getMessage(FOLLOW_MESSAGE_ID);
+                if (message == null) {
+                    System.out.println("Error posting scheduled follow message after a raid");
+                } else {
+                    twitchApi.channelAnnouncement(commandParser.parse(message.getMessage()));
+                    previousId = message.getId();
+                }
+                recentRaid = false;
+            } else {
                 postRandomMsg();
             }
-            scheduleSocialMessages();
-            activeChat = false;
         }
+        scheduleSocialMessages();
+        activeChat = false;
     }
 
     private void postRandomMsg() {
@@ -119,15 +130,27 @@ public class ScheduledMessageController {
 
         scheduler.schedule(this::socialLoop, now.until(nextInterval, ChronoUnit.MILLIS), TimeUnit.MILLISECONDS);
     }
-
-    private class AnyMessageListener implements TwitchEventListener {
-        @Override
-        public void onChannelMessage(ChannelMessageEvent messageEvent) {
-            EventUser sender = messageEvent.getUser();
-            // chat is active as long as posters aren't the streamer or bot
-            if (!sender.getId().equals(twitchApi.getStreamerUser().getId()) && !sender.getId().equals(twitchApi.getBotUser().getId())) {
-                activeChat = true;
-            }
+    
+    @Override
+    public void onRaid(RaidEvent raidEvent) {
+        if (raidEvent.getViewers() > 1) {
+            recentRaid = true;
+        }
+    }
+    
+    @Override
+    public void onChannelMessage(ChannelMessageEvent messageEvent) {
+        if (activeChat) {
+            return;
+        }
+        
+        String senderId = messageEvent.getUser().getId();
+        String streamerId = twitchApi.getStreamerUser().getId();
+        String botId = twitchApi.getBotUser().getId();
+        
+        // chat is active as long as posters aren't the streamer or bot
+        if (!senderId.equals(streamerId) && !senderId.equals(botId)) {
+            activeChat = true;
         }
     }
 }
