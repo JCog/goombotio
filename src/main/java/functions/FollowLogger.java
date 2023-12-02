@@ -19,14 +19,17 @@ import java.util.concurrent.TimeUnit;
 
 public class FollowLogger {
     private static final String FILENAME = "follows.log";
-    private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATE_FORMAT_CURRENT = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATE_FORMAT_FOLLOW = "yyyy-MM-dd";
     private static final int INTERVAL = 5; //minutes
 
     private final WatchTimeDb watchTimeDb;
     private final TwitchApi twitchApi;
     private final StreamTracker streamTracker;
     private final ScheduledExecutorService scheduler;
-
+    private final SimpleDateFormat dateFormatCurrent;
+    private final SimpleDateFormat dateFormatFollow;
+    
     private Set<String> oldFollowerIdList;
     private PrintWriter writer;
     private ScheduledFuture<?> scheduledFuture;
@@ -40,6 +43,8 @@ public class FollowLogger {
         this.twitchApi = twitchApi;
         this.streamTracker = streamTracker;
         this.scheduler = scheduler;
+        this.dateFormatCurrent = new SimpleDateFormat(DATE_FORMAT_CURRENT);
+        this.dateFormatFollow = new SimpleDateFormat(DATE_FORMAT_FOLLOW);
         watchTimeDb = dbManager.getWatchTimeDb();
 
         FileWriter fw;
@@ -90,18 +95,18 @@ public class FollowLogger {
                     if (newFollowerUser != null) {
                         writer.write(String.format(
                                 "%s New follower: %s - First seen: %s - Watchtime: %d minutes\n",
-                                getDateString(),
+                                getCurrentDateString(),
                                 newFollowerUser.getDisplayName(),
-                                dateToString(watchTimeDb.getFirstSeenById(newFollowerId)),
+                                prevDateToString(watchTimeDb.getFirstSeenById(newFollowerId)),
                                 watchTimeDb.getMinutesById(newFollowerId) + streamTracker.getViewerMinutesById(newFollowerUser.getId())
                         ));
                     } else {
                         String name = watchTimeDb.getNameById(newFollowerId);
                         writer.write(String.format(
                                 "%s New follower (invalid state): %s - First seen: %s - Watchtime: %d minutes\n",
-                                getDateString(),
+                                getCurrentDateString(),
                                 name.isEmpty() ? "id: " + newFollowerId : name,
-                                dateToString(watchTimeDb.getFirstSeenById(newFollowerId)),
+                                prevDateToString(watchTimeDb.getFirstSeenById(newFollowerId)),
                                 watchTimeDb.getMinutesById(newFollowerId)
                         ));
                     }
@@ -121,20 +126,20 @@ public class FollowLogger {
                     if (unfollowerUser != null) {
                         writer.write(String.format(
                                 "%s Unfollower: %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",
-                                getDateString(),
+                                getCurrentDateString(),
                                 unfollowerUser.getDisplayName(),
-                                dateToString(watchTimeDb.getFirstSeenById(unfollowerId)),
-                                dateToString(watchTimeDb.getLastSeenById(unfollowerId)),
+                                prevDateToString(watchTimeDb.getFirstSeenById(unfollowerId)),
+                                prevDateToString(watchTimeDb.getLastSeenById(unfollowerId)),
                                 watchTimeDb.getMinutesById(unfollowerId) + streamTracker.getViewerMinutesById(unfollowerUser.getId())
                         ));
                     } else {
                         String name = watchTimeDb.getNameById(unfollowerId);
                         writer.write(String.format(
                                 "%s Unfollower (account deleted): %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",
-                                getDateString(),
+                                getCurrentDateString(),
                                 name.isEmpty() ? "id: " + unfollowerId : name,
-                                dateToString(watchTimeDb.getFirstSeenById(unfollowerId)),
-                                dateToString(watchTimeDb.getLastSeenById(unfollowerId)),
+                                prevDateToString(watchTimeDb.getFirstSeenById(unfollowerId)),
+                                prevDateToString(watchTimeDb.getLastSeenById(unfollowerId)),
                                 watchTimeDb.getMinutesById(unfollowerId)
                         ));
                     }
@@ -179,15 +184,14 @@ public class FollowLogger {
         return unfollowerIds;
     }
 
-    private String getDateString() {
-        SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT);
-        return sdf.format(new Date());
+    private String getCurrentDateString() {
+        return dateFormatCurrent.format(new Date());
     }
 
-    private String dateToString(Date date) {
-        if (date != null) {
-            return date.toString();
+    private String prevDateToString(Date date) {
+        if (date == null) {
+            return "never";
         }
-        return "never";
+        return dateFormatFollow.format(date);
     }
 }
