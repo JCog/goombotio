@@ -14,7 +14,6 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class FollowLogger {
@@ -27,13 +26,10 @@ public class FollowLogger {
     private final WatchTimeDb watchTimeDb;
     private final TwitchApi twitchApi;
     private final StreamTracker streamTracker;
-    private final ScheduledExecutorService scheduler;
     private final SimpleDateFormat dateFormatCurrent;
     private final SimpleDateFormat dateFormatFollow;
     
     private Set<String> oldFollowerIdList;
-    private PrintWriter writer;
-    private ScheduledFuture<?> scheduledFuture;
 
     public FollowLogger(
             DbManager dbManager,
@@ -43,27 +39,27 @@ public class FollowLogger {
     ) {
         this.twitchApi = twitchApi;
         this.streamTracker = streamTracker;
-        this.scheduler = scheduler;
         this.dateFormatCurrent = new SimpleDateFormat(DATE_FORMAT_CURRENT);
         this.dateFormatFollow = new SimpleDateFormat(DATE_FORMAT_FOLLOW);
         watchTimeDb = dbManager.getWatchTimeDb();
-
-        FileWriter fw;
-        try {
-            fw = new FileWriter(FILENAME, true);
-        } catch (IOException e) {
-            System.out.printf("ERROR: IOException for filename \"%s\"%n", FILENAME);
-            e.printStackTrace();
-            return;
-        }
-        BufferedWriter bw = new BufferedWriter(fw);
-        writer = new PrintWriter(bw);
+        
+        init(scheduler);
     }
 
-    public void start() {
-        scheduledFuture = scheduler.scheduleAtFixedRate(new TimerTask() {
+    private void init(ScheduledExecutorService scheduler) {
+        scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
+                FileWriter fw;
+                try {
+                    fw = new FileWriter(FILENAME, true);
+                } catch (IOException e) {
+                    System.out.printf("ERROR: IOException for filename \"%s\"%n", FILENAME);
+                    e.printStackTrace();
+                    return;
+                }
+                PrintWriter writer = new PrintWriter(new BufferedWriter(fw));
+                
                 Set<String> updatedFollowerIds;
                 try {
                     updatedFollowerIds = fetchFollowerIds();
@@ -154,15 +150,10 @@ public class FollowLogger {
                         ));
                     }
                 }
-                writer.flush();
                 oldFollowerIdList = updatedFollowerIds;
+                writer.close();
             }
         }, 0, INTERVAL, TimeUnit.MINUTES);
-    }
-
-    public void stop() {
-        scheduledFuture.cancel(false);
-        writer.close();
     }
 
     private Set<String> fetchFollowerIds() throws HystrixRuntimeException {

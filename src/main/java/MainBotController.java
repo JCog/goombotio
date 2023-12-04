@@ -102,7 +102,6 @@ public class MainBotController {
 
     public synchronized void run(long startTime) {
         out.print("Initializing internal processes... ");
-        followLogger.start();
         registerListeners();
         streamTracker.start();
 //        minecraftWhitelistUpdater.start();
@@ -126,7 +125,6 @@ public class MainBotController {
     public void closeAll() {
 //        minecraftWhitelistUpdater.stop();
         streamTracker.stop();
-        followLogger.stop();
         chatLogger.close();
         discordBotController.close();
         dbManager.closeDb();
