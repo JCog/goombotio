@@ -100,7 +100,6 @@ public class MainBotController {
         out.print("Initializing internal processes... ");
         registerListeners();
         streamTracker.start();
-//        minecraftWhitelistUpdater.start();
         out.println("success.");
 
         out.printf("Goombotio is ready. (~%ds start time)%n%n", (System.currentTimeMillis() - startTime) / 1000);
@@ -119,7 +118,6 @@ public class MainBotController {
     }
 
     public void closeAll() {
-//        minecraftWhitelistUpdater.stop();
         streamTracker.stop();
         discordBotController.close();
         dbManager.closeDb();

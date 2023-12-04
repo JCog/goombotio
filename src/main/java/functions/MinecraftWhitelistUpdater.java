@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static database.misc.MinecraftUserDb.MinecraftUser;
@@ -30,13 +29,11 @@ public class MinecraftWhitelistUpdater {
     private final JSch jsch = new JSch();
     private final MinecraftUserDb minecraftUserDb;
     private final TwitchApi twitchApi;
-    private final ScheduledExecutorService scheduler;
     private final String server;
     private final String user;
     private final String password;
     private final String whitelistLocation;
 
-    private ScheduledFuture<?> scheduledFuture;
     private boolean subOnly;
 
     public MinecraftWhitelistUpdater(
@@ -49,17 +46,18 @@ public class MinecraftWhitelistUpdater {
             String whitelistLocation
     ) {
         this.twitchApi = twitchApi;
-        this.scheduler = scheduler;
         this.server = server;
         this.user = user;
         this.password = password;
         this.whitelistLocation = whitelistLocation;
         minecraftUserDb = dbManager.getMinecraftUserDb();
         subOnly = true;
+        
+        init(scheduler);
     }
 
-    public void start() {
-        scheduledFuture = scheduler.scheduleAtFixedRate(new TimerTask() {
+    private void init(ScheduledExecutorService scheduler) {
+        scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 List<Map<String,String>> currentWhitelist = readInWhitelist();
@@ -76,10 +74,6 @@ public class MinecraftWhitelistUpdater {
                 }
             }
         }, 0, INTERVAL, TimeUnit.MINUTES);
-    }
-
-    public void stop() {
-        scheduledFuture.cancel(false);
     }
     
     public void setSubOnly(boolean subOnly) {
