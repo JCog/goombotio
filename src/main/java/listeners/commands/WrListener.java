@@ -85,21 +85,21 @@ public class WrListener extends CommandBase {
                 break;
             case GAME_ID_PAPER_MARIO:
                 if (streamTitle.contains("any% (no peach warp)") || streamTitle.contains("any% (no pw)")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT_NO_PW, Platform.N64);
+                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT_NO_PW, PapeVariable.N64);
                 } else if (streamTitle.contains("any% no rng") || streamTitle.contains("any% (no rng)")) {
-                    wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.ANY_NO_RNG, Platform.N64);
+                    wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.ANY_NO_RNG, PapeVariable.N64);
                 } else if (streamTitle.contains("any%")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT, Platform.N64);
+                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT, PapeVariable.N64);
                 } else if (streamTitle.contains("all cards") && !streamTitle.contains("reverse")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.ALL_CARDS, Platform.N64);
+                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.ALL_CARDS, PapeVariable.N64);
                 } else if (streamTitle.contains("all bosses")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.ALL_BOSSES, Platform.N64);
+                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.ALL_BOSSES, PapeVariable.N64);
                 } else if (streamTitle.contains("glitchless")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.GLITCHLESS, Platform.N64);
+                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.GLITCHLESS, PapeVariable.N64);
                 } else if (streamTitle.contains("100%")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.HUNDO, Platform.N64);
+                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.HUNDO, PapeVariable.N64);
                 } else if (streamTitle.contains("reverse") && streamTitle.contains("all cards")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.REVERSE_ALL_CARDS, Platform.N64);
+                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.REVERSE_ALL_CARDS, PapeVariable.N64);
                 } else if (streamTitle.contains("pig") || streamTitle.contains("\uD83D\uDC37") || streamTitle.contains(
                         "oink")) {
                     wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.PIGGIES);

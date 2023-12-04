@@ -217,6 +217,38 @@ public class SpeedrunApi extends BaseAPI {
         }
     }
     
+    public enum PapeVariable implements Variable {
+        N64("N64", "r8r5y2le", "jq6vjo71"),
+        WII("Wii VC", "r8r5y2le", "5lm2934q"),
+        WII_U("Wii U VC", "r8r5y2le", "81w7k25q"),
+        SWITCH("Switch", "r8r5y2le", "jqz2x3kq");
+        
+        private final String name;
+        private final String varId;
+        private final String valueId;
+        
+        PapeVariable(String name, String varId, String valueId) {
+            this.name = name;
+            this.varId = varId;
+            this.valueId = valueId;
+        }
+        
+        @Override
+        public String getVarId() {
+            return varId;
+        }
+        
+        @Override
+        public String getValueId() {
+            return valueId;
+        }
+        
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+    
     public enum SmrpgVariable implements Variable {
         TURBO("Turbo", "p85pvv7l", "q5vo93ml"),
         NO_TURBO("No Turbo", "p85pvv7l", "le2k6x5l");
@@ -241,29 +273,6 @@ public class SpeedrunApi extends BaseAPI {
             return valueId;
         }
         
-        @Override
-        public String toString() {
-            return name;
-        }
-    }
-
-    public enum Platform {
-        N64("N64", "n64"),
-        WII("Wii VC", "wiivc"),
-        WIIU("Wii U VC", "wiiuvc");
-
-        private final String name;
-        private final String uri;
-
-        Platform(String name, String uri) {
-            this.name = name;
-            this.uri = uri;
-        }
-
-        public String getUri() {
-            return uri;
-        }
-
         @Override
         public String toString() {
             return name;
@@ -309,51 +318,6 @@ public class SpeedrunApi extends BaseAPI {
         String name = getUsernameFromId(playerId);
         String time = getTimeString(ms);
         return String.format("The %s %s (%s) WR is %s by %s", game, category, variable, time, name);
-    }
-
-    /**
-     * Retrieves the platform and overall world records for the category specified. Game, category, and platform must
-     * match.
-     *
-     * @param game     main or extension leaderboard
-     * @param category speedrunning category
-     * @param platform console to check in addition to overall WR
-     * @return formatted string containing WR(s)
-     */
-    public static String getWr(Game game, Category category, Platform platform) {
-        String gameString = game.getUri();
-        String categoryString = category.getUri();
-        String platformString = platform.getUri();
-
-        String allJson = getWrJson(gameString, categoryString);
-        if (allJson == null) {
-            return ERROR_MESSAGE;
-        }
-        String allPlayerId = getPlayerIdFromJson(allJson);
-        long allMs = getRunTimeMsFromJson(allJson);
-
-        String allName = getUsernameFromId(allPlayerId);
-        String allTime = getTimeString(allMs);
-
-        String n64Json = getWrJson(gameString, categoryString, platformString);
-        String n64PlayerId = getPlayerIdFromJson(n64Json);
-
-        long n64Ms = getRunTimeMsFromJson(n64Json);
-        String platformTime = getTimeString(n64Ms);
-
-        String platformName = getUsernameFromId(n64PlayerId);
-
-
-        return String.format(
-                "The %s %s WRs are %s by %s overall and %s by %s on %s.",
-                game,
-                category,
-                allTime,
-                allName,
-                platformTime,
-                platformName,
-                platform
-        );
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -436,11 +400,6 @@ public class SpeedrunApi extends BaseAPI {
         }
     }
 
-    private static String getWrJson(String game, String category, String platform) {
-        String url = buildWrUrl(game, category, platform);
-        return submitRequest(url);
-    }
-
     private static String getWrJson(String game, String category) {
         String url = buildWrUrl(game, category);
         return submitRequest(url);
@@ -453,10 +412,6 @@ public class SpeedrunApi extends BaseAPI {
 
     private static String buildUserUrl(String id) {
         return BASE_URL + USERS + id;
-    }
-
-    private static String buildWrUrl(String game, String category, String platform) {
-        return BASE_URL + LEADERBOARDS + game + "category/" + category + "?top=1&platform=" + platform;
     }
 
     private static String buildWrUrl(String game, String category) {
