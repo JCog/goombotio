@@ -99,7 +99,6 @@ public class MainBotController {
     public synchronized void run(long startTime) {
         out.print("Initializing internal processes... ");
         registerListeners();
-        streamTracker.start();
         out.println("success.");
 
         out.printf("Goombotio is ready. (~%ds start time)%n%n", (System.currentTimeMillis() - startTime) / 1000);

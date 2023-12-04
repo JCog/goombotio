@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class StreamTracker {
@@ -21,23 +20,22 @@ public class StreamTracker {
 
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
-    private final ScheduledExecutorService scheduler;
     private final StatsBlacklistDb statsBlacklistDb;
 
     private StreamData streamData;
-    private ScheduledFuture<?> scheduledFuture;
 
     public StreamTracker(DbManager dbManager, TwitchApi twitchApi, ScheduledExecutorService scheduler) {
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
-        this.scheduler = scheduler;
         statsBlacklistDb = dbManager.getStatsBlacklistDb();
 
         streamData = null;
+        
+        init(scheduler);
     }
 
-    public void start() {
-        scheduledFuture = scheduler.scheduleAtFixedRate(new TimerTask() {
+    private void init(ScheduledExecutorService scheduler) {
+        scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 Stream stream;
@@ -85,7 +83,6 @@ public class StreamTracker {
     }
 
     public void stop() {
-        scheduledFuture.cancel(false);
         if (streamData == null) {
             return;
         }
