@@ -24,7 +24,6 @@ import static java.lang.System.out;
 
 public class MainBotController {
     private static final String DB_NAME = "goombotio";
-    private static final int SOCIAL_INTERVAL_LENGTH = 20;
     private static final int TIMER_THREAD_SIZE = 5;
 
     private final Settings settings;
@@ -81,8 +80,7 @@ public class MainBotController {
                 dbManager,
                 twitchApi,
                 scheduler,
-                messageExpressionParser,
-                SOCIAL_INTERVAL_LENGTH
+                messageExpressionParser
         );
         followLogger = new FollowLogger(
                 dbManager,
@@ -104,7 +102,6 @@ public class MainBotController {
 
     public synchronized void run(long startTime) {
         out.print("Initializing internal processes... ");
-        scheduledMessageController.start();
         followLogger.start();
         registerListeners();
         streamTracker.start();
@@ -131,7 +128,6 @@ public class MainBotController {
         subPointUpdater.stop();
 //        minecraftWhitelistUpdater.stop();
         streamTracker.stop();
-        scheduledMessageController.stop();
         followLogger.stop();
         chatLogger.close();
         discordBotController.close();

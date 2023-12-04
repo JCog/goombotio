@@ -15,94 +15,83 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.TimerTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static database.misc.SocialSchedulerDb.ScheduledMessage;
 
 public class ScheduledMessageController implements TwitchEventListener {
+    private static final long INTERVAL_LENGTH = 20; //minutes
     private static final String FOLLOW_MESSAGE_ID = "follow";
     
     private final Random random = new Random();
 
     private final SocialSchedulerDb socialSchedulerDb;
     private final TwitchApi twitchApi;
-    private final ScheduledExecutorService scheduler;
     private final MessageExpressionParser commandParser;
-    private final int intervalLength;
 
-    private boolean running;
     private boolean activeChat;
     private boolean recentRaid;
     private String previousId = "";
-
-    /**
-     * Schedules random social media plugs on a set interval
-     *
-     * @param intervalLength minutes between posts
-     */
+    
     public ScheduledMessageController(
             DbManager dbManager,
             TwitchApi twitchApi,
             ScheduledExecutorService scheduler,
-            MessageExpressionParser messageExpressionParser,
-            int intervalLength
+            MessageExpressionParser messageExpressionParser
     ) {
         this.twitchApi = twitchApi;
-        this.scheduler = scheduler;
         this.commandParser = messageExpressionParser;
-        this.intervalLength = intervalLength;
         socialSchedulerDb = dbManager.getSocialSchedulerDb();
-        running = false;
         activeChat = false;
         recentRaid = false;
-    }
-
-    /**
-     * Starts SocialScheduler. One random message every interval, and only if a chat message has been posted in the
-     * current interval to prevent bot spam with an inactive chat
-     */
-    public void start() {
-        running = true;
-        scheduleSocialMessages();
-    }
-
-    /**
-     * Stops SocialScheduler
-     */
-    public void stop() {
-        running = false;
-    }
-
-    private void socialLoop() {
-        if (!running || !activeChat) {
-            return;
-        }
         
-        Stream stream;
-        try {
-            stream = twitchApi.getStreamByUsername(twitchApi.getStreamerUser().getLogin());
-        } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
-            System.out.println("Error retrieving stream for SocialScheduler");
-            stream = null;
-        }
-        if (stream != null) {
-            if (recentRaid) {
-                ScheduledMessage message = socialSchedulerDb.getMessage(FOLLOW_MESSAGE_ID);
-                if (message == null) {
-                    System.out.println("Error posting scheduled follow message after a raid");
-                } else {
-                    twitchApi.channelAnnouncement(commandParser.parse(message.getMessage()));
-                    previousId = message.getId();
+        initScheduledMessages(scheduler);
+    }
+    
+    private void initScheduledMessages(ScheduledExecutorService scheduler) {
+        long intervalLengthMillis = INTERVAL_LENGTH * 60 * 1000;
+        LocalDateTime nowMinutes = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        long minutesToAdd = INTERVAL_LENGTH - (nowMinutes.getMinute() % INTERVAL_LENGTH);
+        LocalDateTime nextInterval = nowMinutes.plusMinutes(minutesToAdd);
+        
+        scheduler.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                // only post if chat is active
+                if (!activeChat) {
+                    return;
                 }
-                recentRaid = false;
-            } else {
-                postRandomMsg();
+                activeChat = false;
+                
+                // only post if stream is live
+                Stream stream;
+                try {
+                    stream = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId());
+                } catch (HystrixRuntimeException e) {
+                    e.printStackTrace();
+                    System.out.println("Error retrieving stream for SocialScheduler");
+                    stream = null;
+                }
+                if (stream == null) {
+                    return;
+                }
+                
+                if (recentRaid) {
+                    ScheduledMessage message = socialSchedulerDb.getMessage(FOLLOW_MESSAGE_ID);
+                    if (message == null) {
+                        System.out.println("Error posting scheduled follow message after a raid");
+                    } else {
+                        twitchApi.channelAnnouncement(commandParser.parse(message.getMessage()));
+                        previousId = message.getId();
+                    }
+                    recentRaid = false;
+                } else {
+                    postRandomMsg();
+                }
             }
-        }
-        scheduleSocialMessages();
-        activeChat = false;
+        }, LocalDateTime.now().until(nextInterval, ChronoUnit.MILLIS), intervalLengthMillis, TimeUnit.MILLISECONDS);
     }
 
     private void postRandomMsg() {
@@ -120,15 +109,6 @@ public class ScheduledMessageController implements TwitchEventListener {
         String message = choices.get(selection).getMessage();
         twitchApi.channelAnnouncement(commandParser.parse(message));
         previousId = choices.get(selection).getId();
-    }
-
-    private void scheduleSocialMessages() {
-        LocalDateTime now = LocalDateTime.now();
-        int currentMinute = now.getMinute();
-        int minutesToAdd = intervalLength - (currentMinute % intervalLength);
-        LocalDateTime nextInterval = now.plusMinutes(minutesToAdd);
-
-        scheduler.schedule(this::socialLoop, now.until(nextInterval, ChronoUnit.MILLIS), TimeUnit.MILLISECONDS);
     }
     
     @Override
