@@ -150,7 +150,6 @@ public class TwitchApi {
                     output,
                     com.github.twitch4j.common.enums.AnnouncementColor.PRIMARY
             ).execute();
-            chatLogger.logAnnouncement(botUser, message);
         }
     }
     
