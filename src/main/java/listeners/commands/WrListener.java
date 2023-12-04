@@ -21,6 +21,7 @@ public class WrListener extends CommandBase {
     private static final String GAME_ID_PAPER_MARIO = "18231";
     private static final String GAME_ID_TTYD = "6855";
     private static final String GAME_ID_OOT = "11557";
+    private static final String GAME_ID_SMRPG_SWITCH = "1675405846";
 
     private final TwitchApi twitchApi;
 
@@ -137,6 +138,9 @@ public class WrListener extends CommandBase {
                 } else {
                     wrText = getWr(Game.OOT, OotCategory.ANY_PERCENT);
                 }
+                break;
+            case GAME_ID_SMRPG_SWITCH:
+                wrText = getWr(Game.SMRPG, SmrpgCategory.NORMAL_RTA, SmrpgVariable.TURBO);
                 break;
         }
     

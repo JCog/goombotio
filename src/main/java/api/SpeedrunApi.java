@@ -28,6 +28,11 @@ public class SpeedrunApi extends BaseAPI {
     interface Category {
         String getUri();
     }
+    
+    interface Variable {
+        String getVarId();
+        String getValueId();
+    }
 
     public enum Game {
         BUG_FABLES("Bug Fables", "bug_fables/"),
@@ -35,7 +40,8 @@ public class SpeedrunApi extends BaseAPI {
         PAPER_MARIO("Paper Mario", "pm64/"),
         PAPER_MARIO_MEMES("Paper Mario", "pm64memes/"),
         TTYD("Paper Mario: The Thousand-Year Door", "ttyd/"),
-        OOT("The Legend of Zelda: Ocarina of Time", "oot/");
+        OOT("The Legend of Zelda: Ocarina of Time", "oot/"),
+        SMRPG("Super Mario RPG (Switch)", "Super_Mario_RPG_Switch/");
 
         private final String name;
         private final String uri;
@@ -169,6 +175,27 @@ public class SpeedrunApi extends BaseAPI {
         }
     }
     
+    public enum SmrpgCategory implements Category {
+        NORMAL_RTA("Normal RTA", "beat-the-game");
+        
+        private final String name;
+        private final String uri;
+        
+        SmrpgCategory(String name, String uri) {
+            this.name = name;
+            this.uri = uri;
+        }
+        
+        public String getUri() {
+            return uri;
+        }
+        
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+    
     public enum OotCategory implements Category {
         ANY_PERCENT("Any%", "any");
         
@@ -182,6 +209,36 @@ public class SpeedrunApi extends BaseAPI {
         
         public String getUri() {
             return uri;
+        }
+        
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+    
+    public enum SmrpgVariable implements Variable {
+        TURBO("Turbo", "p85pvv7l", "q5vo93ml"),
+        NO_TURBO("No Turbo", "p85pvv7l", "le2k6x5l");
+        
+        private final String name;
+        private final String varId;
+        private final String valueId;
+        
+        SmrpgVariable(String name, String varId, String valueId) {
+            this.name = name;
+            this.varId = varId;
+            this.valueId = valueId;
+        }
+        
+        @Override
+        public String getVarId() {
+            return varId;
+        }
+        
+        @Override
+        public String getValueId() {
+            return valueId;
         }
         
         @Override
@@ -234,6 +291,24 @@ public class SpeedrunApi extends BaseAPI {
         String name = getUsernameFromId(playerId);
         String time = getTimeString(ms);
         return String.format("The %s %s WR is %s by %s", game, category, time, name);
+    }
+    
+    public static String getWr(Game game, Category category, Variable variable) {
+        String gameString = game.getUri();
+        String categoryString = category.getUri();
+        String varId = variable.getVarId();
+        String valueId = variable.getValueId();
+        
+        String json = getWrJson(gameString, categoryString, varId, valueId);
+        if (json == null) {
+            return ERROR_MESSAGE;
+        }
+        String playerId = getPlayerIdFromJson(json);
+        long ms = getRunTimeMsFromJson(json);
+        
+        String name = getUsernameFromId(playerId);
+        String time = getTimeString(ms);
+        return String.format("The %s %s (%s) WR is %s by %s", game, category, variable, time, name);
     }
 
     /**
@@ -370,6 +445,11 @@ public class SpeedrunApi extends BaseAPI {
         String url = buildWrUrl(game, category);
         return submitRequest(url);
     }
+    
+    private static String getWrJson(String game, String category, String varId, String valueId) {
+        String url = buildWrUrl(game, category, varId, valueId);
+        return submitRequest(url);
+    }
 
     private static String buildUserUrl(String id) {
         return BASE_URL + USERS + id;
@@ -381,5 +461,17 @@ public class SpeedrunApi extends BaseAPI {
 
     private static String buildWrUrl(String game, String category) {
         return BASE_URL + LEADERBOARDS + game + "category/" + category + "?top=1";
+    }
+    
+    private static String buildWrUrl(String game, String category, String varId, String valueId) {
+        return String.format(
+                "%s%s%scategory/%s?top=1&var-%s=%s",
+                BASE_URL,
+                LEADERBOARDS,
+                game,
+                category,
+                varId,
+                valueId
+        );
     }
 }
