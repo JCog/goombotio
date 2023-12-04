@@ -22,6 +22,7 @@ public class FollowLogger {
     private static final String DATE_FORMAT_CURRENT = "yyyy-MM-dd HH:mm:ss";
     private static final String DATE_FORMAT_FOLLOW = "yyyy-MM-dd";
     private static final int INTERVAL = 5; //minutes
+    private static final int MAX_USERNAME_LENGTH = 25;
 
     private final WatchTimeDb watchTimeDb;
     private final TwitchApi twitchApi;
@@ -93,12 +94,15 @@ public class FollowLogger {
                         newFollowerUser = null;
                     }
                     if (newFollowerUser != null) {
+                        int totalMinutes = watchTimeDb.getMinutesById(newFollowerId) +
+                                           streamTracker.getViewerMinutesById(newFollowerUser.getId());
+                        String displayName = newFollowerUser.getDisplayName();
                         writer.write(String.format(
                                 "%s New follower: %s - First seen: %s - Watchtime: %d minutes\n",
                                 getCurrentDateString(),
-                                newFollowerUser.getDisplayName(),
+                                displayName + " ".repeat(MAX_USERNAME_LENGTH - displayName.length()),
                                 prevDateToString(watchTimeDb.getFirstSeenById(newFollowerId)),
-                                watchTimeDb.getMinutesById(newFollowerId) + streamTracker.getViewerMinutesById(newFollowerUser.getId())
+                                totalMinutes
                         ));
                     } else {
                         String name = watchTimeDb.getNameById(newFollowerId);
@@ -124,20 +128,26 @@ public class FollowLogger {
                         unfollowerUser = null;
                     }
                     if (unfollowerUser != null) {
+                        int totalMinutes = watchTimeDb.getMinutesById(unfollowerId) +
+                                           streamTracker.getViewerMinutesById(unfollowerUser.getId());
+                        String displayName = unfollowerUser.getDisplayName();
                         writer.write(String.format(
-                                "%s Unfollower: %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",
+                                "%s Unfollower:   %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",
                                 getCurrentDateString(),
-                                unfollowerUser.getDisplayName(),
+                                displayName + " ".repeat(MAX_USERNAME_LENGTH - displayName.length()),
                                 prevDateToString(watchTimeDb.getFirstSeenById(unfollowerId)),
                                 prevDateToString(watchTimeDb.getLastSeenById(unfollowerId)),
-                                watchTimeDb.getMinutesById(unfollowerId) + streamTracker.getViewerMinutesById(unfollowerUser.getId())
+                                totalMinutes
                         ));
                     } else {
                         String name = watchTimeDb.getNameById(unfollowerId);
+                        if (name.isEmpty()) {
+                            name = "id: " + unfollowerId;
+                        }
                         writer.write(String.format(
-                                "%s Unfollower (account deleted): %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",
+                                "%s (deleted):    %s - First seen: %s - Last seen: %s - Watchtime: %d minutes\n",
                                 getCurrentDateString(),
-                                name.isEmpty() ? "id: " + unfollowerId : name,
+                                name + " ".repeat(MAX_USERNAME_LENGTH - name.length()),
                                 prevDateToString(watchTimeDb.getFirstSeenById(unfollowerId)),
                                 prevDateToString(watchTimeDb.getLastSeenById(unfollowerId)),
                                 watchTimeDb.getMinutesById(unfollowerId)
@@ -190,7 +200,7 @@ public class FollowLogger {
 
     private String prevDateToString(Date date) {
         if (date == null) {
-            return "never";
+            return "never     ";
         }
         return dateFormatFollow.format(date);
     }

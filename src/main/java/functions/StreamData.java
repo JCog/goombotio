@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.System.out;
 
 public class StreamData {
-
     private final Map<String,Integer> userIdMinutesMap = new HashMap<>();
     private final List<Integer> viewerCounts = new ArrayList<>();
     private final List<User> newViewers = new ArrayList<>();
