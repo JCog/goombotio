@@ -6,40 +6,38 @@ import util.FileWriter;
 import util.Settings;
 import util.TwitchApi;
 
-import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
 
 public class SubPointUpdater {
     private static final String LOCAL_SUB_POINTS_FILENAME = "sub_points.txt";
     private static final String SUB_GOAL_COMMAND = "!subgoal";
-    private static final int INTERVAL = 60 * 1000;
+    private static final int INTERVAL = 1; //minutes
     
-    private final Timer timer = new Timer();
     private final TwitchApi twitchApi;
     private final Settings settings;
     
     private int subPoints;
     
-    public SubPointUpdater(TwitchApi twitchApi, Settings settings) {
+    public SubPointUpdater(TwitchApi twitchApi, Settings settings, ScheduledExecutorService scheduler) {
         this.twitchApi = twitchApi;
         this.settings = settings;
         subPoints = 0;
+        
+        init(scheduler);
     }
     
-    public void start() {
-        timer.schedule(new TimerTask() {
+    private void init(ScheduledExecutorService scheduler) {
+        scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 updateSubTierCounts();
                 outputSubPointsFile();
             }
-        }, 0, INTERVAL);
-    }
-    
-    public void stop() {
-        timer.cancel();
+        }, 0, INTERVAL, TimeUnit.MINUTES);
     }
     
     private void updateSubTierCounts() {

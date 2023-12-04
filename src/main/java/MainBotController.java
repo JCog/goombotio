@@ -97,7 +97,7 @@ public class MainBotController {
 //                settings.getMinecraftPassword(),
 //                settings.getMinecraftWhitelistLocation()
 //        );
-        subPointUpdater = new SubPointUpdater(twitchApi, settings);
+        subPointUpdater = new SubPointUpdater(twitchApi, settings, scheduler);
     }
 
     public synchronized void run(long startTime) {
@@ -106,7 +106,6 @@ public class MainBotController {
         registerListeners();
         streamTracker.start();
 //        minecraftWhitelistUpdater.start();
-        subPointUpdater.start();
         out.println("success.");
 
         out.printf("Goombotio is ready. (~%ds start time)%n%n", (System.currentTimeMillis() - startTime) / 1000);
@@ -125,7 +124,6 @@ public class MainBotController {
     }
 
     public void closeAll() {
-        subPointUpdater.stop();
 //        minecraftWhitelistUpdater.stop();
         streamTracker.stop();
         followLogger.stop();
