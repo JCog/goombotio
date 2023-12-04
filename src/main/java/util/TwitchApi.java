@@ -28,11 +28,9 @@ public class TwitchApi {
     private final TwitchClient twitchClient;
     private final User streamerUser;
     private final User botUser;
-    private final ChatLogger chatLogger;
     private final boolean silentChat;
     
     public TwitchApi(
-            ChatLogger chatLogger,
             String streamerUsername,
             String botUsername,
             String channelAuthToken,
@@ -41,7 +39,6 @@ public class TwitchApi {
             boolean silentChat
     ) {
         out.printf("Establishing Twitch connection (channel=%s, chat=%s)... ", streamerUsername, botUsername);
-        this.chatLogger = chatLogger;
         this.channelAuthToken = channelAuthToken;
         this.botAuthToken = botAuthToken;
         this.silentChat = silentChat;
@@ -158,7 +155,7 @@ public class TwitchApi {
             System.out.println("SILENT_CHAT: " + message);
         } else {
             twitchClient.getChat().sendMessage(streamerUser.getDisplayName(), message);
-            chatLogger.logMessage(botUser, message);
+            ChatLogger.logMessage(botUser, message);
         }
     }
     

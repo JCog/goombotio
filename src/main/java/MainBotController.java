@@ -11,7 +11,6 @@ import listeners.events.*;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
-import util.ChatLogger;
 import util.MessageExpressionParser;
 import util.Settings;
 import util.TwitchApi;
@@ -24,7 +23,7 @@ import static java.lang.System.out;
 
 public class MainBotController {
     private static final String DB_NAME = "goombotio";
-    private static final int TIMER_THREAD_SIZE = 5;
+    private static final int TIMER_THREAD_SIZE = 20;
 
     private final Settings settings;
     private final DbManager dbManager;
@@ -32,7 +31,6 @@ public class MainBotController {
     private final Twitter twitter;
     private final DiscordListener discordListener;
     private final DiscordBotController discordBotController;
-    private final ChatLogger chatLogger;
     private final TwitchApi twitchApi;
     private final StreamTracker streamTracker;
     private final MessageExpressionParser messageExpressionParser;
@@ -60,9 +58,7 @@ public class MainBotController {
         twitter = getTwitterInstance();
         discordListener = new DiscordListener();
         discordBotController = new DiscordBotController(settings.getDiscordToken(), discordListener);
-        chatLogger = new ChatLogger();
         twitchApi = new TwitchApi(
-                chatLogger,
                 settings.getTwitchStream(),
                 settings.getTwitchUsername(),
                 settings.getTwitchChannelAuthToken(),
@@ -125,7 +121,6 @@ public class MainBotController {
     public void closeAll() {
 //        minecraftWhitelistUpdater.stop();
         streamTracker.stop();
-        chatLogger.close();
         discordBotController.close();
         dbManager.closeDb();
         scheduler.shutdown();
@@ -162,7 +157,7 @@ public class MainBotController {
         // General Listeners
         twitchApi.registerEventListener(new AdEventListener(twitchApi));
 //        twitchApi.registerEventListener(new BitWarCheerListener(twitchApi, dbManager));
-        twitchApi.registerEventListener(new ChatLoggerListener(chatLogger));
+        twitchApi.registerEventListener(new ChatLoggerListener());
         twitchApi.registerEventListener(new CloudListener(twitchApi));
         twitchApi.registerEventListener(new EmoteListener(dbManager));
         twitchApi.registerEventListener(new LinkListener(twitchApi, twitter, settings.getYoutubeApiKey()));

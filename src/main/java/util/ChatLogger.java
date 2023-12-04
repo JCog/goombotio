@@ -9,7 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -19,22 +18,8 @@ public class ChatLogger {
     private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss z";
     private static final String FILENAME_FORMAT = "yyyy-MM-dd";
     private static final String ANNOUNCEMENT_COMMAND = "/announce ";
-
-    private PrintWriter writer = null;
-    private Calendar currentDate;
-
-    public ChatLogger() {
-        openNewFile();
-        currentDate = getCurrentDateUTC();
-    }
-
-    public void close() {
-        if (writer != null) {
-            writer.close();
-        }
-    }
     
-    public void logAnnouncement(ModAnnouncementEvent announcementEvent) {
+    public static void logAnnouncement(ModAnnouncementEvent announcementEvent) {
         logMessage(
                 announcementEvent.getMessageEvent().getUserId(),
                 announcementEvent.getMessageEvent().getUser().getName(),
@@ -42,7 +27,7 @@ public class ChatLogger {
         );
     }
     
-    public void logAnnouncement(User user, String message) {
+    public static void logAnnouncement(User user, String message) {
         logMessage(
                 user.getId(),
                 user.getDisplayName(),
@@ -50,7 +35,7 @@ public class ChatLogger {
         );
     }
     
-    public void logMessage(ChannelMessageEvent messageEvent) {
+    public static void logMessage(ChannelMessageEvent messageEvent) {
         logMessage(
                 messageEvent.getUser().getId(),
                 messageEvent.getUser().getName(),
@@ -58,7 +43,7 @@ public class ChatLogger {
         );
     }
     
-    public void logMessage(User user, String message) {
+    public static void logMessage(User user, String message) {
         logMessage(
                 user.getId(),
                 user.getDisplayName(),
@@ -66,29 +51,21 @@ public class ChatLogger {
         );
     }
 
-    public void logMessage(String userId, String displayName, String message) {
-        if (isNewDayUTC()) {
-            currentDate = getCurrentDateUTC();
-            openNewFile();
-        }
-        if (writer == null) {
-            return;
-        }
-        writer.write(String.format(
+    public static void logMessage(String userId, String displayName, String message) {
+        write(String.format(
                 "%s %s %s: %s\n",
                 getDateString(),
                 userId,
                 displayName,
                 message
         ));
-        writer.flush();
     }
 
-    private void openNewFile() {
-        if (writer != null) {
-            writer.close();
-        }
-        String filename = LOCATION + getFileName() + ".log";
+    private static void write(String input) {
+        SimpleDateFormat sdf = new SimpleDateFormat(FILENAME_FORMAT);
+        sdf.setTimeZone(TimeZone.getTimeZone(UTC_TIMEZONE));
+        String filename = LOCATION + sdf.format(new Date()) + ".log";
+        
         FileWriter fw;
         try {
             fw = new FileWriter(filename, true);
@@ -97,28 +74,14 @@ public class ChatLogger {
             e.printStackTrace();
             return;
         }
-        BufferedWriter bw = new BufferedWriter(fw);
-        writer = new PrintWriter(bw);
+        PrintWriter writer = new PrintWriter(new BufferedWriter(fw));
+        writer.write(input);
+        writer.close();
     }
 
-    private String getDateString() {
+    private static String getDateString() {
         SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT);
         sdf.setTimeZone(TimeZone.getTimeZone(UTC_TIMEZONE));
         return sdf.format(new Date());
-    }
-
-    private String getFileName() {
-        SimpleDateFormat sdf = new SimpleDateFormat(FILENAME_FORMAT);
-        sdf.setTimeZone(TimeZone.getTimeZone(UTC_TIMEZONE));
-        return sdf.format(new Date());
-    }
-
-    private boolean isNewDayUTC() {
-        Calendar newTime = getCurrentDateUTC();
-        return newTime.get(Calendar.DAY_OF_MONTH) != currentDate.get(Calendar.DAY_OF_MONTH);
-    }
-
-    private Calendar getCurrentDateUTC() {
-        return Calendar.getInstance(TimeZone.getTimeZone(UTC_TIMEZONE));
     }
 }
