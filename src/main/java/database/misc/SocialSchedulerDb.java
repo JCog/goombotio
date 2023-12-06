@@ -63,12 +63,13 @@ public class SocialSchedulerDb extends GbCollection {
     @Nullable
     public ScheduledMessage getMessage(String id) {
         Document result = findFirstEquals(ID_KEY, id);
-        if (result != null) {
-            String message = result.getString(MESSAGE_KEY);
-            int weight = result.getInteger(WEIGHT_KEY) == null ? result.getInteger(WEIGHT_KEY) : 1;
-            return new ScheduledMessage(id, message, weight);
+        if (result == null) {
+            return null;
         }
-        return null;
+        
+        String message = result.getString(MESSAGE_KEY);
+        int weight = result.getInteger(WEIGHT_KEY);
+        return new ScheduledMessage(id, message, weight);
     }
 
     public List<ScheduledMessage> getAllMessages() {
@@ -76,7 +77,7 @@ public class SocialSchedulerDb extends GbCollection {
         for (Document doc : findAll()) {
             String id = doc.getString(ID_KEY);
             String message = doc.getString(MESSAGE_KEY);
-            int weight = doc.getInteger(WEIGHT_KEY) == null ? 1 : doc.getInteger(WEIGHT_KEY);
+            int weight = doc.getInteger(WEIGHT_KEY);
             messages.add(new ScheduledMessage(id, message, weight));
         }
         return messages;

@@ -12,7 +12,6 @@ import org.bson.Document;
 import java.util.Collections;
 
 public class GbDatabase {
-
     private final MongoClient mongoClient;
     private final MongoDatabase mongoDatabase;
     private final boolean writePermission;

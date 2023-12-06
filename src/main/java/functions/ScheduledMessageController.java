@@ -79,14 +79,8 @@ public class ScheduledMessageController implements TwitchEventListener {
                 }
                 
                 if (recentRaid) {
-                    ScheduledMessage message = socialSchedulerDb.getMessage(FOLLOW_MESSAGE_ID);
-                    if (message == null) {
-                        System.out.println("Error posting scheduled follow message after a raid");
-                    } else {
-                        twitchApi.channelAnnouncement(commandParser.parse(message.getMessage()));
-                        previousId = message.getId();
-                    }
                     recentRaid = false;
+                    postAfterRaidMsg();
                 } else {
                     postRandomMsg();
                 }
@@ -109,6 +103,17 @@ public class ScheduledMessageController implements TwitchEventListener {
         String message = choices.get(selection).getMessage();
         twitchApi.channelAnnouncement(commandParser.parse(message));
         previousId = choices.get(selection).getId();
+    }
+    
+    private void postAfterRaidMsg() {
+        ScheduledMessage message = socialSchedulerDb.getMessage(FOLLOW_MESSAGE_ID);
+        if (message == null) {
+            System.out.println("Error posting scheduled follow message after a raid");
+            return;
+        }
+        
+        twitchApi.channelAnnouncement(commandParser.parse(message.getMessage()));
+        previousId = message.getId();
     }
     
     @Override
