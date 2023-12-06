@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import static database.misc.SocialSchedulerDb.ScheduledMessage;
 
 public class ScheduledMessageController implements TwitchEventListener {
-    private static final long INTERVAL_LENGTH = 1; //minutes
+    private static final long INTERVAL_LENGTH = 20; //minutes
     private static final String FOLLOW_MESSAGE_ID = "follow";
     
     private final Random random = new Random();
@@ -62,9 +62,10 @@ public class ScheduledMessageController implements TwitchEventListener {
             @Override
             public void run() {
                 // only post if chat is active
-//                if (!activeChat) {
-//                    return;
-//                }
+                if (!activeChat) {
+                    System.out.println(LocalDateTime.now() + " inactive chat, skipping interval");
+                    return;
+                }
                 activeChat = false;
                 
                 // only post if stream is live
@@ -77,11 +78,13 @@ public class ScheduledMessageController implements TwitchEventListener {
                     System.out.println("Error retrieving stream for SocialScheduler");
                     stream = null;
                 }
-//                if (stream == null) {
-//                    return;
-//                }
+                if (stream == null) {
+                    System.out.println(LocalDateTime.now() + " stream offline, skipping interval");
+                    return;
+                }
                 
                 if (recentRaid) {
+                    System.out.println(LocalDateTime.now() + " attempting follow message after raid");
                     ScheduledMessage message = socialSchedulerDb.getMessage(FOLLOW_MESSAGE_ID);
                     if (message == null) {
                         System.out.println("Error posting scheduled follow message after a raid");
@@ -98,7 +101,7 @@ public class ScheduledMessageController implements TwitchEventListener {
     }
 
     private void postRandomMsg() {
-        System.out.println("random message");
+        System.out.println(LocalDateTime.now() + " attempting random message");
         //there's definitely a more memory-efficient way to do this, but eh
         List<ScheduledMessage> choices = new ArrayList<>();
         for (ScheduledMessage message : socialSchedulerDb.getAllMessages()) {
@@ -135,6 +138,9 @@ public class ScheduledMessageController implements TwitchEventListener {
         // chat is active as long as posters aren't the streamer or bot
         if (!senderId.equals(streamerId) && !senderId.equals(botId)) {
             activeChat = true;
+            System.out.println(LocalDateTime.now() + " activeChat = true");
+        } else {
+            System.out.println(LocalDateTime.now() + " streamer/bot user, not setting activeChat");
         }
     }
 }
