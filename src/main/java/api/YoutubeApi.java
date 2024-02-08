@@ -64,26 +64,29 @@ public class YoutubeApi extends BaseAPI {
         numberFormat.setGroupingUsed(true);
         if (likeCount == -1) {
             return String.format(
-                    "YouTube Video: %s • %s • %s views | (ratings hidden)",
+                    "YouTube Video: %s • %s • %s view%s | (ratings hidden)",
                     channelName,
                     title,
-                    numberFormat.format(viewCount)
+                    numberFormat.format(viewCount),
+                    viewCount == 1 ? "" : "s"
             );
             
         } else if (dislikeCount == -1) {
             return String.format(
-                    "YouTube Video: %s • %s • %s views | \uD83D\uDC4D%s",
+                    "YouTube Video: %s • %s • %s view%s | \uD83D\uDC4D%s",
                     channelName,
                     title,
                     numberFormat.format(viewCount),
+                    viewCount == 1 ? "" : "s",
                     numberFormat.format(likeCount)
             );
         } else {
             return String.format(
-                    "YouTube Video: %s • %s • %s views | \uD83D\uDC4D%s | \uD83D\uDC4E%s",
+                    "YouTube Video: %s • %s • %s view%s | \uD83D\uDC4D%s | \uD83D\uDC4E%s",
                     channelName,
                     title,
                     numberFormat.format(viewCount),
+                    viewCount == 1 ? "" : "s",
                     numberFormat.format(likeCount),
                     numberFormat.format(dislikeCount)
             );

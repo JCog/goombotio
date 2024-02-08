@@ -98,12 +98,13 @@ public class LinkListener implements TwitchEventListener {
         numberFormat.setGroupingUsed(true);
 
         return String.format(
-                "Twitch Clip: %s • %s playing %s • Clipped by %s • %s views",
+                "Twitch Clip: %s • %s playing %s • Clipped by %s • %s view%s",
                 title,
                 channelDisplayName,
                 gameName,
                 clippedByDisplayName,
-                numberFormat.format(viewCount)
+                numberFormat.format(viewCount),
+                viewCount == 1 ? "" : "s"
         );
     }
 
@@ -127,10 +128,11 @@ public class LinkListener implements TwitchEventListener {
         numberFormat.setGroupingUsed(true);
 
         return String.format(
-                "Twitch Video: %s • %s • %s views",
+                "Twitch Video: %s • %s • %s view%s",
                 title,
                 username,
-                numberFormat.format(viewCount)
+                numberFormat.format(viewCount),
+                viewCount == 1 ? "" : "s"
         );
     }
 
