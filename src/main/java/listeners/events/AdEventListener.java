@@ -14,10 +14,10 @@ public class AdEventListener implements TwitchEventListener {
     @Override
     public void onMidrollRequest(MidrollRequestEvent midrollRequestEvent) {
         twitchApi.channelAnnouncement(
-                "A scheduled ad break has just started. I run 3 minutes of ads per hour both to disable pre-rolls " +
-                "when you enter chat and for the revenue that helps keep me streaming for you. If you would like to " +
-                "avoid seeing them in the future, consider subscribing to the channel or purchasing Twitch Turbo! " +
-                "Use !sub or !turbo for more details. Adge"
+                "A scheduled ad break has just started. I run ads both to disable pre-rolls when you enter chat and " +
+                "for the revenue that helps keep me streaming for you. If you would like to avoid seeing them in the " +
+                "future, consider subscribing to the channel or purchasing Twitch Turbo! Use !sub or !turbo for more " +
+                "details. Adge"
         );
     }
 }
