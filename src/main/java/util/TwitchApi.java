@@ -190,20 +190,25 @@ public class TwitchApi {
     }
     
     public List<BannedUser> getBannedUsers(List<String> userIds) throws HystrixRuntimeException {
-        String cursor = null;
+        // for some reason this endpoint only accepts a max of 100 users, so can't just use a cursor and call it good
+        List<String> idSubset = new ArrayList<>();
         List<BannedUser> bannedUserOutput = new ArrayList<>();
-        do {
-            BannedUserList bannedUserList = twitchClient.getHelix().getBannedUsers(
-                    channelAuthToken,
-                    streamerUser.getId(),
-                    userIds,
-                    cursor,
-                    null,
-                    100
-            ).execute();
-            cursor = bannedUserList.getPagination().getCursor();
-            bannedUserOutput.addAll(bannedUserList.getResults());
-        } while (cursor != null);
+        Iterator<String> it = userIds.iterator();
+        while (it.hasNext()) {
+            idSubset.add(it.next());
+            if (idSubset.size() == 100 || !it.hasNext()) {
+                BannedUserList bannedUserList = twitchClient.getHelix().getBannedUsers(
+                        channelAuthToken,
+                        streamerUser.getId(),
+                        idSubset,
+                        null,
+                        null,
+                        100
+                ).execute();
+                bannedUserOutput.addAll(bannedUserList.getResults());
+                idSubset.clear();
+            }
+        }
         return bannedUserOutput;
     }
     
