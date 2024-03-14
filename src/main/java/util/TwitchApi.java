@@ -3,6 +3,8 @@ package util;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
+import com.github.twitch4j.chat.ITwitchChat;
+import com.github.twitch4j.chat.TwitchChatBuilder;
 import com.github.twitch4j.chat.events.channel.ChannelMessageActionEvent;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.chat.events.channel.ModAnnouncementEvent;
@@ -26,6 +28,7 @@ public class TwitchApi {
     private final String channelAuthToken;
     private final String botAuthToken;
     private final TwitchClient twitchClient;
+    private final ITwitchChat chatClient;
     private final User streamerUser;
     private final User botUser;
     private final boolean silentChat;
@@ -47,14 +50,16 @@ public class TwitchApi {
         twitchClient = TwitchClientBuilder.builder()
                 .withClientId(channelClientId)
                 .withDefaultAuthToken(oauth)
-                .withChatAccount(new OAuth2Credential("twitch", botAuthToken))
                 .withEnableHelix(true)
                 .withEnablePubSub(true)
-                .withEnableChat(true)
                 .build();
-        twitchClient.getChat().leaveChannel(botUsername);
-        twitchClient.getChat().joinChannel(streamerUsername);
         twitchClient.getClientHelper().enableStreamEventListener(streamerUsername);
+        
+        chatClient = TwitchChatBuilder.builder()
+                .withChatAccount(new OAuth2Credential("twitch", botAuthToken))
+                .withAutoJoinOwnChannel(false)
+                .build();
+        chatClient.joinChannel(streamerUsername);
         
         streamerUser = getUserByUsername(streamerUsername);
         botUser = getUserByUsername(botUsername);
@@ -90,7 +95,6 @@ public class TwitchApi {
         
         twitchClient.getEventManager().onEvent(ModAnnouncementEvent.class, eventListener::onAnnouncement);
         twitchClient.getEventManager().onEvent(ChannelMessageActionEvent.class, eventListener::onChannelMessageAction);
-        twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, eventListener::onChannelMessage);
         twitchClient.getEventManager().onEvent(ChannelGoLiveEvent.class, eventListener::onGoLive);
         twitchClient.getEventManager().onEvent(ChannelGoOfflineEvent.class, eventListener::onGoOffline);
         twitchClient.getEventManager().onEvent(ChannelChangeGameEvent.class, eventListener::onGameChange);
@@ -101,6 +105,8 @@ public class TwitchApi {
         twitchClient.getEventManager().onEvent(RewardRedeemedEvent.class, eventListener::onChannelPointsRedemption);
         twitchClient.getEventManager().onEvent(ChannelSubscribeEvent.class, eventListener::onSub);
         twitchClient.getEventManager().onEvent(ChannelSubGiftEvent.class, eventListener::onSubGift);
+        
+        chatClient.getEventManager().onEvent(ChannelMessageEvent.class, eventListener::onChannelMessage);
     }
     
     //////////////////////////////////////////////////////////////////////////
@@ -154,7 +160,7 @@ public class TwitchApi {
         if (silentChat) {
             System.out.println("SILENT_CHAT: " + message);
         } else {
-            twitchClient.getChat().sendMessage(streamerUser.getDisplayName(), message);
+            chatClient.sendMessage(streamerUser.getDisplayName(), message);
             ChatLogger.logMessage(botUser, message);
         }
     }
