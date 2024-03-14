@@ -8,11 +8,10 @@ import util.MessageExpressionParser;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TimerTask;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static database.misc.CommandDb.CommandItem;
 
@@ -20,12 +19,13 @@ public class GenericCommandListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.GENERIC_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
     private static final int COOLDOWN = 0;
+    private static final CooldownType COOLDOWN_TYPE = CooldownType.COMBINED;
     private static final String PATTERN = "";
 
     private final CommandDb commandDb;
+    private final HashMap<String, Instant> commandInstants;
     private final MessageExpressionParser commandParser;
     private final TwitchApi twitchApi;
-    private final Set<String> activeCooldowns = new HashSet<>();
 
 
     public GenericCommandListener(
@@ -34,10 +34,11 @@ public class GenericCommandListener extends CommandBase {
             DbManager dbManager,
             TwitchApi twitchApi
     ) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.commandParser = commandParser;
         this.twitchApi = twitchApi;
         commandDb = dbManager.getCommandDb();
+        commandInstants = new HashMap<>();
     }
 
     @Override
@@ -57,32 +58,24 @@ public class GenericCommandListener extends CommandBase {
         }
 
         CommandItem commandItem = commandDb.getCommandItem(command);
-        if (commandItem != null && userHasPermission(userLevel, commandItem) && !cooldownActive(commandItem)) {
-            twitchApi.channelMessage(commandParser.parse(commandItem, messageEvent));
-            startCooldown(commandItem);
+        if (commandItem == null || cooldownActive(commandItem) || !userHasPermission(userLevel, commandItem)) {
+            return;
         }
+        
+        twitchApi.channelMessage(commandParser.parse(commandItem, messageEvent));
+        commandInstants.put(command, Instant.now());
     }
 
     private boolean userHasPermission(USER_LEVEL userLevel, CommandItem commandItem) {
         return userLevel.value >= commandItem.getPermission().value;
     }
 
-    private void startCooldown(CommandItem commandItem) {
-        if (activeCooldowns.contains(commandItem.getId())) {
-            return;
-        }
-
-        activeCooldowns.add(commandItem.getId());
-        scheduler.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                activeCooldowns.remove(commandItem.getId());
-            }
-        }, commandItem.getCooldown(), TimeUnit.SECONDS);
-    }
-
     private boolean cooldownActive(CommandItem commandItem) {
-        return activeCooldowns.contains(commandItem.getId());
+        Instant lastUsed = commandInstants.get(commandItem.getId());
+        if (lastUsed == null) {
+            return false;
+        }
+        return ChronoUnit.SECONDS.between(lastUsed, Instant.now()) < commandItem.getCooldown();
     }
 
     private boolean isReservedCommand(String commandId) {

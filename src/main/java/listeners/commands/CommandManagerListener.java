@@ -17,6 +17,7 @@ public class CommandManagerListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
     private static final int MANAGER_COOLDOWN = 0;
+    private static final CooldownType COOLDOWN_TYPE = CooldownType.COMBINED;
     private final static String PATTERN = "!commands";
     
     private final static String USER_LEVEL_TAG = "-ul=";
@@ -34,7 +35,7 @@ public class CommandManagerListener extends CommandBase {
     }
 
     public CommandManagerListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, MANAGER_COOLDOWN, PATTERN);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, MANAGER_COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
         this.commandDb = dbManager.getCommandDb();
     }

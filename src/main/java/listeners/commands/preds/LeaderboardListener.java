@@ -17,7 +17,8 @@ import java.util.concurrent.ScheduledExecutorService;
 public class LeaderboardListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
-    private static final int COOLDOWN = 100;
+    private static final int COOLDOWN = 2;
+    private static final CooldownType COOLDOWN_TYPE = CooldownType.PER_USER;
     private static final String PATTERN_LEADERBOARD = "!leaderboard";
     private static final String PATTERN_PREDS = "!preds";
     private static final String PATTERN_POINTS = "!points";
@@ -66,6 +67,7 @@ public class LeaderboardListener extends CommandBase {
                 COMMAND_TYPE,
                 MIN_USER_LEVEL,
                 COOLDOWN,
+                COOLDOWN_TYPE,
                 PATTERN_LEADERBOARD,
                 PATTERN_PREDS,
                 PATTERN_POINTS

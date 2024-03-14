@@ -134,7 +134,6 @@ public class MainBotController {
         twitchApi.registerEventListener(new GenericCommandListener(scheduler, messageExpressionParser, dbManager, twitchApi));
         twitchApi.registerEventListener(new LeaderboardListener(scheduler, dbManager, twitchApi));
 //        twitchApi.registerEventListener(new MinecraftListener(scheduler, twitchApi, dbManager, minecraftWhitelistUpdater));
-//        twitchApi.registerEventListener(new ModListener(scheduler, twitchApi));
         twitchApi.registerEventListener(new QuoteListener(scheduler, dbManager, twitchApi));
         twitchApi.registerEventListener(new PermanentVipListener(scheduler, twitchApi, dbManager));
         twitchApi.registerEventListener(new PredsManagerListener(scheduler, dbManager, twitchApi, discordBotController, predsGuessListener));

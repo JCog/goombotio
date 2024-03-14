@@ -18,6 +18,7 @@ public class PredsManagerListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.BROADCASTER;
     private static final int COOLDOWN = 0;
+    private static final CooldownType COOLDOWN_TYPE = CooldownType.COMBINED;
     private static final String PATTERN_PREDS = "!preds";
     private static final String PATTERN_PREDS_CANCEL = "!predscancel";
     
@@ -40,7 +41,7 @@ public class PredsManagerListener extends CommandBase {
             DiscordBotController discord,
             PredsGuessListener predsGuessListener
     ) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN_PREDS, PATTERN_PREDS_CANCEL);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_PREDS, PATTERN_PREDS_CANCEL);
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.discord = discord;

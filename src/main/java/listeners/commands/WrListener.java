@@ -13,7 +13,8 @@ import static api.SpeedrunApi.*;
 public class WrListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
-    private static final int COOLDOWN = 5000;
+    private static final int COOLDOWN = 5;
+    private static final CooldownType COOLDOWN_TYPE = CooldownType.COMBINED;
     private static final String PATTERN = "!wr";
     
     private static final String GAME_ID_BUG_FABLES = "511735";
@@ -29,7 +30,7 @@ public class WrListener extends CommandBase {
             ScheduledExecutorService scheduler,
             TwitchApi twitchApi
     ) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
     }
 

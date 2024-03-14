@@ -13,13 +13,14 @@ import java.util.concurrent.ScheduledExecutorService;
 public class AdCommandListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
-    private static final int COOLDOWN = 2 * 1000;
+    private static final int COOLDOWN = 2;
+    private static final CooldownType COOLDOWN_TYPE = CooldownType.COMBINED;
     private static final String PATTERN = "!ad";
     
     private final TwitchApi twitchApi;
 
     public AdCommandListener(ScheduledExecutorService scheduler, TwitchApi twitchApi) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
     }
 

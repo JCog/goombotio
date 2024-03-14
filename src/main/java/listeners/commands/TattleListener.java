@@ -17,7 +17,8 @@ import java.util.stream.Collectors;
 public class TattleListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
-    private static final int COOLDOWN = 5 * 1000;
+    private static final int COOLDOWN = 5;
+    private static final CooldownType COOLDOWN_TYPE = CooldownType.COMBINED;
     private final static String PATTERN_TATTLE = "!tattle";
     private final static String PATTERN_ADD = "!addtattle";
     
@@ -30,7 +31,7 @@ public class TattleListener extends CommandBase {
             DbManager dbManager,
             TwitchApi twitchApi
     ) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN_TATTLE, PATTERN_ADD);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_TATTLE, PATTERN_ADD);
         this.tattleDb = dbManager.getTattleDb();
         this.twitchApi = twitchApi;
     }

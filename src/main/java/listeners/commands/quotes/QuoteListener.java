@@ -17,7 +17,8 @@ import static listeners.commands.quotes.QuoteUndoEngine.Action.*;
 public class QuoteListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
-    private static final int COOLDOWN = 5 * 1000;
+    private static final int COOLDOWN = 5;
+    private static final CooldownType COOLDOWN_TYPE = CooldownType.COMBINED;
     private static final String PATTERN_QUOTE = "!quote";
     private static final String PATTERN_ADD_QUOTE = "!addquote";
     private static final String PATTERN_DELETE_QUOTE = "!delquote";
@@ -46,6 +47,7 @@ public class QuoteListener extends CommandBase {
                 COMMAND_TYPE,
                 MIN_USER_LEVEL,
                 COOLDOWN,
+                COOLDOWN_TYPE,
                 PATTERN_QUOTE,
                 PATTERN_ADD_QUOTE,
                 PATTERN_DELETE_QUOTE,

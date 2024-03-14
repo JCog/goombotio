@@ -14,6 +14,7 @@ public class BitWarResetCommandListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.BROADCASTER;
     private static final int COOLDOWN = 0;
+    private static final CooldownType COOLDOWN_TYPE = CooldownType.COMBINED;
     private static final String PATTERN = "!resetyoshi";
     
     private static final String MESSAGE = "The Yoshi Bit War has been reset.";
@@ -25,7 +26,7 @@ public class BitWarResetCommandListener extends CommandBase {
     private final BitWarDb bitWarDb;
 
     public BitWarResetCommandListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
         this.bitWarDb = dbManager.getBitWarDb();
     }

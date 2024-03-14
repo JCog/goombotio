@@ -15,6 +15,7 @@ public class MinecraftListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
     private static final int COOLDOWN = 0;
+    private static final CooldownType COOLDOWN_TYPE = CooldownType.PER_USER;
     private static final String PATTERN = "!minecraft";
     
     private static final String GENERIC_MESSAGE = "We have a community Minecraft server! It's currently open to %s. To join, register your Minecraft username by typing \"!minecraft <username>\" in the chat and you'll automatically be added to the whitelist. Then, add a new server with the address \"minecraft.jcoggers.com\". Have fun! PunchTrees";
@@ -26,7 +27,7 @@ public class MinecraftListener extends CommandBase {
     private final MinecraftWhitelistUpdater mcUpdater;
 
     public MinecraftListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager, MinecraftWhitelistUpdater mcUpdater) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
         this.mcUpdater = mcUpdater;
         minecraftUserDb = dbManager.getMinecraftUserDb();

@@ -22,7 +22,8 @@ import static database.misc.VipRaffleDb.VipRaffleItem;
 public class VipRaffleListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
-    private static final int COOLDOWN = 1000;
+    private static final int COOLDOWN = 5;
+    private static final CooldownType COOLDOWN_TYPE = CooldownType.PER_USER;
     private static final int WINNER_COUNT = 5;
     private static final String PATTERN = "!raffle";
     
@@ -31,7 +32,7 @@ public class VipRaffleListener extends CommandBase {
     private final VipDb vipDb;
     
     public VipRaffleListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, PATTERN);
+        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
         this.vipRaffleDb = dbManager.getVipRaffleDb();
         this.vipDb = dbManager.getVipDb();
