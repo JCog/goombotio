@@ -1,6 +1,6 @@
 package listeners.events;
 
-import api.YoutubeApi;
+import api.youtube.YoutubeApi;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Clip;
 import com.github.twitch4j.helix.domain.Game;
@@ -27,10 +27,12 @@ public class LinkListener implements TwitchEventListener {
 
     private final TwitchApi twitchApi;
     private final Twitter twitter;
+    private final YoutubeApi youtubeApi;
     private final String youtubeApiKey;
 
     public LinkListener(CommonUtils commonUtils, Twitter twitter, String youtubeApiKey) {
         twitchApi = commonUtils.getTwitchApi();
+        youtubeApi = commonUtils.getApiManager().getYoutubeApi();
         this.twitter = twitter;
         this.youtubeApiKey = youtubeApiKey;
     }
@@ -49,7 +51,7 @@ public class LinkListener implements TwitchEventListener {
             twitchApi.channelMessage(getVideoDetails(id));
         }
         for (String id : youtubeVideoIds) {
-            twitchApi.channelMessage(YoutubeApi.getVideoDetails(id, youtubeApiKey));
+            twitchApi.channelMessage(youtubeApi.getVideoDetails(id, youtubeApiKey));
         }
         for (String id : tweetIds) {
             twitchApi.channelMessage(getTweetDetails(id));
