@@ -65,7 +65,12 @@ public class MainBotController {
         scheduler = Executors.newScheduledThreadPool(TIMER_THREAD_SIZE);
         commonUtils = new CommonUtils(twitchApi, dbManager, discordBotController, scheduler);
         
-        twitter = getTwitterInstance(settings);
+        twitter = getTwitterInstance(
+                settings.getTwitterConsumerKey(),
+                settings.getTwitterConsumerSecret(),
+                settings.getTwitterAccessToken(),
+                settings.getTwitterAccessTokenSecret()
+        );
         streamTracker = new StreamTracker(commonUtils);
         messageExpressionParser = new MessageExpressionParser(commonUtils);
         scheduledMessageController = new ScheduledMessageController(commonUtils, messageExpressionParser);
@@ -147,13 +152,18 @@ public class MainBotController {
         }
     }
 
-    private Twitter getTwitterInstance(Settings settings) {
+    private Twitter getTwitterInstance(
+            String consumerKey,
+            String consumerSecret,
+            String accessToken,
+            String accessTokenSecret
+    ) {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true)
-                .setOAuthConsumerKey(settings.getTwitterConsumerKey())
-                .setOAuthConsumerSecret(settings.getTwitterConsumerSecret())
-                .setOAuthAccessToken(settings.getTwitterAccessToken())
-                .setOAuthAccessTokenSecret(settings.getTwitterAccessTokenSecret());
+                .setOAuthConsumerKey(consumerKey)
+                .setOAuthConsumerSecret(consumerSecret)
+                .setOAuthAccessToken(accessToken)
+                .setOAuthAccessTokenSecret(accessTokenSecret);
         TwitterFactory tf = new TwitterFactory(cb.build());
         return tf.getInstance();
     }
