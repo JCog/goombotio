@@ -1,5 +1,6 @@
 import database.DbManager;
 import functions.*;
+import listeners.TwitchEventListener;
 import listeners.channelpoints.DethroneListener;
 import listeners.channelpoints.VipRaffleRewardListener;
 import listeners.commands.*;
@@ -36,7 +37,6 @@ public class MainBotController {
     private final MessageExpressionParser messageExpressionParser;
     private final ScheduledMessageController scheduledMessageController;
     private final FollowLogger followLogger;
-//    private final MinecraftWhitelistUpdater minecraftWhitelistUpdater;
     private final SubPointUpdater subPointUpdater;
 
     public MainBotController() {
@@ -78,21 +78,13 @@ public class MainBotController {
                 scheduler,
                 messageExpressionParser
         );
+        
         followLogger = new FollowLogger(
                 dbManager,
                 twitchApi,
                 streamTracker,
                 scheduler
         );
-//        minecraftWhitelistUpdater = new MinecraftWhitelistUpdater(
-//                dbManager,
-//                twitchApi,
-//                scheduler,
-//                settings.getMinecraftServer(),
-//                settings.getMinecraftUser(),
-//                settings.getMinecraftPassword(),
-//                settings.getMinecraftWhitelistLocation()
-//        );
         subPointUpdater = new SubPointUpdater(twitchApi, settings, scheduler);
     }
 
@@ -124,46 +116,48 @@ public class MainBotController {
     }
 
     private void registerListeners() {
-        //setup
+        // BitWarResetCommandListener and MinecraftListener currently unused
         PredsGuessListener predsGuessListener = new PredsGuessListener();
-
-        // Command Listeners
-        twitchApi.registerEventListener(new AdCommandListener(twitchApi));
-//        twitchApi.registerEventListener(new BitWarResetCommandListener(twitchApi, dbManager));
-        twitchApi.registerEventListener(new CommandManagerListener(twitchApi, dbManager));
-        twitchApi.registerEventListener(new GenericCommandListener(messageExpressionParser, dbManager, twitchApi));
-        twitchApi.registerEventListener(new LeaderboardListener(dbManager, twitchApi));
-//        twitchApi.registerEventListener(new MinecraftListener(twitchApi, dbManager, minecraftWhitelistUpdater));
-        twitchApi.registerEventListener(new QuoteListener(dbManager, twitchApi));
-        twitchApi.registerEventListener(new PermanentVipListener(twitchApi, dbManager));
-        twitchApi.registerEventListener(new PredsManagerListener(dbManager, twitchApi, discordBotController, predsGuessListener));
-        twitchApi.registerEventListener(new RacetimeListener(twitchApi));
-        twitchApi.registerEventListener(new ScheduledMessageManagerListener(twitchApi, dbManager));
-        twitchApi.registerEventListener(new TattleListener(dbManager, twitchApi));
-        twitchApi.registerEventListener(new VipRaffleListener(twitchApi, dbManager));
-        twitchApi.registerEventListener(new WatchTimeListener(twitchApi, dbManager, streamTracker));
-        twitchApi.registerEventListener(new WrListener(twitchApi));
-        
-        twitchApi.registerEventListener(predsGuessListener);
-        
-        // Channel Point Listeners
-        twitchApi.registerEventListener(new DethroneListener(twitchApi, dbManager));
-        twitchApi.registerEventListener(new VipRaffleRewardListener(twitchApi, dbManager));
-
-        // General Listeners
-        twitchApi.registerEventListener(new AdEventListener(twitchApi));
-//        twitchApi.registerEventListener(new BitWarCheerListener(twitchApi, dbManager));
-        twitchApi.registerEventListener(new ChatLoggerListener());
-        twitchApi.registerEventListener(new CloudListener(twitchApi));
-        twitchApi.registerEventListener(new EmoteListener(dbManager));
-        twitchApi.registerEventListener(new LinkListener(twitchApi, twitter, settings.getYoutubeApiKey()));
-        twitchApi.registerEventListener(new PyramidListener(twitchApi));
-        twitchApi.registerEventListener(new RecentCheerListener(twitchApi));
-        twitchApi.registerEventListener(new ShoutoutListener(twitchApi));
-        twitchApi.registerEventListener(new SubListener(twitchApi));
-        
-        // Misc
-        twitchApi.registerEventListener(scheduledMessageController);
+        TwitchEventListener[] listeners = {
+                // Setup
+                predsGuessListener,
+                
+                // Commands
+                new AdCommandListener(twitchApi),
+                new CommandManagerListener(twitchApi, dbManager),
+                new GenericCommandListener(messageExpressionParser, dbManager, twitchApi),
+                new LeaderboardListener(dbManager, twitchApi),
+                new QuoteListener(dbManager, twitchApi),
+                new PermanentVipListener(twitchApi, dbManager),
+                new PredsManagerListener(dbManager, twitchApi, discordBotController, predsGuessListener),
+                new RacetimeListener(twitchApi),
+                new ScheduledMessageManagerListener(twitchApi, dbManager),
+                new TattleListener(dbManager, twitchApi),
+                new VipRaffleListener(twitchApi, dbManager),
+                new WatchTimeListener(twitchApi, dbManager, streamTracker),
+                new WrListener(twitchApi),
+                
+                // Channel Points
+                new DethroneListener(twitchApi, dbManager),
+                new VipRaffleRewardListener(twitchApi, dbManager),
+                
+                // General
+                new AdEventListener(twitchApi),
+                new ChatLoggerListener(),
+                new CloudListener(twitchApi),
+                new EmoteListener(dbManager),
+                new LinkListener(twitchApi, twitter, settings.getYoutubeApiKey()),
+                new PyramidListener(twitchApi),
+                new RecentCheerListener(twitchApi),
+                new ShoutoutListener(twitchApi),
+                new SubListener(twitchApi),
+                
+                // Misc
+                scheduledMessageController,
+        };
+        for (TwitchEventListener listener : listeners) {
+            twitchApi.registerEventListener(listener);
+        }
     }
 
     private Twitter getTwitterInstance() {
