@@ -30,7 +30,8 @@ public class TwitchApi {
     private final ITwitchChat chatClient;
     private final User streamerUser;
     private final User botUser;
-    private final boolean silentChat;
+    
+    private boolean silentChat;
     
     public TwitchApi(
             String streamerUsername,
@@ -132,6 +133,16 @@ public class TwitchApi {
         chatEvents.onEvent(ModAnnouncementEvent.class, eventListener::onAnnouncement);
         chatEvents.onEvent(ChannelMessageActionEvent.class, eventListener::onChannelMessageAction);
         chatEvents.onEvent(ChannelMessageEvent.class, eventListener::onChannelMessage);
+    }
+    
+    public void toggleSlientChat() {
+        if (silentChat) {
+            silentChat = false;
+            channelMessage("Goombotio has been unmuted.");
+        } else {
+            channelMessage("Goombotio has been muted");
+            silentChat = true;
+        }
     }
     
     //////////////////////////////////////////////////////////////////////////

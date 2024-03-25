@@ -113,6 +113,7 @@ public class MainBotController {
                 new CommandManagerListener(commonUtils),
                 new GenericCommandListener(commonUtils, messageExpressionParser),
                 new LeaderboardListener(commonUtils),
+                new MuteCommandListener(commonUtils),
                 new QuoteListener(commonUtils),
                 new PermanentVipListener(commonUtils),
                 new PredsManagerListener(commonUtils, predsGuessListener),
