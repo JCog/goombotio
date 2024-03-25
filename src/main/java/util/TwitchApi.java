@@ -256,6 +256,7 @@ public class TwitchApi {
         return clipList.getData().get(0);
     }
     
+    // returns user that follows channel if it exists (must be a mod of the channel)
     public InboundFollow getChannelFollower(String channelId, String followerId) throws HystrixRuntimeException {
         InboundFollowers followList = twitchClient.getHelix().getChannelFollowers(
                 channelAuthToken,
@@ -270,6 +271,7 @@ public class TwitchApi {
         return followList.getFollows().get(0);
     }
     
+    // returns all users that follow a channel (must be a mod of the channel)
     public List<InboundFollow> getChannelFollowers(String channelId) throws HystrixRuntimeException {
         String cursor = null;
         List<InboundFollow> followsOutput = new ArrayList<>();
@@ -322,14 +324,30 @@ public class TwitchApi {
         return vipListOutput;
     }
 
-    public List<OutboundFollow> getFollowedChannels(String userId) throws HystrixRuntimeException {
+    // returns followedId's follow data if followerId follows them (must be mod for follower)
+    public OutboundFollow getFollowedChannel(String followerId, String followedId) throws HystrixRuntimeException {
+        OutboundFollowing followList = twitchClient.getHelix().getFollowedChannels(
+                channelAuthToken,
+                followerId,
+                followedId,
+                1,
+                null
+        ).execute();
+        if (followList.getFollows() == null || followList.getFollows().isEmpty()) {
+            return null;
+        }
+        return followList.getFollows().get(0);
+    }
+    
+    // returns all the users that followerId follows (must be mod for follower)
+    public List<OutboundFollow> getFollowedChannels(String followerId) throws HystrixRuntimeException {
         String cursor = null;
         List<OutboundFollow> followsOutput = new ArrayList<>();
-
+        
         do {
             OutboundFollowing followList = twitchClient.getHelix().getFollowedChannels(
                     channelAuthToken,
-                    userId,
+                    followerId,
                     null,
                     100,
                     cursor
