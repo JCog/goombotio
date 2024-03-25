@@ -15,18 +15,20 @@ public class ShoutoutListener implements TwitchEventListener {
     
     @Override
     public void onRaid(ChannelRaidEvent raidEvent) {
-        String streamerId = twitchApi.getStreamerUser().getId();
+        String streamerId = raidEvent.getToBroadcasterUserId();
         String raiderId = raidEvent.getFromBroadcasterUserId();
         String raiderName = raidEvent.getFromBroadcasterUserName();
         boolean streamerFollows;
+        boolean online;
         try {
             // only shoutout users the streamer follows
             streamerFollows = twitchApi.getFollowedChannel(streamerId, raiderId) != null;
+            online = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId()) != null;
         } catch (HystrixRuntimeException e) {
             System.out.printf("Error checking if streamer follows %s after raid.%n", raiderName);
             return;
         }
-        if (streamerFollows) {
+        if (streamerFollows && online) {
             twitchApi.shoutout(raiderId);
         }
     }
