@@ -7,9 +7,9 @@ import com.github.twitch4j.helix.domain.Game;
 import com.github.twitch4j.helix.domain.Video;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import listeners.TwitchEventListener;
-import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
+import twitter4j.v1.Status;
 import util.CommonUtils;
 import util.TwitchApi;
 
@@ -140,7 +140,7 @@ public class LinkListener implements TwitchEventListener {
     private String getTweetDetails(String id) {
         Status tweet;
         try {
-            tweet = twitter.tweets().showStatus(Long.parseLong(id));
+            tweet = twitter.v1().tweets().showStatus(Long.parseLong(id));
         } catch (TwitterException e) {
             System.out.println("Twitter Exception");
             return "";

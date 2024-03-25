@@ -10,8 +10,6 @@ import listeners.commands.preds.PredsManagerListener;
 import listeners.commands.quotes.QuoteListener;
 import listeners.events.*;
 import twitter4j.Twitter;
-import twitter4j.TwitterFactory;
-import twitter4j.conf.ConfigurationBuilder;
 import util.CommonUtils;
 import util.MessageExpressionParser;
 import util.Settings;
@@ -27,19 +25,17 @@ public class MainBotController {
     private static final String DB_NAME = "goombotio";
     private static final int TIMER_THREAD_SIZE = 20;
 
-    private final Settings settings;
     private final DbManager dbManager;
     private final TwitchApi twitchApi;
     private final DiscordBotController discordBotController;
     private final ScheduledExecutorService scheduler;
     private final CommonUtils commonUtils;
     private final Twitter twitter;
+    private final String youtubeApiKey;
     private final StreamTracker streamTracker;
-    private final MessageExpressionParser messageExpressionParser;
-    private final ScheduledMessageController scheduledMessageController;
 
     public MainBotController() {
-        settings = new Settings();
+        Settings settings = new Settings();
         out.printf(
                 "\nWrite permission: %s\nSilent Chat: %s\n\n",
                 settings.hasWritePermission() ? "TRUE" : "FALSE",
@@ -65,19 +61,15 @@ public class MainBotController {
         scheduler = Executors.newScheduledThreadPool(TIMER_THREAD_SIZE);
         commonUtils = new CommonUtils(twitchApi, dbManager, discordBotController, scheduler);
         
-        twitter = getTwitterInstance(
-                settings.getTwitterConsumerKey(),
-                settings.getTwitterConsumerSecret(),
-                settings.getTwitterAccessToken(),
-                settings.getTwitterAccessTokenSecret()
-        );
+        twitter = Twitter.newBuilder()
+                .oAuthConsumer(settings.getTwitterConsumerKey(), settings.getTwitterConsumerSecret())
+                .oAuthAccessToken(settings.getTwitterAccessToken(), settings.getTwitterAccessTokenSecret())
+                .build();
+        youtubeApiKey = settings.getYoutubeApiKey();
         streamTracker = new StreamTracker(commonUtils);
-        messageExpressionParser = new MessageExpressionParser(commonUtils);
-        scheduledMessageController = new ScheduledMessageController(commonUtils, messageExpressionParser);
         
         new FollowLogger(commonUtils, streamTracker);
         new SubPointUpdater(commonUtils, settings.getSubCountFormat());
-        
     }
 
     public synchronized void run(long startTime) {
@@ -108,6 +100,8 @@ public class MainBotController {
     }
 
     private void registerListeners() {
+        MessageExpressionParser messageExpressionParser = new MessageExpressionParser(commonUtils);
+        
         // BitWarResetCommandListener and MinecraftListener currently unused
         PredsGuessListener predsGuessListener = new PredsGuessListener();
         TwitchEventListener[] listeners = {
@@ -138,33 +132,15 @@ public class MainBotController {
                 new ChatLoggerListener(),
                 new CloudListener(commonUtils),
                 new EmoteListener(commonUtils),
-                new LinkListener(commonUtils, twitter, settings.getYoutubeApiKey()),
+                new LinkListener(commonUtils, twitter, youtubeApiKey),
                 new PyramidListener(commonUtils),
                 new RecentCheerListener(commonUtils),
+                new ScheduledMessageController(commonUtils, messageExpressionParser),
                 new ShoutoutListener(commonUtils),
                 new SubListener(commonUtils),
-                
-                // Misc
-                scheduledMessageController,
         };
         for (TwitchEventListener listener : listeners) {
             twitchApi.registerEventListener(listener);
         }
-    }
-
-    private Twitter getTwitterInstance(
-            String consumerKey,
-            String consumerSecret,
-            String accessToken,
-            String accessTokenSecret
-    ) {
-        ConfigurationBuilder cb = new ConfigurationBuilder();
-        cb.setDebugEnabled(true)
-                .setOAuthConsumerKey(consumerKey)
-                .setOAuthConsumerSecret(consumerSecret)
-                .setOAuthAccessToken(accessToken)
-                .setOAuthAccessTokenSecret(accessTokenSecret);
-        TwitterFactory tf = new TwitterFactory(cb.build());
-        return tf.getInstance();
     }
 }
