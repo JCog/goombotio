@@ -1,9 +1,9 @@
 package listeners.events;
 
-import com.github.twitch4j.pubsub.events.ChannelBitsEvent;
-import database.DbManager;
+import com.github.twitch4j.eventsub.events.ChannelCheerEvent;
 import database.misc.BitWarDb;
 import listeners.TwitchEventListener;
+import util.CommonUtils;
 import util.TwitchApi;
 
 import java.util.Arrays;
@@ -18,15 +18,15 @@ public class BitWarCheerListener implements TwitchEventListener {
     private final TwitchApi twitchApi;
     private final BitWarDb bitWarDb;
     
-    public BitWarCheerListener(TwitchApi twitchApi, DbManager dbManager) {
-        this.twitchApi = twitchApi;
-        bitWarDb = dbManager.getBitWarDb();
+    public BitWarCheerListener(CommonUtils commonUtils) {
+        twitchApi = commonUtils.getTwitchApi();
+        bitWarDb = commonUtils.getDbManager().getBitWarDb();
     }
     
     @Override
-    public void onCheer(ChannelBitsEvent bitsEvent) {
-        String messageText = bitsEvent.getData().getChatMessage().toLowerCase();
-        int bitAmount = bitsEvent.getData().getBitsUsed();
+    public void onCheer(ChannelCheerEvent bitsEvent) {
+        String messageText = bitsEvent.getMessage().toLowerCase();
+        int bitAmount = bitsEvent.getBits();
         if (stringContainsItemFromList(messageText, SAVE_KEYWORDS)) {
             bitWarDb.addBits(BIT_WAR_NAME, TEAM_SAVE, bitAmount);
             twitchApi.channelMessage(String.format(

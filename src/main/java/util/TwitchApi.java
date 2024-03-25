@@ -1,6 +1,8 @@
 package util;
 
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
+import com.github.philippheuer.events4j.api.IEventManager;
+import com.github.philippheuer.events4j.core.EventManager;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.ITwitchChat;
@@ -8,16 +10,11 @@ import com.github.twitch4j.chat.TwitchChatBuilder;
 import com.github.twitch4j.chat.events.channel.ChannelMessageActionEvent;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.chat.events.channel.ModAnnouncementEvent;
-import com.github.twitch4j.events.ChannelChangeGameEvent;
-import com.github.twitch4j.events.ChannelChangeTitleEvent;
-import com.github.twitch4j.events.ChannelGoLiveEvent;
-import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
-import com.github.twitch4j.eventsub.events.ChannelRaidEvent;
+import com.github.twitch4j.eventsub.events.*;
 import com.github.twitch4j.eventsub.socket.IEventSubSocket;
 import com.github.twitch4j.eventsub.subscriptions.SubscriptionTypes;
 import com.github.twitch4j.helix.domain.*;
-import com.github.twitch4j.pubsub.events.*;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import listeners.TwitchEventListener;
 import org.jetbrains.annotations.Nullable;
@@ -53,11 +50,10 @@ public class TwitchApi {
                 .withClientId(channelClientId)
                 .withDefaultAuthToken(oauth)
                 .withEnableHelix(true)
-                .withEnablePubSub(true)
                 .withEnableEventSocket(true)
                 .build();
-        twitchClient.getClientHelper().enableStreamEventListener(streamerUsername);
         
+        // creating this separately is the only way to call withAutoJoinOwnChannel(false)
         chatClient = TwitchChatBuilder.builder()
                 .withChatAccount(new OAuth2Credential("twitch", botAuthToken))
                 .withAutoJoinOwnChannel(false)
@@ -74,14 +70,40 @@ public class TwitchApi {
             out.println("Error retrieving bot user");
             System.exit(1);
         }
-    
-        // PubSub
-        twitchClient.getPubSub().listenForAdsEvents(oauth, streamerUser.getId());
-        twitchClient.getPubSub().listenForAdsManagerEvents(oauth, streamerUser.getId(), streamerUser.getId());
-        twitchClient.getPubSub().listenForCheerEvents(oauth, streamerUser.getId());
-        twitchClient.getPubSub().listenForChannelPointsRedemptionEvents(oauth, streamerUser.getId());
-        twitchClient.getPubSub().listenForSubscriptionEvents(oauth, streamerUser.getId());
-        twitchClient.getPubSub().listenForChannelSubGiftsEvents(oauth, streamerUser.getId());
+        
+        // EventSub registrations
+        IEventSubSocket eventSocket = twitchClient.getEventSocket();
+        // I swear there has to be a better way to do this lmao
+        eventSocket.register(SubscriptionTypes.CHANNEL_AD_BREAK_BEGIN.prepareSubscription(
+                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
+        ));
+        eventSocket.register(SubscriptionTypes.CHANNEL_RAID.prepareSubscription(
+                b -> b.toBroadcasterUserId(streamerUser.getId()).build(), null
+        ));
+        eventSocket.register(SubscriptionTypes.STREAM_ONLINE.prepareSubscription(
+                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
+        ));
+        eventSocket.register(SubscriptionTypes.STREAM_OFFLINE.prepareSubscription(
+                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
+        ));
+        eventSocket.register(SubscriptionTypes.CHANNEL_UPDATE_V2.prepareSubscription(
+                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
+        ));
+        eventSocket.register(SubscriptionTypes.CHANNEL_CHEER.prepareSubscription(
+                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
+        ));
+        eventSocket.register(SubscriptionTypes.CHANNEL_SUBSCRIBE.prepareSubscription(
+                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
+        ));
+        eventSocket.register(SubscriptionTypes.CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD.prepareSubscription(
+                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
+        ));
+        eventSocket.register(SubscriptionTypes.CHANNEL_SUBSCRIPTION_MESSAGE.prepareSubscription(
+                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
+        ));
+        eventSocket.register(SubscriptionTypes.CHANNEL_SUBSCRIPTION_GIFT.prepareSubscription(
+                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
+        ));
         out.println("success.");
     }
     
@@ -94,29 +116,22 @@ public class TwitchApi {
     }
     
     public void registerEventListener(TwitchEventListener eventListener) {
-        IEventSubSocket eventSocket = twitchClient.getEventSocket();
-        eventSocket.register(SubscriptionTypes.CHANNEL_RAID.prepareSubscription(
-                b -> b.toBroadcasterUserId(streamerUser.getId()).build(), null
-        ));
+        IEventManager eventSubEvents = twitchClient.getEventSocket().getEventManager();
+        eventSubEvents.onEvent(ChannelAdBreakBeginEvent.class, eventListener::onAdBegin);
+        eventSubEvents.onEvent(ChannelRaidEvent.class, eventListener::onRaid);
+        eventSubEvents.onEvent(StreamOnlineEvent.class, eventListener::onGoLive);
+        eventSubEvents.onEvent(StreamOfflineEvent.class, eventListener::onGoOffline);
+        eventSubEvents.onEvent(ChannelUpdateV2Event.class, eventListener::onChannelUpdate);
+        eventSubEvents.onEvent(CustomRewardRedemptionAddEvent.class, eventListener::onChannelPointsRedemption);
+        eventSubEvents.onEvent(ChannelCheerEvent.class, eventListener::onCheer);
+        eventSubEvents.onEvent(ChannelSubscribeEvent.class, eventListener::onSubscribe);
+        eventSubEvents.onEvent(ChannelSubscriptionMessageEvent.class, eventListener::onResubscribe);
+        eventSubEvents.onEvent(ChannelSubscriptionGiftEvent.class, eventListener::onSubGift);
         
-        eventSocket.getEventManager().onEvent(ChannelRaidEvent.class, eventListener::onRaid);
-        
-        
-        twitchClient.getEventManager().onEvent(MidrollRequestEvent.class, eventListener::onMidrollRequest);
-        
-        twitchClient.getEventManager().onEvent(ModAnnouncementEvent.class, eventListener::onAnnouncement);
-        twitchClient.getEventManager().onEvent(ChannelMessageActionEvent.class, eventListener::onChannelMessageAction);
-        twitchClient.getEventManager().onEvent(ChannelGoLiveEvent.class, eventListener::onGoLive);
-        twitchClient.getEventManager().onEvent(ChannelGoOfflineEvent.class, eventListener::onGoOffline);
-        twitchClient.getEventManager().onEvent(ChannelChangeGameEvent.class, eventListener::onGameChange);
-        twitchClient.getEventManager().onEvent(ChannelChangeTitleEvent.class, eventListener::onChangeTitle);
-        
-        twitchClient.getEventManager().onEvent(ChannelBitsEvent.class, eventListener::onCheer);
-        twitchClient.getEventManager().onEvent(RewardRedeemedEvent.class, eventListener::onChannelPointsRedemption);
-        twitchClient.getEventManager().onEvent(ChannelSubscribeEvent.class, eventListener::onSub);
-        twitchClient.getEventManager().onEvent(ChannelSubGiftEvent.class, eventListener::onSubGift);
-        
-        chatClient.getEventManager().onEvent(ChannelMessageEvent.class, eventListener::onChannelMessage);
+        EventManager chatEvents = chatClient.getEventManager();
+        chatEvents.onEvent(ModAnnouncementEvent.class, eventListener::onAnnouncement);
+        chatEvents.onEvent(ChannelMessageActionEvent.class, eventListener::onChannelMessageAction);
+        chatEvents.onEvent(ChannelMessageEvent.class, eventListener::onChannelMessage);
     }
     
     //////////////////////////////////////////////////////////////////////////

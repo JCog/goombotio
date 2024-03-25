@@ -1,9 +1,9 @@
 package listeners.events;
 
-import com.github.twitch4j.pubsub.domain.SubGiftData;
-import com.github.twitch4j.pubsub.domain.SubscriptionData;
-import com.github.twitch4j.pubsub.events.ChannelSubGiftEvent;
-import com.github.twitch4j.pubsub.events.ChannelSubscribeEvent;
+import com.github.twitch4j.common.enums.SubscriptionPlan;
+import com.github.twitch4j.eventsub.events.ChannelSubscribeEvent;
+import com.github.twitch4j.eventsub.events.ChannelSubscriptionGiftEvent;
+import com.github.twitch4j.eventsub.events.ChannelSubscriptionMessageEvent;
 import listeners.TwitchEventListener;
 import org.apache.commons.lang.SystemUtils;
 import util.CommonUtils;
@@ -21,22 +21,35 @@ public class SubListener implements TwitchEventListener {
     }
     
     @Override
-    public void onSubGift(ChannelSubGiftEvent subGiftEvent) {
-        //TODO: remove this after debugging why it's not triggering
-        System.out.print("onSubGift triggered: ");
-        System.out.println(subGiftEvent);
-        
-        SubGiftData subData = subGiftEvent.getData();
-        String username = subData.getDisplayName();
-        int count = subData.getCount();
-        String tier;
-        switch (subData.getTier()) {
-            case TIER1: tier = "Tier 1"; break;
-            case TIER2: tier = "Tier 2"; break;
-            case TIER3: tier = "Tier 3"; break;
-            default: tier = "";
+    public void onSubscribe(ChannelSubscribeEvent subEvent) {
+        if (subEvent.isGift()) {
+            return;
         }
+        twitchApi.channelMessage(String.format(
+                "jcogChamp @%s Thank you so much for the %s sub! Welcome to the Rookery™! jcogChamp",
+                subEvent.getUserName(),
+                getSubType(subEvent.getTier())
+        ));
+        outputRecentSubFile(subEvent.getUserName());
+    }
     
+    @Override
+    public void onResubscribe(ChannelSubscriptionMessageEvent resubEvent) {
+        twitchApi.channelMessage(String.format(
+                "jcogChamp @%s Thank you so much for the %d-month %s resub! Welcome back to the Rookery™! jcogChamp",
+                resubEvent.getUserName(),
+                resubEvent.getCumulativeMonths(),
+                getSubType(resubEvent.getTier())
+        ));
+        outputRecentSubFile(resubEvent.getUserName());
+    }
+    
+    @Override
+    public void onSubGift(ChannelSubscriptionGiftEvent subGiftEvent) {
+        String username = subGiftEvent.getUserName();
+        int count = subGiftEvent.getTotal();
+        String tier = getSubType(subGiftEvent.getTier());
+        
         if (count == 1) {
             twitchApi.channelMessage(String.format(
                     "jcogChamp @%s Thank you so much for the %s gift sub! jcogChamp",
@@ -53,37 +66,13 @@ public class SubListener implements TwitchEventListener {
         }
     }
     
-    @Override
-    public void onSub(ChannelSubscribeEvent subEvent) {
-        SubscriptionData subData = subEvent.getData();
-        if (!subData.getIsGift()) {
-            String username = subData.getDisplayName();
-            int months = subData.getCumulativeMonths();
-            String type;
-            switch (subData.getSubPlan()) {
-                case TIER1: type = "Tier 1"; break;
-                case TIER2: type = "Tier 2"; break;
-                case TIER3: type = "Tier 3"; break;
-                case TWITCH_PRIME: type = "Prime Gaming"; break;
-                default: type = "";
-            }
-            
-            if (months == 1) {
-                twitchApi.channelMessage(String.format(
-                        "jcogChamp @%s Thank you so much for the %s sub! Welcome to the Rookery™! jcogChamp",
-                        username,
-                        type
-                ));
-            } else {
-                twitchApi.channelMessage(String.format(
-                        "jcogChamp @%s Thank you so much for the %d-month %s resub! Welcome back to the Rookery™! jcogChamp",
-                        username,
-                        months,
-                        type
-                ));
-            }
-            
-            outputRecentSubFile(username);
+    private String getSubType(SubscriptionPlan subPlan) {
+        switch (subPlan) {
+            case TIER1: return "Tier 1";
+            case TIER2: return "Tier 2";
+            case TIER3: return "Tier 3";
+            case TWITCH_PRIME: return "Prime Gaming";
+            default: return "";
         }
     }
     

@@ -1,10 +1,11 @@
 package listeners.channelpoints;
 
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
+import com.github.twitch4j.eventsub.domain.Reward;
+import com.github.twitch4j.eventsub.events.ChannelPointsCustomRewardRedemptionEvent;
+import com.github.twitch4j.eventsub.events.CustomRewardRedemptionAddEvent;
 import com.github.twitch4j.helix.domain.ChannelVip;
 import com.github.twitch4j.helix.domain.CustomReward;
-import com.github.twitch4j.pubsub.domain.ChannelPointsReward;
-import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.misc.VipDb;
 import listeners.TwitchEventListener;
@@ -30,16 +31,16 @@ public class DethroneListener implements TwitchEventListener {
     }
     
     @Override
-    public void onChannelPointsRedemption(RewardRedeemedEvent event) {
-        ChannelPointsReward channelPointsReward = event.getRedemption().getReward();
+    public void onChannelPointsRedemption(CustomRewardRedemptionAddEvent event) {
+        Reward channelPointsReward = event.getReward();
         if (channelPointsReward.getTitle().startsWith(DETHRONE_REWARD_TITLE)) {
             handleDethroneReward(event);
         }
     }
     
     
-    private void handleDethroneReward(RewardRedeemedEvent event) {
-        ChannelPointsReward channelPointsReward = event.getRedemption().getReward();
+    private void handleDethroneReward(ChannelPointsCustomRewardRedemptionEvent event) {
+        Reward channelPointsReward = event.getReward();
         CustomReward customReward;
         try {
             customReward = twitchApi.getCustomRewards(
@@ -54,7 +55,7 @@ public class DethroneListener implements TwitchEventListener {
         }
         
         String oldUsername = channelPointsReward.getTitle().split("\\s")[1];
-        String newUsername = event.getRedemption().getUser().getDisplayName();
+        String newUsername = event.getUserName();
         int newCost = getNextIncreasedCost(customReward.getCost());
         CustomReward newReward = customReward
                 .withCost(newCost)
@@ -74,7 +75,7 @@ public class DethroneListener implements TwitchEventListener {
             twitchApi.updateRedemptionStatus(
                     twitchApi.getStreamerUser().getId(),
                     channelPointsReward.getId(),
-                    Collections.singletonList(event.getRedemption().getId()),
+                    Collections.singletonList(event.getId()),
                     success ? RedemptionStatus.FULFILLED : RedemptionStatus.CANCELED
             );
         } catch (HystrixRuntimeException e) {
@@ -96,7 +97,7 @@ public class DethroneListener implements TwitchEventListener {
             return;
         }
         
-        String newUserId = event.getRedemption().getUser().getId();
+        String newUserId = event.getUserId();
         String oldUserId = vipDb.getThroneUserId();
         vipDb.editThroneProp(newUserId, true);
         if (oldUserId == null) {

@@ -1,7 +1,7 @@
 package listeners.events;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.github.twitch4j.events.ChannelGoLiveEvent;
+import com.github.twitch4j.eventsub.events.StreamOnlineEvent;
 import listeners.TwitchEventListener;
 import util.CommonUtils;
 import util.TwitchApi;
@@ -30,7 +30,7 @@ public class CloudListener implements TwitchEventListener {
     }
     
     @Override
-    public void onGoLive(ChannelGoLiveEvent goLiveEvent) {
+    public void onGoLive(StreamOnlineEvent goLiveEvent) {
         saidHi = false;
     }
 }

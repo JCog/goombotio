@@ -1,9 +1,10 @@
 package listeners.channelpoints;
 
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
+import com.github.twitch4j.eventsub.domain.Reward;
+import com.github.twitch4j.eventsub.events.ChannelPointsCustomRewardRedemptionEvent;
+import com.github.twitch4j.eventsub.events.CustomRewardRedemptionAddEvent;
 import com.github.twitch4j.helix.domain.Moderator;
-import com.github.twitch4j.pubsub.domain.ChannelPointsReward;
-import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.misc.VipDb;
 import database.misc.VipRaffleDb;
@@ -33,17 +34,17 @@ public class VipRaffleRewardListener implements TwitchEventListener {
     }
     
     @Override
-    public void onChannelPointsRedemption(RewardRedeemedEvent event) {
-        ChannelPointsReward channelPointsReward = event.getRedemption().getReward();
+    public void onChannelPointsRedemption(CustomRewardRedemptionAddEvent event) {
+        Reward channelPointsReward = event.getReward();
         if (channelPointsReward.getTitle().startsWith(RAFFLE_REWARD_TITLE)) {
             handleRaffleEntryAddition(event);
         }
     }
     
     
-    private void handleRaffleEntryAddition(RewardRedeemedEvent event) {
-        String userId = event.getRedemption().getUser().getId();
-        String displayName = event.getRedemption().getUser().getDisplayName();
+    private void handleRaffleEntryAddition(ChannelPointsCustomRewardRedemptionEvent event) {
+        String userId = event.getUserId();
+        String displayName = event.getUserName();
         Set<String> modIds = twitchApi.getMods(twitchApi.getStreamerUser().getId())
                 .stream()
                 .map(Moderator::getUserId)
@@ -79,9 +80,9 @@ public class VipRaffleRewardListener implements TwitchEventListener {
         // mark reward as fulfilled or canceled on Twitch
         try {
             twitchApi.updateRedemptionStatus(
-                    event.getRedemption().getChannelId(),
-                    event.getRedemption().getReward().getId(),
-                    Collections.singletonList(event.getRedemption().getId()),
+                    event.getBroadcasterUserId(),
+                    event.getReward().getId(),
+                    Collections.singletonList(event.getId()),
                     shouldFulfill ? RedemptionStatus.FULFILLED : RedemptionStatus.CANCELED
             );
         } catch (HystrixRuntimeException e) {

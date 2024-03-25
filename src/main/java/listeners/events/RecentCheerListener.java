@@ -1,7 +1,7 @@
 package listeners.events;
 
+import com.github.twitch4j.eventsub.events.ChannelCheerEvent;
 import com.github.twitch4j.helix.domain.User;
-import com.github.twitch4j.pubsub.events.ChannelBitsEvent;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import listeners.TwitchEventListener;
 import org.apache.commons.lang.SystemUtils;
@@ -21,10 +21,8 @@ public class RecentCheerListener implements TwitchEventListener {
     }
     
     @Override
-    public void onCheer(ChannelBitsEvent bitsEvent) {
-        bitsEvent.getData().getBitsUsed();
-    
-        String userId = bitsEvent.getData().getUserId();
+    public void onCheer(ChannelCheerEvent cheerEvent) {
+        String userId = cheerEvent.getUserId();
         User user;
         try {
             user = twitchApi.getUserById(userId);
@@ -41,7 +39,7 @@ public class RecentCheerListener implements TwitchEventListener {
             return;
         }
     
-        String latestCheerText = String.format("%s - %d", user.getDisplayName(), bitsEvent.getData().getBitsUsed());
+        String latestCheerText = String.format("%s - %d", user.getDisplayName(), cheerEvent.getBits());
         FileWriter.writeToFile(getOutputLocation(), LOCAL_RECENT_CHEER_FILENAME, latestCheerText);
     }
     
