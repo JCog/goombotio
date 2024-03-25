@@ -1,6 +1,5 @@
 package listeners.events;
 
-import api.ThirdPartyEmoteApi;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import database.emotes.BttvEmoteStatsDb;
 import database.emotes.FfzEmoteStatsDb;
@@ -28,7 +27,7 @@ public class EmoteListener implements TwitchEventListener {
         String username = commonUtils.getTwitchApi().getStreamerUser().getLogin();
         String userId = commonUtils.getTwitchApi().getStreamerUser().getId();
         ffzEmotes = commonUtils.getApiManager().getFfzApi().getEmotes(username);
-        sevenTvEmotes = ThirdPartyEmoteApi.get7tvEmotes();
+        sevenTvEmotes = commonUtils.getApiManager().getSevenTvApi().getEmotes(userId);
         bttvEmotes = commonUtils.getApiManager().getBttvApi().getEmotes(userId);
     }
 
