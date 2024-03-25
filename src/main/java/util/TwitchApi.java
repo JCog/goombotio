@@ -8,12 +8,14 @@ import com.github.twitch4j.chat.TwitchChatBuilder;
 import com.github.twitch4j.chat.events.channel.ChannelMessageActionEvent;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.chat.events.channel.ModAnnouncementEvent;
-import com.github.twitch4j.chat.events.channel.RaidEvent;
 import com.github.twitch4j.events.ChannelChangeGameEvent;
 import com.github.twitch4j.events.ChannelChangeTitleEvent;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
+import com.github.twitch4j.eventsub.events.ChannelRaidEvent;
+import com.github.twitch4j.eventsub.socket.IEventSubSocket;
+import com.github.twitch4j.eventsub.subscriptions.SubscriptionTypes;
 import com.github.twitch4j.helix.domain.*;
 import com.github.twitch4j.pubsub.events.*;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -52,6 +54,7 @@ public class TwitchApi {
                 .withDefaultAuthToken(oauth)
                 .withEnableHelix(true)
                 .withEnablePubSub(true)
+                .withEnableEventSocket(true)
                 .build();
         twitchClient.getClientHelper().enableStreamEventListener(streamerUsername);
         
@@ -91,6 +94,14 @@ public class TwitchApi {
     }
     
     public void registerEventListener(TwitchEventListener eventListener) {
+        IEventSubSocket eventSocket = twitchClient.getEventSocket();
+        eventSocket.register(SubscriptionTypes.CHANNEL_RAID.prepareSubscription(
+                b -> b.toBroadcasterUserId(streamerUser.getId()).build(), null
+        ));
+        
+        eventSocket.getEventManager().onEvent(ChannelRaidEvent.class, eventListener::onRaid);
+        
+        
         twitchClient.getEventManager().onEvent(MidrollRequestEvent.class, eventListener::onMidrollRequest);
         
         twitchClient.getEventManager().onEvent(ModAnnouncementEvent.class, eventListener::onAnnouncement);
@@ -99,7 +110,6 @@ public class TwitchApi {
         twitchClient.getEventManager().onEvent(ChannelGoOfflineEvent.class, eventListener::onGoOffline);
         twitchClient.getEventManager().onEvent(ChannelChangeGameEvent.class, eventListener::onGameChange);
         twitchClient.getEventManager().onEvent(ChannelChangeTitleEvent.class, eventListener::onChangeTitle);
-        twitchClient.getEventManager().onEvent(RaidEvent.class, eventListener::onRaid);
         
         twitchClient.getEventManager().onEvent(ChannelBitsEvent.class, eventListener::onCheer);
         twitchClient.getEventManager().onEvent(RewardRedeemedEvent.class, eventListener::onChannelPointsRedemption);

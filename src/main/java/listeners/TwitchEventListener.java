@@ -3,11 +3,11 @@ package listeners;
 import com.github.twitch4j.chat.events.channel.ChannelMessageActionEvent;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.chat.events.channel.ModAnnouncementEvent;
-import com.github.twitch4j.chat.events.channel.RaidEvent;
 import com.github.twitch4j.events.ChannelChangeGameEvent;
 import com.github.twitch4j.events.ChannelChangeTitleEvent;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
+import com.github.twitch4j.eventsub.events.ChannelRaidEvent;
 import com.github.twitch4j.pubsub.events.*;
 
 public interface TwitchEventListener {
@@ -36,7 +36,7 @@ public interface TwitchEventListener {
     
     default void onChangeTitle(ChannelChangeTitleEvent changeTitleEvent) {}
     
-    default void onRaid(RaidEvent raidEvent) {}
+    default void onRaid(ChannelRaidEvent raidEvent) {}
     
     ////////////////// PubSub //////////////////
     default void onCheer(ChannelBitsEvent bitsEvent) {}

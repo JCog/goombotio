@@ -1,7 +1,7 @@
 package functions;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.github.twitch4j.chat.events.channel.RaidEvent;
+import com.github.twitch4j.eventsub.events.ChannelRaidEvent;
 import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.misc.SocialSchedulerDb;
@@ -112,7 +112,7 @@ public class ScheduledMessageController implements TwitchEventListener {
     }
     
     @Override
-    public void onRaid(RaidEvent raidEvent) {
+    public void onRaid(ChannelRaidEvent raidEvent) {
         if (raidEvent.getViewers() > 1) {
             recentRaid = true;
         }
