@@ -90,8 +90,7 @@ public abstract class CommandBase implements TwitchEventListener {
         }
         
         String content = messageEvent.getMessage().toLowerCase(Locale.ENGLISH).trim();
-        String[] split = content.split("\\s", 2);
-        String command = split[0];
+        String command = content.split("\\s", 2)[0];
         char firstChar = content.charAt(0);
         Set<String> badges = messageEvent.getMessageEvent().getBadges().keySet();
         USER_LEVEL userLevel = TwitchUserLevel.getUserLevel(badges);
@@ -102,6 +101,7 @@ public abstract class CommandBase implements TwitchEventListener {
                     for (String pattern : commandPatterns) {
                         if (command.equals(pattern)) {
                             performCommand(pattern, userLevel, messageEvent);
+                            resetCooldown(messageEvent.getUser().getId());
                             break; // We don't want to fire twice for the same message
                         }
                     }
@@ -111,6 +111,7 @@ public abstract class CommandBase implements TwitchEventListener {
                     for (String pattern : commandPatterns) {
                         if (content.contains(pattern)) {
                             performCommand(pattern, userLevel, messageEvent);
+                            resetCooldown(messageEvent.getUser().getId());
                             break;
                         }
                     }
@@ -120,6 +121,7 @@ public abstract class CommandBase implements TwitchEventListener {
                     for (String pattern : commandPatterns) {
                         if (exactContent.equals(pattern)) {
                             performCommand(pattern, userLevel, messageEvent);
+                            resetCooldown(messageEvent.getUser().getId());
                             break;
                         }
                     }
@@ -130,10 +132,17 @@ public abstract class CommandBase implements TwitchEventListener {
                     }
                     break;
             }
-            if (commandType != CommandType.GENERIC_COMMAND) {
+        }
+    }
+    
+    private void resetCooldown(String userId) {
+        switch (cooldownType) {
+            case PER_USER:
+                recentUsages.put(userId, lastUsed);
+                break;
+            case COMBINED:
                 lastUsed = Instant.now();
-                recentUsages.put(messageEvent.getUser().getId(), lastUsed);
-            }
+                break;
         }
     }
     
