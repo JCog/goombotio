@@ -8,8 +8,6 @@ import database.misc.VipDb;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
-import java.util.concurrent.ScheduledExecutorService;
-
 public class PermanentVipListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.BROADCASTER;
@@ -21,8 +19,8 @@ public class PermanentVipListener extends CommandBase {
     private final TwitchApi twitchApi;
     private final VipDb vipDb;
 
-    public PermanentVipListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_ADD, PATTERN_DELETE);
+    public PermanentVipListener(TwitchApi twitchApi, DbManager dbManager) {
+        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_ADD, PATTERN_DELETE);
         this.twitchApi = twitchApi;
         this.vipDb = dbManager.getVipDb();
     }

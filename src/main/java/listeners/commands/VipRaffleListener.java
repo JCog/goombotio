@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 import static database.misc.VipRaffleDb.VipRaffleItem;
@@ -31,8 +30,8 @@ public class VipRaffleListener extends CommandBase {
     private final VipRaffleDb vipRaffleDb;
     private final VipDb vipDb;
     
-    public VipRaffleListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
+    public VipRaffleListener(TwitchApi twitchApi, DbManager dbManager) {
+        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
         this.vipRaffleDb = dbManager.getVipRaffleDb();
         this.vipDb = dbManager.getVipDb();

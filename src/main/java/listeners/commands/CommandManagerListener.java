@@ -9,7 +9,6 @@ import util.TwitchUserLevel;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
 
 import static util.TwitchUserLevel.USER_LEVEL;
 
@@ -34,8 +33,8 @@ public class CommandManagerListener extends CommandBase {
         DETAILS
     }
 
-    public CommandManagerListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, MANAGER_COOLDOWN, COOLDOWN_TYPE, PATTERN);
+    public CommandManagerListener(TwitchApi twitchApi, DbManager dbManager) {
+        super(COMMAND_TYPE, MIN_USER_LEVEL, MANAGER_COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
         this.commandDb = dbManager.getCommandDb();
     }

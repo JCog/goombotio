@@ -6,35 +6,25 @@ import database.misc.CommandDb;
 import listeners.TwitchEventListener;
 import util.MessageExpressionParser;
 import util.TwitchApi;
+import util.TwitchUserLevel;
 import util.TwitchUserLevel.USER_LEVEL;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.Locale;
+import java.util.Set;
 
 import static database.misc.CommandDb.CommandItem;
 
-public class GenericCommandListener extends CommandBase {
-    private static final CommandType COMMAND_TYPE = CommandType.GENERIC_COMMAND;
-    private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
-    private static final int COOLDOWN = 0;
-    private static final CooldownType COOLDOWN_TYPE = CooldownType.COMBINED;
-    private static final String PATTERN = "";
-
+public class GenericCommandListener implements TwitchEventListener {
     private final CommandDb commandDb;
     private final HashMap<String, Instant> commandInstants;
     private final MessageExpressionParser commandParser;
     private final TwitchApi twitchApi;
 
 
-    public GenericCommandListener(
-            ScheduledExecutorService scheduler,
-            MessageExpressionParser commandParser,
-            DbManager dbManager,
-            TwitchApi twitchApi
-    ) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
+    public GenericCommandListener(MessageExpressionParser commandParser, DbManager dbManager, TwitchApi twitchApi) {
         this.commandParser = commandParser;
         this.twitchApi = twitchApi;
         commandDb = dbManager.getCommandDb();
@@ -42,7 +32,10 @@ public class GenericCommandListener extends CommandBase {
     }
 
     @Override
-    protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+    public void onChannelMessage(ChannelMessageEvent messageEvent) {
+        String content = messageEvent.getMessage().toLowerCase(Locale.ENGLISH).trim();
+        String command = content.split("\\s", 2)[0];
+        
         // on the off chance there is a reserved command also in the DB, this will prevent the DB one from running
         if (isReservedCommand(command)) {
             return;
@@ -56,7 +49,9 @@ public class GenericCommandListener extends CommandBase {
             ));
             return;
         }
-
+        
+        Set<String> badges = messageEvent.getMessageEvent().getBadges().keySet();
+        USER_LEVEL userLevel = TwitchUserLevel.getUserLevel(badges);
         CommandItem commandItem = commandDb.getCommandItem(command);
         if (commandItem == null || cooldownActive(commandItem) || !userHasPermission(userLevel, commandItem)) {
             return;

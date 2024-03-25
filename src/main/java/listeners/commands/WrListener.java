@@ -6,8 +6,6 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
-import java.util.concurrent.ScheduledExecutorService;
-
 import static api.SpeedrunApi.*;
 
 public class WrListener extends CommandBase {
@@ -26,11 +24,8 @@ public class WrListener extends CommandBase {
 
     private final TwitchApi twitchApi;
 
-    public WrListener(
-            ScheduledExecutorService scheduler,
-            TwitchApi twitchApi
-    ) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
+    public WrListener(TwitchApi twitchApi) {
+        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
     }
 

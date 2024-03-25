@@ -9,7 +9,6 @@ import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ScheduledExecutorService;
 
 import static database.misc.QuoteDb.QuoteItem;
 import static listeners.commands.quotes.QuoteUndoEngine.Action.*;
@@ -37,13 +36,8 @@ public class QuoteListener extends CommandBase {
     private final Random random;
     private final QuoteUndoEngine quoteUndoEngine;
 
-    public QuoteListener(
-            ScheduledExecutorService scheduler,
-            DbManager dbManager,
-            TwitchApi twitchApi
-    ) {
+    public QuoteListener(DbManager dbManager, TwitchApi twitchApi) {
         super(
-                scheduler,
                 COMMAND_TYPE,
                 MIN_USER_LEVEL,
                 COOLDOWN,

@@ -12,7 +12,6 @@ import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class LeaderboardListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
@@ -57,13 +56,8 @@ public class LeaderboardListener extends CommandBase {
 
     private PredsLeaderboardDbBase leaderboard;
 
-    public LeaderboardListener(
-            ScheduledExecutorService scheduler,
-            DbManager dbManager,
-            TwitchApi twitchApi
-    ) {
+    public LeaderboardListener(DbManager dbManager, TwitchApi twitchApi) {
         super(
-                scheduler,
                 COMMAND_TYPE,
                 MIN_USER_LEVEL,
                 COOLDOWN,

@@ -8,10 +8,8 @@ import util.TwitchUserLevel.USER_LEVEL;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.ScheduledExecutorService;
 
 public abstract class CommandBase implements TwitchEventListener {
-    private static final char GENERIC_COMMAND_CHAR = '!';
     private static final Set<String> reservedCommands = new HashSet<>();
 
     /*
@@ -23,16 +21,13 @@ public abstract class CommandBase implements TwitchEventListener {
     protected enum CommandType {
         PREFIX_COMMAND,
         CONTENT_COMMAND,
-        EXACT_MATCH_COMMAND,
-        GENERIC_COMMAND
+        EXACT_MATCH_COMMAND
     }
     
     protected enum CooldownType {
         PER_USER,
         COMBINED
     }
-    
-    final ScheduledExecutorService scheduler;
     
     private final CommandType commandType;
     private final USER_LEVEL minUserLevel;
@@ -44,14 +39,12 @@ public abstract class CommandBase implements TwitchEventListener {
     private Instant lastUsed;
 
     protected CommandBase(
-            ScheduledExecutorService scheduler,
             CommandType commandType,
             USER_LEVEL minUserLevel,
             int cooldownLength,
             CooldownType cooldownType,
             String ... commandPatterns
     ) {
-        this.scheduler = scheduler;
         this.commandType = commandType;
         this.minUserLevel = minUserLevel;
         this.cooldownLength = cooldownLength;
@@ -72,26 +65,24 @@ public abstract class CommandBase implements TwitchEventListener {
         if (exactContent.isEmpty()) {
             return;
         }
-        if (commandType != CommandType.GENERIC_COMMAND) { // generic commands handle cooldowns separately
-            switch (cooldownType) {
-                case PER_USER:
-                    String userId = messageEvent.getUser().getId();
-                    Instant userInstant = recentUsages.get(userId);
-                    if (userInstant != null && ChronoUnit.SECONDS.between(userInstant, Instant.now()) < cooldownLength) {
-                        return;
-                    }
-                    break;
-                case COMBINED:
-                    if (ChronoUnit.SECONDS.between(lastUsed, Instant.now()) < cooldownLength) {
-                        return;
-                    }
-                    break;
-            }
+        
+        switch (cooldownType) {
+            case PER_USER:
+                String userId = messageEvent.getUser().getId();
+                Instant userInstant = recentUsages.get(userId);
+                if (userInstant != null && ChronoUnit.SECONDS.between(userInstant, Instant.now()) < cooldownLength) {
+                    return;
+                }
+                break;
+            case COMBINED:
+                if (ChronoUnit.SECONDS.between(lastUsed, Instant.now()) < cooldownLength) {
+                    return;
+                }
+                break;
         }
         
         String content = messageEvent.getMessage().toLowerCase(Locale.ENGLISH).trim();
         String command = content.split("\\s", 2)[0];
-        char firstChar = content.charAt(0);
         Set<String> badges = messageEvent.getMessageEvent().getBadges().keySet();
         USER_LEVEL userLevel = TwitchUserLevel.getUserLevel(badges);
     
@@ -124,11 +115,6 @@ public abstract class CommandBase implements TwitchEventListener {
                             resetCooldown(messageEvent.getUser().getId());
                             break;
                         }
-                    }
-                    break;
-                case GENERIC_COMMAND:
-                    if (firstChar == GENERIC_COMMAND_CHAR) {
-                        performCommand(command, userLevel, messageEvent);
                     }
                     break;
             }

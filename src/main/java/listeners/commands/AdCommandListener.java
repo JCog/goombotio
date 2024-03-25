@@ -8,7 +8,6 @@ import util.TwitchUserLevel.USER_LEVEL;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class AdCommandListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
@@ -19,8 +18,8 @@ public class AdCommandListener extends CommandBase {
     
     private final TwitchApi twitchApi;
 
-    public AdCommandListener(ScheduledExecutorService scheduler, TwitchApi twitchApi) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
+    public AdCommandListener(TwitchApi twitchApi) {
+        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
     }
 

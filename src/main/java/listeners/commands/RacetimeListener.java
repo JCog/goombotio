@@ -6,7 +6,6 @@ import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.Objects;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class RacetimeListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
@@ -19,8 +18,8 @@ public class RacetimeListener extends CommandBase {
     
     private final TwitchApi twitchApi;
 
-    public RacetimeListener(ScheduledExecutorService scheduler, TwitchApi twitchApi) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
+    public RacetimeListener(TwitchApi twitchApi) {
+        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
     }
 

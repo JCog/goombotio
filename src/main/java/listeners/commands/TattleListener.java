@@ -11,7 +11,6 @@ import util.TwitchUserLevel.USER_LEVEL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 public class TattleListener extends CommandBase {
@@ -26,12 +25,8 @@ public class TattleListener extends CommandBase {
     private final TwitchApi twitchApi;
     private final Random random = new Random();
 
-    public TattleListener(
-            ScheduledExecutorService scheduler,
-            DbManager dbManager,
-            TwitchApi twitchApi
-    ) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_TATTLE, PATTERN_ADD);
+    public TattleListener(DbManager dbManager, TwitchApi twitchApi) {
+        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_TATTLE, PATTERN_ADD);
         this.tattleDb = dbManager.getTattleDb();
         this.twitchApi = twitchApi;
     }

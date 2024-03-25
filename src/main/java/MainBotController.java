@@ -128,21 +128,21 @@ public class MainBotController {
         PredsGuessListener predsGuessListener = new PredsGuessListener();
 
         // Command Listeners
-        twitchApi.registerEventListener(new AdCommandListener(scheduler, twitchApi));
-//        twitchApi.registerEventListener(new BitWarResetCommandListener(scheduler, twitchApi, dbManager));
-        twitchApi.registerEventListener(new CommandManagerListener(scheduler, twitchApi, dbManager));
-        twitchApi.registerEventListener(new GenericCommandListener(scheduler, messageExpressionParser, dbManager, twitchApi));
-        twitchApi.registerEventListener(new LeaderboardListener(scheduler, dbManager, twitchApi));
-//        twitchApi.registerEventListener(new MinecraftListener(scheduler, twitchApi, dbManager, minecraftWhitelistUpdater));
-        twitchApi.registerEventListener(new QuoteListener(scheduler, dbManager, twitchApi));
-        twitchApi.registerEventListener(new PermanentVipListener(scheduler, twitchApi, dbManager));
-        twitchApi.registerEventListener(new PredsManagerListener(scheduler, dbManager, twitchApi, discordBotController, predsGuessListener));
-        twitchApi.registerEventListener(new RacetimeListener(scheduler, twitchApi));
-        twitchApi.registerEventListener(new ScheduledMessageManagerListener(scheduler, twitchApi, dbManager));
-        twitchApi.registerEventListener(new TattleListener(scheduler, dbManager, twitchApi));
-        twitchApi.registerEventListener(new VipRaffleListener(scheduler, twitchApi, dbManager));
-        twitchApi.registerEventListener(new WatchTimeListener(scheduler, twitchApi, dbManager, streamTracker));
-        twitchApi.registerEventListener(new WrListener(scheduler, twitchApi));
+        twitchApi.registerEventListener(new AdCommandListener(twitchApi));
+//        twitchApi.registerEventListener(new BitWarResetCommandListener(twitchApi, dbManager));
+        twitchApi.registerEventListener(new CommandManagerListener(twitchApi, dbManager));
+        twitchApi.registerEventListener(new GenericCommandListener(messageExpressionParser, dbManager, twitchApi));
+        twitchApi.registerEventListener(new LeaderboardListener(dbManager, twitchApi));
+//        twitchApi.registerEventListener(new MinecraftListener(twitchApi, dbManager, minecraftWhitelistUpdater));
+        twitchApi.registerEventListener(new QuoteListener(dbManager, twitchApi));
+        twitchApi.registerEventListener(new PermanentVipListener(twitchApi, dbManager));
+        twitchApi.registerEventListener(new PredsManagerListener(dbManager, twitchApi, discordBotController, predsGuessListener));
+        twitchApi.registerEventListener(new RacetimeListener(twitchApi));
+        twitchApi.registerEventListener(new ScheduledMessageManagerListener(twitchApi, dbManager));
+        twitchApi.registerEventListener(new TattleListener(dbManager, twitchApi));
+        twitchApi.registerEventListener(new VipRaffleListener(twitchApi, dbManager));
+        twitchApi.registerEventListener(new WatchTimeListener(twitchApi, dbManager, streamTracker));
+        twitchApi.registerEventListener(new WrListener(twitchApi));
         
         twitchApi.registerEventListener(predsGuessListener);
         

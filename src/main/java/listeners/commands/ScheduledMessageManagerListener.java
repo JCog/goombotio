@@ -6,8 +6,6 @@ import database.misc.SocialSchedulerDb;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
-import java.util.concurrent.ScheduledExecutorService;
-
 public class ScheduledMessageManagerListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.MOD;
@@ -24,12 +22,8 @@ public class ScheduledMessageManagerListener extends CommandBase {
         DELETE
     }
 
-    public ScheduledMessageManagerListener(
-            ScheduledExecutorService scheduler,
-            TwitchApi twitchApi,
-            DbManager dbManager
-    ) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
+    public ScheduledMessageManagerListener(TwitchApi twitchApi, DbManager dbManager) {
+        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
         socialSchedulerDb = dbManager.getSocialSchedulerDb();
     }

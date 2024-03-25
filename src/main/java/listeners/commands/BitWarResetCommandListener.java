@@ -8,7 +8,6 @@ import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class BitWarResetCommandListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
@@ -25,8 +24,8 @@ public class BitWarResetCommandListener extends CommandBase {
     private final TwitchApi twitchApi;
     private final BitWarDb bitWarDb;
 
-    public BitWarResetCommandListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
+    public BitWarResetCommandListener(TwitchApi twitchApi, DbManager dbManager) {
+        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
         this.bitWarDb = dbManager.getBitWarDb();
     }

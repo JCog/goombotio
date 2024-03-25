@@ -9,7 +9,6 @@ import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class MinecraftListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
@@ -26,8 +25,8 @@ public class MinecraftListener extends CommandBase {
     private final TwitchApi twitchApi;
     private final MinecraftWhitelistUpdater mcUpdater;
 
-    public MinecraftListener(ScheduledExecutorService scheduler, TwitchApi twitchApi, DbManager dbManager, MinecraftWhitelistUpdater mcUpdater) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
+    public MinecraftListener(TwitchApi twitchApi, DbManager dbManager, MinecraftWhitelistUpdater mcUpdater) {
+        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
         this.mcUpdater = mcUpdater;
         minecraftUserDb = dbManager.getMinecraftUserDb();

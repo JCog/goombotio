@@ -11,7 +11,6 @@ import util.TwitchUserLevel.USER_LEVEL;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class WatchTimeListener extends CommandBase {
@@ -27,13 +26,8 @@ public class WatchTimeListener extends CommandBase {
     private final StreamTracker streamTracker;
     private final WatchTimeDb watchTimeDb;
 
-    public WatchTimeListener(
-            ScheduledExecutorService scheduler,
-            TwitchApi twitchApi,
-            DbManager dbManager,
-            StreamTracker streamTracker
-    ) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
+    public WatchTimeListener(TwitchApi twitchApi, DbManager dbManager, StreamTracker streamTracker) {
+        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         this.twitchApi = twitchApi;
         this.streamTracker = streamTracker;
         watchTimeDb = dbManager.getWatchTimeDb();

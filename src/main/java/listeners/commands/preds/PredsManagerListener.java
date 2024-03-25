@@ -10,8 +10,6 @@ import listeners.commands.CommandBase;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
-import java.util.concurrent.ScheduledExecutorService;
-
 import static java.lang.System.out;
 
 public class PredsManagerListener extends CommandBase {
@@ -35,13 +33,12 @@ public class PredsManagerListener extends CommandBase {
     private PredsManagerBase predsManager;
 
     public PredsManagerListener(
-            ScheduledExecutorService scheduler,
             DbManager dbManager,
             TwitchApi twitchApi,
             DiscordBotController discord,
             PredsGuessListener predsGuessListener
     ) {
-        super(scheduler, COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_PREDS, PATTERN_PREDS_CANCEL);
+        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_PREDS, PATTERN_PREDS_CANCEL);
         this.dbManager = dbManager;
         this.twitchApi = twitchApi;
         this.discord = discord;
