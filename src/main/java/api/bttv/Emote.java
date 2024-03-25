@@ -1,4 +1,4 @@
-package api.Bttv;
+package api.bttv;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

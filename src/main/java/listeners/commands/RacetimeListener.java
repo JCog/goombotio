@@ -1,6 +1,6 @@
 package listeners.commands;
 
-import api.RacetimeApi;
+import api.racetime.RacetimeApi;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import util.CommonUtils;
 import util.TwitchApi;
@@ -18,15 +18,17 @@ public class RacetimeListener extends CommandBase {
     private static final String USERNAME = "JCog#3335";
     
     private final TwitchApi twitchApi;
+    private final RacetimeApi racetimeApi;
 
     public RacetimeListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         twitchApi = commonUtils.getTwitchApi();
+        racetimeApi = commonUtils.getApiManager().getRacetimeApi();
     }
 
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
-        String spectateUrl = RacetimeApi.getSpectateUrl(USERNAME, GAME_SLUG);
+        String spectateUrl = racetimeApi.getSpectateUrl(USERNAME, GAME_SLUG);
         twitchApi.channelMessage(Objects.requireNonNullElse(
                 spectateUrl,
                 "There are currently no active races to spectate."

@@ -1,4 +1,4 @@
-package api.Ffz;
+package api.ffz;
 
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.client.ClientBuilder;
