@@ -5,10 +5,10 @@ import com.github.twitch4j.helix.domain.Moderator;
 import com.github.twitch4j.pubsub.domain.ChannelPointsReward;
 import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import database.DbManager;
 import database.misc.VipDb;
 import database.misc.VipRaffleDb;
 import listeners.TwitchEventListener;
+import util.CommonUtils;
 import util.TwitchApi;
 
 import java.util.Collections;
@@ -26,10 +26,10 @@ public class VipRaffleRewardListener implements TwitchEventListener {
     private final VipDb vipDb;
     private final VipRaffleDb vipRaffleDb;
     
-    public VipRaffleRewardListener(TwitchApi twitchApi, DbManager dbManager) {
-        this.twitchApi = twitchApi;
-        this.vipDb = dbManager.getVipDb();
-        this.vipRaffleDb = dbManager.getVipRaffleDb();
+    public VipRaffleRewardListener(CommonUtils commonUtils) {
+        twitchApi = commonUtils.getTwitchApi();
+        vipDb = commonUtils.getDbManager().getVipDb();
+        vipRaffleDb = commonUtils.getDbManager().getVipRaffleDb();
     }
     
     @Override

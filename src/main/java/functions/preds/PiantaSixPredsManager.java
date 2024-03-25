@@ -1,9 +1,7 @@
 package functions.preds;
 
-import database.DbManager;
 import database.preds.PiantaSixLeaderboardDb;
-import functions.DiscordBotController;
-import util.TwitchApi;
+import util.CommonUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,15 +30,9 @@ public class PiantaSixPredsManager extends PredsManagerBase {
     private final Map<String,TimeGuess> predictionList = new HashMap<>();
     private final PiantaSixLeaderboardDb piantaSixLeaderboardDb;
 
-    public PiantaSixPredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi) {
-        super(
-                twitchApi,
-                dbManager,
-                discord,
-                START_MESSAGE,
-                ANSWER_REGEX
-        );
-        this.piantaSixLeaderboardDb = dbManager.getPiantaSixLeaderboardDb();
+    public PiantaSixPredsManager(CommonUtils commonUtils) {
+        super(commonUtils, START_MESSAGE, ANSWER_REGEX);
+        piantaSixLeaderboardDb = commonUtils.getDbManager().getPiantaSixLeaderboardDb();
     }
 
     //submit the correct answer, calculate points, end game

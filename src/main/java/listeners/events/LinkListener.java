@@ -10,6 +10,7 @@ import listeners.TwitchEventListener;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
+import util.CommonUtils;
 import util.TwitchApi;
 
 import java.text.NumberFormat;
@@ -28,10 +29,10 @@ public class LinkListener implements TwitchEventListener {
     private final Twitter twitter;
     private final String youtubeApiKey;
 
-    public LinkListener(TwitchApi twitchApi, Twitter twitter, String youtubeApiKey) {
-        this.twitchApi = twitchApi;
-        this.youtubeApiKey = youtubeApiKey;
+    public LinkListener(CommonUtils commonUtils, Twitter twitter, String youtubeApiKey) {
+        twitchApi = commonUtils.getTwitchApi();
         this.twitter = twitter;
+        this.youtubeApiKey = youtubeApiKey;
     }
 
     @Override

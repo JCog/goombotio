@@ -1,8 +1,8 @@
 package listeners.commands;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import database.DbManager;
 import database.misc.SocialSchedulerDb;
+import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
@@ -22,10 +22,10 @@ public class ScheduledMessageManagerListener extends CommandBase {
         DELETE
     }
 
-    public ScheduledMessageManagerListener(TwitchApi twitchApi, DbManager dbManager) {
+    public ScheduledMessageManagerListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
-        this.twitchApi = twitchApi;
-        socialSchedulerDb = dbManager.getSocialSchedulerDb();
+        twitchApi = commonUtils.getTwitchApi();
+        socialSchedulerDb = commonUtils.getDbManager().getSocialSchedulerDb();
     }
 
     @Override

@@ -2,9 +2,9 @@ package listeners.commands;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.common.events.domain.EventUser;
-import database.DbManager;
 import database.stats.WatchTimeDb;
 import functions.StreamTracker;
+import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
@@ -19,18 +19,17 @@ public class WatchTimeListener extends CommandBase {
     private static final int COOLDOWN = 5;
     private static final CooldownType COOLDOWN_TYPE = CooldownType.PER_USER;
     private static final String PATTERN = "!watchtime";
-    
     private static final Date CUTOFF_DATE = generateCutoffDate();
-
+    
     private final TwitchApi twitchApi;
-    private final StreamTracker streamTracker;
     private final WatchTimeDb watchTimeDb;
+    private final StreamTracker streamTracker;
 
-    public WatchTimeListener(TwitchApi twitchApi, DbManager dbManager, StreamTracker streamTracker) {
+    public WatchTimeListener(CommonUtils commonUtils, StreamTracker streamTracker) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
-        this.twitchApi = twitchApi;
+        twitchApi = commonUtils.getTwitchApi();
+        watchTimeDb = commonUtils.getDbManager().getWatchTimeDb();
         this.streamTracker = streamTracker;
-        watchTimeDb = dbManager.getWatchTimeDb();
     }
 
     @Override

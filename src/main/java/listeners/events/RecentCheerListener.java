@@ -5,6 +5,7 @@ import com.github.twitch4j.pubsub.events.ChannelBitsEvent;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import listeners.TwitchEventListener;
 import org.apache.commons.lang.SystemUtils;
+import util.CommonUtils;
 import util.FileWriter;
 import util.TwitchApi;
 
@@ -15,8 +16,8 @@ public class RecentCheerListener implements TwitchEventListener {
     
     private final TwitchApi twitchApi;
     
-    public RecentCheerListener(TwitchApi twitchApi) {
-        this.twitchApi = twitchApi;
+    public RecentCheerListener(CommonUtils commonUtils) {
+        twitchApi = commonUtils.getTwitchApi();
     }
     
     @Override

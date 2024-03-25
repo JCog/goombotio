@@ -6,9 +6,9 @@ import com.github.twitch4j.helix.domain.CustomReward;
 import com.github.twitch4j.pubsub.domain.ChannelPointsReward;
 import com.github.twitch4j.pubsub.events.RewardRedeemedEvent;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import database.DbManager;
 import database.misc.VipDb;
 import listeners.TwitchEventListener;
+import util.CommonUtils;
 import util.TwitchApi;
 
 import java.util.Collections;
@@ -24,9 +24,9 @@ public class DethroneListener implements TwitchEventListener {
     private final TwitchApi twitchApi;
     private final VipDb vipDb;
     
-    public DethroneListener(TwitchApi twitchApi, DbManager dbManager) {
-        this.twitchApi = twitchApi;
-        this.vipDb = dbManager.getVipDb();
+    public DethroneListener(CommonUtils commonUtils) {
+        twitchApi = commonUtils.getTwitchApi();
+        vipDb = commonUtils.getDbManager().getVipDb();
     }
     
     @Override

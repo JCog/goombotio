@@ -3,8 +3,8 @@ package functions;
 import com.github.twitch4j.helix.domain.InboundFollow;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import database.DbManager;
 import database.stats.WatchTimeDb;
+import util.CommonUtils;
 import util.TwitchApi;
 
 import java.io.BufferedWriter;
@@ -31,19 +31,14 @@ public class FollowLogger {
     
     private Set<String> oldFollowerIdList;
 
-    public FollowLogger(
-            DbManager dbManager,
-            TwitchApi twitchApi,
-            StreamTracker streamTracker,
-            ScheduledExecutorService scheduler
-    ) {
-        this.twitchApi = twitchApi;
+    public FollowLogger(CommonUtils commonUtils, StreamTracker streamTracker) {
+        twitchApi = commonUtils.getTwitchApi();
+        watchTimeDb = commonUtils.getDbManager().getWatchTimeDb();
         this.streamTracker = streamTracker;
-        this.dateFormatCurrent = new SimpleDateFormat(DATE_FORMAT_CURRENT);
-        this.dateFormatFollow = new SimpleDateFormat(DATE_FORMAT_FOLLOW);
-        watchTimeDb = dbManager.getWatchTimeDb();
+        dateFormatCurrent = new SimpleDateFormat(DATE_FORMAT_CURRENT);
+        dateFormatFollow = new SimpleDateFormat(DATE_FORMAT_FOLLOW);
         
-        init(scheduler);
+        init(commonUtils.getScheduler());
     }
 
     private void init(ScheduledExecutorService scheduler) {

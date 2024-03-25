@@ -3,6 +3,7 @@ package listeners.events;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.common.events.domain.EventUser;
 import listeners.TwitchEventListener;
+import util.CommonUtils;
 import util.TwitchApi;
 
 import java.util.Objects;
@@ -26,8 +27,8 @@ public class PyramidListener implements TwitchEventListener {
     private String userId;
     private int height;
 
-    public PyramidListener(TwitchApi twitchApi) {
-        this.twitchApi = twitchApi;
+    public PyramidListener(CommonUtils commonUtils) {
+        twitchApi = commonUtils.getTwitchApi();
         resetState();
     }
 

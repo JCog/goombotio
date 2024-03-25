@@ -3,6 +3,7 @@ package listeners.events;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
 import listeners.TwitchEventListener;
+import util.CommonUtils;
 import util.TwitchApi;
 
 import java.util.Objects;
@@ -15,8 +16,8 @@ public class CloudListener implements TwitchEventListener {
 
     private boolean saidHi;
 
-    public CloudListener(TwitchApi twitchApi) {
-        this.twitchApi = twitchApi;
+    public CloudListener(CommonUtils commonUtils) {
+        twitchApi = commonUtils.getTwitchApi();
         saidHi = true;
     }
 

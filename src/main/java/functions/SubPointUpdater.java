@@ -2,8 +2,8 @@ package functions;
 
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.apache.commons.lang.SystemUtils;
+import util.CommonUtils;
 import util.FileWriter;
-import util.Settings;
 import util.TwitchApi;
 
 import java.util.TimerTask;
@@ -18,16 +18,17 @@ public class SubPointUpdater {
     private static final int INTERVAL = 1; //minutes
     
     private final TwitchApi twitchApi;
-    private final Settings settings;
+    private final String subCountFormat;
     
     private int subPoints;
     
-    public SubPointUpdater(TwitchApi twitchApi, Settings settings, ScheduledExecutorService scheduler) {
-        this.twitchApi = twitchApi;
-        this.settings = settings;
+    public SubPointUpdater(CommonUtils commonUtils, String subCountFormat) {
+        twitchApi = commonUtils.getTwitchApi();
+        this.subCountFormat = subCountFormat;
+        
         subPoints = 0;
         
-        init(scheduler);
+        init(commonUtils.getScheduler());
     }
     
     private void init(ScheduledExecutorService scheduler) {
@@ -53,7 +54,7 @@ public class SubPointUpdater {
         FileWriter.writeToFile(
                 getOutputLocation(),
                 LOCAL_SUB_POINTS_FILENAME,
-                String.format(settings.getSubCountFormat(), subPoints)
+                String.format(subCountFormat, subPoints)
         );
     }
     

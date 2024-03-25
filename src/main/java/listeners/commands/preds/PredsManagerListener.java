@@ -3,10 +3,9 @@ package listeners.commands.preds;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import database.DbManager;
-import functions.DiscordBotController;
 import functions.preds.*;
 import listeners.commands.CommandBase;
+import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
@@ -25,23 +24,16 @@ public class PredsManagerListener extends CommandBase {
     private static final String GAME_ID_SUNSHINE = "6086";
     private static final String GAME_ID_SMRPG_SWITCH = "1675405846";
 
-    private final DbManager dbManager;
+    private final CommonUtils commonUtils;
     private final TwitchApi twitchApi;
-    private final DiscordBotController discord;
     private final PredsGuessListener predsGuessListener;
 
     private PredsManagerBase predsManager;
 
-    public PredsManagerListener(
-            DbManager dbManager,
-            TwitchApi twitchApi,
-            DiscordBotController discord,
-            PredsGuessListener predsGuessListener
-    ) {
+    public PredsManagerListener(CommonUtils commonUtils, PredsGuessListener predsGuessListener) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_PREDS, PATTERN_PREDS_CANCEL);
-        this.dbManager = dbManager;
-        this.twitchApi = twitchApi;
-        this.discord = discord;
+        this.commonUtils = commonUtils;
+        twitchApi = commonUtils.getTwitchApi();
         this.predsGuessListener = predsGuessListener;
         predsManager = null;
     }
@@ -66,16 +58,16 @@ public class PredsManagerListener extends CommandBase {
                     }
                     switch (gameId) {
                         case GAME_ID_OOT:
-                            predsManager = new DampeRacePredsManager(dbManager, discord, twitchApi);
+                            predsManager = new DampeRacePredsManager(commonUtils);
                             break;
                         case GAME_ID_PAPER_MARIO:
-                            predsManager = new BadgeShopPredsManager(dbManager, discord, twitchApi);
+                            predsManager = new BadgeShopPredsManager(commonUtils);
                             break;
                         case GAME_ID_SUNSHINE:
-                            predsManager = new PiantaSixPredsManager(dbManager, discord, twitchApi);
+                            predsManager = new PiantaSixPredsManager(commonUtils);
                             break;
                         case GAME_ID_SMRPG_SWITCH:
-                            predsManager = new BoosterHillPredsManager(dbManager, discord, twitchApi);
+                            predsManager = new BoosterHillPredsManager(commonUtils);
                             break;
                         default:
                             twitchApi.channelMessage("The current game is not compatible with preds.");

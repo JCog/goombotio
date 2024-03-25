@@ -6,7 +6,6 @@ import com.github.twitch4j.helix.domain.InboundFollow;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import database.DbManager;
 import database.misc.CommandDb;
 import listeners.TwitchEventListener;
 import okhttp3.OkHttpClient;
@@ -69,9 +68,9 @@ public class MessageExpressionParser {
     private final CommandDb commandDb;
     private final TwitchApi twitchApi;
 
-    public MessageExpressionParser(DbManager dbManager, TwitchApi twitchApi) {
-        this.twitchApi = twitchApi;
-        commandDb = dbManager.getCommandDb();
+    public MessageExpressionParser(CommonUtils commonUtils) {
+        twitchApi = commonUtils.getTwitchApi();
+        commandDb = commonUtils.getDbManager().getCommandDb();
     }
     
     public String parse(String message) {

@@ -3,8 +3,8 @@ package functions;
 import com.github.twitch4j.helix.domain.Chatter;
 import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import database.DbManager;
 import database.misc.StatsBlacklistDb;
+import util.CommonUtils;
 import util.ReportBuilder;
 import util.TwitchApi;
 
@@ -18,20 +18,20 @@ import java.util.concurrent.TimeUnit;
 public class StreamTracker {
     private static final int INTERVAL = 1; //minutes
 
-    private final DbManager dbManager;
+    private final CommonUtils commonUtils;
     private final TwitchApi twitchApi;
     private final StatsBlacklistDb statsBlacklistDb;
 
     private StreamData streamData;
 
-    public StreamTracker(DbManager dbManager, TwitchApi twitchApi, ScheduledExecutorService scheduler) {
-        this.dbManager = dbManager;
-        this.twitchApi = twitchApi;
-        statsBlacklistDb = dbManager.getStatsBlacklistDb();
+    public StreamTracker(CommonUtils commonUtils) {
+        this.commonUtils = commonUtils;
+        twitchApi = commonUtils.getTwitchApi();
+        statsBlacklistDb = commonUtils.getDbManager().getStatsBlacklistDb();
 
         streamData = null;
         
-        init(scheduler);
+        init(commonUtils.getScheduler());
     }
 
     private void init(ScheduledExecutorService scheduler) {
@@ -67,14 +67,14 @@ public class StreamTracker {
                         return;
                     }
                     if (streamData == null) {
-                        streamData = new StreamData(dbManager, twitchApi);
+                        streamData = new StreamData(commonUtils);
                     }
                     streamData.updateUsersMinutes(onlineUserIds);
                     streamData.updateStreamViewCount(stream.getViewerCount());
                 } else {
                     if (streamData != null) {
                         streamData.endStream();
-                        ReportBuilder.generateReport(dbManager, streamData);
+                        ReportBuilder.generateReport(commonUtils, streamData);
                         streamData = null;
                     }
                 }
@@ -87,7 +87,7 @@ public class StreamTracker {
             return;
         }
         streamData.endStream();
-        ReportBuilder.generateReport(dbManager, streamData);
+        ReportBuilder.generateReport(commonUtils, streamData);
         streamData = null;
     }
 

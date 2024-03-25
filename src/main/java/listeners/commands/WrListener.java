@@ -3,6 +3,7 @@ package listeners.commands;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
@@ -24,9 +25,9 @@ public class WrListener extends CommandBase {
 
     private final TwitchApi twitchApi;
 
-    public WrListener(TwitchApi twitchApi) {
+    public WrListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
-        this.twitchApi = twitchApi;
+        twitchApi = commonUtils.getTwitchApi();
     }
 
     @Override

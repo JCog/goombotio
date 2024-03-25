@@ -3,10 +3,8 @@ package functions.preds;
 import com.github.twitch4j.helix.domain.Moderator;
 import com.github.twitch4j.helix.domain.Subscription;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import database.DbManager;
 import database.preds.BadgeShopLeaderboardDb;
-import functions.DiscordBotController;
-import util.TwitchApi;
+import util.CommonUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,15 +46,9 @@ public class BadgeShopPredsManager extends PredsManagerBase {
     private final Map<String, PapePredsObject> predictionList = new HashMap<>();
     private final BadgeShopLeaderboardDb badgeShopLeaderboardDb;
     
-    public BadgeShopPredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi) {
-        super(
-                twitchApi,
-                dbManager,
-                discord,
-                START_MESSAGE,
-                ANSWER_REGEX
-        );
-        this.badgeShopLeaderboardDb = dbManager.getBadgeShopLeaderboardDb();
+    public BadgeShopPredsManager(CommonUtils commonUtils) {
+        super(commonUtils, START_MESSAGE, ANSWER_REGEX);
+        badgeShopLeaderboardDb = commonUtils.getDbManager().getBadgeShopLeaderboardDb();
     }
 
     /**

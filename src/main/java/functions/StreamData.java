@@ -2,9 +2,9 @@ package functions;
 
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import database.DbManager;
 import database.stats.StreamStatsDb;
 import database.stats.WatchTimeDb;
+import util.CommonUtils;
 import util.TwitchApi;
 
 import java.util.*;
@@ -25,10 +25,10 @@ public class StreamData {
 
     private Date endTime;
 
-    public StreamData(DbManager dbManager, TwitchApi twitchApi) {
-        this.twitchApi = twitchApi;
-        streamStatsDb = dbManager.getStreamStatsDb();
-        watchTimeDb = dbManager.getWatchTimeDb();
+    public StreamData(CommonUtils commonUtils) {
+        twitchApi = commonUtils.getTwitchApi();
+        streamStatsDb = commonUtils.getDbManager().getStreamStatsDb();
+        watchTimeDb = commonUtils.getDbManager().getWatchTimeDb();
 
         out.println("\n---------------------");
         out.println(twitchApi.getStreamerUser().getDisplayName() + " is now live.");

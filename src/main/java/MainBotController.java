@@ -12,6 +12,7 @@ import listeners.events.*;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
+import util.CommonUtils;
 import util.MessageExpressionParser;
 import util.Settings;
 import util.TwitchApi;
@@ -28,16 +29,14 @@ public class MainBotController {
 
     private final Settings settings;
     private final DbManager dbManager;
-    private final ScheduledExecutorService scheduler;
-    private final Twitter twitter;
-    private final DiscordListener discordListener;
-    private final DiscordBotController discordBotController;
     private final TwitchApi twitchApi;
+    private final DiscordBotController discordBotController;
+    private final ScheduledExecutorService scheduler;
+    private final CommonUtils commonUtils;
+    private final Twitter twitter;
     private final StreamTracker streamTracker;
     private final MessageExpressionParser messageExpressionParser;
     private final ScheduledMessageController scheduledMessageController;
-    private final FollowLogger followLogger;
-    private final SubPointUpdater subPointUpdater;
 
     public MainBotController() {
         settings = new Settings();
@@ -54,10 +53,6 @@ public class MainBotController {
                 settings.getDbPassword(),
                 settings.hasWritePermission()
         );
-        scheduler = Executors.newScheduledThreadPool(TIMER_THREAD_SIZE);
-        twitter = getTwitterInstance();
-        discordListener = new DiscordListener();
-        discordBotController = new DiscordBotController(settings.getDiscordToken(), discordListener);
         twitchApi = new TwitchApi(
                 settings.getTwitchStream(),
                 settings.getTwitchUsername(),
@@ -66,26 +61,18 @@ public class MainBotController {
                 settings.getTwitchBotAuthToken(),
                 settings.isSilentMode()
         );
-        streamTracker = new StreamTracker(
-                dbManager,
-                twitchApi,
-                scheduler
-        );
-        messageExpressionParser = new MessageExpressionParser(dbManager, twitchApi);
-        scheduledMessageController = new ScheduledMessageController(
-                dbManager,
-                twitchApi,
-                scheduler,
-                messageExpressionParser
-        );
+        discordBotController = new DiscordBotController(settings.getDiscordToken(), new DiscordListener());
+        scheduler = Executors.newScheduledThreadPool(TIMER_THREAD_SIZE);
+        commonUtils = new CommonUtils(twitchApi, dbManager, discordBotController, scheduler);
         
-        followLogger = new FollowLogger(
-                dbManager,
-                twitchApi,
-                streamTracker,
-                scheduler
-        );
-        subPointUpdater = new SubPointUpdater(twitchApi, settings, scheduler);
+        twitter = getTwitterInstance(settings);
+        streamTracker = new StreamTracker(commonUtils);
+        messageExpressionParser = new MessageExpressionParser(commonUtils);
+        scheduledMessageController = new ScheduledMessageController(commonUtils, messageExpressionParser);
+        
+        new FollowLogger(commonUtils, streamTracker);
+        new SubPointUpdater(commonUtils, settings.getSubCountFormat());
+        
     }
 
     public synchronized void run(long startTime) {
@@ -123,34 +110,34 @@ public class MainBotController {
                 predsGuessListener,
                 
                 // Commands
-                new AdCommandListener(twitchApi),
-                new CommandManagerListener(twitchApi, dbManager),
-                new GenericCommandListener(messageExpressionParser, dbManager, twitchApi),
-                new LeaderboardListener(dbManager, twitchApi),
-                new QuoteListener(dbManager, twitchApi),
-                new PermanentVipListener(twitchApi, dbManager),
-                new PredsManagerListener(dbManager, twitchApi, discordBotController, predsGuessListener),
-                new RacetimeListener(twitchApi),
-                new ScheduledMessageManagerListener(twitchApi, dbManager),
-                new TattleListener(dbManager, twitchApi),
-                new VipRaffleListener(twitchApi, dbManager),
-                new WatchTimeListener(twitchApi, dbManager, streamTracker),
-                new WrListener(twitchApi),
+                new AdCommandListener(commonUtils),
+                new CommandManagerListener(commonUtils),
+                new GenericCommandListener(commonUtils, messageExpressionParser),
+                new LeaderboardListener(commonUtils),
+                new QuoteListener(commonUtils),
+                new PermanentVipListener(commonUtils),
+                new PredsManagerListener(commonUtils, predsGuessListener),
+                new RacetimeListener(commonUtils),
+                new ScheduledMessageManagerListener(commonUtils),
+                new TattleListener(commonUtils),
+                new VipRaffleListener(commonUtils),
+                new WatchTimeListener(commonUtils, streamTracker),
+                new WrListener(commonUtils),
                 
                 // Channel Points
-                new DethroneListener(twitchApi, dbManager),
-                new VipRaffleRewardListener(twitchApi, dbManager),
+                new DethroneListener(commonUtils),
+                new VipRaffleRewardListener(commonUtils),
                 
                 // General
-                new AdEventListener(twitchApi),
+                new AdEventListener(commonUtils),
                 new ChatLoggerListener(),
-                new CloudListener(twitchApi),
-                new EmoteListener(dbManager),
-                new LinkListener(twitchApi, twitter, settings.getYoutubeApiKey()),
-                new PyramidListener(twitchApi),
-                new RecentCheerListener(twitchApi),
-                new ShoutoutListener(twitchApi),
-                new SubListener(twitchApi),
+                new CloudListener(commonUtils),
+                new EmoteListener(commonUtils),
+                new LinkListener(commonUtils, twitter, settings.getYoutubeApiKey()),
+                new PyramidListener(commonUtils),
+                new RecentCheerListener(commonUtils),
+                new ShoutoutListener(commonUtils),
+                new SubListener(commonUtils),
                 
                 // Misc
                 scheduledMessageController,
@@ -160,7 +147,7 @@ public class MainBotController {
         }
     }
 
-    private Twitter getTwitterInstance() {
+    private Twitter getTwitterInstance(Settings settings) {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true)
                 .setOAuthConsumerKey(settings.getTwitterConsumerKey())

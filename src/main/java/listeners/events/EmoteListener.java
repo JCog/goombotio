@@ -2,11 +2,11 @@ package listeners.events;
 
 import api.ThirdPartyEmoteApi;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import database.DbManager;
 import database.emotes.BttvEmoteStatsDb;
 import database.emotes.FfzEmoteStatsDb;
 import database.emotes.SevenTvEmoteStatsDb;
 import listeners.TwitchEventListener;
+import util.CommonUtils;
 
 import java.util.Map;
 
@@ -19,11 +19,11 @@ public class EmoteListener implements TwitchEventListener {
     private final Map<String, String> sevenTvEmotes;
     private final Map<String, String> bttvEmotes;
 
-    public EmoteListener(DbManager dbManager) {
-//        emoteStatsDb = dbManager.getEmoteStatsDb();
-        ffzEmoteStatsDb = dbManager.getFfzEmoteStatsDb();
-        sevenTvEmoteStatsDb = dbManager.getSevenTvEmoteStatsDb();
-        bttvEmoteStatsDb = dbManager.getBttvEmoteStatsDb();
+    public EmoteListener(CommonUtils commonUtils) {
+//        emoteStatsDb = commonUtils.getDbManager().getEmoteStatsDb();
+        ffzEmoteStatsDb = commonUtils.getDbManager().getFfzEmoteStatsDb();
+        sevenTvEmoteStatsDb = commonUtils.getDbManager().getSevenTvEmoteStatsDb();
+        bttvEmoteStatsDb = commonUtils.getDbManager().getBttvEmoteStatsDb();
         ffzEmotes = ThirdPartyEmoteApi.getFfzEmotes();
         sevenTvEmotes = ThirdPartyEmoteApi.get7tvEmotes();
         bttvEmotes = ThirdPartyEmoteApi.getBttvEmotes();

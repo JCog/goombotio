@@ -2,13 +2,14 @@ package listeners.events;
 
 import com.github.twitch4j.pubsub.events.MidrollRequestEvent;
 import listeners.TwitchEventListener;
+import util.CommonUtils;
 import util.TwitchApi;
 
 public class AdEventListener implements TwitchEventListener {
     private final TwitchApi twitchApi;
 
-    public AdEventListener(TwitchApi twitchApi) {
-        this.twitchApi = twitchApi;
+    public AdEventListener(CommonUtils commonUtils) {
+        twitchApi = commonUtils.getTwitchApi();
     }
     
     @Override

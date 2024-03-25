@@ -2,6 +2,7 @@ package listeners.commands;
 
 import api.RacetimeApi;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
@@ -18,9 +19,9 @@ public class RacetimeListener extends CommandBase {
     
     private final TwitchApi twitchApi;
 
-    public RacetimeListener(TwitchApi twitchApi) {
+    public RacetimeListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
-        this.twitchApi = twitchApi;
+        twitchApi = commonUtils.getTwitchApi();
     }
 
     @Override

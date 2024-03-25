@@ -1,9 +1,9 @@
 package listeners.commands;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import database.DbManager;
 import database.misc.CommandDb;
 import database.misc.CommandDb.CommandItem;
+import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel;
 
@@ -33,10 +33,10 @@ public class CommandManagerListener extends CommandBase {
         DETAILS
     }
 
-    public CommandManagerListener(TwitchApi twitchApi, DbManager dbManager) {
+    public CommandManagerListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, MANAGER_COOLDOWN, COOLDOWN_TYPE, PATTERN);
-        this.twitchApi = twitchApi;
-        this.commandDb = dbManager.getCommandDb();
+        twitchApi = commonUtils.getTwitchApi();
+        commandDb = commonUtils.getDbManager().getCommandDb();
     }
 
     @Override

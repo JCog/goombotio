@@ -3,10 +3,10 @@ package listeners.commands;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.*;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import database.DbManager;
 import database.misc.VipDb;
 import database.misc.VipRaffleDb;
 import listeners.TwitchEventListener;
+import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
@@ -30,11 +30,11 @@ public class VipRaffleListener extends CommandBase {
     private final VipRaffleDb vipRaffleDb;
     private final VipDb vipDb;
     
-    public VipRaffleListener(TwitchApi twitchApi, DbManager dbManager) {
+    public VipRaffleListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
-        this.twitchApi = twitchApi;
-        this.vipRaffleDb = dbManager.getVipRaffleDb();
-        this.vipDb = dbManager.getVipDb();
+        twitchApi = commonUtils.getTwitchApi();
+        vipRaffleDb = commonUtils.getDbManager().getVipRaffleDb();
+        vipDb = commonUtils.getDbManager().getVipDb();
     }
     
     @Override
@@ -62,7 +62,7 @@ public class VipRaffleListener extends CommandBase {
                 return;
             }
             
-            if (winners.size() == 0) {
+            if (winners.isEmpty()) {
                 twitchApi.channelMessage("There are no raffle entries, so nobody wins.");
             } else if (winners.size() == 1) {
                 twitchApi.channelMessage(String.format(

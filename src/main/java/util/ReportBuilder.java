@@ -16,7 +16,7 @@ public class ReportBuilder {
 
     private final static String REPORT_LOCATION = "streamreports/";
 
-    public static void generateReport(DbManager dbManager, StreamData streamData) {
+    public static void generateReport(CommonUtils commonUtils, StreamData streamData) {
         out.println("\nBuilding report...");
 
         String filename = getReportFilename();
@@ -24,7 +24,7 @@ public class ReportBuilder {
         String report = "REPORT\n\n" +
                 generateReportStats(streamData) +
                 "\n\n" +
-                generateReportAllViewers(dbManager, streamData) +
+                generateReportAllViewers(commonUtils.getDbManager(), streamData) +
                 "\n\n" +
                 generateReportNewViewers(streamData) +
                 "\n\n" +

@@ -4,9 +4,9 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.chat.events.channel.RaidEvent;
 import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import database.DbManager;
 import database.misc.SocialSchedulerDb;
 import listeners.TwitchEventListener;
+import util.CommonUtils;
 import util.MessageExpressionParser;
 import util.TwitchApi;
 
@@ -35,19 +35,14 @@ public class ScheduledMessageController implements TwitchEventListener {
     private boolean recentRaid;
     private String previousId = "";
     
-    public ScheduledMessageController(
-            DbManager dbManager,
-            TwitchApi twitchApi,
-            ScheduledExecutorService scheduler,
-            MessageExpressionParser messageExpressionParser
-    ) {
-        this.twitchApi = twitchApi;
-        this.commandParser = messageExpressionParser;
-        socialSchedulerDb = dbManager.getSocialSchedulerDb();
+    public ScheduledMessageController(CommonUtils commonUtils, MessageExpressionParser messageExpressionParser) {
+        twitchApi = commonUtils.getTwitchApi();
+        socialSchedulerDb = commonUtils.getDbManager().getSocialSchedulerDb();
+        commandParser = messageExpressionParser;
         activeChat = false;
         recentRaid = false;
         
-        initScheduledMessages(scheduler);
+        initScheduledMessages(commonUtils.getScheduler());
     }
     
     private void initScheduledMessages(ScheduledExecutorService scheduler) {

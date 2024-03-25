@@ -1,10 +1,8 @@
 package functions.preds;
 
 import com.github.twitch4j.helix.domain.Moderator;
-import database.DbManager;
 import database.preds.DampeRaceLeaderboardDb;
-import functions.DiscordBotController;
-import util.TwitchApi;
+import util.CommonUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,15 +23,9 @@ public class DampeRacePredsManager extends PredsManagerBase {
     private final Map<String, TimeGuess> guesses = new HashMap<>();
     private final DampeRaceLeaderboardDb dampeRaceLeaderboardDb;
     
-    public DampeRacePredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi) {
-        super(
-                twitchApi,
-                dbManager,
-                discord,
-                START_MESSAGE,
-                ANSWER_REGEX
-        );
-        this.dampeRaceLeaderboardDb = dbManager.getDampeRaceLeaderboardDb();
+    public DampeRacePredsManager(CommonUtils commonUtils) {
+        super(commonUtils, START_MESSAGE, ANSWER_REGEX);
+        dampeRaceLeaderboardDb = commonUtils.getDbManager().getDampeRaceLeaderboardDb();
     }
     
     @Override

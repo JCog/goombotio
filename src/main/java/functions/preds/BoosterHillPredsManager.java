@@ -1,10 +1,8 @@
 package functions.preds;
 
 import com.github.twitch4j.helix.domain.Moderator;
-import database.DbManager;
 import database.preds.BoosterHillLeaderboardDb;
-import functions.DiscordBotController;
-import util.TwitchApi;
+import util.CommonUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,15 +23,9 @@ public class BoosterHillPredsManager extends PredsManagerBase {
     private final Map<String, FlowersGuess> guesses = new HashMap<>();
     private final BoosterHillLeaderboardDb boosterHillLeaderboardDb;
     
-    public BoosterHillPredsManager(DbManager dbManager, DiscordBotController discord, TwitchApi twitchApi) {
-        super(
-                twitchApi,
-                dbManager,
-                discord,
-                START_MESSAGE,
-                ANSWER_REGEX
-        );
-        this.boosterHillLeaderboardDb = dbManager.getBoosterHillLeaderboardDb();
+    public BoosterHillPredsManager(CommonUtils commonUtils) {
+        super(commonUtils, START_MESSAGE, ANSWER_REGEX);
+        boosterHillLeaderboardDb = commonUtils.getDbManager().getBoosterHillLeaderboardDb();
     }
     
     @Override

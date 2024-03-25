@@ -7,6 +7,7 @@ import database.DbManager;
 import database.preds.PredsLeaderboardDbBase;
 import listeners.TwitchEventListener;
 import listeners.commands.CommandBase;
+import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
@@ -56,7 +57,7 @@ public class LeaderboardListener extends CommandBase {
 
     private PredsLeaderboardDbBase leaderboard;
 
-    public LeaderboardListener(DbManager dbManager, TwitchApi twitchApi) {
+    public LeaderboardListener(CommonUtils commonUtils) {
         super(
                 COMMAND_TYPE,
                 MIN_USER_LEVEL,
@@ -68,8 +69,8 @@ public class LeaderboardListener extends CommandBase {
 //                PATTERN_LEADERBOARD_ALL,
 //                PATTERN_POINTS_ALL
         );
-        this.dbManager = dbManager;
-        this.twitchApi = twitchApi;
+        dbManager = commonUtils.getDbManager();
+        twitchApi = commonUtils.getTwitchApi();
         updateLeaderboardType();
     }
 

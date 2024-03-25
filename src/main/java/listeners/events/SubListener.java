@@ -6,6 +6,7 @@ import com.github.twitch4j.pubsub.events.ChannelSubGiftEvent;
 import com.github.twitch4j.pubsub.events.ChannelSubscribeEvent;
 import listeners.TwitchEventListener;
 import org.apache.commons.lang.SystemUtils;
+import util.CommonUtils;
 import util.FileWriter;
 import util.TwitchApi;
 
@@ -15,8 +16,8 @@ public class SubListener implements TwitchEventListener {
     
     private final TwitchApi twitchApi;
 
-    public SubListener(TwitchApi twitchApi) {
-        this.twitchApi = twitchApi;
+    public SubListener(CommonUtils commonUtils) {
+        twitchApi = commonUtils.getTwitchApi();
     }
     
     @Override

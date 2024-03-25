@@ -1,10 +1,10 @@
 package functions.preds;
 
-import database.DbManager;
 import database.misc.VipDb;
 import database.misc.VipRaffleDb;
 import database.preds.PredsLeaderboardDbBase.PredsItem;
 import functions.DiscordBotController;
+import util.CommonUtils;
 import util.TwitchApi;
 
 import java.util.List;
@@ -24,17 +24,11 @@ public abstract class PredsManagerBase {
     boolean isEnabled;
     boolean waitingForAnswer;
 
-    PredsManagerBase(
-            TwitchApi twitchApi,
-            DbManager dbManager,
-            DiscordBotController discord,
-            String startMessage,
-            String answerRegex
-    ) {
-        this.twitchApi = twitchApi;
-        this.vipRaffleDb = dbManager.getVipRaffleDb();
-        this.vipDb = dbManager.getVipDb();
-        this.discord = discord;
+    PredsManagerBase(CommonUtils commonUtils, String startMessage, String answerRegex) {
+        twitchApi = commonUtils.getTwitchApi();
+        vipRaffleDb = commonUtils.getDbManager().getVipRaffleDb();
+        vipDb = commonUtils.getDbManager().getVipDb();
+        discord = commonUtils.getDiscordBotController();
         this.startMessage = startMessage;
         this.answerRegex = answerRegex;
     }

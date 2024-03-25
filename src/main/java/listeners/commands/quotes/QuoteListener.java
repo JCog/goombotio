@@ -1,9 +1,9 @@
 package listeners.commands.quotes;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import database.DbManager;
 import database.misc.QuoteDb;
 import listeners.commands.CommandBase;
+import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
@@ -36,7 +36,7 @@ public class QuoteListener extends CommandBase {
     private final Random random;
     private final QuoteUndoEngine quoteUndoEngine;
 
-    public QuoteListener(DbManager dbManager, TwitchApi twitchApi) {
+    public QuoteListener(CommonUtils commonUtils) {
         super(
                 COMMAND_TYPE,
                 MIN_USER_LEVEL,
@@ -50,8 +50,8 @@ public class QuoteListener extends CommandBase {
                 PATTERN_UNDO_QUOTE,
                 PATTERN_REDO_QUOTE
         );
-        this.twitchApi = twitchApi;
-        quoteDb = dbManager.getQuoteDb();
+        twitchApi = commonUtils.getTwitchApi();
+        quoteDb = commonUtils.getDbManager().getQuoteDb();
         random = new Random();
         quoteUndoEngine = new QuoteUndoEngine(twitchApi, quoteDb);
     }

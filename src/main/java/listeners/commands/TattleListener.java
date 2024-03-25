@@ -2,9 +2,9 @@ package listeners.commands;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.User;
-import database.DbManager;
 import database.misc.TattleDb;
 import database.misc.TattleDb.TattleItem;
+import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
@@ -25,10 +25,10 @@ public class TattleListener extends CommandBase {
     private final TwitchApi twitchApi;
     private final Random random = new Random();
 
-    public TattleListener(DbManager dbManager, TwitchApi twitchApi) {
+    public TattleListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_TATTLE, PATTERN_ADD);
-        this.tattleDb = dbManager.getTattleDb();
-        this.twitchApi = twitchApi;
+        tattleDb = commonUtils.getDbManager().getTattleDb();
+        twitchApi = commonUtils.getTwitchApi();
     }
 
     @Override
