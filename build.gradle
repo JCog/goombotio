@@ -37,6 +37,8 @@ dependencies {
     implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.14.1'
     implementation group: 'com.fathzer', name: 'javaluator', version: '3.0.3'
+    implementation group: 'org.jboss.resteasy', name: 'resteasy-client', version: '6.2.8.Final'
+    implementation group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '6.2.8.Final'
 }
 
 jar {

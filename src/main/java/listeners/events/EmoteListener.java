@@ -24,7 +24,9 @@ public class EmoteListener implements TwitchEventListener {
         ffzEmoteStatsDb = commonUtils.getDbManager().getFfzEmoteStatsDb();
         sevenTvEmoteStatsDb = commonUtils.getDbManager().getSevenTvEmoteStatsDb();
         bttvEmoteStatsDb = commonUtils.getDbManager().getBttvEmoteStatsDb();
-        ffzEmotes = ThirdPartyEmoteApi.getFfzEmotes();
+        
+        String username = commonUtils.getTwitchApi().getStreamerUser().getLogin();
+        ffzEmotes = commonUtils.getApiManager().getFfzApi().getEmotes(username);
         sevenTvEmotes = ThirdPartyEmoteApi.get7tvEmotes();
         bttvEmotes = ThirdPartyEmoteApi.getBttvEmotes();
     }

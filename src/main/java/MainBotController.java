@@ -1,3 +1,4 @@
+import api.ApiManager;
 import database.DbManager;
 import functions.*;
 import listeners.TwitchEventListener;
@@ -59,7 +60,7 @@ public class MainBotController {
         );
         discordBotController = new DiscordBotController(settings.getDiscordToken(), new DiscordListener());
         scheduler = Executors.newScheduledThreadPool(TIMER_THREAD_SIZE);
-        commonUtils = new CommonUtils(twitchApi, dbManager, discordBotController, scheduler);
+        commonUtils = new CommonUtils(twitchApi, dbManager, discordBotController, new ApiManager(), scheduler);
         
         twitter = Twitter.newBuilder()
                 .oAuthConsumer(settings.getTwitterConsumerKey(), settings.getTwitterConsumerSecret())
