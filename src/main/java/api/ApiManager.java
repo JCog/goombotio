@@ -4,6 +4,7 @@ import api.bttv.BttvApi;
 import api.ffz.FfzApi;
 import api.racetime.RacetimeApi;
 import api.seventv.SevenTvApi;
+import api.src.SrcApi;
 import api.youtube.YoutubeApi;
 
 public class ApiManager {
@@ -12,6 +13,7 @@ public class ApiManager {
     private final SevenTvApi sevenTvApi;
     
     private final RacetimeApi racetimeApi;
+    private final SrcApi srcApi;
     private final YoutubeApi youtubeApi;
     
     public ApiManager() {
@@ -20,6 +22,7 @@ public class ApiManager {
         sevenTvApi = new SevenTvApi();
         
         racetimeApi = new RacetimeApi();
+        srcApi = new SrcApi();
         youtubeApi = new YoutubeApi();
     }
     
@@ -37,6 +40,10 @@ public class ApiManager {
     
     public RacetimeApi getRacetimeApi() {
         return racetimeApi;
+    }
+    
+    public SrcApi getSrcApi() {
+        return srcApi;
     }
     
     public YoutubeApi getYoutubeApi() {

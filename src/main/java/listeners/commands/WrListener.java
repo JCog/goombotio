@@ -1,5 +1,6 @@
 package listeners.commands;
 
+import api.src.SrcApi;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -7,7 +8,14 @@ import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
-import static api.SpeedrunApi.*;
+import static api.src.SrcEnums.BugFablesCategory.*;
+import static api.src.SrcEnums.OotCategory.OOT_ANY_PERCENT;
+import static api.src.SrcEnums.OotCategory.OOT_GLITCHLESS_AMQ;
+import static api.src.SrcEnums.PapeCategory.*;
+import static api.src.SrcEnums.PapeMemesCategory.*;
+import static api.src.SrcEnums.SmrpgCategory.SMRPG_NORMAL_RTA_TURBO;
+import static api.src.SrcEnums.SmsCategory.*;
+import static api.src.SrcEnums.TtydCategory.*;
 
 public class WrListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
@@ -24,10 +32,12 @@ public class WrListener extends CommandBase {
     private static final String GAME_ID_SMRPG_SWITCH = "1675405846";
 
     private final TwitchApi twitchApi;
+    private final SrcApi srcApi;
 
     public WrListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
         twitchApi = commonUtils.getTwitchApi();
+        srcApi = commonUtils.getApiManager().getSrcApi();
     }
 
     @Override
@@ -50,94 +60,97 @@ public class WrListener extends CommandBase {
         switch (gameId) {
             case GAME_ID_BUG_FABLES:
                 if (streamTitle.contains("100%") || streamTitle.contains("hundo") || streamTitle.contains("\uD83D\uDCAF")) {
-                    wrText = getWr(Game.BUG_FABLES, BugFablesCategory.HUNDO);
+                    wrText = srcApi.getWr(BF_HUNDO);
                 } else if (streamTitle.contains("glitchless")) {
-                    wrText = getWr(Game.BUG_FABLES, BugFablesCategory.GLITCHLESS);
+                    wrText = srcApi.getWr(BF_GLITCHLESS);
                 } else if (streamTitle.contains("bosses")) {
-                    wrText = getWr(Game.BUG_FABLES, BugFablesCategory.ALL_BOSSES);
+                    wrText = srcApi.getWr(BF_ALL_BOSSES);
                 } else if (streamTitle.contains("chapters")) {
-                    wrText = getWr(Game.BUG_FABLES, BugFablesCategory.ALL_CHAPTERS);
+                    wrText = srcApi.getWr(BF_ALL_CHAPTERS);
                 } else if (streamTitle.contains("mystery")) {
-                    wrText = getWr(Game.BUG_FABLES, BugFablesCategory.ANY_MYSTERY);
+                    wrText = srcApi.getWr(BF_ANY_MYSTERY);
                 } else if (streamTitle.contains("codes")) {
-                    wrText = getWr(Game.BUG_FABLES, BugFablesCategory.ANY_ALL_CODES);
+                    wrText = srcApi.getWr(BF_ANY_ALL_CODES);
                 } else if (streamTitle.contains("dll")) {
-                    wrText = getWr(Game.BUG_FABLES, BugFablesCategory.ANY_DLL);
+                    wrText = srcApi.getWr(BF_ANY_DLL);
                 } else {
-                    wrText = getWr(Game.BUG_FABLES, BugFablesCategory.ANY_PERCENT);
+                    wrText = srcApi.getWr(BF_ANY_PERCENT);
                 }
                 break;
             case GAME_ID_SUNSHINE:
-                if (streamTitle.contains("any%")) {
-                    wrText = getWr(Game.SUNSHINE, SunshineCategory.ANY_PERCENT);
-                } else if (streamTitle.contains("all episodes")) {
-                    wrText = getWr(Game.SUNSHINE, SunshineCategory.ALL_EPISODES);
+                if (streamTitle.contains("all episodes")) {
+                    wrText = srcApi.getWr(SMS_ALL_EPISODES);
                 } else if (streamTitle.contains("79")) {
-                    wrText = getWr(Game.SUNSHINE, SunshineCategory.SHINES_79);
+                    wrText = srcApi.getWr(SMS_SHINES_79);
                 } else if (streamTitle.contains("96")) {
-                    wrText = getWr(Game.SUNSHINE, SunshineCategory.SHINES_96);
+                    wrText = srcApi.getWr(SMS_SHINES_96);
                 } else if (streamTitle.contains("120")) {
-                    wrText = getWr(Game.SUNSHINE, SunshineCategory.SHINES_120);
+                    wrText = srcApi.getWr(SMS_SHINES_120);
+                } else {
+                    wrText = srcApi.getWr(SMS_ANY_PERCENT);
                 }
                 break;
             case GAME_ID_PAPER_MARIO:
                 if (streamTitle.contains("any% (no peach warp)") || streamTitle.contains("any% (no pw)")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT_NO_PW, PapeVariable.N64);
+                    wrText = srcApi.getWr(PAPE_ANY_PERCENT_NO_PW);
+                } else if (streamTitle.contains("any%") &&(streamTitle.contains("no ace") || streamTitle.contains("acephobic"))) {
+                    wrText = srcApi.getWr(PAPE_ANY_PERCENT);
                 } else if (streamTitle.contains("any% no rng") || streamTitle.contains("any% (no rng)")) {
-                    wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.ANY_NO_RNG, PapeVariable.N64);
-                } else if (streamTitle.contains("any%")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.ANY_PERCENT, PapeVariable.N64);
+                    wrText = srcApi.getWr(PAPE_ANY_NO_RNG);
                 } else if (streamTitle.contains("all cards") && !streamTitle.contains("reverse")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.ALL_CARDS, PapeVariable.N64);
+                    wrText = srcApi.getWr(PAPE_ALL_CARDS);
                 } else if (streamTitle.contains("all bosses")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.ALL_BOSSES, PapeVariable.N64);
+                    wrText = srcApi.getWr(PAPE_ALL_BOSSES);
                 } else if (streamTitle.contains("glitchless")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.GLITCHLESS, PapeVariable.N64);
+                    wrText = srcApi.getWr(PAPE_GLITCHLESS);
                 } else if (streamTitle.contains("100%")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.HUNDO, PapeVariable.N64);
+                    wrText = srcApi.getWr(PAPE_HUNDO);
                 } else if (streamTitle.contains("reverse") && streamTitle.contains("all cards")) {
-                    wrText = getWr(Game.PAPER_MARIO, PapeCategory.REVERSE_ALL_CARDS, PapeVariable.N64);
-                } else if (streamTitle.contains("pig") || streamTitle.contains("\uD83D\uDC37") || streamTitle.contains(
-                        "oink")) {
-                    wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.PIGGIES);
+                    wrText = srcApi.getWr(PAPE_REVERSE_ALL_CARDS);
+                } else if (streamTitle.contains("pig") || streamTitle.contains("\uD83D\uDC37") || streamTitle.contains("oink")) {
+                    wrText = srcApi.getWr(PAPE_PIGGIES);
                 } else if (streamTitle.contains("all bloops")) {
-                    wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.ALL_BLOOPS);
+                    wrText = srcApi.getWr(PAPE_ALL_BLOOPS);
                 } else if (streamTitle.contains("chapter 1")) {
-                    wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.BEAT_CHAPTER_1);
+                    wrText = srcApi.getWr(PAPE_BEAT_CHAPTER_1);
                 } else if (streamTitle.contains("soapcake") || streamTitle.contains("soap cake")) {
-                    wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.SOAP_CAKE);
+                    wrText = srcApi.getWr(PAPE_SOAP_CAKE);
                 } else if (streamTitle.contains("mailman") || streamTitle.contains("amazon prime")) {
-                    wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.MAILMAN);
+                    wrText = srcApi.getWr(PAPE_MAILMAN);
                 } else if (streamTitle.contains("no major sequence breaks") || streamTitle.contains("nmsb")) {
-                    wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.NMSB);
+                    wrText = srcApi.getWr(PAPE_NMSB);
                 } else if (streamTitle.contains("swop")) {
-                    wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.STOP_N_SWOP);
+                    wrText = srcApi.getWr(PAPE_STOP_N_SWOP);
+                } else {
+                    wrText = srcApi.getWr(PAPE_ANY_PERCENT);
                 }
                 break;
             case GAME_ID_TTYD:
-                if (streamTitle.contains("any%")) {
-                    wrText = getWr(Game.TTYD, TtydCategory.ANY_PERCENT);
-                } else if (streamTitle.contains("crystal stars")) {
-                    wrText = getWr(Game.TTYD, TtydCategory.ALL_CRYSTAL_STARS);
+                if (streamTitle.contains("crystal stars")) {
+                    wrText = srcApi.getWr(TTYD_ALL_CRYSTAL_STARS);
                 } else if (streamTitle.contains("100%") || streamTitle.contains("hundo")) {
-                    wrText = getWr(Game.TTYD, TtydCategory.HUNDO);
+                    wrText = srcApi.getWr(TTYD_HUNDO);
                 } else if (streamTitle.contains("glitchless")) {
-                    wrText = getWr(Game.TTYD, TtydCategory.GLITCHLESS);
+                    wrText = srcApi.getWr(TTYD_GLITCHLESS);
                 } else if (streamTitle.contains("collectibles")) {
-                    wrText = getWr(Game.TTYD, TtydCategory.ALL_COLLECTIBLES);
+                    wrText = srcApi.getWr(TTYD_ALL_COLLECTIBLES);
                 } else if (streamTitle.contains("upgrades")) {
-                    wrText = getWr(Game.TTYD, TtydCategory.MAX_UPGRADES);
+                    wrText = srcApi.getWr(TTYD_MAX_UPGRADES);
+                } else {
+                    wrText = srcApi.getWr(TTYD_ANY_PERCENT);
                 }
                 break;
             case GAME_ID_OOT:
                 if (streamTitle.contains("swop")) {
-                    wrText = getWr(Game.PAPER_MARIO_MEMES, PapeCategory.STOP_N_SWOP);
+                    wrText = srcApi.getWr(PAPE_STOP_N_SWOP);
+                } else if (streamTitle.contains("glitchless")){
+                    wrText = srcApi.getWr(OOT_GLITCHLESS_AMQ);
                 } else {
-                    wrText = getWr(Game.OOT, OotCategory.ANY_PERCENT);
+                    wrText = srcApi.getWr(OOT_ANY_PERCENT);
                 }
                 break;
             case GAME_ID_SMRPG_SWITCH:
-                wrText = getWr(Game.SMRPG, SmrpgCategory.NORMAL_RTA, SmrpgVariable.TURBO);
+                wrText = srcApi.getWr(SMRPG_NORMAL_RTA_TURBO);
                 break;
         }
     
