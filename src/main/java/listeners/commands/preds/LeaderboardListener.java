@@ -147,7 +147,7 @@ public class LeaderboardListener extends CommandBase {
     private String getGameId() {
         Stream stream;
         try {
-            stream = twitchApi.getStreamByUsername(twitchApi.getStreamerUser().getLogin());
+            stream = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId());
         } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             System.out.println("Error retrieving stream data");

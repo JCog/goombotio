@@ -231,7 +231,7 @@ public class MessageExpressionParser {
             case TYPE_UPTIME: {
                 Stream stream;
                 try {
-                    stream = twitchApi.getStreamByUsername(twitchApi.getStreamerUser().getLogin());
+                    stream = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId());
                 } catch (HystrixRuntimeException e) {
                     e.printStackTrace();
                     return "error retrieving stream data";

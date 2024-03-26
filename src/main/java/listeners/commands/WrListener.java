@@ -48,19 +48,18 @@ public class WrListener extends CommandBase {
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         Stream stream;
         try {
-            stream = twitchApi.getStreamByUsername(twitchApi.getStreamerUser().getLogin());
+            stream = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId());
         } catch (HystrixRuntimeException e) {
             e.printStackTrace();
             twitchApi.channelMessage("Error retrieving stream data");
             return;
         }
-        String streamTitle = "";
-        String gameId = "";
-        if (stream != null) {
-            streamTitle = stream.getTitle().toLowerCase();
-            gameId = stream.getGameId();
+        if (stream == null) {
+            return;
         }
         
+        String streamTitle = stream.getTitle().toLowerCase();
+        String gameId = stream.getGameId();
         SrcEnums.Category category = null;
         switch (gameId) {
             case GAME_ID_BUG_FABLES:

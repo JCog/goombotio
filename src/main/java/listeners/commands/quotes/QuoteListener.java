@@ -99,7 +99,7 @@ public class QuoteListener extends CommandBase {
                     //only allow VIPs to add quotes if the stream is live
                     if (
                             userLevel.value == USER_LEVEL.VIP.value &&
-                            twitchApi.getStreamByUsername(twitchApi.getStreamerUser().getLogin()) == null
+                            twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId()) == null
                     ) {
                         twitchApi.channelMessage(ERROR_NOT_LIVE);
                         break;

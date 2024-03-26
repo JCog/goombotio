@@ -46,7 +46,7 @@ public class PredsManagerListener extends CommandBase {
                     String gameId = "";
                     Stream stream;
                     try {
-                        stream = twitchApi.getStreamByUsername(twitchApi.getStreamerUser().getLogin());
+                        stream = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId());
                     } catch (HystrixRuntimeException e) {
                         e.printStackTrace();
                         twitchApi.channelMessage("Error retrieving current game");
