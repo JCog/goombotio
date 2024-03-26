@@ -28,7 +28,7 @@ public abstract class EmoteStatsDbBase extends GbCollection {
             usageStatsList.add(generateNewUsageStats(userId, monthKeyValue));
 
             Document mainDocument = new Document(ID_KEY, emoteId)
-                    .append(EMOTE_PATTERN_KEY, pattern)
+                    .append(EMOTE_PATTERN_KEY, pattern == null ? "" : pattern)
                     .append(USAGE_STATS_KEY, usageStatsList);
 
             insertOne(mainDocument);

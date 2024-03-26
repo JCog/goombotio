@@ -2,15 +2,17 @@ package listeners.events;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import database.emotes.BttvEmoteStatsDb;
+import database.emotes.EmoteStatsDb;
 import database.emotes.FfzEmoteStatsDb;
 import database.emotes.SevenTvEmoteStatsDb;
 import listeners.TwitchEventListener;
 import util.CommonUtils;
 
+import java.util.List;
 import java.util.Map;
 
 public class EmoteListener implements TwitchEventListener {
-//    private final EmoteStatsDb emoteStatsDb;
+    private final EmoteStatsDb emoteStatsDb;
     private final FfzEmoteStatsDb ffzEmoteStatsDb;
     private final SevenTvEmoteStatsDb sevenTvEmoteStatsDb;
     private final BttvEmoteStatsDb bttvEmoteStatsDb;
@@ -19,7 +21,7 @@ public class EmoteListener implements TwitchEventListener {
     private final Map<String, String> bttvEmotes;
 
     public EmoteListener(CommonUtils commonUtils) {
-//        emoteStatsDb = commonUtils.getDbManager().getEmoteStatsDb();
+        emoteStatsDb = commonUtils.getDbManager().getEmoteStatsDb();
         ffzEmoteStatsDb = commonUtils.getDbManager().getFfzEmoteStatsDb();
         sevenTvEmoteStatsDb = commonUtils.getDbManager().getSevenTvEmoteStatsDb();
         bttvEmoteStatsDb = commonUtils.getDbManager().getBttvEmoteStatsDb();
@@ -33,12 +35,15 @@ public class EmoteListener implements TwitchEventListener {
 
     @Override
     public void onChannelMessage(ChannelMessageEvent messageEvent) {
-        // Twitch4J doesn't supply data on what Twitch emotes are in a message, so can't easily track this anymore
-//        for (Emote emote : message.getEmotes()) {
-//            emoteStatsDb.addEmoteUsage(emote, sender.getUserID());
-//        }
-        String[] words = messageEvent.getMessage().split(" ");
         long userId = Long.parseLong(messageEvent.getUser().getId());
+        List<Map.Entry<String, Integer>> emoteUsages = TwitchEventListener.getEmoteUsageCounts(messageEvent);
+        for (Map.Entry<String, Integer> emote : emoteUsages) {
+            for (int i = 0; i < emote.getValue(); i++) {
+                emoteStatsDb.addEmoteUsage(emote.getKey(), null, userId);
+            }
+        }
+        
+        String[] words = messageEvent.getMessage().split(" ");
         for (String word : words) {
             if (ffzEmotes.containsKey(word)) {
                 ffzEmoteStatsDb.addEmoteUsage(ffzEmotes.get(word), word, userId);

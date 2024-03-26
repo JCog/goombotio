@@ -5,6 +5,8 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.chat.events.channel.ModAnnouncementEvent;
 import com.github.twitch4j.eventsub.events.*;
 
+import java.util.*;
+
 public interface TwitchEventListener {
     static String getDisplayName(ChannelMessageEvent messageEvent) {
         if (messageEvent.getMessageEvent().getUserDisplayName().isPresent()) {
@@ -12,6 +14,22 @@ public interface TwitchEventListener {
         } else {
             return messageEvent.getUser().getName();
         }
+    }
+    
+    static List<Map.Entry<String, Integer>> getEmoteUsageCounts(ChannelMessageEvent messageEvent) {
+        Optional<String> emotesTag = messageEvent.getMessageEvent().getTagValue("emotes");
+        if (emotesTag.isEmpty()) {
+            return new ArrayList<>();
+        }
+    
+        List<Map.Entry<String, Integer>> emoteUsages = new ArrayList<>();
+        String[] emotes = emotesTag.get().split("/");
+        for (String emote : emotes) {
+            String id = emote.split(":", 2)[0];
+            int usages = emote.split(",").length;
+            emoteUsages.add(new AbstractMap.SimpleEntry<>(id, usages));
+        }
+        return emoteUsages;
     }
     
     ////////////////// EventSub //////////////////
