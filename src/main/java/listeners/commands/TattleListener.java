@@ -83,31 +83,33 @@ public class TattleListener extends CommandBase {
                 break;
             }
             case PATTERN_ADD: {
-                if (userLevel == USER_LEVEL.BROADCASTER) {
-                    if (messageSplit.length < 3) {
-                        twitchApi.channelMessage("ERROR: not enough arguments");
-                        return;
-                    }
-
-                    User user = twitchApi.getUserByUsername(messageSplit[1]);
-                    if (user == null) {
-                        twitchApi.channelMessage(String.format("ERROR: unknown user \"%s\"", messageSplit[1]));
-                        return;
-                    }
-
-                    int start = trimmedMessage.indexOf('"');
-                    int end = trimmedMessage.lastIndexOf('"');
-                    if (start != end) { //valid quotes
-                        tattleDb.addTattle(user.getId(), trimmedMessage.substring(start + 1, end));
-                        twitchApi.channelMessage(String.format("Added tattle for %s", user.getDisplayName()));
-                    } else if (start == -1) { //no quotes
-                        twitchApi.channelMessage("ERROR: no quotation marks");
-                    } else { //one quote mark
-                        twitchApi.channelMessage("ERROR: not enough quotation marks");
-                    }
+                if (userLevel != USER_LEVEL.BROADCASTER) {
+                    return;
                 }
-                break;
+                
+                if (messageSplit.length < 3) {
+                    twitchApi.channelMessage("ERROR: not enough arguments");
+                    return;
+                }
+
+                User user = twitchApi.getUserByUsername(messageSplit[1]);
+                if (user == null) {
+                    twitchApi.channelMessage(String.format("ERROR: unknown user \"%s\"", messageSplit[1]));
+                    return;
+                }
+
+                int start = trimmedMessage.indexOf('"');
+                int end = trimmedMessage.lastIndexOf('"');
+                if (start != end) { //valid quotes
+                    tattleDb.addTattle(user.getId(), trimmedMessage.substring(start + 1, end));
+                    twitchApi.channelMessage(String.format("Added tattle for %s", user.getDisplayName()));
+                } else if (start == -1) { //no quotes
+                    twitchApi.channelMessage("ERROR: no quotation marks");
+                } else { //one quote mark
+                    twitchApi.channelMessage("ERROR: not enough quotation marks");
+                }
             }
+            break;
         }
     }
 

@@ -65,6 +65,11 @@ public abstract class CommandBase implements TwitchEventListener {
         if (exactContent.isEmpty()) {
             return;
         }
+        Set<String> badges = messageEvent.getMessageEvent().getBadges().keySet();
+        USER_LEVEL userLevel = TwitchUserLevel.getUserLevel(badges);
+        if (userLevel.value < minUserLevel.value) {
+            return;
+        }
         
         switch (cooldownType) {
             case PER_USER:
@@ -83,41 +88,37 @@ public abstract class CommandBase implements TwitchEventListener {
         
         String content = messageEvent.getMessage().toLowerCase(Locale.ENGLISH).trim();
         String command = content.split("\\s", 2)[0];
-        Set<String> badges = messageEvent.getMessageEvent().getBadges().keySet();
-        USER_LEVEL userLevel = TwitchUserLevel.getUserLevel(badges);
-    
-        if (userLevel.value >= minUserLevel.value) {
-            switch (commandType) {
-                case PREFIX_COMMAND:
-                    for (String pattern : commandPatterns) {
-                        if (command.equals(pattern)) {
-                            performCommand(pattern, userLevel, messageEvent);
-                            resetCooldown(messageEvent.getUser().getId());
-                            break; // We don't want to fire twice for the same message
-                        }
+        
+        switch (commandType) {
+            case PREFIX_COMMAND:
+                for (String pattern : commandPatterns) {
+                    if (command.equals(pattern)) {
+                        performCommand(pattern, userLevel, messageEvent);
+                        resetCooldown(messageEvent.getUser().getId());
+                        break; // We don't want to fire twice for the same message
                     }
-                    break;
-    
-                case CONTENT_COMMAND:
-                    for (String pattern : commandPatterns) {
-                        if (content.contains(pattern)) {
-                            performCommand(pattern, userLevel, messageEvent);
-                            resetCooldown(messageEvent.getUser().getId());
-                            break;
-                        }
+                }
+                break;
+
+            case CONTENT_COMMAND:
+                for (String pattern : commandPatterns) {
+                    if (content.contains(pattern)) {
+                        performCommand(pattern, userLevel, messageEvent);
+                        resetCooldown(messageEvent.getUser().getId());
+                        break;
                     }
-                    break;
-    
-                case EXACT_MATCH_COMMAND:
-                    for (String pattern : commandPatterns) {
-                        if (exactContent.equals(pattern)) {
-                            performCommand(pattern, userLevel, messageEvent);
-                            resetCooldown(messageEvent.getUser().getId());
-                            break;
-                        }
+                }
+                break;
+
+            case EXACT_MATCH_COMMAND:
+                for (String pattern : commandPatterns) {
+                    if (exactContent.equals(pattern)) {
+                        performCommand(pattern, userLevel, messageEvent);
+                        resetCooldown(messageEvent.getUser().getId());
+                        break;
                     }
-                    break;
-            }
+                }
+                break;
         }
     }
     

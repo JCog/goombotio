@@ -47,36 +47,38 @@ public class PyramidListener implements TwitchEventListener {
 
         switch (state) {
             case RISING:
-                //correct user, patterns are all the same, pattern is the correct one
-                if (Objects.equals(userId, sender.getId()) && allPatternsEqual(pattern, splitMessage)) {
-                    if (splitMessage.length == height + 1) {
-                        height += 1;
-                    } else if (splitMessage.length == height - 1 && height >= MIN_HEIGHT) {
-                        if (splitMessage.length == TRIGGER_HEIGHT) {
-                            interruptPyramid();
-                            resetState();
-                        } else {
-                            state = STATE.FALLING;
-                            height -= 1;
-                        }
-                    } else {
+                // correct user, patterns are all the same, pattern is the correct one
+                if (!Objects.equals(userId, sender.getId()) || !allPatternsEqual(pattern, splitMessage)) {
+                    resetState();
+                    break;
+                }
+                
+                if (splitMessage.length == height + 1) {
+                    height += 1;
+                } else if (splitMessage.length == height - 1 && height >= MIN_HEIGHT) {
+                    if (splitMessage.length == TRIGGER_HEIGHT) {
+                        interruptPyramid();
                         resetState();
+                    } else {
+                        state = STATE.FALLING;
+                        height -= 1;
                     }
                 } else {
                     resetState();
                 }
                 break;
             case FALLING:
-                //correct user, patterns are all the same, pattern is the correct one
-                if (Objects.equals(userId, sender.getId()) && allPatternsEqual(pattern, splitMessage)) {
-                    if (splitMessage.length == TRIGGER_HEIGHT) {
-                        interruptPyramid();
-                        resetState();
-                    } else if (splitMessage.length == height - 1) {
-                        height -= 1;
-                    } else {
-                        resetState();
-                    }
+                // correct user, patterns are all the same, pattern is the correct one
+                if (!Objects.equals(userId, sender.getId()) || !allPatternsEqual(pattern, splitMessage)) {
+                    resetState();
+                    break;
+                }
+                
+                if (splitMessage.length == TRIGGER_HEIGHT) {
+                    interruptPyramid();
+                    resetState();
+                } else if (splitMessage.length == height - 1) {
+                    height -= 1;
                 } else {
                     resetState();
                 }

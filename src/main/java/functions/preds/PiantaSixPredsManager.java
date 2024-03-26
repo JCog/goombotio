@@ -55,34 +55,35 @@ public class PiantaSixPredsManager extends PredsManagerBase {
                 List<TimeGuess> closestGuesses = getClosestGuesses(hundredths);
                 if (closestGuesses.size() == 0) {
                     message.append("Nobody guessed jcogRage");
-                } else {
-                    String difference = formatDifference(hundredths, closestGuesses.get(0).hundredths);
-                    switch (closestGuesses.size()) {
-                        case 1:
-                            message.append(String.format(
-                                    "Nobody won, but @%s was closest (+/- %ss)! jcogComfy",
-                                    closestGuesses.get(0).displayName,
-                                    difference
-                            ));
-                            break;
-                        case 2:
-                            message.append(String.format(
-                                    "Nobody won, but @%s and @%s were closest (+/- %ss)! jcogComfy",
-                                    closestGuesses.get(0).displayName,
-                                    closestGuesses.get(1).displayName,
-                                    difference
-                            ));
-                            break;
-                        default:
-                            message.append("Nobody won, but ");
-                            for (int i = 0; i < closestGuesses.size() - 1; i++) {
-                                message.append("@").append(closestGuesses.get(i).displayName).append(", ");
-                            }
-                            message.append("and @")
-                                    .append(closestGuesses.get(closestGuesses.size() - 1).displayName);
-                            message.append(String.format(" were closest (+/- %ss)! jcogComfy", difference));
-                            break;
-                    }
+                    break;
+                }
+                
+                String difference = formatDifference(hundredths, closestGuesses.get(0).hundredths);
+                switch (closestGuesses.size()) {
+                    case 1:
+                        message.append(String.format(
+                                "Nobody won, but @%s was closest (+/- %ss)! jcogComfy",
+                                closestGuesses.get(0).displayName,
+                                difference
+                        ));
+                        break;
+                    case 2:
+                        message.append(String.format(
+                                "Nobody won, but @%s and @%s were closest (+/- %ss)! jcogComfy",
+                                closestGuesses.get(0).displayName,
+                                closestGuesses.get(1).displayName,
+                                difference
+                        ));
+                        break;
+                    default:
+                        message.append("Nobody won, but ");
+                        for (int i = 0; i < closestGuesses.size() - 1; i++) {
+                            message.append("@").append(closestGuesses.get(i).displayName).append(", ");
+                        }
+                        message.append("and @")
+                                .append(closestGuesses.get(closestGuesses.size() - 1).displayName);
+                        message.append(String.format(" were closest (+/- %ss)! jcogComfy", difference));
+                        break;
                 }
                 break;
             case 1:
@@ -125,21 +126,24 @@ public class PiantaSixPredsManager extends PredsManagerBase {
     @Override
     public void makePredictionIfValid(String userId, String displayName, String message) {
         String guess = message.replaceAll("[^0-9]", "");
-        if (guess.length() == 5) {
-            int secondDigit = Character.getNumericValue(guess.charAt(1));
-            if (secondDigit > 5) {
-                return;
-            }
-            int minutes = Character.getNumericValue(guess.charAt(0));
-            int seconds = Integer.parseInt(guess.substring(1, 3));
-            int hundredths = Integer.parseInt(guess.substring(3, 5)) + (seconds * 100) + (minutes * 60 * 100);
-            System.out.printf("%s has predicted %d hundredths%n", displayName, hundredths);
-
-            if (predictionList.containsKey(userId)) {
-                out.printf("Replacing duplicate guess by %s%n", displayName);
-            }
-            predictionList.put(userId, new TimeGuess(displayName, hundredths));
+        if (guess.length() != 5) {
+            return;
         }
+        
+        int secondDigit = Character.getNumericValue(guess.charAt(1));
+        if (secondDigit > 5) {
+            return;
+        }
+        
+        int minutes = Character.getNumericValue(guess.charAt(0));
+        int seconds = Integer.parseInt(guess.substring(1, 3));
+        int hundredths = Integer.parseInt(guess.substring(3, 5)) + (seconds * 100) + (minutes * 60 * 100);
+        System.out.printf("%s has predicted %d hundredths%n", displayName, hundredths);
+
+        if (predictionList.containsKey(userId)) {
+            out.printf("Replacing duplicate guess by %s%n", displayName);
+        }
+        predictionList.put(userId, new TimeGuess(displayName, hundredths));
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,24 +171,26 @@ public class PiantaSixPredsManager extends PredsManagerBase {
                 pointsToAdd = POINTS_10_SECONDS;
             }
             
-            if (pointsToAdd != 0) {
-                piantaSixLeaderboardDb.addPoints(userId, displayName, pointsToAdd);
-                if (secondsWithin == 0) {
-                    winners.add(displayName);
-                    piantaSixLeaderboardDb.addWin(userId, displayName);
-                    out.printf(
-                            "%s guessed exactly correct. Adding %d points and a win.%n",
-                            displayName,
-                            POINTS_CORRECT
-                    );
-                } else {
-                    out.printf(
-                            "%s was within %d seconds. Adding %d points%n",
-                            displayName,
-                            secondsWithin,
-                            pointsToAdd
-                    );
-                }
+            if (pointsToAdd == 0) {
+                break;
+            }
+            
+            piantaSixLeaderboardDb.addPoints(userId, displayName, pointsToAdd);
+            if (secondsWithin == 0) {
+                winners.add(displayName);
+                piantaSixLeaderboardDb.addWin(userId, displayName);
+                out.printf(
+                        "%s guessed exactly correct. Adding %d points and a win.%n",
+                        displayName,
+                        POINTS_CORRECT
+                );
+            } else {
+                out.printf(
+                        "%s was within %d seconds. Adding %d points%n",
+                        displayName,
+                        secondsWithin,
+                        pointsToAdd
+                );
             }
         }
         return winners;

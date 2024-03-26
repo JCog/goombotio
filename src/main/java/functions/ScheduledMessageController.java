@@ -84,7 +84,6 @@ public class ScheduledMessageController implements TwitchEventListener {
     }
 
     private void postRandomMsg() {
-        //there's definitely a more memory-efficient way to do this, but eh
         List<ScheduledMessage> choices = new ArrayList<>();
         for (ScheduledMessage message : socialSchedulerDb.getAllMessages()) {
             if (!message.getId().equals(previousId)) {

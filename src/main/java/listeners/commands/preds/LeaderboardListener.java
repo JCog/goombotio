@@ -76,51 +76,55 @@ public class LeaderboardListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+        if (leaderboard == null) {
+            twitchApi.channelMessage(PREDS_MESSAGE_DEFAULT);
+            return;
+        }
+        
         String chatMessage = "";
         String userId = messageEvent.getUser().getId();
         String displayName = TwitchEventListener.getDisplayName(messageEvent);
 
         updateLeaderboardType();
-        if (leaderboard == null) {
-            chatMessage = PREDS_MESSAGE_DEFAULT;
-        } else {
-            switch (command) {
-                // TODO: figure out what to do with the preds leaderboard commands. they're kind of a mess right now.
-//                case PATTERN_LEADERBOARD:
-//                    chatMessage = PredsManagerBase.buildMonthlyLeaderboardString(
-//                            leaderboard,
-//                            dbManager.getPermanentVipsDb(),
-//                            twitchApi,
-//                            streamerUser
-//                    );
-//                    break;
-//
-//                case PATTERN_POINTS:
-//                    chatMessage = buildPointsString(userId, displayName);
-//                    break;
         
-                case PATTERN_PREDS:
-                    if (userLevel != USER_LEVEL.BROADCASTER) {
-                        switch (getGameId()) {
-                            case GAME_ID_OOT:
-                                chatMessage = PREDS_MESSAGE_OOT;
-                                break;
-                            case GAME_ID_PAPER_MARIO:
-                                chatMessage = PREDS_MESSAGE_PAPE;
-                                break;
-                            case GAME_ID_SUNSHINE:
-                                chatMessage = PREDS_MESSAGE_SMS;
-                                break;
-                            case GAME_ID_SMRPG_SWITCH:
-                                chatMessage = PREDS_MESSASGE_SMRPG_SWITCH;
-                                break;
-                            default:
-                                chatMessage = PREDS_MESSAGE_DEFAULT;
-                                break;
-                        }
-                    }
+        switch (command) {
+            // TODO: figure out what to do with the preds leaderboard commands. they're kind of a mess right now.
+//            case PATTERN_LEADERBOARD:
+//                chatMessage = PredsManagerBase.buildMonthlyLeaderboardString(
+//                        leaderboard,
+//                        dbManager.getPermanentVipsDb(),
+//                        twitchApi,
+//                        streamerUser
+//                );
+//                break;
+//
+//            case PATTERN_POINTS:
+//                chatMessage = buildPointsString(userId, displayName);
+//                break;
+    
+            case PATTERN_PREDS:
+                if (userLevel == USER_LEVEL.BROADCASTER) {
                     break;
-            }
+                }
+                
+                switch (getGameId()) {
+                    case GAME_ID_OOT:
+                        chatMessage = PREDS_MESSAGE_OOT;
+                        break;
+                    case GAME_ID_PAPER_MARIO:
+                        chatMessage = PREDS_MESSAGE_PAPE;
+                        break;
+                    case GAME_ID_SUNSHINE:
+                        chatMessage = PREDS_MESSAGE_SMS;
+                        break;
+                    case GAME_ID_SMRPG_SWITCH:
+                        chatMessage = PREDS_MESSASGE_SMRPG_SWITCH;
+                        break;
+                    default:
+                        chatMessage = PREDS_MESSAGE_DEFAULT;
+                        break;
+                }
+                break;
         }
         twitchApi.channelMessage(chatMessage);
     }
