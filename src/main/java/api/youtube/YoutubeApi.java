@@ -1,7 +1,9 @@
 package api.youtube;
 
+import api.youtube.video.Item;
+import api.youtube.video.Video;
+import api.youtube.video.VideoInterface;
 import jakarta.ws.rs.ClientErrorException;
-import jakarta.ws.rs.client.ClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
@@ -12,8 +14,7 @@ public class YoutubeApi {
     
     private final VideoInterface proxy;
     
-    public YoutubeApi() {
-        ResteasyClient client = (ResteasyClient) ClientBuilder.newClient();
+    public YoutubeApi(ResteasyClient client) {
         ResteasyWebTarget target = client.target(BASE_URI);
         proxy = target.proxy(VideoInterface.class);
     }

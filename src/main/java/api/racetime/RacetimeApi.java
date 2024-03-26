@@ -1,7 +1,12 @@
 package api.racetime;
 
+import api.racetime.gamedata.GameData;
+import api.racetime.gamedata.GameDataInterface;
+import api.racetime.gamedata.Race;
+import api.racetime.racedata.Entrant;
+import api.racetime.racedata.RaceData;
+import api.racetime.racedata.RaceDataInterface;
 import jakarta.ws.rs.ClientErrorException;
-import jakarta.ws.rs.client.ClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
@@ -14,8 +19,7 @@ public class RacetimeApi {
     private final GameDataInterface gameDataProxy;
     private final RaceDataInterface raceDataProxy;
     
-    public RacetimeApi() {
-        ResteasyClient client = (ResteasyClient) ClientBuilder.newClient();
+    public RacetimeApi(ResteasyClient client) {
         ResteasyWebTarget target = client.target(BASE_URI);
         gameDataProxy = target.proxy(GameDataInterface.class);
         raceDataProxy = target.proxy(RaceDataInterface.class);

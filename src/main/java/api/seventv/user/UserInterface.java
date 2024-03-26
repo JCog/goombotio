@@ -1,4 +1,4 @@
-package api.seventv;
+package api.seventv.user;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -11,5 +11,5 @@ public interface UserInterface {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{userId}")
-    public User getUserById(@PathParam("userId") String userId);
+    User getUserById(@PathParam("userId") String userId);
 }

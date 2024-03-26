@@ -1,7 +1,9 @@
 package api.bttv;
 
+import api.bttv.user.Emote;
+import api.bttv.user.User;
+import api.bttv.user.UserInterface;
 import jakarta.ws.rs.ClientErrorException;
-import jakarta.ws.rs.client.ClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
@@ -15,8 +17,7 @@ public class BttvApi {
     
     private final UserInterface proxy;
     
-    public BttvApi() {
-        ResteasyClient client = (ResteasyClient) ClientBuilder.newClient();
+    public BttvApi(ResteasyClient client) {
         ResteasyWebTarget target = client.target(BASE_URI);
         proxy = target.proxy(UserInterface.class);
     }

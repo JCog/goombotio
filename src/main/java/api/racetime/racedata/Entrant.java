@@ -1,4 +1,4 @@
-package api.racetime;
+package api.racetime.racedata;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

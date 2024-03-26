@@ -1,7 +1,9 @@
 package api.seventv;
 
+import api.seventv.user.Emote;
+import api.seventv.user.User;
+import api.seventv.user.UserInterface;
 import jakarta.ws.rs.ClientErrorException;
-import jakarta.ws.rs.client.ClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
@@ -15,8 +17,7 @@ public class SevenTvApi {
     
     private final UserInterface proxy;
     
-    public SevenTvApi() {
-        ResteasyClient client = (ResteasyClient) ClientBuilder.newClient();
+    public SevenTvApi(ResteasyClient client) {
         ResteasyWebTarget target = client.target(BASE_URI);
         proxy = target.proxy(UserInterface.class);
     }

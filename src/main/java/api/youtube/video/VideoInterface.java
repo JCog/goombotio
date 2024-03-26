@@ -1,4 +1,4 @@
-package api.youtube;
+package api.youtube.video;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -10,7 +10,7 @@ public interface VideoInterface {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("videos")
-    public Video getVideoById(
+    Video getVideoById(
             @QueryParam("id") String videoId,
             @QueryParam("key") String apiKey,
             @QueryParam("part") String part

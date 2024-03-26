@@ -1,4 +1,4 @@
-package api.racetime;
+package api.racetime.racedata;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -10,5 +10,5 @@ public interface RaceDataInterface {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{raceDataUrl}")
-    public RaceData getRaceData(@PathParam("raceDataUrl") String raceDataUrl);
+    RaceData getRaceData(@PathParam("raceDataUrl") String raceDataUrl);
 }

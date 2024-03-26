@@ -6,6 +6,8 @@ import api.racetime.RacetimeApi;
 import api.seventv.SevenTvApi;
 import api.src.SrcApi;
 import api.youtube.YoutubeApi;
+import jakarta.ws.rs.client.ClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 
 public class ApiManager {
     private final FfzApi ffzApi;
@@ -17,13 +19,14 @@ public class ApiManager {
     private final YoutubeApi youtubeApi;
     
     public ApiManager() {
-        ffzApi = new FfzApi();
-        bttvApi = new BttvApi();
-        sevenTvApi = new SevenTvApi();
+        ResteasyClient client = (ResteasyClient) ClientBuilder.newClient();
+        ffzApi = new FfzApi(client);
+        bttvApi = new BttvApi(client);
+        sevenTvApi = new SevenTvApi(client);
         
-        racetimeApi = new RacetimeApi();
-        srcApi = new SrcApi();
-        youtubeApi = new YoutubeApi();
+        racetimeApi = new RacetimeApi(client);
+        srcApi = new SrcApi(client);
+        youtubeApi = new YoutubeApi(client);
     }
     
     public FfzApi getFfzApi() {

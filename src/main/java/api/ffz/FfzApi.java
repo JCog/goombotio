@@ -1,7 +1,9 @@
 package api.ffz;
 
+import api.ffz.room.Emoticon;
+import api.ffz.room.Room;
+import api.ffz.room.RoomInterface;
 import jakarta.ws.rs.ClientErrorException;
-import jakarta.ws.rs.client.ClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
@@ -15,8 +17,7 @@ public class FfzApi {
     
     private final RoomInterface proxy;
     
-    public FfzApi() {
-        ResteasyClient client = (ResteasyClient) ClientBuilder.newClient();
+    public FfzApi(ResteasyClient client) {
         ResteasyWebTarget target = client.target(BASE_URI);
         proxy = target.proxy(RoomInterface.class);
     }

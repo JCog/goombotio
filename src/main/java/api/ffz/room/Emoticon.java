@@ -1,4 +1,4 @@
-package api.ffz;
+package api.ffz.room;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

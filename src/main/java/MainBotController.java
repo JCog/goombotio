@@ -103,7 +103,7 @@ public class MainBotController {
     private void registerListeners() {
         MessageExpressionParser messageExpressionParser = new MessageExpressionParser(commonUtils);
         
-        // BitWarResetCommandListener and MinecraftListener currently unused
+        // BitWarResetCommandListener currently unused
         PredsGuessListener predsGuessListener = new PredsGuessListener();
         TwitchEventListener[] listeners = {
                 // Setup

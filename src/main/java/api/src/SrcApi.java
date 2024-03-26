@@ -6,7 +6,6 @@ import api.src.category.Run;
 import api.src.user.User;
 import api.src.user.UserInterface;
 import jakarta.ws.rs.ClientErrorException;
-import jakarta.ws.rs.client.ClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
@@ -22,8 +21,7 @@ public class SrcApi {
     private final UserInterface userProxy;
     
     
-    public SrcApi() {
-        ResteasyClient client = (ResteasyClient) ClientBuilder.newClient();
+    public SrcApi(ResteasyClient client) {
         ResteasyWebTarget target = client.target(BASE_URI);
         categoryProxy = target.proxy(CategoryInterface.class);
         userProxy = target.proxy(UserInterface.class);
