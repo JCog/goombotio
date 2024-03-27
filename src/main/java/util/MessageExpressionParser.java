@@ -218,11 +218,15 @@ public class MessageExpressionParser {
                     return ERROR_NON_COMMAND;
                 }
                 if (userArgs.length > 1) {
-                    if (userArgs[1].startsWith("@")) {
-                        return userArgs[1].substring(1);
-                    } else {
-                        return userArgs[1];
+                    String username = userArgs[1].startsWith("@") ? userArgs[1].substring(1) : userArgs[1];
+                    User user;
+                    try {
+                        user = twitchApi.getUserByUsername(username);
+                    } catch (HystrixRuntimeException e) {
+                        e.printStackTrace();
+                        return "error retrieving user data";
                     }
+                    return user == null ? username : user.getDisplayName();
                 } else {
                     return TwitchEventListener.getDisplayName(messageEvent);
                 }
