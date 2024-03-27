@@ -19,10 +19,10 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -262,8 +262,8 @@ public class MessageExpressionParser {
             }
             case TYPE_WEIGHTED: {
                 String[] entries = content.split("\\|");
-                List<Integer> weights = new ArrayList<>();
-                List<String> messages = new ArrayList<>();
+                int totalWeight = 0;
+                NavigableMap<Integer, String> messageMap = new TreeMap<>();
                 for (String entry : entries) {
                     String[] weightMessage = entry.split("\\s", 2);
                     if (weightMessage.length != 2) {
@@ -277,20 +277,12 @@ public class MessageExpressionParser {
                         return ERROR_INVALID_WEIGHT;
                     }
 
-                    weights.add(weight);
-                    messages.add(weightMessage[1]);
+                    totalWeight += weight;
+                    messageMap.put(totalWeight, weightMessage[1]);
                 }
 
-                int totalWeight = weights.stream().mapToInt(a -> a).sum();
                 int selection = random.nextInt(totalWeight);
-                for (int i = 0; i < weights.size(); i++) {
-                    if (selection < weights.get(i)) {
-                        return messages.get(i);
-                    } else {
-                        selection -= weights.get(i);
-                    }
-                }
-                return ERROR;
+                return messageMap.higherEntry(selection).getValue();
             }
             default: {
                 return ERROR;

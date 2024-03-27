@@ -12,10 +12,10 @@ import util.TwitchApi;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.NavigableMap;
 import java.util.Random;
 import java.util.TimerTask;
+import java.util.TreeMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -84,19 +84,19 @@ public class ScheduledMessageController implements TwitchEventListener {
     }
 
     private void postRandomMsg() {
-        List<ScheduledMessage> choices = new ArrayList<>();
+        int totalWeight = 0;
+        NavigableMap<Integer, ScheduledMessage> messageMap = new TreeMap<>();
         for (ScheduledMessage message : socialSchedulerDb.getAllMessages()) {
             if (!message.getId().equals(previousId)) {
-                for (int i = 0; i < message.getWeight(); i++) {
-                    choices.add(message);
-                }
+                totalWeight += message.getWeight();
+                messageMap.put(totalWeight, message);
             }
         }
 
-        int selection = random.nextInt(choices.size());
-        String message = choices.get(selection).getMessage();
-        twitchApi.channelAnnouncement(commandParser.parse(message));
-        previousId = choices.get(selection).getId();
+        int selection = random.nextInt(totalWeight);
+        ScheduledMessage message = messageMap.higherEntry(selection).getValue();
+        twitchApi.channelAnnouncement(commandParser.parse(message.getMessage()));
+        previousId = message.getId();
     }
     
     private void postAfterRaidMsg() {
