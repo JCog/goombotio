@@ -41,19 +41,20 @@ public class GenericCommandListener implements TwitchEventListener {
             return;
         }
         
+        Set<String> badges = messageEvent.getMessageEvent().getBadges().keySet();
+        USER_LEVEL userLevel = TwitchUserLevel.getUserLevel(badges);
+        CommandItem commandItem = commandDb.getCommandItem(command);
+        if (commandItem == null || cooldownActive(commandItem) || !userHasPermission(userLevel, commandItem)) {
+            return;
+        }
+    
+        // TODO: replace this with code that actually escapes user input properly
         if (messageEvent.getMessage().matches(".*[()].*")) {
             String displayName = TwitchEventListener.getDisplayName(messageEvent);
             twitchApi.channelMessage(String.format(
                     "@%s Please don't use parentheses when using commands.",
                     displayName
             ));
-            return;
-        }
-        
-        Set<String> badges = messageEvent.getMessageEvent().getBadges().keySet();
-        USER_LEVEL userLevel = TwitchUserLevel.getUserLevel(badges);
-        CommandItem commandItem = commandDb.getCommandItem(command);
-        if (commandItem == null || cooldownActive(commandItem) || !userHasPermission(userLevel, commandItem)) {
             return;
         }
         

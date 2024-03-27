@@ -94,7 +94,6 @@ public class MessageExpressionParser {
                 return ERROR_EVAL_LIMIT_EXCEEDED;
             }
             String replacement = evaluateExpression(expression, messageEvent, commandItem);
-            //TODO: check to see if replaceFirst causes a bug
             output = output.replaceFirst(
                     Pattern.quote("$(" + expression + ")"),
                     Matcher.quoteReplacement(replacement)
