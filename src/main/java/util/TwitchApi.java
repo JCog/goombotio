@@ -94,15 +94,16 @@ public class TwitchApi {
         eventSocket.register(SubscriptionTypes.CHANNEL_CHEER.prepareSubscription(
                 b -> b.broadcasterUserId(streamerUser.getId()).build(), null
         ));
-        eventSocket.register(SubscriptionTypes.CHANNEL_SUBSCRIBE.prepareSubscription(
-                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
-        ));
         eventSocket.register(SubscriptionTypes.CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD.prepareSubscription(
                 b -> b.broadcasterUserId(streamerUser.getId()).build(), null
         ));
-        eventSocket.register(SubscriptionTypes.CHANNEL_SUBSCRIPTION_MESSAGE.prepareSubscription(
-                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
-        ));
+        // readd for EventSub
+//        eventSocket.register(SubscriptionTypes.CHANNEL_SUBSCRIBE.prepareSubscription(
+//                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
+//        ));
+//        eventSocket.register(SubscriptionTypes.CHANNEL_SUBSCRIPTION_MESSAGE.prepareSubscription(
+//                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
+//        ));
         eventSocket.register(SubscriptionTypes.CHANNEL_SUBSCRIPTION_GIFT.prepareSubscription(
                 b -> b.broadcasterUserId(streamerUser.getId()).build(), null
         ));
@@ -232,7 +233,21 @@ public class TwitchApi {
     }
     
     public List<BannedUser> getBannedUsers() throws HystrixRuntimeException {
-        return getBannedUsers(null);
+        String cursor = null;
+        List<BannedUser> bannedUsers = new ArrayList<>();
+        do {
+            BannedUserList followList = twitchClient.getHelix().getBannedUsers(
+                    channelAuthToken,
+                    streamerUser.getId(),
+                    null,
+                    cursor,
+                    null,
+                    100
+            ).execute();
+            cursor = followList.getPagination().getCursor();
+            bannedUsers.addAll(followList.getResults());
+        } while (cursor != null);
+        return bannedUsers;
     }
     
     public List<BannedUser> getBannedUsers(List<String> userIds) throws HystrixRuntimeException {
