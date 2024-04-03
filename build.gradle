@@ -39,6 +39,7 @@ dependencies {
     implementation group: 'com.fathzer', name: 'javaluator', version: '3.0.3'
     implementation group: 'org.jboss.resteasy', name: 'resteasy-client', version: '6.2.8.Final'
     implementation group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '6.2.8.Final'
+    implementation group: 'commons-cli', name: 'commons-cli', version: '1.6.0'
 }
 
 jar {

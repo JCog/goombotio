@@ -24,7 +24,7 @@ public class CommandDb extends GbCollection {
         super(gbDatabase, COLLECTION_NAME);
     }
 
-    public String addCommand(String id, String message, long cooldown, TwitchUserLevel.USER_LEVEL userLevel) {
+    public String addCommand(String id, String message, Long cooldown, TwitchUserLevel.USER_LEVEL userLevel) {
         if (getCommand(id) != null) {
             return "ERROR: Message ID already exists.";
         }
@@ -42,108 +42,24 @@ public class CommandDb extends GbCollection {
         );
     }
 
-    public String editCommand(String id, String message, long cooldown, TwitchUserLevel.USER_LEVEL userLevel) {
+    public String editCommand(String id, String message, Long cooldown, TwitchUserLevel.USER_LEVEL userLevel) {
         if (getCommand(id) == null) {
             return "ERROR: Message ID doesn't exist.";
         }
 
-        Document document = new Document(ID_KEY, id)
-                .append(MESSAGE_KEY, message)
-                .append(COOLDOWN_KEY, cooldown)
-                .append(PERMISSION_KEY, userLevel.value);
-        updateOne(id, document);
-        return String.format(
-                "Successfully edited command message for \"%s\", set cooldown to %ds, and set user level to \"%s\".",
-                id,
-                cooldown,
-                userLevel
-        );
-
-    }
-
-    public String editCommand(String id, String message, long cooldown) {
-        if (getCommand(id) == null) {
-            return "ERROR: Message ID doesn't exist.";
+        Document document = new Document(ID_KEY, id);
+        if (message != null) {
+            document.append(MESSAGE_KEY, message);
         }
-
-        Document document = new Document(ID_KEY, id)
-                .append(MESSAGE_KEY, message)
-                .append(COOLDOWN_KEY, cooldown);
-        updateOne(id, document);
-        return String.format(
-                "Successfully edited command message for \"%s\" and set cooldown to %ds.",
-                id,
-                cooldown
-        );
-
-    }
-
-    public String editCommand(String id, String message, TwitchUserLevel.USER_LEVEL userLevel) {
-        if (getCommand(id) == null) {
-            return "ERROR: Message ID doesn't exist.";
+        if (cooldown != null) {
+            document.append(COOLDOWN_KEY, cooldown);
         }
-
-        Document document = new Document(ID_KEY, id)
-                .append(MESSAGE_KEY, message)
-                .append(PERMISSION_KEY, userLevel.value);
-        updateOne(id, document);
-        return String.format(
-                "Successfully edited command message for \"%s\" and set user level to \"%s\".",
-                id,
-                userLevel
-        );
-
-    }
-
-    public String editCommand(String id, long cooldown, TwitchUserLevel.USER_LEVEL userLevel) {
-        if (getCommand(id) == null) {
-            return "ERROR: Message ID doesn't exist.";
+        if (userLevel != null) {
+            document.append(PERMISSION_KEY, userLevel.value);
         }
-
-        Document document = new Document(ID_KEY, id)
-                .append(COOLDOWN_KEY, cooldown)
-                .append(PERMISSION_KEY, userLevel.value);
         updateOne(id, document);
-        return String.format(
-                "Successfully edited \"%s\": set cooldown to %ds and set user level to \"%s\".",
-                id,
-                cooldown,
-                userLevel
-        );
+        return String.format("Successfully edited command \"%s\"", id);
 
-    }
-
-    public String editCommand(String id, String message) {
-        if (getCommand(id) == null) {
-            return "ERROR: Message ID doesn't exist.";
-        }
-
-        Document document = new Document(ID_KEY, id)
-                .append(MESSAGE_KEY, message);
-        updateOne(id, document);
-        return String.format("Successfully edited command message for \"%s\".", id);
-    }
-
-    public String editCommand(String id, long cooldown) {
-        if (getCommand(id) == null) {
-            return "ERROR: Message ID doesn't exist.";
-        }
-
-        Document document = new Document(ID_KEY, id)
-                .append(COOLDOWN_KEY, cooldown);
-        updateOne(id, document);
-        return String.format("Successfully edited \"%s\": set cooldown to %ds.", id, cooldown);
-    }
-
-    public String editCommand(String id, TwitchUserLevel.USER_LEVEL userLevel) {
-        if (getCommand(id) == null) {
-            return "ERROR: Message ID doesn't exist.";
-        }
-
-        Document document = new Document(ID_KEY, id)
-                .append(PERMISSION_KEY, userLevel.value);
-        updateOne(id, document);
-        return String.format("Successfully edited \"%s\": set user level to \"%s\".", id, userLevel);
     }
 
     public String deleteCommand(String id) {
