@@ -228,7 +228,7 @@ public class MessageExpressionParser {
                     }
                     return user == null ? username : user.getDisplayName();
                 } else {
-                    return TwitchEventListener.getDisplayName(messageEvent);
+                    return TwitchEventListener.getDisplayName(messageEvent.getMessageEvent());
                 }
             }
             case TYPE_UPTIME: {
@@ -252,7 +252,7 @@ public class MessageExpressionParser {
                 if (messageEvent == null) {
                     return ERROR_NON_COMMAND;
                 }
-                return TwitchEventListener.getDisplayName(messageEvent);
+                return TwitchEventListener.getDisplayName(messageEvent.getMessageEvent());
             }
             case TYPE_USER_ID: {
                 if (messageEvent == null) {
@@ -309,41 +309,41 @@ public class MessageExpressionParser {
             return String.format("Error retrieving follow age for %s", userName);
         }
 
-        if (follow != null) {
-            LocalDate followDate = follow.getFollowedAt().atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalDate today = LocalDate.now();
-            Period period = Period.between(followDate, today);
-            int years = period.getYears();
-            int months = period.getMonths();
-            int days = period.getDays();
-            if (years == 0 && months == 0 && days == 0) {
-                return String.format(
-                        "%s followed %s today",
-                        user.getDisplayName(),
-                        twitchApi.getStreamerUser().getDisplayName()
-                );
-            }
-            StringBuilder timeString = new StringBuilder();
-            timeString.append(years > 0 ? String.format("%d year%s, ", years, years > 1 ? "s" : "") : "");
-            timeString.append(months > 0 ? String.format("%d month%s, ", months, months > 1 ? "s" : "") : "");
-            timeString.append(days > 0 ? String.format("%d day%s", days, days > 1 ? "s" : "") : "");
-            if (timeString.charAt(timeString.length() - 1) == ' ') {
-                timeString.deleteCharAt(timeString.length() - 1);
-                timeString.deleteCharAt(timeString.length() - 1);
-            }
-            return String.format(
-                    "%s has been following %s for %s",
-                    user.getDisplayName(),
-                    twitchApi.getStreamerUser().getDisplayName(),
-                    timeString
-            );
-        } else {
+        if (follow == null) {
             return String.format(
                     "%s is not following %s",
                     user.getDisplayName(),
                     twitchApi.getStreamerUser().getDisplayName()
             );
         }
+        
+        LocalDate followDate = follow.getFollowedAt().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate today = LocalDate.now();
+        Period period = Period.between(followDate, today);
+        int years = period.getYears();
+        int months = period.getMonths();
+        int days = period.getDays();
+        if (years == 0 && months == 0 && days == 0) {
+            return String.format(
+                    "%s followed %s today",
+                    user.getDisplayName(),
+                    twitchApi.getStreamerUser().getDisplayName()
+            );
+        }
+        StringBuilder timeString = new StringBuilder();
+        timeString.append(years > 0 ? String.format("%d year%s, ", years, years > 1 ? "s" : "") : "");
+        timeString.append(months > 0 ? String.format("%d month%s, ", months, months > 1 ? "s" : "") : "");
+        timeString.append(days > 0 ? String.format("%d day%s", days, days > 1 ? "s" : "") : "");
+        if (timeString.charAt(timeString.length() - 1) == ' ') {
+            timeString.deleteCharAt(timeString.length() - 1);
+            timeString.deleteCharAt(timeString.length() - 1);
+        }
+        return String.format(
+                "%s has been following %s for %s",
+                user.getDisplayName(),
+                twitchApi.getStreamerUser().getDisplayName(),
+                timeString
+        );
     }
 
     private static String getNextExpression(String input) {

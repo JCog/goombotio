@@ -50,7 +50,7 @@ public class GenericCommandListener implements TwitchEventListener {
     
         // TODO: replace this with code that actually escapes user input properly
         if (messageEvent.getMessage().matches(".*[()].*")) {
-            String displayName = TwitchEventListener.getDisplayName(messageEvent);
+            String displayName = TwitchEventListener.getDisplayName(messageEvent.getMessageEvent());
             twitchApi.channelMessage(String.format(
                     "@%s Please don't use parentheses when using commands.",
                     displayName

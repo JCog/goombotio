@@ -10,6 +10,7 @@ import com.github.twitch4j.chat.TwitchChatBuilder;
 import com.github.twitch4j.chat.events.channel.ChannelMessageActionEvent;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.chat.events.channel.ModAnnouncementEvent;
+import com.github.twitch4j.chat.events.channel.SubscriptionEvent;
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
 import com.github.twitch4j.eventsub.events.*;
 import com.github.twitch4j.eventsub.socket.IEventSubSocket;
@@ -125,14 +126,17 @@ public class TwitchApi {
         eventSubEvents.onEvent(ChannelUpdateV2Event.class, eventListener::onChannelUpdate);
         eventSubEvents.onEvent(CustomRewardRedemptionAddEvent.class, eventListener::onChannelPointsRedemption);
         eventSubEvents.onEvent(ChannelCheerEvent.class, eventListener::onCheer);
-        eventSubEvents.onEvent(ChannelSubscribeEvent.class, eventListener::onSubscribe);
-        eventSubEvents.onEvent(ChannelSubscriptionMessageEvent.class, eventListener::onResubscribe);
+        // redo sub events with EventSub if Twitch ever decides to make them work in a sensible way
+//        eventSubEvents.onEvent(ChannelSubscribeEvent.class, eventListener::onSubscribe);
+//        eventSubEvents.onEvent(ChannelSubscriptionMessageEvent.class, eventListener::onResubscribe);
         eventSubEvents.onEvent(ChannelSubscriptionGiftEvent.class, eventListener::onSubGift);
         
         EventManager chatEvents = chatClient.getEventManager();
         chatEvents.onEvent(ModAnnouncementEvent.class, eventListener::onAnnouncement);
         chatEvents.onEvent(ChannelMessageActionEvent.class, eventListener::onChannelMessageAction);
         chatEvents.onEvent(ChannelMessageEvent.class, eventListener::onChannelMessage);
+        // remove when switching back to EventSub
+        chatEvents.onEvent(SubscriptionEvent.class, eventListener::onSubscribe);
     }
     
     public void toggleSlientChat() {
@@ -494,6 +498,18 @@ public class TwitchApi {
             subscriptionsOutput.addAll(subscriptionList.getSubscriptions());
         } while (cursor != null);
         return subscriptionsOutput;
+    }
+    
+    public Subscription getSubByUser(String channelId, String userId) throws HystrixRuntimeException {
+        SubscriptionList subList = twitchClient.getHelix().getSubscriptionsByUser(
+                channelAuthToken,
+                channelId,
+                Collections.singletonList(userId)
+        ).execute();
+        if (subList.getSubscriptions().isEmpty()) {
+            return null;
+        }
+        return subList.getSubscriptions().get(0);
     }
     
     public int getSubPoints(String userId) throws HystrixRuntimeException {

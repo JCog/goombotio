@@ -148,7 +148,7 @@ public class VipRaffleListener extends CommandBase {
             }
         } else {
             String userId = messageEvent.getMessageEvent().getUser().getId();
-            String userDisplayName = TwitchEventListener.getDisplayName(messageEvent);
+            String userDisplayName = TwitchEventListener.getDisplayName(messageEvent.getMessageEvent());
             List<VipRaffleItem> raffleItems = vipRaffleDb.getAllVipRaffleItemsCurrentMonth();
     
             VipRaffleItem userRaffleItem = vipRaffleDb.getVipRaffleItem(userId);

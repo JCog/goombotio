@@ -83,7 +83,7 @@ public class LeaderboardListener extends CommandBase {
         
         String chatMessage = "";
         String userId = messageEvent.getUser().getId();
-        String displayName = TwitchEventListener.getDisplayName(messageEvent);
+        String displayName = TwitchEventListener.getDisplayName(messageEvent.getMessageEvent());
 
         updateLeaderboardType();
         

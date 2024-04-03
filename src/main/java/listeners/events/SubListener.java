@@ -1,7 +1,7 @@
 package listeners.events;
 
+import com.github.twitch4j.chat.events.channel.SubscriptionEvent;
 import com.github.twitch4j.common.enums.SubscriptionPlan;
-import com.github.twitch4j.eventsub.events.ChannelSubscribeEvent;
 import com.github.twitch4j.eventsub.events.ChannelSubscriptionGiftEvent;
 import com.github.twitch4j.eventsub.events.ChannelSubscriptionMessageEvent;
 import listeners.TwitchEventListener;
@@ -21,27 +21,39 @@ public class SubListener implements TwitchEventListener {
     }
     
     @Override
-    public void onSubscribe(ChannelSubscribeEvent subEvent) {
-        if (subEvent.isGift()) {
+    public void onSubscribe(SubscriptionEvent subEvent) {
+        if (subEvent.getGifted()) {
             return;
         }
-        twitchApi.channelMessage(String.format(
-                "jcogChamp @%s Thank you so much for the %s sub! Welcome to the Rookery™! jcogChamp",
-                subEvent.getUserName(),
-                getSubType(subEvent.getTier())
-        ));
-        outputRecentSubFile(subEvent.getUserName());
+        String displayName = TwitchEventListener.getDisplayName(subEvent.getMessageEvent());
+        String tier = getSubType(subEvent.getSubPlan());
+        if (subEvent.getMonths() == 1) {
+            twitchApi.channelMessage(String.format(
+                    "jcogChamp @%s Thank you so much for the %s sub! Welcome to the Rookery™! jcogChamp",
+                    displayName,
+                    tier
+            ));
+        } else {
+            twitchApi.channelMessage(String.format(
+                    "jcogChamp @%s Thank you so much for the %d-month %s resub! Welcome back to the Rookery™! jcogChamp",
+                    displayName,
+                    subEvent.getMonths(),
+                    tier
+            ));
+        }
+        outputRecentSubFile(displayName);
     }
     
     @Override
     public void onResubscribe(ChannelSubscriptionMessageEvent resubEvent) {
-        twitchApi.channelMessage(String.format(
-                "jcogChamp @%s Thank you so much for the %d-month %s resub! Welcome back to the Rookery™! jcogChamp",
-                resubEvent.getUserName(),
-                resubEvent.getCumulativeMonths(),
-                getSubType(resubEvent.getTier())
-        ));
-        outputRecentSubFile(resubEvent.getUserName());
+        // reimplement this if Twitch ever gets it together with EventSub
+//        twitchApi.channelMessage(String.format(
+//                "jcogChamp @%s Thank you so much for the %d-month %s resub! Welcome back to the Rookery™! jcogChamp",
+//                resubEvent.getUserName(),
+//                resubEvent.getCumulativeMonths(),
+//                getSubType(resubEvent.getTier())
+//        ));
+//        outputRecentSubFile(resubEvent.getUserName());
     }
     
     @Override
