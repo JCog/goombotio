@@ -87,4 +87,24 @@ public class TwitchUserLevel {
             return null;
         }
     }
+    
+    @Nullable
+    public static USER_LEVEL getUserLevel(int permission) {
+        switch (permission) {
+            case 0:
+                return TwitchUserLevel.USER_LEVEL.DEFAULT;
+            case 2:
+                return TwitchUserLevel.USER_LEVEL.SUBSCRIBER;
+            case 4:
+                return TwitchUserLevel.USER_LEVEL.STAFF;
+            case 5:
+                return TwitchUserLevel.USER_LEVEL.VIP;
+            case 6:
+                return TwitchUserLevel.USER_LEVEL.MOD;
+            case 9:
+                return TwitchUserLevel.USER_LEVEL.BROADCASTER;
+            default:
+                return null;
+        }
+    }
 }

@@ -4,8 +4,12 @@ import com.mongodb.MongoNamespace;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Sorts;
+import com.mongodb.client.model.Updates;
 import com.mongodb.lang.Nullable;
 import org.bson.Document;
+import org.bson.conversions.Bson;
+
+import java.util.ArrayList;
 
 import static com.mongodb.client.model.Filters.*;
 import static java.lang.System.out;
@@ -32,51 +36,88 @@ public abstract class GbCollection {
         if (writePermission) {
             collection.insertOne(document);
         } else {
-            out.println("DATABASE: attempted to insertOne");
+            out.printf("%s: attempted to insert %s\n", collection.getNamespace(), document);
         }
     }
-
+    
     /*
     Updates a single document in the collection according to the given document
      */
-    protected void updateOne(long id, Document document) {
+    protected void updateOne(Object id, Document document) {
         if (writePermission) {
             collection.updateOne(eq(ID_KEY, id), new Document("$set", document));
         } else {
-            out.println("DATABASE: attempted to updateOne");
+            out.printf("%s: attempted to update %s with %s\n", collection.getNamespace(), id, document);
         }
     }
-
+    
     /*
-    Updates a single document in the collection according to the given document
+    Updates the field of a single document in the collection to value
      */
-    protected void updateOne(String id, Document document) {
+    protected void updateField(Object id, String fieldName, Object value) {
         if (writePermission) {
-            collection.updateOne(eq(ID_KEY, id), new Document("$set", document));
+            Bson filter = eq(ID_KEY, id);
+            Bson update = Updates.set(fieldName, value);
+            collection.updateOne(filter, update);
         } else {
-            out.println("DATABASE: attempted to updateOne");
+            out.printf(
+                    "%s: attempted to set id=\"%s\" fieldName=\"%s\" value=\"%s\"\n",
+                    collection.getNamespace(),
+                    id,
+                    fieldName,
+                    value
+            );
+        }
+    }
+    
+    /*
+    Adds an item to the specified arrayName. The array will be created first if it doesn't exist.
+     */
+    protected void pushItemToArray(Object id, String arrayName, Object value) {
+        if (writePermission) {
+            Bson filter = and(eq(ID_KEY, id), exists(arrayName, false));
+            Bson update = Updates.set(arrayName, new ArrayList<>());
+            collection.updateOne(filter, update);
+            
+            filter = eq(ID_KEY, id);
+            update = Updates.push(arrayName, value);
+            collection.updateOne(filter, update);
+        } else {
+            out.printf(
+                    "%s: attempted to push id=\"%s\" arrayName=\"%s\" value=\"%s\"\n",
+                    collection.getNamespace(),
+                    id,
+                    arrayName,
+                    value
+            );
         }
     }
 
     /*
     Removes the document with the given id from the collection if it exists
      */
-    protected void deleteOne(long id) {
+    protected void deleteOne(Object id) {
         if (writePermission) {
             collection.deleteOne(eq(ID_KEY, id));
         } else {
-            out.println("DATABASE: attempted to deleteOne");
+            out.printf("%s: attempted to delete %s\n", collection.getNamespace(), id);
         }
     }
-
+    
     /*
-    Removes the document with the given id from the collection if it exists
+    Removes an item matching value from arrayName in the given id
      */
-    protected void deleteOne(String id) {
+    protected void pullItemFromArray(Object id, String arrayName, Object value) {
         if (writePermission) {
-            collection.deleteOne(eq(ID_KEY, id));
+            collection.updateOne(eq(ID_KEY, id), Updates.pull(arrayName, value));
         } else {
-            out.println("DATABASE: attempted to deleteOne");
+            out.printf(
+                    "%s: attempted to pull id=\"%s\" arrayName=\"%s\" value=\"%s\"\n",
+                    collection.getNamespace(),
+                    id,
+                    arrayName,
+                    value
+            );
         }
     }
 
@@ -90,28 +131,14 @@ public abstract class GbCollection {
     /*
     Finds the first document where the value of the key name equals the specified value
      */
-    protected @Nullable Document findFirstEquals(String key, String value) {
-        return collection.find(eq(key, value)).first();
-    }
-    
-    /*
-    Finds the first document where the value of the key name equals the specified value
-     */
-    protected @Nullable Document findFirstEquals(String key, long value) {
-        return collection.find(eq(key, value)).first();
-    }
-    
-    /*
-    Finds the first document where the value of the key name equals the specified value
-     */
-    protected @Nullable Document findFirstEquals(String key, boolean value) {
+    protected @Nullable Document findFirstEquals(String key, Object value) {
         return collection.find(eq(key, value)).first();
     }
     
     /*
     Finds all documents where the value of the key name equals the specified value
      */
-    protected FindIterable<Document> findEquals(String key, boolean value) {
+    protected FindIterable<Document> findEquals(String key, Object value) {
         return collection.find(eq(key, value));
     }
 

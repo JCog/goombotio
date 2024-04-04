@@ -167,7 +167,7 @@ public class MessageExpressionParser {
                 if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
-                commandDb.incrementCount(commandItem.getId());
+                commandDb.incrementCount(commandItem.getAliases().get(0));
                 return Integer.toString(commandItem.getCount() + 1);
             }
             case TYPE_FOLLOW_AGE: {

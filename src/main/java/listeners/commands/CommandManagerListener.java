@@ -23,6 +23,8 @@ public class CommandManagerListener extends CommandBase {
     private final static String PATTERN_ADD = "!addcom";
     private final static String PATTERN_EDIT = "!editcom";
     private final static String PATTERN_DELETE = "!delcom";
+    private final static String PATTERN_ADD_ALIAS = "!addalias";
+    private final static String PATTERN_DEL_ALIAS = "!delalias";
     private final static String PATTERN_DETAILS = "!comdetails";
     
     private final static long DEFAULT_COOLDOWN = 2; // seconds
@@ -42,6 +44,8 @@ public class CommandManagerListener extends CommandBase {
                 PATTERN_ADD,
                 PATTERN_EDIT,
                 PATTERN_DELETE,
+                PATTERN_ADD_ALIAS,
+                PATTERN_DEL_ALIAS,
                 PATTERN_DETAILS
         );
         twitchApi = commonUtils.getTwitchApi();
@@ -73,6 +77,28 @@ public class CommandManagerListener extends CommandBase {
             twitchApi.channelMessage("ERROR: missing arguments");
             return;
         }
+        
+        switch (command) {
+            case PATTERN_ADD_ALIAS: {
+                String[] arguments = messageSplit[1].split("\\s");
+                if (arguments.length != 2) {
+                    twitchApi.channelMessage("ERROR: input should contain exactly two arguments");
+                    return;
+                }
+                twitchApi.channelMessage(commandDb.addAlias(arguments[0], arguments[1]));
+                return;
+            }
+            case PATTERN_DEL_ALIAS: {
+                String[] arguments = messageSplit[1].split("\\s");
+                if (arguments.length != 1) {
+                    twitchApi.channelMessage("ERROR: input should contain exactly one argument");
+                    return;
+                }
+                twitchApi.channelMessage(commandDb.deleteAlias(arguments[0]));
+                return;
+            }
+        }
+        
         
         CommandLine parsed;
         try {
@@ -138,7 +164,8 @@ public class CommandManagerListener extends CommandBase {
                         commandId,
                         message,
                         cooldown == null ? DEFAULT_COOLDOWN : cooldown,
-                        userLevel == null ? USER_LEVEL.DEFAULT : userLevel
+                        userLevel == null ? USER_LEVEL.DEFAULT : userLevel,
+                        0
                 ));
                 return;
             case PATTERN_EDIT:
@@ -157,12 +184,7 @@ public class CommandManagerListener extends CommandBase {
                     twitchApi.channelMessage(String.format("Unknown command \"%s\"", commandId));
                     return;
                 }
-                twitchApi.channelMessage(String.format(
-                        "\"%s\" l=%s c=%d",
-                        commandItem.getMessage(),
-                        commandItem.getPermission(),
-                        commandItem.getCooldown()
-                ));
+                twitchApi.channelMessage(commandItem.toString());
         }
     }
 }

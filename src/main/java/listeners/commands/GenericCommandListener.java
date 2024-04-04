@@ -44,7 +44,7 @@ public class GenericCommandListener implements TwitchEventListener {
         Set<String> badges = messageEvent.getMessageEvent().getBadges().keySet();
         USER_LEVEL userLevel = TwitchUserLevel.getUserLevel(badges);
         CommandItem commandItem = commandDb.getCommandItem(command);
-        if (commandItem == null || cooldownActive(commandItem) || !userHasPermission(userLevel, commandItem)) {
+        if (commandItem == null || cooldownActive(command, commandItem.getCooldown()) || !userHasPermission(userLevel, commandItem)) {
             return;
         }
     
@@ -66,12 +66,12 @@ public class GenericCommandListener implements TwitchEventListener {
         return userLevel.value >= commandItem.getPermission().value;
     }
 
-    private boolean cooldownActive(CommandItem commandItem) {
-        Instant lastUsed = commandInstants.get(commandItem.getId());
+    private boolean cooldownActive(String command, long cooldown) {
+        Instant lastUsed = commandInstants.get(command);
         if (lastUsed == null) {
             return false;
         }
-        return ChronoUnit.SECONDS.between(lastUsed, Instant.now()) < commandItem.getCooldown();
+        return ChronoUnit.SECONDS.between(lastUsed, Instant.now()) < cooldown;
     }
 
     private boolean isReservedCommand(String commandId) {
