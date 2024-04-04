@@ -24,7 +24,6 @@ public class DbManager {
     // misc DBs
     private final BitWarDb bitWarDb;
     private final CommandDb commandDb;
-    private final MinecraftUserDb minecraftUserDb;
     private final VipDb vipDb;
     private final QuoteDb quoteDb;
     private final SocialSchedulerDb socialSchedulerDb;
@@ -59,7 +58,6 @@ public class DbManager {
 
         bitWarDb = new BitWarDb(gbDatabase);
         commandDb = new CommandDb(gbDatabase);
-        minecraftUserDb = new MinecraftUserDb(gbDatabase);
         quoteDb = new QuoteDb(gbDatabase);
         socialSchedulerDb = new SocialSchedulerDb(gbDatabase);
         statsBlacklistDb = new StatsBlacklistDb(gbDatabase);
@@ -105,10 +103,6 @@ public class DbManager {
 
     public CommandDb getCommandDb() {
         return commandDb;
-    }
-
-    public MinecraftUserDb getMinecraftUserDb() {
-        return minecraftUserDb;
     }
 
     public QuoteDb getQuoteDb() {

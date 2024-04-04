@@ -15,7 +15,6 @@ public class Settings {
     private static final String DISCORD_CAT_TAG = "discord";
     private static final String YOUTUBE_CAT_TAG = "youtube";
     private static final String TWITTER_CAT_TAG = "twitter";
-    private static final String MINECRAFT_CAT_TAG = "minecraft";
     private static final String SUB_COUNT_CAT_TAG = "subPointUpdater";
 
     private final Wini ini = getIni();
@@ -96,22 +95,6 @@ public class Settings {
 
     public String getTwitterAccessTokenSecret() {
         return ini.get(TWITTER_CAT_TAG, "accessTokenSecret");
-    }
-
-    public String getMinecraftServer() {
-        return ini.get(MINECRAFT_CAT_TAG, "server");
-    }
-
-    public String getMinecraftUser() {
-        return ini.get(MINECRAFT_CAT_TAG, "user");
-    }
-
-    public String getMinecraftPassword() {
-        return ini.get(MINECRAFT_CAT_TAG, "password");
-    }
-
-    public String getMinecraftWhitelistLocation() {
-        return ini.get(MINECRAFT_CAT_TAG, "whitelistLocation");
     }
     
     public String getSubCountFormat() {
