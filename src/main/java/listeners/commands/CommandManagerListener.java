@@ -19,7 +19,6 @@ public class CommandManagerListener extends CommandBase {
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
     private static final int MANAGER_COOLDOWN = 0;
     private static final CooldownType COOLDOWN_TYPE = CooldownType.COMBINED;
-    private final static String PATTERN_COMMANDS = "!commands";
     private final static String PATTERN_ADD = "!addcom";
     private final static String PATTERN_EDIT = "!editcom";
     private final static String PATTERN_DELETE = "!delcom";
@@ -40,7 +39,6 @@ public class CommandManagerListener extends CommandBase {
                 MIN_USER_LEVEL,
                 MANAGER_COOLDOWN,
                 COOLDOWN_TYPE,
-                PATTERN_COMMANDS,
                 PATTERN_ADD,
                 PATTERN_EDIT,
                 PATTERN_DELETE,
@@ -64,15 +62,11 @@ public class CommandManagerListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, USER_LEVEL commandUserLevel, ChannelMessageEvent messageEvent) {
-        String[] messageSplit = messageEvent.getMessage().split("\\s", 2);
-        if (command.equals(PATTERN_COMMANDS)) {
-            twitchApi.channelMessage("This is a JSON endpoint, so if it looks unreadable you'll probably need a browser extension for viewing JSON. https://www.jcoggers.com/commands");
-            return;
-        }
-        
         if (commandUserLevel.value < USER_LEVEL.MOD.value) {
             return;
         }
+        
+        String[] messageSplit = messageEvent.getMessage().split("\\s", 2);
         if (messageSplit.length < 2) {
             twitchApi.channelMessage("ERROR: missing arguments");
             return;
