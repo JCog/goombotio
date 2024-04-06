@@ -95,7 +95,7 @@ public class ScheduledMessageController implements TwitchEventListener {
 
         int selection = random.nextInt(totalWeight);
         ScheduledMessage message = messageMap.higherEntry(selection).getValue();
-        twitchApi.channelAnnouncement(commandParser.parse(message.getMessage()));
+        twitchApi.channelAnnouncement(commandParser.parseScheduledMessage(message));
         previousId = message.getId();
     }
     
@@ -106,7 +106,7 @@ public class ScheduledMessageController implements TwitchEventListener {
             return;
         }
         
-        twitchApi.channelAnnouncement(commandParser.parse(message.getMessage()));
+        twitchApi.channelAnnouncement(commandParser.parseScheduledMessage(message));
         previousId = message.getId();
     }
     

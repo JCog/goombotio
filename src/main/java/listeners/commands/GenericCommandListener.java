@@ -34,7 +34,9 @@ public class GenericCommandListener implements TwitchEventListener {
     @Override
     public void onChannelMessage(ChannelMessageEvent messageEvent) {
         String content = messageEvent.getMessage().toLowerCase(Locale.ENGLISH).trim();
-        String command = content.split("\\s", 2)[0];
+        String[] split = content.split("\\s", 2);
+        String command = split[0];
+        String userInput = split.length > 1 ? split[1] : "";
         
         // on the off chance there is a reserved command also in the DB, this will prevent the DB one from running
         if (isReservedCommand(command)) {
@@ -47,18 +49,13 @@ public class GenericCommandListener implements TwitchEventListener {
         if (commandItem == null || cooldownActive(command, commandItem.getCooldown()) || !userHasPermission(userLevel, commandItem)) {
             return;
         }
-    
-        // TODO: replace this with code that actually escapes user input properly
-        if (messageEvent.getMessage().matches(".*[()].*")) {
-            String displayName = TwitchEventListener.getDisplayName(messageEvent.getMessageEvent());
-            twitchApi.channelMessage(String.format(
-                    "@%s Please don't use parentheses when using commands.",
-                    displayName
-            ));
-            return;
-        }
         
-        twitchApi.channelMessage(commandParser.parse(commandItem, messageEvent));
+        twitchApi.channelMessage(commandParser.parseCommandMessage(
+                commandItem,
+                userInput,
+                messageEvent.getUser().getId(),
+                TwitchEventListener.getDisplayName(messageEvent.getMessageEvent())
+        ));
         commandInstants.put(command, Instant.now());
     }
 

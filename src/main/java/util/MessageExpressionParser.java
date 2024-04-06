@@ -1,13 +1,12 @@
 package util;
 
 import com.fathzer.soft.javaluator.DoubleEvaluator;
-import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.InboundFollow;
 import com.github.twitch4j.helix.domain.Stream;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.misc.CommandDb;
-import listeners.TwitchEventListener;
+import database.misc.SocialSchedulerDb.ScheduledMessage;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -19,13 +18,8 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
-import java.util.NavigableMap;
-import java.util.Objects;
-import java.util.Random;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static database.misc.CommandDb.CommandItem;
 
@@ -73,45 +67,75 @@ public class MessageExpressionParser {
         commandDb = commonUtils.getDbManager().getCommandDb();
     }
     
-    public String parse(String message) {
-        return parseInternal(message, null, null);
+    public String parseScheduledMessage(ScheduledMessage scheduledMessage) {
+        return parseInternal(scheduledMessage.getMessage(), null, null, null, null, 0);
     }
     
-    public String parse(CommandItem commandItem, ChannelMessageEvent messageEvent) {
-        return parseInternal(commandItem.getMessage(), commandItem, messageEvent);
+    public String parseCommandMessage(CommandItem commandItem, String userInput, String userId, String displayName) {
+        return parseInternal(commandItem.getMessage(), commandItem, userInput, userId, displayName, 0);
     }
     
     private String parseInternal(
             String message,
             @Nullable CommandItem commandItem,
-            @Nullable ChannelMessageEvent messageEvent
+            @Nullable String userInput,
+            @Nullable String userId,
+            @Nullable String displayName,
+            int evalDepth
     ) {
-        String output = String.valueOf(message);
-        String expression = getNextExpression(output);
-        int evalCount = 0;
-        while (!expression.isEmpty()) {
-            if (evalCount == EVAL_LIMIT) {
-                return ERROR_EVAL_LIMIT_EXCEEDED;
+        if (evalDepth >= EVAL_LIMIT) {
+            return ERROR_EVAL_LIMIT_EXCEEDED;
+        }
+        Deque<Integer> expressionStarts = new ArrayDeque<>();
+        // <<start, end>>
+        List<Map.Entry<Integer, Integer>> expressionRanges = new ArrayList<>();
+        // <<priority, index>>
+        PriorityQueue<Map.Entry<Integer, Integer>> expressionQueue = new PriorityQueue<>(
+                (a,b) -> b.getKey() - a.getKey()
+        );
+        String output = message;
+        int depth = 0;
+        int index = 0;
+        for (int i = 0; i < message.length(); i++) {
+            if (message.charAt(i) == '$' && i != message.length() - 1 && message.charAt(i + 1) == '(') {
+                expressionStarts.push(i);
+                depth++;
+            } else if (message.charAt(i) == ')' && !expressionStarts.isEmpty()) {
+                expressionRanges.add(new AbstractMap.SimpleEntry<>(expressionStarts.pop(), i + 1));
+                expressionQueue.offer(new AbstractMap.SimpleEntry<>(depth, index++));
             }
-            String replacement = evaluateExpression(expression, messageEvent, commandItem);
-            output = output.replaceFirst(
-                    Pattern.quote("$(" + expression + ")"),
-                    Matcher.quoteReplacement(replacement)
-            );
-            expression = getNextExpression(output);
-            evalCount++;
+        }
+        while (!expressionQueue.isEmpty()) {
+            Map.Entry<Integer, Integer> range = expressionRanges.get(expressionQueue.poll().getValue());
+            int start = range.getKey();
+            int end = range.getValue();
+            String expression = output.substring(start + 2, end - 1);
+            
+            String replacement = parseExpression(expression, commandItem, userInput, userId, displayName, evalDepth);
+            output = output.substring(0, start) + replacement + output.substring(end);
+            
+            int difference = end - start - replacement.length();
+            for (int i = 0; i < expressionRanges.size(); i++) {
+                Map.Entry<Integer, Integer> oldRange = expressionRanges.get(i);
+                int newStart = oldRange.getKey() > start ? oldRange.getKey() - difference : oldRange.getKey();
+                int newEnd = oldRange.getValue() > start ? oldRange.getValue() - difference : oldRange.getValue();
+                expressionRanges.set(i, new AbstractMap.SimpleEntry<>(newStart, newEnd));
+            }
         }
         return output;
     }
-
-    private String evaluateExpression(
+    
+    private String parseExpression(
             String expression,
-            @Nullable ChannelMessageEvent messageEvent,
-            @Nullable CommandItem commandItem
+            @Nullable CommandItem commandItem,
+            @Nullable String userInput,
+            @Nullable String userId,
+            @Nullable String displayName,
+            int evalDepth
     ) {
-        String[] split = expression.split(" ", 2);
+        String[] userArgs = userInput == null ? new String[]{} : userInput.split("\\s");
+        String[] split = expression.split("\\s", 2);
         String type = split[0];
-        String[] userArgs = (messageEvent == null) ? new String[]{} : messageEvent.getMessage().split(" ");
         String content = "";
         if (split.length > 1) {
             content = split[1];
@@ -121,27 +145,33 @@ public class MessageExpressionParser {
                 if (content.isEmpty()) {
                     return ERROR_MISSING_ARGUMENT;
                 }
-
-                String commandId = content.split(" ", 2)[0];
+            
+                String commandId = content.split("\\s", 2)[0];
                 CommandItem aliasCommand = commandDb.getCommandItem(commandId);
                 if (aliasCommand == null) {
                     return String.format(ERROR_COMMAND_DNE, commandId);
                 }
-
-                return aliasCommand.getMessage();
+    
+                return parseInternal(
+                        aliasCommand.getMessage(), commandItem,
+                        userInput,
+                        userId,
+                        displayName,
+                        evalDepth + 1
+                );
             }
             case TYPE_ARG: {
-                if (messageEvent == null) {
+                if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
-                
+            
                 int arg;
                 try {
-                    arg = Integer.parseInt(content) + 1;
+                    arg = Integer.parseInt(content);
                 } catch (NumberFormatException e) {
                     return String.format(ERROR_BAD_ARG_NUM_FORMAT, content);
                 }
-
+            
                 if (arg < 0) {
                     return String.format(ERROR_BAD_ARG_NUM_FORMAT, content);
                 } else if (userArgs.length > arg) {
@@ -171,7 +201,7 @@ public class MessageExpressionParser {
                 return Integer.toString(commandItem.getCount() + 1);
             }
             case TYPE_FOLLOW_AGE: {
-                if (content.split(" ").length == 1) {
+                if (content.split("\\s").length == 1) {
                     return getFollowAgeString(content);
                 } else {
                     return ERROR;
@@ -188,11 +218,10 @@ public class MessageExpressionParser {
                 }
             }
             case TYPE_QUERY: {
-                if (userArgs.length > 1) {
-                    return messageEvent.getMessage().split(" ", 2)[1];
-                } else {
-                    return "";
+                if (commandItem == null) {
+                    return ERROR_NON_COMMAND;
                 }
+                return userInput;
             }
             case TYPE_RAND: {
                 String[] rangeSplit = content.split(",");
@@ -214,21 +243,20 @@ public class MessageExpressionParser {
                 return Integer.toString(randomOutput);
             }
             case TYPE_TOUSER: {
-                if (messageEvent == null) {
+                if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
-                if (userArgs.length > 1) {
-                    String username = userArgs[1].startsWith("@") ? userArgs[1].substring(1) : userArgs[1];
+                if (userArgs.length != 0) {
+                    String username = userArgs[0].startsWith("@") ? userArgs[0].substring(1) : userArgs[0];
                     User user;
                     try {
                         user = twitchApi.getUserByUsername(username);
                     } catch (HystrixRuntimeException e) {
-                        e.printStackTrace();
-                        return "error retrieving user data";
+                        user = null;
                     }
                     return user == null ? username : user.getDisplayName();
                 } else {
-                    return TwitchEventListener.getDisplayName(messageEvent.getMessageEvent());
+                    return displayName;
                 }
             }
             case TYPE_UPTIME: {
@@ -236,7 +264,6 @@ public class MessageExpressionParser {
                 try {
                     stream = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId());
                 } catch (HystrixRuntimeException e) {
-                    e.printStackTrace();
                     return "error retrieving stream data";
                 }
                 if (stream == null) {
@@ -249,16 +276,16 @@ public class MessageExpressionParser {
                 return submitRequest(content);
             }
             case TYPE_USER: {
-                if (messageEvent == null) {
+                if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
-                return TwitchEventListener.getDisplayName(messageEvent.getMessageEvent());
+                return displayName;
             }
             case TYPE_USER_ID: {
-                if (messageEvent == null) {
+                if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
-                return messageEvent.getUser().getId();
+                return userId;
             }
             case TYPE_WEIGHTED: {
                 String[] entries = content.split("\\|");
@@ -269,18 +296,18 @@ public class MessageExpressionParser {
                     if (weightMessage.length != 2) {
                         return ERROR_BAD_ENTRY;
                     }
-
+                
                     int weight;
                     try {
                         weight = Integer.parseInt(weightMessage[0]);
                     } catch (NumberFormatException e) {
                         return ERROR_INVALID_WEIGHT;
                     }
-
+                
                     totalWeight += weight;
                     messageMap.put(totalWeight, weightMessage[1]);
                 }
-
+            
                 int selection = random.nextInt(totalWeight);
                 return messageMap.higherEntry(selection).getValue();
             }
@@ -295,8 +322,7 @@ public class MessageExpressionParser {
         try {
             user = twitchApi.getUserByUsername(userName);
         } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
-            return String.format("Error retrieving user data for %s", userName);
+            return String.format("Error retrieving user data for @%s", userName);
         }
         if (user == null) {
             return String.format("Unknown user \"%s\"", userName);
@@ -305,7 +331,6 @@ public class MessageExpressionParser {
         try {
             follow = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), user.getId());
         } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
             return String.format("Error retrieving follow age for %s", userName);
         }
 
@@ -344,35 +369,6 @@ public class MessageExpressionParser {
                 twitchApi.getStreamerUser().getDisplayName(),
                 timeString
         );
-    }
-
-    private static String getNextExpression(String input) {
-        try {
-            for (int i = 0; i < input.length(); i++) {
-                if (input.charAt(i) == '$' && input.charAt(i + 1) == '(') {
-                    i += 2;
-                    int start = i;
-                    int depth = 1;
-                    while (depth != 0) {
-                        if (input.charAt(i) == '$' && input.charAt(i + 1) == '(') {
-                            start = i + 2;
-                            i++;
-                            depth = 1;
-                        } else if (input.charAt(i) == '(') {
-                            depth += 1;
-                        } else if (input.charAt(i) == ')') {
-                            depth -= 1;
-                        }
-                        i++;
-                    }
-                    i -= 1;
-                    return input.substring(start, i);
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            //do nothing, reached the end
-        }
-        return "";
     }
 
     private static String submitRequest(String url) {
