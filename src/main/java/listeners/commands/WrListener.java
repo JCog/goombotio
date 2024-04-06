@@ -168,7 +168,7 @@ public class WrListener extends CommandBase {
         }
     
         if (category == null) {
-            twitchApi.channelMessage("Unknown WR");
+            twitchApi.channelMessage(srcApi.getWr(stream.getGameName()));
             return;
         }
         twitchApi.channelMessage(String.format(
