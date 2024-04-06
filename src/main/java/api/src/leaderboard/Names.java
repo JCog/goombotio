@@ -1,4 +1,4 @@
-package api.src.user;
+package api.src.leaderboard;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

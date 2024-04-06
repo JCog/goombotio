@@ -1,4 +1,4 @@
-package api.src.category;
+package api.src.leaderboard;
 
 import jakarta.ws.rs.QueryParam;
 

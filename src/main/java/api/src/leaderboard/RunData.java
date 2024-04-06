@@ -1,4 +1,4 @@
-package api.src.category;
+package api.src.leaderboard;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RunDetails {
+public class RunData {
     @JsonProperty("players")
     private List<Player> players;
     
@@ -17,7 +17,7 @@ public class RunDetails {
     @JsonProperty("values")
     private Map<String, String> values;
     
-    public RunDetails() {}
+    public RunData() {}
     
     public List<Player> getPlayers() {
         return players;

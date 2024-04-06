@@ -1,11 +1,9 @@
 package api.src;
 
-import api.src.category.Category;
-import api.src.category.CategoryInterface;
-import api.src.category.Run;
-import api.src.category.VariablesInput;
-import api.src.user.User;
-import api.src.user.UserInterface;
+import api.src.leaderboard.Leaderboard;
+import api.src.leaderboard.LeaderboardInterface;
+import api.src.leaderboard.Run;
+import api.src.leaderboard.VariablesInput;
 import jakarta.ws.rs.ClientErrorException;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
@@ -19,51 +17,43 @@ import java.util.concurrent.TimeUnit;
 public class SrcApi {
     private static final String BASE_URI = "https://www.speedrun.com/api/v1/";
     
-    private final CategoryInterface categoryProxy;
-    private final UserInterface userProxy;
+    private final LeaderboardInterface leaderboardProxy;
     
     
     public SrcApi(ResteasyClient client) {
         ResteasyWebTarget target = client.target(BASE_URI);
-        categoryProxy = target.proxy(CategoryInterface.class);
-        userProxy = target.proxy(UserInterface.class);
+        leaderboardProxy = target.proxy(LeaderboardInterface.class);
     }
     
     public String getWr(SrcEnums.Category category) {
-        Category srcCategory;
+        Leaderboard leaderboard;
         Map<String, String> variables = new HashMap<>();
         for (SrcEnums.Variable variable : category.getVariables()) {
             variables.put(variable.getVarId(), variable.getValueId());
         }
         try {
-            srcCategory = categoryProxy.getWr(
+            leaderboard = leaderboardProxy.getWr(
                     category.getGame().getId(),
                     category.getId(),
                     1,
+                    "players",
                     new VariablesInput(variables)
             );
         } catch (ClientErrorException e) {
             System.out.println("Error getting SRC category:\n" + e.getMessage());
             return "";
         }
-        List<Run> runs = srcCategory.getCategoryDetails().getRuns();
-        if (runs.isEmpty()) {
-            return String.format("%s %s has no WR.", category.getGame(), category);
+        List<Run> runList = leaderboard.getLeaderboardData().getRunList();
+        if (runList.isEmpty()) {
+            return String.format("%s - %s has no WR.", category.getGame(), category);
         }
         
-        Run wrRun = runs.get(0);
-        String userId = wrRun.getRunDetails().getPlayers().get(0).getId();
-        BigDecimal rawTime = wrRun.getRunDetails().getTimes().getPrimaryTime();
+        Run wrRun = runList.get(0);
+        String username = leaderboard.getLeaderboardData().getPlayers().getPlayerData().get(0).getNames()
+                .getInternational();
+    
+        BigDecimal rawTime = wrRun.getRunData().getTimes().getPrimaryTime();
         String timeString = getTimeString(rawTime);
-        
-        User user;
-        try {
-            user = userProxy.getUserById(userId);
-        } catch (ClientErrorException e) {
-            System.out.println("Error getting SRC user:\n" + e.getMessage());
-            return "";
-        }
-        String username = user.getUserDetails().getNames().getInternational();
         return String.format("The %s - %s WR is %s by %s", category.getGame(), category, timeString, username);
     }
     

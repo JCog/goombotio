@@ -1,4 +1,4 @@
-package api.src.category;
+package api.src.leaderboard;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,15 +6,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Run {
     @JsonProperty("run")
-    private RunDetails runDetails;
+    private RunData runData;
     
     public Run() {}
     
-    public RunDetails getRunDetails() {
-        return runDetails;
+    public RunData getRunData() {
+        return runData;
     }
     
-    public void setRunDetails(RunDetails runDetails) {
-        this.runDetails = runDetails;
+    public void setRunData(RunData runData) {
+        this.runData = runData;
     }
 }
