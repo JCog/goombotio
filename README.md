@@ -4,85 +4,77 @@ This is a Twitch bot for use in JCog's channel with the Goombotio account.
 
 ## Commands
 
-The !commands command allows moderators to add, remove, modify, and see details for custom commands. Its use is similar
-to how Nightbot works, but not exactly the same.
+Goombotio allows moderators to add, remove, modify, and see details for custom commands.
 
 #### Adding Commands
 
 ##### Usage
 
-!commands add `!command_name` "`command response`"
+>!addcom `command_name` "`command response`"
 
-`!command_name` is the name of the command you wish to add and must begin with an exclamation mark
+`command_name` is the name of the command you wish to add. This typically begins with an exclamation mark but is not required to.
 
-`command response` is the message you want Goombotio to reply with when the command is called. It must be surrounded
-with quotation marks. There is no need to escape any quotation marks contained in the response.
+`command response` is the message you want Goombotio to reply with when the command is called. It must be surrounded with quotation marks. There is no need to escape any quotation marks contained in the response.
 
 ##### Example
 
-!commands add !testing "this is a test message"
+>!addcom !testing "this is a test message"
 
-When !testing is called, the command will return:
+When `!testing` is called, the command will return:
 
-this is a test message
+>this is a test message
 
 #### Editing Commands
 
 ##### Usage
 
-!commands edit `!command_name` "`command response`"
+>!editcom `command_name` "`command response`"
 
-`!command_name` is the name of the command you wish to edit
+`command_name` is the name of the command you wish to edit
 
-`command response` is the message you want Goombotio to reply with when the command is called. It must be surrounded
-with quotation marks. There is no need to escape any quotation marks contained in the response.
+`command response` is the message you want Goombotio to reply with when the command is called. It must be surrounded with quotation marks. There is no need to escape any quotation marks contained in the response.
 
 ##### Example
 
-!commands edit !testing "new test message"
+>!editcom !testing "new test message"
 
-When !testing is called, the command will return:
+When `!testing` is called, the command will return:
 
-new test message
+>new test message
 
 #### Deleting Commands
 
 ##### Usage
 
-!commands delete `!command_name`
+>!delcom `command_name`
 
-`!command_name` is the name of the command you wish to delete
+`command_name` is the name of the command you wish to delete
 
 ##### Example
 
-!commands delete !testing
+>!commands delete !testing
 
 #### Details
 
 ##### Usage
 
-!commands details `!command_name`
+>!comdetails `command_name`
 
-`!command_name` is the name of the command you wish to see full details for
+`command_name` is the name of the command you wish to see full details for
 
 ##### Example
 
-!commands details !testing
+>!commands details !testing
 
 #### Advanced Usage
 
 ##### User Levels and Cooldowns
 
-When adding and editing commands, you can also specify the minimum user level required to execute the command, as well
-as the command's cooldown time. You just need to apply the parameters as shown below:
+When adding and editing commands, you can also specify the minimum user level required to execute the command, as well as the command's cooldown time. To do so, add one or both of the arguments below. If adding a new command or editing the message of an old one, the arguments can go before or after the message.
 
-!commands add `!command_name` -ul=`userlevel` -cd=`cooldown` "`command response`"
+`-c`, `--cooldown` the minimum number of seconds between command uses.
 
-`!command_name` / `command response` is the same as above.
-
-`cooldown` is the minimum number of seconds between command uses.
-
-`userlevel` is the minimum user level required to use the command, as specified below
+`-l`, `--userlevel` the minimum user level required to use the command, as specified below
 
 ##### User Levels
 
@@ -93,6 +85,16 @@ as the command's cooldown time. You just need to apply the parameters as shown b
 5. **sub**: channel subscriber
 6. **default**: anyone
 
+##### Examples
+
+>!addcom !testing --cooldown 10 --userlevel vip "test message"
+
+>!addcom !testing "test message" -c 5
+
+>!editcom !testing -l mod "new test message"
+
+>!editcom !testing --cooldown 7 --userlevel default
+
 #### Variables
 
 Variables (and nested variables) can be used within command responses. All variables are of the form:
@@ -101,21 +103,21 @@ $(`variable` `argument`)
 
 |               variable | description                                                                                                                                                                 |
 |-----------------------:|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|                `alias` | returns the result of the command from `argument`. be careful as this does not respect the cooldown/permissions of the given command                                        |
 | `arg 0`, `arg 1`, etc. | arguments for user input after the command, split by spaces. arguments are zero-indexed. not to be confused with variable arguments.                                        |
 |              `channel` | the streamer's username                                                                                                                                                     |
 |               `choose` | randomly selects a message from a <code>&#124;</code> separated list in `argument`                                                                                          |
+|              `command` | returns the result of the command from `argument`. properties such as `count`, userlevel, and cooldown will come from the parent command.                                   |
 |                `count` | the number of times this command has been called. does not increment unless this variable is used                                                                           |
-|                 `eval` | evaluates mathamatical expressions. for example, the output of `(2^3-1)*sin(pi/4)/ln(pi^2)` would be `2.1619718020347976`                                                   |
+|                 `eval` | evaluates mathamatical expressions. for example, the output of `$(eval pi^2/e)` would be `3.63`                                                                             |
 |            `followage` | the length of time the user in `argument` has been following the channel                                                                                                    |
 |                `query` | full user input that comes after the command                                                                                                                                |
 |                 `rand` | returns a random integer. `argument` should be a comma-separated, inclusive range                                                                                           |
-|               `touser` | returns the same as `arg 0`, but if there are no user arguments, defaults to the user's username. if `arg 0` starts with '@', returns the substring of `arg 0` without it   |
+|               `touser` | returns the same as `arg 0`, but if there are no user arguments, defaults to the user's username. if `arg 0` starts with '@', returns the substring of `arg 0` without it.  |
 |               `uptime` | the length of time the stream has been online                                                                                                                               |
 |             `urlfetch` | output from a remote url                                                                                                                                                    |
 |                 `user` | the twitch username of the user                                                                                                                                             |
 |               `userid` | the twitch userId of the user                                                                                                                                               |
-|             `weighted` | randomly selects a message from a <code>&#124;</code> separated list in `argument`. Each message should start with a positive weight, followed by a space, then the message |
+|             `weighted` | randomly selects a message from a <code>&#124;</code> separated list in `argument`. each message should start with a positive weight, followed by a space, then the message |
 
 ## Scheduled Messages
 
