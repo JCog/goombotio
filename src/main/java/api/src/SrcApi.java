@@ -3,6 +3,7 @@ package api.src;
 import api.src.category.Category;
 import api.src.category.CategoryInterface;
 import api.src.category.Run;
+import api.src.category.VariablesInput;
 import api.src.user.User;
 import api.src.user.UserInterface;
 import jakarta.ws.rs.ClientErrorException;
@@ -10,8 +11,9 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class SrcApi {
@@ -29,11 +31,16 @@ public class SrcApi {
     
     public String getWr(SrcEnums.Category category) {
         Category srcCategory;
+        Map<String, String> variables = new HashMap<>();
+        for (SrcEnums.Variable variable : category.getVariables()) {
+            variables.put(variable.getVarId(), variable.getValueId());
+        }
         try {
             srcCategory = categoryProxy.getWr(
                     category.getGame().getId(),
                     category.getId(),
-                    category.getVariables().length == 0 ? 1 : null
+                    1,
+                    new VariablesInput(variables)
             );
         } catch (ClientErrorException e) {
             System.out.println("Error getting SRC category:\n" + e.getMessage());
@@ -43,29 +50,8 @@ public class SrcApi {
         if (runs.isEmpty()) {
             return String.format("%s %s has no WR.", category.getGame(), category);
         }
-        Run wrRun = null;
-        if (category.getVariables().length == 0) {
-            wrRun = runs.get(0);
-        } else {
-            for (Run run : runs) {
-                boolean matches = true;
-                for (SrcEnums.Variable var : category.getVariables()) {
-                    String value = run.getRunDetails().getValues().get(var.getVarId());
-                    if (!Objects.equals(value, var.getValueId())) {
-                        matches = false;
-                        break;
-                    }
-                }
-                if (matches) {
-                    wrRun = run;
-                    break;
-                }
-            }
-            if (wrRun == null) {
-                return String.format("%s %s has no WR.", category.getGame(), category);
-            }
-        }
         
+        Run wrRun = runs.get(0);
         String userId = wrRun.getRunDetails().getPlayers().get(0).getId();
         BigDecimal rawTime = wrRun.getRunDetails().getTimes().getPrimaryTime();
         String timeString = getTimeString(rawTime);
@@ -78,7 +64,7 @@ public class SrcApi {
             return "";
         }
         String username = user.getUserDetails().getNames().getInternational();
-        return String.format("The %s %s WR is %s by %s", category.getGame(), category, timeString, username);
+        return String.format("The %s - %s WR is %s by %s", category.getGame(), category, timeString, username);
     }
     
     private static String getTimeString(BigDecimal rawTime) {

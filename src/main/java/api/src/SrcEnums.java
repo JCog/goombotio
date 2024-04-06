@@ -351,7 +351,8 @@ public class SrcEnums {
     }
     
     public enum SmrpgCategory implements Category {
-        SMRPG_NORMAL_RTA_TURBO("Normal RTA", "beat-the-game", SmrpgVariable.TURBO);
+        SMRPG_NORMAL_RTA_TURBO("Normal RTA (Turbo)", "wk6qjne2", SmrpgVariable.TURBO),
+        SMRPG_NORMAL_RTA_NO_TURBO("Normal RTA (No Turbo)", "wk6qjne2", SmrpgVariable.NO_TURBO);
         
         private final String name;
         private final String id;

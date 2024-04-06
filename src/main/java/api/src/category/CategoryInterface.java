@@ -10,6 +10,7 @@ public interface CategoryInterface {
     Category getWr(
             @PathParam("game") String game,
             @PathParam("category") String category,
-            @QueryParam("top") Integer top
+            @QueryParam("top") Integer top,
+            @BeanParam VariablesInput variables
     );
 }
