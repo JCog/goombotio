@@ -52,7 +52,7 @@ When `!testing` is called, the command will return:
 
 ##### Example
 
->!commands delete !testing
+>!delcom !testing
 
 #### Details
 
@@ -64,7 +64,7 @@ When `!testing` is called, the command will return:
 
 ##### Example
 
->!commands details !testing
+>!comdetails !testing
 
 #### Advanced Usage
 
