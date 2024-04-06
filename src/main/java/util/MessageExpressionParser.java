@@ -39,10 +39,10 @@ public class MessageExpressionParser {
     private static final String ERROR_INVALID_WEIGHT = "-invalid weight-";
     private static final String ERROR_NON_COMMAND = "-this expression is only for commands-";
 
-    private static final String TYPE_ALIAS = "alias";
     private static final String TYPE_ARG = "arg";
     private static final String TYPE_CHANNEL = "channel";
     private static final String TYPE_CHOOSE = "choose";
+    private static final String TYPE_COMMAND = "command";
     private static final String TYPE_COUNT = "count";
     private static final String TYPE_FOLLOW_AGE = "followage";
     private static final String TYPE_EVAL = "eval";
@@ -141,25 +141,6 @@ public class MessageExpressionParser {
             content = split[1];
         }
         switch (type) {
-            case TYPE_ALIAS: {
-                if (content.isEmpty()) {
-                    return ERROR_MISSING_ARGUMENT;
-                }
-            
-                String commandId = content.split("\\s", 2)[0];
-                CommandItem aliasCommand = commandDb.getCommandItem(commandId);
-                if (aliasCommand == null) {
-                    return String.format(ERROR_COMMAND_DNE, commandId);
-                }
-    
-                return parseInternal(
-                        aliasCommand.getMessage(), commandItem,
-                        userInput,
-                        userId,
-                        displayName,
-                        evalDepth + 1
-                );
-            }
             case TYPE_ARG: {
                 if (commandItem == null) {
                     return ERROR_NON_COMMAND;
@@ -192,6 +173,25 @@ public class MessageExpressionParser {
                 }
                 String[] entries = content.split("\\|");
                 return entries[random.nextInt(entries.length)];
+            }
+            case TYPE_COMMAND: {
+                if (content.isEmpty()) {
+                    return ERROR_MISSING_ARGUMENT;
+                }
+        
+                String commandId = content.split("\\s", 2)[0];
+                CommandItem aliasCommand = commandDb.getCommandItem(commandId);
+                if (aliasCommand == null) {
+                    return String.format(ERROR_COMMAND_DNE, commandId);
+                }
+        
+                return parseInternal(
+                        aliasCommand.getMessage(), commandItem,
+                        userInput,
+                        userId,
+                        displayName,
+                        evalDepth + 1
+                );
             }
             case TYPE_COUNT: {
                 if (commandItem == null) {
