@@ -12,7 +12,7 @@ Goombotio allows moderators to add, remove, modify, and see details for custom c
 
 >!addcom `command_name` "`command response`"
 
-`command_name` is the name of the command you wish to add. This typically begins with an exclamation mark but is not required to.
+`command_name` is the name of the command you wish to add. This typically begins with an exclamation point but is not required to.
 
 `command response` is the message you want Goombotio to reply with when the command is called. It must be surrounded with quotation marks. There is no need to escape any quotation marks contained in the response.
 
