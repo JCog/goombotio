@@ -87,12 +87,10 @@ public class MessageExpressionParser {
             return ERROR_EVAL_LIMIT_EXCEEDED;
         }
         Deque<Integer> expressionStarts = new ArrayDeque<>();
-        // <<start, end>>
-        List<Map.Entry<Integer, Integer>> expressionRanges = new ArrayList<>();
-        // <<priority, index>>
-        PriorityQueue<Map.Entry<Integer, Integer>> expressionQueue = new PriorityQueue<>(
-                (a,b) -> b.getKey() - a.getKey()
-        );
+        record Range(int start, int end) {}
+        List<Range> expressionRanges = new ArrayList<>();
+        record RangeIndex(int priority, int index) {}
+        PriorityQueue<RangeIndex> expressionQueue = new PriorityQueue<>((a,b) -> b.priority() - a.priority());
         String output = message;
         int depth = 0;
         int index = 0;
@@ -101,14 +99,14 @@ public class MessageExpressionParser {
                 expressionStarts.push(i);
                 depth++;
             } else if (message.charAt(i) == ')' && !expressionStarts.isEmpty()) {
-                expressionRanges.add(new AbstractMap.SimpleEntry<>(expressionStarts.pop(), i + 1));
-                expressionQueue.offer(new AbstractMap.SimpleEntry<>(depth, index++));
+                expressionRanges.add(new Range(expressionStarts.pop(), i + 1));
+                expressionQueue.offer(new RangeIndex(depth, index++));
             }
         }
         while (!expressionQueue.isEmpty()) {
-            Map.Entry<Integer, Integer> range = expressionRanges.get(expressionQueue.poll().getValue());
-            int start = range.getKey();
-            int end = range.getValue();
+            Range range = expressionRanges.get(expressionQueue.poll().index());
+            int start = range.start();
+            int end = range.end();
             String expression = output.substring(start + 2, end - 1);
             
             String replacement = parseExpression(expression, commandItem, userInput, userId, displayName, evalDepth);
@@ -116,10 +114,10 @@ public class MessageExpressionParser {
             
             int difference = end - start - replacement.length();
             for (int i = 0; i < expressionRanges.size(); i++) {
-                Map.Entry<Integer, Integer> oldRange = expressionRanges.get(i);
-                int newStart = oldRange.getKey() > start ? oldRange.getKey() - difference : oldRange.getKey();
-                int newEnd = oldRange.getValue() > start ? oldRange.getValue() - difference : oldRange.getValue();
-                expressionRanges.set(i, new AbstractMap.SimpleEntry<>(newStart, newEnd));
+                Range oldRange = expressionRanges.get(i);
+                int newStart = oldRange.start() > start ? oldRange.start() - difference : oldRange.start();
+                int newEnd = oldRange.end() > start ? oldRange.end() - difference : oldRange.end();
+                expressionRanges.set(i, new Range(newStart, newEnd));
             }
         }
         return output;
@@ -141,7 +139,7 @@ public class MessageExpressionParser {
             content = split[1];
         }
         switch (type) {
-            case TYPE_ARG: {
+            case TYPE_ARG -> {
                 if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
@@ -164,27 +162,27 @@ public class MessageExpressionParser {
                     return "";
                 }
             }
-            case TYPE_CHANNEL: {
+            case TYPE_CHANNEL -> {
                 return twitchApi.getStreamerUser().getLogin();
             }
-            case TYPE_CHOOSE: {
+            case TYPE_CHOOSE -> {
                 if (content.isEmpty()) {
                     return ERROR_MISSING_ARGUMENT;
                 }
                 String[] entries = content.split("\\|");
                 return entries[random.nextInt(entries.length)];
             }
-            case TYPE_COMMAND: {
+            case TYPE_COMMAND -> {
                 if (content.isEmpty()) {
                     return ERROR_MISSING_ARGUMENT;
                 }
-        
+            
                 String commandId = content.split("\\s", 2)[0];
                 CommandItem aliasCommand = commandDb.getCommandItem(commandId);
                 if (aliasCommand == null) {
                     return String.format(ERROR_COMMAND_DNE, commandId);
                 }
-        
+            
                 return parseInternal(
                         aliasCommand.getMessage(), commandItem,
                         userInput,
@@ -193,21 +191,21 @@ public class MessageExpressionParser {
                         evalDepth + 1
                 );
             }
-            case TYPE_COUNT: {
+            case TYPE_COUNT -> {
                 if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
                 commandDb.incrementCount(commandItem.getAliases().get(0));
                 return Integer.toString(commandItem.getCount() + 1);
             }
-            case TYPE_FOLLOW_AGE: {
+            case TYPE_FOLLOW_AGE -> {
                 if (content.split("\\s").length == 1) {
                     return getFollowAgeString(content);
                 } else {
                     return ERROR;
                 }
             }
-            case TYPE_EVAL: {
+            case TYPE_EVAL -> {
                 DoubleEvaluator evaluator = new DoubleEvaluator();
                 try {
                     DecimalFormat df = new DecimalFormat("#.##");
@@ -217,13 +215,13 @@ public class MessageExpressionParser {
                     return String.format("%s: %s", ERROR, e.getMessage());
                 }
             }
-            case TYPE_QUERY: {
+            case TYPE_QUERY -> {
                 if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
                 return userInput;
             }
-            case TYPE_RAND: {
+            case TYPE_RAND -> {
                 String[] rangeSplit = content.split(",");
                 if (rangeSplit.length != 2) {
                     return String.format(ERROR_INVALID_RANGE, content);
@@ -242,7 +240,7 @@ public class MessageExpressionParser {
                 int randomOutput = random.nextInt(high - low + 1) + low;
                 return Integer.toString(randomOutput);
             }
-            case TYPE_TOUSER: {
+            case TYPE_TOUSER -> {
                 if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
@@ -259,7 +257,7 @@ public class MessageExpressionParser {
                     return displayName;
                 }
             }
-            case TYPE_UPTIME: {
+            case TYPE_UPTIME -> {
                 Stream stream;
                 try {
                     stream = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId());
@@ -272,22 +270,22 @@ public class MessageExpressionParser {
                     return getTimeString(stream.getUptime().toMillis() / 1000);
                 }
             }
-            case TYPE_URL_FETCH: {
+            case TYPE_URL_FETCH -> {
                 return submitRequest(content);
             }
-            case TYPE_USER: {
+            case TYPE_USER -> {
                 if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
                 return displayName;
             }
-            case TYPE_USER_ID: {
+            case TYPE_USER_ID -> {
                 if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
                 return userId;
             }
-            case TYPE_WEIGHTED: {
+            case TYPE_WEIGHTED -> {
                 String[] entries = content.split("\\|");
                 int totalWeight = 0;
                 NavigableMap<Integer, String> messageMap = new TreeMap<>();
@@ -311,7 +309,7 @@ public class MessageExpressionParser {
                 int selection = random.nextInt(totalWeight);
                 return messageMap.higherEntry(selection).getValue();
             }
-            default: {
+            default -> {
                 return ERROR;
             }
         }

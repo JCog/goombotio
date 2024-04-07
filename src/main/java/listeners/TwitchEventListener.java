@@ -3,7 +3,9 @@ package listeners;
 import com.github.twitch4j.chat.events.channel.*;
 import com.github.twitch4j.eventsub.events.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public interface TwitchEventListener {
     static String getDisplayName(IRCMessageEvent messageEvent) {
@@ -14,18 +16,20 @@ public interface TwitchEventListener {
         }
     }
     
-    static List<Map.Entry<String, Integer>> getEmoteUsageCounts(ChannelMessageEvent messageEvent) {
+    record EmoteUsage(String emoteId, int usageCount) {}
+    
+    static List<EmoteUsage> getEmoteUsageCounts(ChannelMessageEvent messageEvent) {
         Optional<String> emotesTag = messageEvent.getMessageEvent().getTagValue("emotes");
         if (emotesTag.isEmpty()) {
             return new ArrayList<>();
         }
     
-        List<Map.Entry<String, Integer>> emoteUsages = new ArrayList<>();
+        List<EmoteUsage> emoteUsages = new ArrayList<>();
         String[] emotes = emotesTag.get().split("/");
         for (String emote : emotes) {
             String id = emote.split(":", 2)[0];
             int usages = emote.split(",").length;
-            emoteUsages.add(new AbstractMap.SimpleEntry<>(id, usages));
+            emoteUsages.add(new EmoteUsage(id, usages));
         }
         return emoteUsages;
     }

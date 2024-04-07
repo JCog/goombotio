@@ -36,10 +36,10 @@ public class EmoteListener implements TwitchEventListener {
     @Override
     public void onChannelMessage(ChannelMessageEvent messageEvent) {
         long userId = Long.parseLong(messageEvent.getUser().getId());
-        List<Map.Entry<String, Integer>> emoteUsages = TwitchEventListener.getEmoteUsageCounts(messageEvent);
-        for (Map.Entry<String, Integer> emote : emoteUsages) {
-            for (int i = 0; i < emote.getValue(); i++) {
-                emoteStatsDb.addEmoteUsage(emote.getKey(), null, userId);
+        List<EmoteUsage> emoteUsages = TwitchEventListener.getEmoteUsageCounts(messageEvent);
+        for (EmoteUsage emote : emoteUsages) {
+            for (int i = 0; i < emote.usageCount(); i++) {
+                emoteStatsDb.addEmoteUsage(emote.emoteId(), null, userId);
             }
         }
         
