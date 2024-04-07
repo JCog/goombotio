@@ -62,7 +62,7 @@ public class WrListener extends CommandBase {
         String gameId = stream.getGameId();
         SrcEnums.Category category = null;
         switch (gameId) {
-            case GAME_ID_BUG_FABLES:
+            case GAME_ID_BUG_FABLES -> {
                 if (streamTitle.contains("100%") || streamTitle.contains("hundo") || streamTitle.contains("\uD83D\uDCAF")) {
                     category = BF_HUNDO;
                 } else if (streamTitle.contains("glitchless")) {
@@ -80,8 +80,8 @@ public class WrListener extends CommandBase {
                 } else {
                     category = BF_ANY_PERCENT;
                 }
-                break;
-            case GAME_ID_SMS:
+            }
+            case GAME_ID_SMS -> {
                 if (streamTitle.contains("all episodes")) {
                     category = SMS_ALL_EPISODES;
                 } else if (streamTitle.contains("79")) {
@@ -93,11 +93,11 @@ public class WrListener extends CommandBase {
                 } else {
                     category = SMS_ANY_PERCENT;
                 }
-                break;
-            case GAME_ID_PAPER_MARIO:
+            }
+            case GAME_ID_PAPER_MARIO -> {
                 if (streamTitle.contains("any% (no peach warp)") || streamTitle.contains("any% (no pw)")) {
                     category = PAPE_ANY_PERCENT_NO_PW;
-                } else if (streamTitle.contains("any%") &&(streamTitle.contains("no ace") || streamTitle.contains("acephobic"))) {
+                } else if (streamTitle.contains("any%") && (streamTitle.contains("no ace") || streamTitle.contains("acephobic"))) {
                     category = PAPE_ANY_PERCENT;
                 } else if (streamTitle.contains("any% no rng") || streamTitle.contains("any% (no rng)")) {
                     category = PAPE_ANY_NO_RNG;
@@ -128,8 +128,8 @@ public class WrListener extends CommandBase {
                 } else {
                     category = PAPE_ANY_PERCENT;
                 }
-                break;
-            case GAME_ID_TTYD:
+            }
+            case GAME_ID_TTYD -> {
                 if (streamTitle.contains("crystal stars")) {
                     category = TTYD_ALL_CRYSTAL_STARS;
                 } else if (streamTitle.contains("100%") || streamTitle.contains("hundo")) {
@@ -143,20 +143,18 @@ public class WrListener extends CommandBase {
                 } else {
                     category = TTYD_ANY_PERCENT;
                 }
-                break;
-            case GAME_ID_OOT:
+            }
+            case GAME_ID_OOT -> {
                 if (streamTitle.contains("swop")) {
                     category = PAPE_STOP_N_SWOP;
-                } else if (streamTitle.contains("glitchless")){
+                } else if (streamTitle.contains("glitchless")) {
                     category = OOT_GLITCHLESS_AMQ;
                 } else {
                     category = OOT_ANY_PERCENT;
                 }
-                break;
-            case GAME_ID_SMRPG_SWITCH:
-                category = SMRPG_NORMAL_RTA_TURBO;
-                break;
-            case GAME_ID_HM_FOMT:
+            }
+            case GAME_ID_SMRPG_SWITCH -> category = SMRPG_NORMAL_RTA_TURBO;
+            case GAME_ID_HM_FOMT -> {
                 if (streamTitle.contains("karen")) {
                     if (streamTitle.contains("glitchless")) {
                         category = HM_KAREN_GLITCHLESS;
@@ -164,7 +162,7 @@ public class WrListener extends CommandBase {
                         category = HM_KAREN_GLITCHED;
                     }
                 }
-                break;
+            }
         }
     
         if (category == null) {

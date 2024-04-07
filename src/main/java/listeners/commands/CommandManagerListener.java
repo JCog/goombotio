@@ -71,9 +71,9 @@ public class CommandManagerListener extends CommandBase {
             twitchApi.channelMessage("ERROR: missing arguments");
             return;
         }
-        
+    
         switch (command) {
-            case PATTERN_ADD_ALIAS: {
+            case PATTERN_ADD_ALIAS -> {
                 String[] arguments = messageSplit[1].split("\\s");
                 if (arguments.length != 2) {
                     twitchApi.channelMessage("ERROR: input should contain exactly two arguments");
@@ -82,7 +82,7 @@ public class CommandManagerListener extends CommandBase {
                 twitchApi.channelMessage(commandDb.addAlias(arguments[0], arguments[1]));
                 return;
             }
-            case PATTERN_DEL_ALIAS: {
+            case PATTERN_DEL_ALIAS -> {
                 String[] arguments = messageSplit[1].split("\\s");
                 if (arguments.length != 1) {
                     twitchApi.channelMessage("ERROR: input should contain exactly one argument");
@@ -149,7 +149,7 @@ public class CommandManagerListener extends CommandBase {
         }
     
         switch (command) {
-            case PATTERN_ADD:
+            case PATTERN_ADD -> {
                 if (message == null) {
                     twitchApi.channelMessage("ERROR: no content");
                     return;
@@ -161,24 +161,23 @@ public class CommandManagerListener extends CommandBase {
                         userLevel == null ? USER_LEVEL.DEFAULT : userLevel,
                         0
                 ));
-                return;
-            case PATTERN_EDIT:
+            }
+            case PATTERN_EDIT -> {
                 if (message == null && cooldown == null && userLevel == null) {
                     twitchApi.channelMessage("ERROR: nothing to edit");
                     return;
                 }
                 twitchApi.channelMessage(commandDb.editCommand(commandId, message, cooldown, userLevel));
-                return;
-            case PATTERN_DELETE:
-                twitchApi.channelMessage(commandDb.deleteCommand(commandId));
-                return;
-            case PATTERN_DETAILS:
+            }
+            case PATTERN_DELETE -> twitchApi.channelMessage(commandDb.deleteCommand(commandId));
+            case PATTERN_DETAILS -> {
                 CommandItem commandItem = commandDb.getCommandItem(commandId);
                 if (commandItem == null) {
                     twitchApi.channelMessage(String.format("Unknown command \"%s\"", commandId));
                     return;
                 }
                 twitchApi.channelMessage(commandItem.toString());
+            }
         }
     }
 }

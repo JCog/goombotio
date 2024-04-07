@@ -18,7 +18,7 @@ public class DiscordListener extends ListenerAdapter {
     @Override
     public void onButtonClick(@Nonnull ButtonClickEvent event) {
         switch (event.getComponentId()) {
-            case "twitch":
+            case "twitch" -> {
                 if (toggleTwitchRole(event.getGuild(), event.getMember())) {
                     event.reply("You have been given the @twitch-alert role and will now be pinged when JCog goes live on Twitch.").setEphemeral(true).queue();
                     log(event.getGuild(), "%s has been given **@twitch-alert**", event.getMember());
@@ -26,8 +26,8 @@ public class DiscordListener extends ListenerAdapter {
                     event.reply("The @twitch-alert role has been removed and you'll no longer be pinged when JCog goes live on Twitch.").setEphemeral(true).queue();
                     log(event.getGuild(), "%s has removed **@twitch-alert**", event.getMember());
                 }
-                break;
-            case "youtube":
+            }
+            case "youtube" -> {
                 if (toggleYoutubeRole(event.getGuild(), event.getMember())) {
                     event.reply("You have been given the @youtube-alert role and will now be pinged when JCog uploads new YouTube videos.").setEphemeral(true).queue();
                     log(event.getGuild(), "%s has been given **@youtube-alert**", event.getMember());
@@ -35,7 +35,7 @@ public class DiscordListener extends ListenerAdapter {
                     event.reply("The @youtube-alert role has been removed and you'll no longer be pinged when JCog uploads new YouTube videos.").setEphemeral(true).queue();
                     log(event.getGuild(), "%s has removed **@youtube-alert**", event.getMember());
                 }
-                break;
+            }
         }
     }
     

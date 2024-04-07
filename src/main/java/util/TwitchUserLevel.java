@@ -36,22 +36,11 @@ public class TwitchUserLevel {
         for (String badgeString : badges) {
             String badge = badgeString.split("/", 2)[0];
             switch (badge) {
-                case ("broadcaster"):
-                    broadcaster = true;
-                    break;
-                case ("moderator"):
-                    mod = true;
-                    break;
-                case ("vip"):
-                    vip = true;
-                    break;
-                case ("staff"):
-                    staff = true;
-                    break;
-                case ("subscriber"):
-                case ("sub"):
-                    sub = true;
-                    break;
+                case ("broadcaster") -> broadcaster = true;
+                case ("moderator") -> mod = true;
+                case ("vip") -> vip = true;
+                case ("staff") -> staff = true;
+                case ("subscriber"), ("sub") -> sub = true;
             }
         }
         if (broadcaster) {
@@ -90,21 +79,14 @@ public class TwitchUserLevel {
     
     @Nullable
     public static USER_LEVEL getUserLevel(int permission) {
-        switch (permission) {
-            case 0:
-                return TwitchUserLevel.USER_LEVEL.DEFAULT;
-            case 2:
-                return TwitchUserLevel.USER_LEVEL.SUBSCRIBER;
-            case 4:
-                return TwitchUserLevel.USER_LEVEL.STAFF;
-            case 5:
-                return TwitchUserLevel.USER_LEVEL.VIP;
-            case 6:
-                return TwitchUserLevel.USER_LEVEL.MOD;
-            case 9:
-                return TwitchUserLevel.USER_LEVEL.BROADCASTER;
-            default:
-                return null;
-        }
+        return switch (permission) {
+            case 0 -> USER_LEVEL.DEFAULT;
+            case 2 -> USER_LEVEL.SUBSCRIBER;
+            case 4 -> USER_LEVEL.STAFF;
+            case 5 -> USER_LEVEL.VIP;
+            case 6 -> USER_LEVEL.MOD;
+            case 9 -> USER_LEVEL.BROADCASTER;
+            default -> null;
+        };
     }
 }

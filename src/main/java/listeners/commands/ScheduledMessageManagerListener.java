@@ -65,25 +65,23 @@ public class ScheduledMessageManagerListener extends CommandBase {
             showError("invalid function");
             return;
         }
-
+    
         switch (type) {
-            case ADD:
+            case ADD -> {
                 if (!hasContent) {
                     showError("no content");
                     return;
                 }
                 twitchApi.channelMessage(socialSchedulerDb.addMessage(idString, content, 1));
-                break;
-            case EDIT:
+            }
+            case EDIT -> {
                 if (!hasContent) {
                     showError("no content");
                     return;
                 }
                 twitchApi.channelMessage(socialSchedulerDb.editMessage(idString, content));
-                break;
-            case DELETE:
-                twitchApi.channelMessage(socialSchedulerDb.deleteMessage(idString));
-                break;
+            }
+            case DELETE -> twitchApi.channelMessage(socialSchedulerDb.deleteMessage(idString));
         }
     }
 
@@ -92,16 +90,12 @@ public class ScheduledMessageManagerListener extends CommandBase {
     }
 
     private FUNCTION getFunction(String function) {
-        switch (function) {
-            case "add":
-                return FUNCTION.ADD;
-            case "edit":
-                return FUNCTION.EDIT;
-            case "delete":
-                return FUNCTION.DELETE;
-            default:
-                return null;
-        }
+        return switch (function) {
+            case "add" -> FUNCTION.ADD;
+            case "edit" -> FUNCTION.EDIT;
+            case "delete" -> FUNCTION.DELETE;
+            default -> null;
+        };
     }
 
     private boolean isValidId(String id) {

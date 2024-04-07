@@ -20,6 +20,8 @@ public class BoosterHillPredsManager extends PredsManagerBase {
     private static final int REWARD_2_OFF = 2;
     private static final int REWARD_PARTICIPATION = 1;
     
+    private record FlowersGuess(String displayName, int flowers) {}
+    
     private final Map<String, FlowersGuess> guesses = new HashMap<>();
     private final BoosterHillLeaderboardDb boosterHillLeaderboardDb;
     
@@ -38,7 +40,7 @@ public class BoosterHillPredsManager extends PredsManagerBase {
         List<FlowersGuess> winners = new ArrayList<>();
         for (Map.Entry<String, FlowersGuess> guess : guesses.entrySet()) {
             String userId = guess.getKey();
-            String displayName = guess.getValue().displayName;
+            String displayName = guess.getValue().displayName();
             int flowers = guess.getValue().flowers;
             
             boolean isWinner = false;
@@ -47,15 +49,15 @@ public class BoosterHillPredsManager extends PredsManagerBase {
             
             int flowersOff = Math.abs(flowers - answerFlowers);
             switch (flowersOff) {
-                case 0:
+                case 0 -> {
                     isWinner = true;
                     winners.add(guess.getValue());
                     boosterHillLeaderboardDb.addWin(userId, displayName);
                     newEntryCount = REWARD_CORRECT;
-                    break;
-                case 1: newEntryCount = REWARD_1_OFF; break;
-                case 2: newEntryCount = REWARD_2_OFF; break;
-                default: newEntryCount = REWARD_PARTICIPATION; break;
+                }
+                case 1 -> newEntryCount = REWARD_1_OFF;
+                case 2 -> newEntryCount = REWARD_2_OFF;
+                default -> newEntryCount = REWARD_PARTICIPATION;
             }
             
             if (!modIds.contains(userId) && !vipDb.isPermanentVip(userId)) {
@@ -74,22 +76,18 @@ public class BoosterHillPredsManager extends PredsManagerBase {
         } else {
             StringBuilder winnerString = new StringBuilder();
             switch (winners.size()) {
-                case 1:
-                    winnerString.append("@").append(winners.get(0).displayName);
-                    break;
-                case 2:
-                    winnerString.append(String.format(
-                            "@%s and @%s",
-                            winners.get(0).displayName,
-                            winners.get(1).displayName
-                    ));
-                    break;
-                default:
+                case 1 -> winnerString.append("@").append(winners.get(0).displayName());
+                case 2 -> winnerString.append(String.format(
+                        "@%s and @%s",
+                        winners.get(0).displayName(),
+                        winners.get(1).displayName()
+                ));
+                default -> {
                     for (int i = 0; i < winners.size() - 1; i++) {
-                        winnerString.append(String.format("@%s, ", winners.get(i).displayName));
+                        winnerString.append(String.format("@%s, ", winners.get(i).displayName()));
                     }
-                    winnerString.append(String.format("and @%s", winners.get(winners.size() - 1).displayName));
-                    break;
+                    winnerString.append(String.format("and @%s", winners.get(winners.size() - 1).displayName()));
+                }
             }
             twitchApi.channelMessage(String.format(
                     "Congrats to %s on guessing correctly! jcogChamp Use !raffle to check your updated entry count.",
@@ -119,15 +117,5 @@ public class BoosterHillPredsManager extends PredsManagerBase {
             System.out.printf("%s has guessed %d flowers.%n", displayName, userGuess);
         }
         guesses.put(userId, new FlowersGuess(displayName, userGuess));
-    }
-    
-    private static class FlowersGuess {
-        public final String displayName;
-        public final int flowers;
-        
-        public FlowersGuess(String displayName, int flowers) {
-            this.displayName = displayName;
-            this.flowers = flowers;
-        }
     }
 }

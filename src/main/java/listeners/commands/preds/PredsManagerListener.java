@@ -41,7 +41,7 @@ public class PredsManagerListener extends CommandBase {
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         switch (command) {
-            case PATTERN_PREDS:
+            case PATTERN_PREDS -> {
                 if (predsManager == null || !predsManager.isActive()) {
                     String gameId = "";
                     Stream stream;
@@ -57,21 +57,14 @@ public class PredsManagerListener extends CommandBase {
                         gameId = stream.getGameId();
                     }
                     switch (gameId) {
-                        case GAME_ID_OOT:
-                            predsManager = new DampeRacePredsManager(commonUtils);
-                            break;
-                        case GAME_ID_PAPER_MARIO:
-                            predsManager = new BadgeShopPredsManager(commonUtils);
-                            break;
-                        case GAME_ID_SUNSHINE:
-                            predsManager = new PiantaSixPredsManager(commonUtils);
-                            break;
-                        case GAME_ID_SMRPG_SWITCH:
-                            predsManager = new BoosterHillPredsManager(commonUtils);
-                            break;
-                        default:
+                        case GAME_ID_OOT -> predsManager = new DampeRacePredsManager(commonUtils);
+                        case GAME_ID_PAPER_MARIO -> predsManager = new BadgeShopPredsManager(commonUtils);
+                        case GAME_ID_SUNSHINE -> predsManager = new PiantaSixPredsManager(commonUtils);
+                        case GAME_ID_SMRPG_SWITCH -> predsManager = new BoosterHillPredsManager(commonUtils);
+                        default -> {
                             twitchApi.channelMessage("The current game is not compatible with preds.");
                             return;
+                        }
                     }
                     out.println("Starting the prediction game...");
                     predsGuessListener.start(predsManager);
@@ -90,9 +83,8 @@ public class PredsManagerListener extends CommandBase {
                         predsManager.waitForAnswer();
                     }
                 }
-                break;
-                
-            case PATTERN_PREDS_CANCEL:
+            }
+            case PATTERN_PREDS_CANCEL -> {
                 if (predsManager != null) {
                     predsManager = null;
                     predsGuessListener.stop();
@@ -100,7 +92,7 @@ public class PredsManagerListener extends CommandBase {
                 } else {
                     twitchApi.channelMessage("There isn't an active preds game to cancel.");
                 }
-                break;
+            }
         }
     }
 }

@@ -26,6 +26,8 @@ public class PiantaSixPredsManager extends PredsManagerBase {
     private static final int HUND_1_SECOND = 100;
     private static final int HUND_5_SECONDS = 5 * 100;
     private static final int HUND_10_SECONDS = 10 * 100;
+    
+    private record TimeGuess(String displayName, int hundredths) {}
 
     private final Map<String,TimeGuess> predictionList = new HashMap<>();
     private final PiantaSixLeaderboardDb piantaSixLeaderboardDb;
@@ -51,62 +53,53 @@ public class PiantaSixPredsManager extends PredsManagerBase {
         List<String> winners = getWinners(hundredths);
         StringBuilder message = new StringBuilder();
         switch (winners.size()) {
-            case 0:
+            case 0 -> {
                 List<TimeGuess> closestGuesses = getClosestGuesses(hundredths);
                 if (closestGuesses.size() == 0) {
                     message.append("Nobody guessed jcogRage");
                     break;
                 }
-                
-                String difference = formatDifference(hundredths, closestGuesses.get(0).hundredths);
+                String difference = formatDifference(hundredths, closestGuesses.get(0).hundredths());
                 switch (closestGuesses.size()) {
-                    case 1:
-                        message.append(String.format(
-                                "Nobody won, but @%s was closest (+/- %ss)! jcogComfy",
-                                closestGuesses.get(0).displayName,
-                                difference
-                        ));
-                        break;
-                    case 2:
-                        message.append(String.format(
-                                "Nobody won, but @%s and @%s were closest (+/- %ss)! jcogComfy",
-                                closestGuesses.get(0).displayName,
-                                closestGuesses.get(1).displayName,
-                                difference
-                        ));
-                        break;
-                    default:
+                    case 1 -> message.append(String.format(
+                            "Nobody won, but @%s was closest (+/- %ss)! jcogComfy",
+                            closestGuesses.get(0).displayName(),
+                            difference
+                    ));
+                    case 2 -> message.append(String.format(
+                            "Nobody won, but @%s and @%s were closest (+/- %ss)! jcogComfy",
+                            closestGuesses.get(0).displayName(),
+                            closestGuesses.get(1).displayName(),
+                            difference
+                    ));
+                    default -> {
                         message.append("Nobody won, but ");
                         for (int i = 0; i < closestGuesses.size() - 1; i++) {
-                            message.append("@").append(closestGuesses.get(i).displayName).append(", ");
+                            message.append("@").append(closestGuesses.get(i).displayName()).append(", ");
                         }
                         message.append("and @")
-                                .append(closestGuesses.get(closestGuesses.size() - 1).displayName);
+                                .append(closestGuesses.get(closestGuesses.size() - 1).displayName());
                         message.append(String.format(" were closest (+/- %ss)! jcogComfy", difference));
-                        break;
+                    }
                 }
-                break;
-            case 1:
-                message.append(String.format(
-                        "Congrats to @%s on guessing correctly! jcogChamp",
-                        winners.get(0)
-                ));
-                break;
-            case 2:
-                message.append(String.format(
-                        "Congrats to @%s and @%s on guessing correctly! jcogChamp",
-                        winners.get(0),
-                        winners.get(1)
-                ));
-                break;
-            default:
+            }
+            case 1 -> message.append(String.format(
+                    "Congrats to @%s on guessing correctly! jcogChamp",
+                    winners.get(0)
+            ));
+            case 2 -> message.append(String.format(
+                    "Congrats to @%s and @%s on guessing correctly! jcogChamp",
+                    winners.get(0),
+                    winners.get(1)
+            ));
+            default -> {
                 message.append("Congrats to ");
                 for (int i = 0; i < winners.size() - 1; i++) {
                     message.append("@").append(winners.get(i)).append(", ");
                 }
                 message.append("and @").append(winners.get(winners.size() - 1));
                 message.append(" on guessing correctly! jcogChamp");
-                break;
+            }
         }
         message.append(" Use !raffle to check your updated entry count.");
     
@@ -152,9 +145,9 @@ public class PiantaSixPredsManager extends PredsManagerBase {
         List<String> winners = new ArrayList<>();
         for (Map.Entry<String,TimeGuess> guess : predictionList.entrySet()) {
             String userId = guess.getKey();
-            String displayName = guess.getValue().displayName;
+            String displayName = guess.getValue().displayName();
             
-            int difference = Math.abs(guess.getValue().hundredths - answer);
+            int difference = Math.abs(guess.getValue().hundredths() - answer);
             int pointsToAdd = 0;
             int secondsWithin = Integer.MAX_VALUE;
             if (difference == 0) {
@@ -200,14 +193,14 @@ public class PiantaSixPredsManager extends PredsManagerBase {
     private List<TimeGuess> getClosestGuesses(int answer) {
         int minDifference = Integer.MAX_VALUE;
         for (TimeGuess guess : predictionList.values()) {
-            minDifference = Integer.min(Math.abs(guess.hundredths - answer), minDifference);
+            minDifference = Integer.min(Math.abs(guess.hundredths() - answer), minDifference);
         }
 
         List<TimeGuess> output = new ArrayList<>();
         for (Map.Entry<String,TimeGuess> guess : predictionList.entrySet()) {
             String userId = guess.getKey();
-            String displayName = guess.getValue().displayName;
-            int hundredths = guess.getValue().hundredths;
+            String displayName = guess.getValue().displayName();
+            int hundredths = guess.getValue().hundredths();
             
             if (Math.abs(hundredths - answer) == minDifference) {
                 output.add(guess.getValue());
@@ -232,15 +225,5 @@ public class PiantaSixPredsManager extends PredsManagerBase {
         int seconds = hundredths / 100;
         hundredths -= seconds * 100;
         return String.format("%d:%02d:%02d", minutes, seconds, hundredths);
-    }
-
-    private static class TimeGuess {
-        public final String displayName;
-        public final int hundredths;
-
-        public TimeGuess(String displayName, int hundredths) {
-            this.displayName = displayName;
-            this.hundredths = hundredths;
-        }
     }
 }

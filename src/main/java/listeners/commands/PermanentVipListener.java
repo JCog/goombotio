@@ -49,12 +49,11 @@ public class PermanentVipListener extends CommandBase {
         }
     
         switch (command) {
-            case PATTERN_ADD: {
+            case PATTERN_ADD -> {
                 vipDb.editPermanentProp(user.getId(), true);
                 twitchApi.channelMessage(String.format("%s added to permanent VIP list", user.getDisplayName()));
-                break;
             }
-            case PATTERN_DELETE: {
+            case PATTERN_DELETE -> {
                 vipDb.editPermanentProp(user.getId(), false);
                 twitchApi.channelMessage(String.format("%s removed from permanent VIP list", user.getDisplayName()));
             }

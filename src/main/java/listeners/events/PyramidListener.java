@@ -44,15 +44,14 @@ public class PyramidListener implements TwitchEventListener {
             height = 1;
             return;
         }
-
+    
         switch (state) {
-            case RISING:
+            case RISING -> {
                 // correct user, patterns are all the same, pattern is the correct one
                 if (!Objects.equals(userId, sender.getId()) || !allPatternsEqual(pattern, splitMessage)) {
                     resetState();
                     break;
                 }
-                
                 if (splitMessage.length == height + 1) {
                     height += 1;
                 } else if (splitMessage.length == height - 1 && height >= MIN_HEIGHT) {
@@ -66,14 +65,13 @@ public class PyramidListener implements TwitchEventListener {
                 } else {
                     resetState();
                 }
-                break;
-            case FALLING:
+            }
+            case FALLING -> {
                 // correct user, patterns are all the same, pattern is the correct one
                 if (!Objects.equals(userId, sender.getId()) || !allPatternsEqual(pattern, splitMessage)) {
                     resetState();
                     break;
                 }
-                
                 if (splitMessage.length == TRIGGER_HEIGHT) {
                     interruptPyramid();
                     resetState();
@@ -82,7 +80,7 @@ public class PyramidListener implements TwitchEventListener {
                 } else {
                     resetState();
                 }
-                break;
+            }
         }
     }
 

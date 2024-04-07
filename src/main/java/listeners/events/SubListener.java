@@ -79,13 +79,13 @@ public class SubListener implements TwitchEventListener {
     }
     
     private String getSubType(SubscriptionPlan subPlan) {
-        switch (subPlan) {
-            case TIER1: return "Tier 1";
-            case TIER2: return "Tier 2";
-            case TIER3: return "Tier 3";
-            case TWITCH_PRIME: return "Prime Gaming";
-            default: return "";
-        }
+        return switch (subPlan) {
+            case TIER1 -> "Tier 1";
+            case TIER2 -> "Tier 2";
+            case TIER3 -> "Tier 3";
+            case TWITCH_PRIME -> "Prime Gaming";
+            default -> "";
+        };
     }
     
     private void outputRecentSubFile(String displayName) {

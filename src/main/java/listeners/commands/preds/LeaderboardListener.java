@@ -86,7 +86,7 @@ public class LeaderboardListener extends CommandBase {
         String displayName = TwitchEventListener.getDisplayName(messageEvent.getMessageEvent());
 
         updateLeaderboardType();
-        
+    
         switch (command) {
             // TODO: figure out what to do with the preds leaderboard commands. they're kind of a mess right now.
 //            case PATTERN_LEADERBOARD:
@@ -101,50 +101,30 @@ public class LeaderboardListener extends CommandBase {
 //            case PATTERN_POINTS:
 //                chatMessage = buildPointsString(userId, displayName);
 //                break;
-    
-            case PATTERN_PREDS:
+        
+            case PATTERN_PREDS -> {
                 if (userLevel == USER_LEVEL.BROADCASTER) {
                     break;
                 }
-                
-                switch (getGameId()) {
-                    case GAME_ID_OOT:
-                        chatMessage = PREDS_MESSAGE_OOT;
-                        break;
-                    case GAME_ID_PAPER_MARIO:
-                        chatMessage = PREDS_MESSAGE_PAPE;
-                        break;
-                    case GAME_ID_SUNSHINE:
-                        chatMessage = PREDS_MESSAGE_SMS;
-                        break;
-                    case GAME_ID_SMRPG_SWITCH:
-                        chatMessage = PREDS_MESSASGE_SMRPG_SWITCH;
-                        break;
-                    default:
-                        chatMessage = PREDS_MESSAGE_DEFAULT;
-                        break;
-                }
-                break;
+                chatMessage = switch (getGameId()) {
+                    case GAME_ID_OOT -> PREDS_MESSAGE_OOT;
+                    case GAME_ID_PAPER_MARIO -> PREDS_MESSAGE_PAPE;
+                    case GAME_ID_SUNSHINE -> PREDS_MESSAGE_SMS;
+                    case GAME_ID_SMRPG_SWITCH -> PREDS_MESSASGE_SMRPG_SWITCH;
+                    default -> PREDS_MESSAGE_DEFAULT;
+                };
+            }
         }
         twitchApi.channelMessage(chatMessage);
     }
 
     private void updateLeaderboardType() {
         switch (getGameId()) {
-            case GAME_ID_OOT:
-                leaderboard = dbManager.getDampeRaceLeaderboardDb();
-                break;
-            case GAME_ID_PAPER_MARIO:
-                leaderboard = dbManager.getBadgeShopLeaderboardDb();
-                break;
-            case GAME_ID_SUNSHINE:
-                leaderboard = dbManager.getPiantaSixLeaderboardDb();
-                break;
-            case GAME_ID_SMRPG_SWITCH:
-                leaderboard = dbManager.getBoosterHillLeaderboardDb();
-                break;
-            default:
-                leaderboard = null;
+            case GAME_ID_OOT -> leaderboard = dbManager.getDampeRaceLeaderboardDb();
+            case GAME_ID_PAPER_MARIO -> leaderboard = dbManager.getBadgeShopLeaderboardDb();
+            case GAME_ID_SUNSHINE -> leaderboard = dbManager.getPiantaSixLeaderboardDb();
+            case GAME_ID_SMRPG_SWITCH -> leaderboard = dbManager.getBoosterHillLeaderboardDb();
+            default -> leaderboard = null;
         }
     }
 

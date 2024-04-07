@@ -36,14 +36,14 @@ public class TattleListener extends CommandBase {
         String trimmedMessage = messageEvent.getMessage().trim();
         String[] messageSplit = trimmedMessage.split(" ");
         switch (command) {
-            case PATTERN_TATTLE: {
+            case PATTERN_TATTLE -> {
                 if (messageSplit.length == 1) {
                     twitchApi.channelMessage(tattleItemToString(tattleDb.getRandomTattle()));
                     return;
                 }
-
+            
                 String username = messageSplit[1].toLowerCase();
-                
+            
                 User user = twitchApi.getUserByUsername(username);
                 if (user != null) {
                     TattleItem tattle = tattleDb.getTattle(user.getId());
@@ -52,22 +52,22 @@ public class TattleListener extends CommandBase {
                         return;
                     }
                 }
-    
+            
                 List<TattleItem> allTattles = tattleDb.getAllTattles();
                 List<User> users = twitchApi.getUserListByIds(allTattles.stream().map(TattleItem::getTwitchId).collect(Collectors.toList()));
                 List<User> userOptions = new ArrayList<>();
-    
+            
                 for (User tattleUser : users) {
                     if (tattleUser.getLogin().contains(username)) {
                         userOptions.add(tattleUser);
                     }
                 }
-    
+            
                 if (userOptions.isEmpty()) {
                     twitchApi.channelMessage(String.format("No matches for \"%s\"", username));
                     return;
                 }
-                
+            
                 int index = random.nextInt(userOptions.size());
                 TattleItem outputTattle = allTattles.stream()
                         .filter(tattleItem -> userOptions.get(index).getId().equals(tattleItem.getTwitchId()))
@@ -78,26 +78,25 @@ public class TattleListener extends CommandBase {
                     twitchApi.channelMessage(String.format("No matches for \"%s\"", username));
                     return;
                 }
-    
+            
                 twitchApi.channelMessage(tattleItemToString(outputTattle));
-                break;
             }
-            case PATTERN_ADD: {
+            case PATTERN_ADD -> {
                 if (userLevel != USER_LEVEL.BROADCASTER) {
                     return;
                 }
-                
+            
                 if (messageSplit.length < 3) {
                     twitchApi.channelMessage("ERROR: not enough arguments");
                     return;
                 }
-
+            
                 User user = twitchApi.getUserByUsername(messageSplit[1]);
                 if (user == null) {
                     twitchApi.channelMessage(String.format("ERROR: unknown user \"%s\"", messageSplit[1]));
                     return;
                 }
-
+            
                 int start = trimmedMessage.indexOf('"');
                 int end = trimmedMessage.lastIndexOf('"');
                 if (start != end) { //valid quotes
@@ -109,7 +108,6 @@ public class TattleListener extends CommandBase {
                     twitchApi.channelMessage("ERROR: not enough quotation marks");
                 }
             }
-            break;
         }
     }
 

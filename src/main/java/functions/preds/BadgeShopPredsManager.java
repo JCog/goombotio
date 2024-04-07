@@ -42,7 +42,9 @@ public class BadgeShopPredsManager extends PredsManagerBase {
         BAD_SPIN3,
         SPOODLY_SPUN
     }
-
+    
+    private record PapePredsObject(String displayName, Badge left, Badge middle, Badge right) {}
+    
     private final Map<String, PapePredsObject> predictionList = new HashMap<>();
     private final BadgeShopLeaderboardDb badgeShopLeaderboardDb;
     
@@ -68,26 +70,20 @@ public class BadgeShopPredsManager extends PredsManagerBase {
         List<String> unsubbedWinners = getUnsubbedWinners(winners);
         StringBuilder message = new StringBuilder();
         switch (winners.size()) {
-            case 0:
-                message.append("Nobody guessed it. jcogThump");
-                break;
-            case 1:
-                message.append(String.format(
-                        "Congrats to @%s%s on guessing correctly! jcogChamp",
-                        winners.get(0),
-                        unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : ""
-                ));
-                break;
-            case 2:
-                message.append(String.format(
-                        "Congrats to @%s%s and @%s%s on guessing correctly! jcogChamp",
-                        winners.get(0),
-                        unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : "",
-                        winners.get(1),
-                        unsubbedWinners.contains(winners.get(1).toLowerCase()) ? "*" : ""
-                ));
-                break;
-            default:
+            case 0 -> message.append("Nobody guessed it. jcogThump");
+            case 1 -> message.append(String.format(
+                    "Congrats to @%s%s on guessing correctly! jcogChamp",
+                    winners.get(0),
+                    unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : ""
+            ));
+            case 2 -> message.append(String.format(
+                    "Congrats to @%s%s and @%s%s on guessing correctly! jcogChamp",
+                    winners.get(0),
+                    unsubbedWinners.contains(winners.get(0).toLowerCase()) ? "*" : "",
+                    winners.get(1),
+                    unsubbedWinners.contains(winners.get(1).toLowerCase()) ? "*" : ""
+            ));
+            default -> {
                 message.append("Congrats to ");
                 for (int i = 0; i < winners.size() - 1; i++) {
                     message.append("@").append(winners.get(i));
@@ -101,7 +97,7 @@ public class BadgeShopPredsManager extends PredsManagerBase {
                     message.append("*");
                 }
                 message.append(" on guessing correctly! jcogChamp");
-                break;
+            }
         }
         message.append(" Use !raffle to check your updated entry count.");
     
@@ -198,10 +194,10 @@ public class BadgeShopPredsManager extends PredsManagerBase {
         List<String> winners = new ArrayList<>();
         for (Map.Entry<String, PapePredsObject> pred : predictionList.entrySet()) {
             String userId = pred.getKey();
-            String displayName = pred.getValue().displayName;
-            Badge leftGuess = pred.getValue().left;
-            Badge middleGuess = pred.getValue().middle;
-            Badge rightGuess = pred.getValue().right;
+            String displayName = pred.getValue().displayName();
+            Badge leftGuess = pred.getValue().left();
+            Badge middleGuess = pred.getValue().middle();
+            Badge rightGuess = pred.getValue().right();
             Set<Badge> guessSet = new HashSet<>();
             guessSet.add(leftGuess);
             guessSet.add(middleGuess);
@@ -268,63 +264,31 @@ public class BadgeShopPredsManager extends PredsManagerBase {
     }
 
     private static String badgeToString(Badge badge) {
-        switch (badge) {
-            case BAD_SPIN1:
-                return "BadSpin1";
-            case BAD_SPIN2:
-                return "BadSpin2";
-            case BAD_SPIN3:
-                return "BadSpin3";
-            default:
-                return "SpoodlySpun";
-        }
+        return switch (badge) {
+            case BAD_SPIN1 -> "BadSpin1";
+            case BAD_SPIN2 -> "BadSpin2";
+            case BAD_SPIN3 -> "BadSpin3";
+            default -> "SpoodlySpun";
+        };
     }
 
     private static Badge stringToBadge(String badge) {
-        switch (badge.toLowerCase()) {
-            case "badspin1":
-                return Badge.BAD_SPIN1;
-            case "badspin2":
-                return Badge.BAD_SPIN2;
-            case "badspin3":
-                return Badge.BAD_SPIN3;
-            case "spoodlyspun":
-                return Badge.SPOODLY_SPUN;
-            default:
-                return null;
-        }
+        return switch (badge.toLowerCase()) {
+            case "badspin1" -> Badge.BAD_SPIN1;
+            case "badspin2" -> Badge.BAD_SPIN2;
+            case "badspin3" -> Badge.BAD_SPIN3;
+            case "spoodlyspun" -> Badge.SPOODLY_SPUN;
+            default -> null;
+        };
     }
 
     private static Badge intToBadge(int badge) {
-        switch (badge) {
-            case 1:
-                return Badge.BAD_SPIN1;
-            case 2:
-                return Badge.BAD_SPIN2;
-            case 3:
-                return Badge.BAD_SPIN3;
-            default:
-                return Badge.SPOODLY_SPUN;
-        }
-    }
-    
-    private static class PapePredsObject {
-        private final String displayName;
-        private final Badge left;
-        private final Badge middle;
-        private final Badge right;
-        
-        private PapePredsObject(
-                String displayName,
-                Badge left,
-                Badge middle,
-                Badge right
-        ) {
-            this.displayName = displayName;
-            this.left = left;
-            this.middle = middle;
-            this.right = right;
-        }
+        return switch (badge) {
+            case 1 -> Badge.BAD_SPIN1;
+            case 2 -> Badge.BAD_SPIN2;
+            case 3 -> Badge.BAD_SPIN3;
+            default -> Badge.SPOODLY_SPUN;
+        };
     }
     
 }

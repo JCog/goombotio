@@ -64,14 +64,14 @@ public class QuoteListener extends CommandBase {
             content = messageSplit[1];
         }
         switch (command) {
-            case PATTERN_QUOTE: {
+            case PATTERN_QUOTE -> {
                 QuoteItem quote;
                 if (content.isEmpty()) {
                     do {
                         long index = random.nextInt(quoteDb.getQuoteCount());
                         quote = quoteDb.getQuote(index);
                     } while (quote == null || !quote.isApproved());
-                    
+                
                 } else {
                     long index;
                     try {
@@ -92,9 +92,8 @@ public class QuoteListener extends CommandBase {
                 } else {
                     twitchApi.channelMessage(quote.toString());
                 }
-                break;
             }
-            case PATTERN_ADD_QUOTE: {
+            case PATTERN_ADD_QUOTE -> {
                 if (userLevel.value < USER_LEVEL.VIP.value) {
                     break;
                 }
@@ -117,9 +116,8 @@ public class QuoteListener extends CommandBase {
                 );
                 quoteUndoEngine.storeUndoAction(ADD, quoteItem);
                 twitchApi.channelMessage(String.format("Successfully added quote #%d", quoteItem.getIndex()));
-                break;
             }
-            case PATTERN_DELETE_QUOTE: {
+            case PATTERN_DELETE_QUOTE -> {
                 if (userLevel.value < USER_LEVEL.MOD.value) {
                     break;
                 }
@@ -137,13 +135,12 @@ public class QuoteListener extends CommandBase {
                 QuoteItem quote = quoteDb.deleteQuote(delIndex);
                 quoteUndoEngine.storeUndoAction(DELETE, quote);
                 twitchApi.channelMessage(String.format("Successfully deleted quote #%d", delIndex));
-                break;
             }
-            case PATTERN_EDIT_QUOTE: {
+            case PATTERN_EDIT_QUOTE -> {
                 if (userLevel.value < USER_LEVEL.MOD.value) {
                     break;
                 }
-                
+            
                 String[] editSplit = content.split(" ", 2);
                 if (editSplit.length != 2) {
                     twitchApi.channelMessage(ERROR_MISSING_ARGUMENTS);
@@ -164,28 +161,24 @@ public class QuoteListener extends CommandBase {
                 );
                 quoteUndoEngine.storeUndoAction(EDIT, quote);
                 twitchApi.channelMessage(String.format("Successfully edited quote #%d", editIndex));
-                break;
             }
-            case PATTERN_LATEST_QUOTE: {
+            case PATTERN_LATEST_QUOTE -> {
                 QuoteItem quote = quoteDb.getQuote(quoteDb.getQuoteCount());
                 String output = "";
                 if (quote != null) {
                     output = quote.toString();
                 }
                 twitchApi.channelMessage(output);
-                break;
             }
-            case PATTERN_UNDO_QUOTE: {
+            case PATTERN_UNDO_QUOTE -> {
                 if (userLevel.value >= USER_LEVEL.MOD.value) {
                     quoteUndoEngine.undo();
                 }
-                break;
             }
-            case PATTERN_REDO_QUOTE: {
+            case PATTERN_REDO_QUOTE -> {
                 if (userLevel.value >= USER_LEVEL.MOD.value) {
                     quoteUndoEngine.redo();
                 }
-                break;
             }
         }
     }

@@ -42,23 +42,20 @@ public class QuoteUndoEngine {
         QuoteUndoItem quoteUndoItem = actionUndoStack.pop();
         QuoteItem quote = quoteUndoItem.getQuoteItem();
         switch (quoteUndoItem.getAction()) {
-            case ADD: {
+            case ADD -> {
                 QuoteItem quoteToRedo = quoteDb.deleteQuote(quote.getIndex());
                 addRedoItem(ADD, quoteToRedo);
                 twitchApi.channelMessage(String.format("Quote #%d deleted", quote.getIndex()));
-                break;
             }
-            case EDIT: {
+            case EDIT -> {
                 QuoteItem quoteToRedo = quoteDb.editQuote(quote);
                 addRedoItem(EDIT, quoteToRedo);
                 twitchApi.channelMessage(String.format("Reverted edit to quote #%d", quote.getIndex()));
-                break;
             }
-            case DELETE: {
+            case DELETE -> {
                 quoteDb.reAddDeletedQuote(quote);
                 addRedoItem(quoteUndoItem.getAction(), quoteUndoItem.getQuoteItem());
                 twitchApi.channelMessage(String.format("Re-added quote #%d", quote.getIndex()));
-                break;
             }
         }
     }
@@ -72,7 +69,7 @@ public class QuoteUndoEngine {
         QuoteUndoItem quoteRedoItem = actionRedoStack.pop();
         QuoteItem quoteToRedo = quoteRedoItem.getQuoteItem();
         switch (quoteRedoItem.getAction()) {
-            case ADD: {
+            case ADD -> {
                 QuoteItem quoteToUndo = quoteDb.addQuote(
                         quoteToRedo.getText(),
                         quoteToRedo.getCreatorId(),
@@ -80,19 +77,16 @@ public class QuoteUndoEngine {
                         quoteToRedo.isApproved());
                 addUndoItem(ADD, quoteToUndo);
                 twitchApi.channelMessage(String.format("Re-added quote #%d", quoteToRedo.getIndex()));
-                break;
             }
-            case EDIT: {
+            case EDIT -> {
                 QuoteItem quoteToUndo = quoteDb.editQuote(quoteToRedo);
                 addUndoItem(EDIT, quoteToUndo);
                 twitchApi.channelMessage(String.format("Redid edit to quote #%d", quoteToRedo.getIndex()));
-                break;
             }
-            case DELETE: {
+            case DELETE -> {
                 QuoteItem quoteToUndo = quoteDb.deleteQuote(quoteToRedo.getIndex());
                 addUndoItem(DELETE, quoteToUndo);
                 twitchApi.channelMessage(String.format("Deleted quote #%d", quoteToRedo.getIndex()));
-                break;
             }
         }
     }
