@@ -149,14 +149,8 @@ public class VipRaffleListener extends CommandBase {
         } else {
             String userId = messageEvent.getMessageEvent().getUser().getId();
             String userDisplayName = TwitchEventListener.getDisplayName(messageEvent.getMessageEvent());
-            List<VipRaffleItem> raffleItems = vipRaffleDb.getAllVipRaffleItemsCurrentMonth();
-    
             VipRaffleItem userRaffleItem = vipRaffleDb.getVipRaffleItem(userId);
             int userEntryCount = userRaffleItem == null ? 0 : userRaffleItem.getEntryCount();
-            int totalEntryCount = 0;
-            for (VipRaffleItem raffleItem : raffleItems) {
-                totalEntryCount += raffleItem.getEntryCount();
-            }
             
             twitchApi.channelMessage(String.format(
                     "@%s You have %d raffle entr%s for this month%s.",
@@ -165,7 +159,7 @@ public class VipRaffleListener extends CommandBase {
                     userEntryCount == 1 ? "y" : "ies",
                     userEntryCount == 0 ? "" : String.format(
                             " (~%.1f%% of all entries)",
-                            (float) userEntryCount * 100 / totalEntryCount
+                            (float) userEntryCount * 100 / vipRaffleDb.getTotalEntryCountCurrentMonth()
                     )
             ));
         }
@@ -176,13 +170,13 @@ public class VipRaffleListener extends CommandBase {
     private List<String> performRaffle(List<VipRaffleItem> raffleItems) throws HystrixRuntimeException {
         List<String> filteredIds = raffleItems.stream()
                 .map(VipRaffleItem::getTwitchId)
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
         List<String> bannedUserIds = twitchApi.getBannedUsers(filteredIds).stream()
                 .map(BannedUser::getUserId)
-                .collect(Collectors.toList());
+                .toList();
         List<String> modListIds = twitchApi.getMods(twitchApi.getStreamerUser().getId()).stream()
                 .map(Moderator::getUserId)
-                .collect(Collectors.toList());
+                .toList();
         List<String> blacklistIds = vipDb.getAllBlacklistedUserIds();
         
         filteredIds.removeAll(bannedUserIds);

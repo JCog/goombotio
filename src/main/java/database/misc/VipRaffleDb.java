@@ -81,6 +81,22 @@ public class VipRaffleDb extends GbCollection {
         return vipRaffleItems;
     }
     
+    public int getTotalEntryCountCurrentMonth() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        return getTotalEntryCount(year, month);
+    }
+    
+    public int getTotalEntryCount(int year, int month) {
+        int total = 0;
+        String monthlyEntriesKey = getMonthlyEntriesKey(year, month);
+        for (Document document : findContainsKey(monthlyEntriesKey)) {
+            total += document.getInteger(monthlyEntriesKey);
+        }
+        return total;
+    }
+    
     @Nullable
     public VipRaffleItem getVipRaffleItem(String twitchId) {
         Calendar calendar = Calendar.getInstance();

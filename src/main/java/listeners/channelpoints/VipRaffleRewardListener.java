@@ -65,10 +65,11 @@ public class VipRaffleRewardListener implements TwitchEventListener {
             int entryCount;
             if (vipRaffleItem != null) {
                 entryCount = vipRaffleItem.getEntryCount();
-                twitchApi.channelMessage(String.format("@%s You now have %d entr%s!",
+                twitchApi.channelMessage(String.format("@%s You now have %d entr%s! (~%.1f%% of all entries)",
                         displayName,
                         entryCount,
-                        entryCount == 1 ? "y" : "ies"
+                        entryCount == 1 ? "y" : "ies",
+                        (float) entryCount * 100 / vipRaffleDb.getTotalEntryCountCurrentMonth()
                 ));
                 shouldFulfill = true;
             } else {
