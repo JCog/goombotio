@@ -22,8 +22,8 @@ public class RacetimeListener extends CommandBase {
 
     public RacetimeListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
-        twitchApi = commonUtils.getTwitchApi();
-        racetimeApi = commonUtils.getApiManager().getRacetimeApi();
+        twitchApi = commonUtils.twitchApi();
+        racetimeApi = commonUtils.apiManager().getRacetimeApi();
     }
 
     @Override

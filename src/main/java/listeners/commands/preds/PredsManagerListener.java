@@ -33,7 +33,7 @@ public class PredsManagerListener extends CommandBase {
     public PredsManagerListener(CommonUtils commonUtils, PredsGuessListener predsGuessListener) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_PREDS, PATTERN_PREDS_CANCEL);
         this.commonUtils = commonUtils;
-        twitchApi = commonUtils.getTwitchApi();
+        twitchApi = commonUtils.twitchApi();
         this.predsGuessListener = predsGuessListener;
         predsManager = null;
     }

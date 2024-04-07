@@ -23,12 +23,12 @@ public class SubPointUpdater {
     private int subPoints;
     
     public SubPointUpdater(CommonUtils commonUtils, String subCountFormat) {
-        twitchApi = commonUtils.getTwitchApi();
+        twitchApi = commonUtils.twitchApi();
         this.subCountFormat = subCountFormat;
         
         subPoints = 0;
         
-        init(commonUtils.getScheduler());
+        init(commonUtils.scheduler());
     }
     
     private void init(ScheduledExecutorService scheduler) {

@@ -63,16 +63,16 @@ public class MessageExpressionParser {
     private final TwitchApi twitchApi;
 
     public MessageExpressionParser(CommonUtils commonUtils) {
-        twitchApi = commonUtils.getTwitchApi();
-        commandDb = commonUtils.getDbManager().getCommandDb();
+        twitchApi = commonUtils.twitchApi();
+        commandDb = commonUtils.dbManager().getCommandDb();
     }
     
     public String parseScheduledMessage(ScheduledMessage scheduledMessage) {
-        return parseInternal(scheduledMessage.getMessage(), null, null, null, null, 0);
+        return parseInternal(scheduledMessage.message(), null, null, null, null, 0);
     }
     
     public String parseCommandMessage(CommandItem commandItem, String userInput, String userId, String displayName) {
-        return parseInternal(commandItem.getMessage(), commandItem, userInput, userId, displayName, 0);
+        return parseInternal(commandItem.message(), commandItem, userInput, userId, displayName, 0);
     }
     
     private String parseInternal(
@@ -184,7 +184,7 @@ public class MessageExpressionParser {
                 }
             
                 return parseInternal(
-                        aliasCommand.getMessage(), commandItem,
+                        aliasCommand.message(), commandItem,
                         userInput,
                         userId,
                         displayName,
@@ -195,8 +195,8 @@ public class MessageExpressionParser {
                 if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
-                commandDb.incrementCount(commandItem.getAliases().get(0));
-                return Integer.toString(commandItem.getCount() + 1);
+                commandDb.incrementCount(commandItem.aliases().get(0));
+                return Integer.toString(commandItem.count() + 1);
             }
             case TYPE_FOLLOW_AGE -> {
                 if (content.split("\\s").length == 1) {

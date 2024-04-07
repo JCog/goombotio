@@ -152,41 +152,7 @@ public class CommandDb extends GbCollection {
         return findFirstEquals(ALIASES_KEY, alias);
     }
     
-    public static class CommandItem {
-        private final List<String> aliases;
-        private final String message;
-        private final USER_LEVEL permission;
-        private final long cooldown;
-        private final int count;
-        
-        public CommandItem(List<String> aliases, String message, USER_LEVEL permission, long cooldown, int count) {
-            this.aliases = aliases;
-            this.message = message;
-            this.permission = permission;
-            this.cooldown = cooldown;
-            this.count = count;
-        }
-        
-        public List<String> getAliases() {
-            return aliases;
-        }
-        
-        public String getMessage() {
-            return message;
-        }
-        
-        public USER_LEVEL getPermission() {
-            return permission;
-        }
-        
-        public long getCooldown() {
-            return cooldown;
-        }
-        
-        public int getCount() {
-            return count;
-        }
-        
+    public record CommandItem(List<String> aliases, String message, USER_LEVEL permission, long cooldown, int count) {
         @Override
         public String toString() {
             return String.format(

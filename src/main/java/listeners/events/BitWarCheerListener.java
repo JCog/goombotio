@@ -19,8 +19,8 @@ public class BitWarCheerListener implements TwitchEventListener {
     private final BitWarDb bitWarDb;
     
     public BitWarCheerListener(CommonUtils commonUtils) {
-        twitchApi = commonUtils.getTwitchApi();
-        bitWarDb = commonUtils.getDbManager().getBitWarDb();
+        twitchApi = commonUtils.twitchApi();
+        bitWarDb = commonUtils.dbManager().getBitWarDb();
     }
     
     @Override

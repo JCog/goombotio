@@ -21,8 +21,8 @@ public class PermanentVipListener extends CommandBase {
 
     public PermanentVipListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_ADD, PATTERN_DELETE);
-        twitchApi = commonUtils.getTwitchApi();
-        vipDb = commonUtils.getDbManager().getVipDb();
+        twitchApi = commonUtils.twitchApi();
+        vipDb = commonUtils.dbManager().getVipDb();
     }
 
     @Override

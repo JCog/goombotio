@@ -10,7 +10,7 @@ public class ShoutoutListener implements TwitchEventListener {
     private final TwitchApi twitchApi;
 
     public ShoutoutListener(CommonUtils commonUtils) {
-        twitchApi = commonUtils.getTwitchApi();
+        twitchApi = commonUtils.twitchApi();
     }
     
     @Override

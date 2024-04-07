@@ -26,12 +26,12 @@ public class StreamTracker {
 
     public StreamTracker(CommonUtils commonUtils) {
         this.commonUtils = commonUtils;
-        twitchApi = commonUtils.getTwitchApi();
-        statsBlacklistDb = commonUtils.getDbManager().getStatsBlacklistDb();
+        twitchApi = commonUtils.twitchApi();
+        statsBlacklistDb = commonUtils.dbManager().getStatsBlacklistDb();
 
         streamData = null;
         
-        init(commonUtils.getScheduler());
+        init(commonUtils.scheduler());
     }
 
     private void init(ScheduledExecutorService scheduler) {

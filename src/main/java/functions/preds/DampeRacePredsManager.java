@@ -27,7 +27,7 @@ public class DampeRacePredsManager extends PredsManagerBase {
     
     public DampeRacePredsManager(CommonUtils commonUtils) {
         super(commonUtils, START_MESSAGE, ANSWER_REGEX);
-        dampeRaceLeaderboardDb = commonUtils.getDbManager().getDampeRaceLeaderboardDb();
+        dampeRaceLeaderboardDb = commonUtils.dbManager().getDampeRaceLeaderboardDb();
     }
     
     @Override

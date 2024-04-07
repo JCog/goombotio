@@ -16,7 +16,7 @@ public class MuteCommandListener extends CommandBase {
 
     public MuteCommandListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
-        twitchApi = commonUtils.getTwitchApi();
+        twitchApi = commonUtils.twitchApi();
     }
 
     @Override

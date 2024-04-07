@@ -16,6 +16,8 @@ public class VipRaffleDb extends GbCollection {
     
     private static final String NAME_KEY = "display_name";
     
+    public record VipRaffleItem(String twitchId, String displayName, int entryCount) {}
+    
     public VipRaffleDb(GbDatabase gbDatabase) {
         super(gbDatabase, COLLECTION_NAME);
     }
@@ -125,29 +127,5 @@ public class VipRaffleDb extends GbCollection {
     
     private String getMonthlyEntriesKey(int year, int month) {
         return String.format("entry_count%d-%d", year, month);
-    }
-    
-    public static class VipRaffleItem {
-        private final String twitchId;
-        private final String displayName;
-        private final int entryCount;
-        
-        public VipRaffleItem(String twitchId, String displayName, int entryCount) {
-            this.twitchId = twitchId;
-            this.displayName = displayName;
-            this.entryCount = entryCount;
-        }
-        
-        public String getTwitchId() {
-            return twitchId;
-        }
-        
-        public String getDisplayName() {
-            return displayName;
-        }
-    
-        public int getEntryCount() {
-            return entryCount;
-        }
     }
 }

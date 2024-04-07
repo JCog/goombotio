@@ -13,6 +13,8 @@ public class SocialSchedulerDb extends GbCollection {
 
     private static final String MESSAGE_KEY = "message";
     private static final String WEIGHT_KEY = "weight";
+    
+    public record ScheduledMessage(String id, String message, int weight) {}
 
     public SocialSchedulerDb(GbDatabase gbDatabase) {
         super(gbDatabase, COLLECTION_NAME);
@@ -81,29 +83,5 @@ public class SocialSchedulerDb extends GbCollection {
             messages.add(new ScheduledMessage(id, message, weight));
         }
         return messages;
-    }
-    
-    public static class ScheduledMessage {
-        private final String id;
-        private final String message;
-        private final int weight;
-        
-        public ScheduledMessage(String id, String message, int weight) {
-            this.id = id;
-            this.message = message;
-            this.weight = weight;
-        }
-        
-        public String getId() {
-            return id;
-        }
-        
-        public String getMessage() {
-            return message;
-        }
-        
-        public int getWeight() {
-            return weight;
-        }
     }
 }

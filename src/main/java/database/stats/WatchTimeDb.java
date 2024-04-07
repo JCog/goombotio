@@ -17,8 +17,9 @@ public class WatchTimeDb extends GbCollection {
     private static final String NAME_KEY = "name";
     private static final String FIRST_SEEN_KEY = "first_seen";
     private static final String LAST_SEEN_KEY = "last_seen";
-
-
+    
+    public record WatchtimeItem(String id, String name, int minutes, Date firstSeen, Date lastSeen) {}
+    
     public WatchTimeDb(GbDatabase gbDatabase) {
         super(gbDatabase, COLLECTION_NAME);
     }
@@ -246,41 +247,5 @@ public class WatchTimeDb extends GbCollection {
         date.set(Calendar.SECOND, 0);
         date.set(Calendar.MILLISECOND, 0);
         return date.getTime();
-    }
-    
-    public static class WatchtimeItem {
-        private final String id;
-        private final String name;
-        private final int minutes;
-        private final Date firstSeen;
-        private final Date lastSeen;
-        
-        public WatchtimeItem(String id, String name, int minutes, Date firstSeen, Date lastSeen) {
-            this.id = id;
-            this.name = name;
-            this.minutes = minutes;
-            this.firstSeen = firstSeen;
-            this.lastSeen = lastSeen;
-        }
-        
-        public String getId() {
-            return id;
-        }
-        
-        public String getName() {
-            return name;
-        }
-        
-        public int getMinutes() {
-            return minutes;
-        }
-        
-        public Date getFirstSeen() {
-            return firstSeen;
-        }
-        
-        public Date getLastSeen() {
-            return lastSeen;
-        }
     }
 }

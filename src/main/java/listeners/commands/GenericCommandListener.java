@@ -26,8 +26,8 @@ public class GenericCommandListener implements TwitchEventListener {
 
     public GenericCommandListener(CommonUtils commonUtils, MessageExpressionParser commandParser) {
         this.commandParser = commandParser;
-        twitchApi = commonUtils.getTwitchApi();
-        commandDb = commonUtils.getDbManager().getCommandDb();
+        twitchApi = commonUtils.twitchApi();
+        commandDb = commonUtils.dbManager().getCommandDb();
         commandInstants = new HashMap<>();
     }
 
@@ -46,7 +46,7 @@ public class GenericCommandListener implements TwitchEventListener {
         Set<String> badges = messageEvent.getMessageEvent().getBadges().keySet();
         USER_LEVEL userLevel = TwitchUserLevel.getUserLevel(badges);
         CommandItem commandItem = commandDb.getCommandItem(command);
-        if (commandItem == null || cooldownActive(command, commandItem.getCooldown()) || !userHasPermission(userLevel, commandItem)) {
+        if (commandItem == null || cooldownActive(command, commandItem.cooldown()) || !userHasPermission(userLevel, commandItem)) {
             return;
         }
         
@@ -60,7 +60,7 @@ public class GenericCommandListener implements TwitchEventListener {
     }
 
     private boolean userHasPermission(USER_LEVEL userLevel, CommandItem commandItem) {
-        return userLevel.value >= commandItem.getPermission().value;
+        return userLevel.value >= commandItem.permission().value;
     }
 
     private boolean cooldownActive(String command, long cooldown) {

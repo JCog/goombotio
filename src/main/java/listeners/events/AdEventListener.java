@@ -9,7 +9,7 @@ public class AdEventListener implements TwitchEventListener {
     private final TwitchApi twitchApi;
 
     public AdEventListener(CommonUtils commonUtils) {
-        twitchApi = commonUtils.getTwitchApi();
+        twitchApi = commonUtils.twitchApi();
     }
     
     @Override

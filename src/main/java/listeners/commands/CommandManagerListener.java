@@ -46,8 +46,8 @@ public class CommandManagerListener extends CommandBase {
                 PATTERN_DEL_ALIAS,
                 PATTERN_DETAILS
         );
-        twitchApi = commonUtils.getTwitchApi();
-        commandDb = commonUtils.getDbManager().getCommandDb();
+        twitchApi = commonUtils.twitchApi();
+        commandDb = commonUtils.dbManager().getCommandDb();
         options.addOption(Option.builder("c")
                 .longOpt(OPT_COOLDOWN)
                 .hasArg()

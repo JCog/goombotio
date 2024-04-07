@@ -28,7 +28,7 @@ public class PyramidListener implements TwitchEventListener {
     private int height;
 
     public PyramidListener(CommonUtils commonUtils) {
-        twitchApi = commonUtils.getTwitchApi();
+        twitchApi = commonUtils.twitchApi();
         resetState();
     }
 

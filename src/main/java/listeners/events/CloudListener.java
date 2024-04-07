@@ -17,7 +17,7 @@ public class CloudListener implements TwitchEventListener {
     private boolean saidHi;
 
     public CloudListener(CommonUtils commonUtils) {
-        twitchApi = commonUtils.getTwitchApi();
+        twitchApi = commonUtils.twitchApi();
         saidHi = true;
     }
 

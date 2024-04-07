@@ -50,8 +50,8 @@ public class QuoteListener extends CommandBase {
                 PATTERN_UNDO_QUOTE,
                 PATTERN_REDO_QUOTE
         );
-        twitchApi = commonUtils.getTwitchApi();
-        quoteDb = commonUtils.getDbManager().getQuoteDb();
+        twitchApi = commonUtils.twitchApi();
+        quoteDb = commonUtils.dbManager().getQuoteDb();
         random = new Random();
         quoteUndoEngine = new QuoteUndoEngine(twitchApi, quoteDb);
     }
@@ -70,7 +70,7 @@ public class QuoteListener extends CommandBase {
                     do {
                         long index = random.nextInt(quoteDb.getQuoteCount());
                         quote = quoteDb.getQuote(index);
-                    } while (quote == null || !quote.isApproved());
+                    } while (quote == null || !quote.approved());
                 
                 } else {
                     long index;
@@ -87,7 +87,7 @@ public class QuoteListener extends CommandBase {
                         quote = quotes.get(randInt);
                     }
                 }
-                if (quote == null || !quote.isApproved()) {
+                if (quote == null || !quote.approved()) {
                     twitchApi.channelMessage(ERROR_NO_MATCHING_QUOTES);
                 } else {
                     twitchApi.channelMessage(quote.toString());
@@ -115,7 +115,7 @@ public class QuoteListener extends CommandBase {
                         true
                 );
                 quoteUndoEngine.storeUndoAction(ADD, quoteItem);
-                twitchApi.channelMessage(String.format("Successfully added quote #%d", quoteItem.getIndex()));
+                twitchApi.channelMessage(String.format("Successfully added quote #%d", quoteItem.index()));
             }
             case PATTERN_DELETE_QUOTE -> {
                 if (userLevel.value < USER_LEVEL.MOD.value) {

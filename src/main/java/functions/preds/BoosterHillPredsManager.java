@@ -27,7 +27,7 @@ public class BoosterHillPredsManager extends PredsManagerBase {
     
     public BoosterHillPredsManager(CommonUtils commonUtils) {
         super(commonUtils, START_MESSAGE, ANSWER_REGEX);
-        boosterHillLeaderboardDb = commonUtils.getDbManager().getBoosterHillLeaderboardDb();
+        boosterHillLeaderboardDb = commonUtils.dbManager().getBoosterHillLeaderboardDb();
     }
     
     @Override

@@ -17,6 +17,8 @@ public class TattleDb extends GbCollection {
     private static final String TATTLE_KEY = "tattle";
 
     private final Random random = new Random();
+    
+    public record TattleItem(String twitchId, String tattle) {}
 
     public TattleDb(GbDatabase gbDatabase) {
         super(gbDatabase, COLLECTION_NAME);
@@ -60,23 +62,5 @@ public class TattleDb extends GbCollection {
             tattles.add(new TattleItem(document.getString(ID_KEY), document.getString(TATTLE_KEY)));
         }
         return tattles;
-    }
-    
-    public static class TattleItem {
-        private final String twitchId;
-        private final String tattle;
-        
-        public TattleItem(String twitchId, String tattle) {
-            this.twitchId = twitchId;
-            this.tattle = tattle;
-        }
-        
-        public String getTwitchId() {
-            return twitchId;
-        }
-        
-        public String getTattle() {
-            return tattle;
-        }
     }
 }

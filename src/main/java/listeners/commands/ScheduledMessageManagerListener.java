@@ -24,8 +24,8 @@ public class ScheduledMessageManagerListener extends CommandBase {
 
     public ScheduledMessageManagerListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
-        twitchApi = commonUtils.getTwitchApi();
-        socialSchedulerDb = commonUtils.getDbManager().getSocialSchedulerDb();
+        twitchApi = commonUtils.twitchApi();
+        socialSchedulerDb = commonUtils.dbManager().getSocialSchedulerDb();
     }
 
     @Override

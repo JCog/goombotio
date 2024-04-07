@@ -31,8 +31,8 @@ public class LinkListener implements TwitchEventListener {
     private final String youtubeApiKey;
 
     public LinkListener(CommonUtils commonUtils, Twitter twitter, String youtubeApiKey) {
-        twitchApi = commonUtils.getTwitchApi();
-        youtubeApi = commonUtils.getApiManager().getYoutubeApi();
+        twitchApi = commonUtils.twitchApi();
+        youtubeApi = commonUtils.apiManager().getYoutubeApi();
         this.twitter = twitter;
         this.youtubeApiKey = youtubeApiKey;
     }

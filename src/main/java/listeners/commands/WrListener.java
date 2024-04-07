@@ -40,8 +40,8 @@ public class WrListener extends CommandBase {
 
     public WrListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
-        twitchApi = commonUtils.getTwitchApi();
-        srcApi = commonUtils.getApiManager().getSrcApi();
+        twitchApi = commonUtils.twitchApi();
+        srcApi = commonUtils.apiManager().getSrcApi();
     }
 
     @Override

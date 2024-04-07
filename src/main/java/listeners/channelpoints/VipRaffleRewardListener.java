@@ -28,9 +28,9 @@ public class VipRaffleRewardListener implements TwitchEventListener {
     private final VipRaffleDb vipRaffleDb;
     
     public VipRaffleRewardListener(CommonUtils commonUtils) {
-        twitchApi = commonUtils.getTwitchApi();
-        vipDb = commonUtils.getDbManager().getVipDb();
-        vipRaffleDb = commonUtils.getDbManager().getVipRaffleDb();
+        twitchApi = commonUtils.twitchApi();
+        vipDb = commonUtils.dbManager().getVipDb();
+        vipRaffleDb = commonUtils.dbManager().getVipRaffleDb();
     }
     
     @Override
@@ -64,7 +64,7 @@ public class VipRaffleRewardListener implements TwitchEventListener {
             VipRaffleItem vipRaffleItem = vipRaffleDb.getVipRaffleItem(userId);
             int entryCount;
             if (vipRaffleItem != null) {
-                entryCount = vipRaffleItem.getEntryCount();
+                entryCount = vipRaffleItem.entryCount();
                 twitchApi.channelMessage(String.format("@%s You now have %d entr%s! (~%.1f%% of all entries)",
                         displayName,
                         entryCount,

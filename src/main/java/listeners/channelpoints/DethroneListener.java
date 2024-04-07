@@ -26,8 +26,8 @@ public class DethroneListener implements TwitchEventListener {
     private final VipDb vipDb;
     
     public DethroneListener(CommonUtils commonUtils) {
-        twitchApi = commonUtils.getTwitchApi();
-        vipDb = commonUtils.getDbManager().getVipDb();
+        twitchApi = commonUtils.twitchApi();
+        vipDb = commonUtils.dbManager().getVipDb();
     }
     
     @Override

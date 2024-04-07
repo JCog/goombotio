@@ -15,6 +15,8 @@ public abstract class PredsLeaderboardDbBase extends GbCollection {
     static final String NAME_KEY = "name";
     static final String POINTS_KEY = "points";
     static final String WINS_KEY = "wins";
+    
+    public record PredsItem(String userId, String displayName, int wins, int points) {}
 
     protected PredsLeaderboardDbBase(GbDatabase gbDatabase, String collectionName) {
         super(gbDatabase, collectionName);
@@ -199,35 +201,5 @@ public abstract class PredsLeaderboardDbBase extends GbCollection {
             ));
         }
         return items;
-    }
-    
-    public static class PredsItem {
-        private final String userId;
-        private final String displayName;
-        private final int wins;
-        private final int points;
-        
-        public PredsItem(String userId, String displayName, int wins, int points) {
-            this.userId = userId;
-            this.displayName = displayName;
-            this.wins = wins;
-            this.points = points;
-        }
-        
-        public String getUserId() {
-            return userId;
-        }
-        
-        public String getDisplayName() {
-            return displayName;
-        }
-        
-        public int getWins() {
-            return wins;
-        }
-        
-        public int getPoints() {
-            return points;
-        }
     }
 }

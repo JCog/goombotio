@@ -21,16 +21,16 @@ public class EmoteListener implements TwitchEventListener {
     private final Map<String, String> bttvEmotes;
 
     public EmoteListener(CommonUtils commonUtils) {
-        emoteStatsDb = commonUtils.getDbManager().getEmoteStatsDb();
-        ffzEmoteStatsDb = commonUtils.getDbManager().getFfzEmoteStatsDb();
-        sevenTvEmoteStatsDb = commonUtils.getDbManager().getSevenTvEmoteStatsDb();
-        bttvEmoteStatsDb = commonUtils.getDbManager().getBttvEmoteStatsDb();
+        emoteStatsDb = commonUtils.dbManager().getEmoteStatsDb();
+        ffzEmoteStatsDb = commonUtils.dbManager().getFfzEmoteStatsDb();
+        sevenTvEmoteStatsDb = commonUtils.dbManager().getSevenTvEmoteStatsDb();
+        bttvEmoteStatsDb = commonUtils.dbManager().getBttvEmoteStatsDb();
         
-        String username = commonUtils.getTwitchApi().getStreamerUser().getLogin();
-        String userId = commonUtils.getTwitchApi().getStreamerUser().getId();
-        ffzEmotes = commonUtils.getApiManager().getFfzApi().getEmotes(username);
-        sevenTvEmotes = commonUtils.getApiManager().getSevenTvApi().getEmotes(userId);
-        bttvEmotes = commonUtils.getApiManager().getBttvApi().getEmotes(userId);
+        String username = commonUtils.twitchApi().getStreamerUser().getLogin();
+        String userId = commonUtils.twitchApi().getStreamerUser().getId();
+        ffzEmotes = commonUtils.apiManager().getFfzApi().getEmotes(username);
+        sevenTvEmotes = commonUtils.apiManager().getSevenTvApi().getEmotes(userId);
+        bttvEmotes = commonUtils.apiManager().getBttvApi().getEmotes(userId);
     }
 
     @Override

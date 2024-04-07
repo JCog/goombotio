@@ -25,10 +25,10 @@ public abstract class PredsManagerBase {
     boolean waitingForAnswer;
 
     PredsManagerBase(CommonUtils commonUtils, String startMessage, String answerRegex) {
-        twitchApi = commonUtils.getTwitchApi();
-        vipRaffleDb = commonUtils.getDbManager().getVipRaffleDb();
-        vipDb = commonUtils.getDbManager().getVipDb();
-        discord = commonUtils.getDiscordBotController();
+        twitchApi = commonUtils.twitchApi();
+        vipRaffleDb = commonUtils.dbManager().getVipRaffleDb();
+        vipDb = commonUtils.dbManager().getVipDb();
+        discord = commonUtils.discordBotController();
         this.startMessage = startMessage;
         this.answerRegex = answerRegex;
     }
@@ -80,14 +80,14 @@ public abstract class PredsManagerBase {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     public void updateDiscordLeaderboardWins(String discordChannel, String messageTitle, List<PredsItem> sortedItems) {
-        List<String> names = sortedItems.stream().map(PredsItem::getDisplayName).collect(Collectors.toList());
-        List<Integer> winCounts = sortedItems.stream().map(PredsItem::getWins).collect(Collectors.toList());
+        List<String> names = sortedItems.stream().map(PredsItem::displayName).collect(Collectors.toList());
+        List<Integer> winCounts = sortedItems.stream().map(PredsItem::wins).collect(Collectors.toList());
         updateDiscordLeaderboard(discordChannel, messageTitle, names, winCounts);
     }
     
     public void updateDiscordLeaderboardPoints(String discordChannel, String messageTitle, List<PredsItem> sortedItems) {
-        List<String> names = sortedItems.stream().map(PredsItem::getDisplayName).collect(Collectors.toList());
-        List<Integer> pointCounts = sortedItems.stream().map(PredsItem::getPoints).collect(Collectors.toList());
+        List<String> names = sortedItems.stream().map(PredsItem::displayName).collect(Collectors.toList());
+        List<Integer> pointCounts = sortedItems.stream().map(PredsItem::points).collect(Collectors.toList());
         updateDiscordLeaderboard(discordChannel, messageTitle, names, pointCounts);
     }
     

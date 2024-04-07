@@ -17,7 +17,7 @@ public class RecentCheerListener implements TwitchEventListener {
     private final TwitchApi twitchApi;
     
     public RecentCheerListener(CommonUtils commonUtils) {
-        twitchApi = commonUtils.getTwitchApi();
+        twitchApi = commonUtils.twitchApi();
     }
     
     @Override

@@ -41,7 +41,7 @@ public class QuoteDb extends GbCollection {
     public void reAddDeletedQuote(QuoteItem quote) {
         for (Document nextQuote : sortDescending(findAll(), ID_KEY)) {
             long oldId = nextQuote.getLong(ID_KEY);
-            if (oldId < quote.getIndex()) {
+            if (oldId < quote.index()) {
                 break;
             }
             deleteOne(oldId);
@@ -57,11 +57,11 @@ public class QuoteDb extends GbCollection {
 
     //be careful with this in case of intersecting IDs
     private void addQuote(QuoteItem quote) {
-        Document document = new Document(ID_KEY, quote.getIndex())
-                .append(TEXT_KEY, quote.getText())
-                .append(CREATOR_ID_KEY, quote.getCreatorId())
-                .append(CREATED_KEY, quote.getCreated())
-                .append(APPROVED_KEY, quote.isApproved());
+        Document document = new Document(ID_KEY, quote.index())
+                .append(TEXT_KEY, quote.text())
+                .append(CREATOR_ID_KEY, quote.creatorId())
+                .append(CREATED_KEY, quote.created())
+                .append(APPROVED_KEY, quote.approved());
         insertOne(document);
     }
 
@@ -110,7 +110,7 @@ public class QuoteDb extends GbCollection {
 
     @Nullable
     public QuoteItem editQuote(QuoteItem quote) {
-        return editQuote(quote.getIndex(), quote.getText(), quote.getCreatorId(), quote.isApproved());
+        return editQuote(quote.index(), quote.text(), quote.creatorId(), quote.approved());
     }
 
     public int getQuoteCount() {
@@ -121,7 +121,7 @@ public class QuoteDb extends GbCollection {
         List<QuoteItem> output = new ArrayList<>();
         for (Document quote : findContainsSubstring(TEXT_KEY, query, false)) {
             QuoteItem quoteItem = convertQuoteDocument(quote);
-            if (quoteItem!= null && quoteItem.isApproved()) {
+            if (quoteItem!= null && quoteItem.approved()) {
                 output.add(quoteItem);
             }
         }
@@ -145,55 +145,16 @@ public class QuoteDb extends GbCollection {
         return new QuoteItem(index, text, creatorId, created, isApproved);
     }
     
-    public static class QuoteItem {
-        private static final String DATE_FORMAT = "MMMM dd, yyyy";
-        
-        private final long index;
-        private final String text;
-        private final Long creatorId;
-        private final Date created;
-        private final boolean approved;
-        
-        public QuoteItem(long index, String text, Long creatorId, Date created, boolean approved) {
-            this.index = index;
-            this.text = text;
-            this.creatorId = creatorId;
-            this.created = created;
-            this.approved = approved;
-        }
-        
-        public long getIndex() {
-            return index;
-        }
-        
-        public String getText() {
-            return text;
-        }
-        
-        public Long getCreatorId() {
-            return creatorId;
-        }
-        
-        public Date getCreated() {
-            return created;
-        }
-        
-        public boolean isApproved() {
-            return approved;
-        }
+    public record QuoteItem(long index, String text, Long creatorId, Date created, boolean approved) {
+        private static final SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy");
         
         @Override
         public String toString() {
             if (created == null) {
                 return String.format("%d. %s", index, text);
             } else {
-                return String.format("%d. %s, %s", index, text, getDateString());
+                return String.format("%d. %s, %s", index, text, sdf.format(created));
             }
-        }
-        
-        private String getDateString() {
-            SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-            return sdf.format(created);
         }
     }
 }

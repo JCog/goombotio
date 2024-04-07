@@ -17,7 +17,7 @@ public class SubListener implements TwitchEventListener {
     private final TwitchApi twitchApi;
 
     public SubListener(CommonUtils commonUtils) {
-        twitchApi = commonUtils.getTwitchApi();
+        twitchApi = commonUtils.twitchApi();
     }
     
     @Override

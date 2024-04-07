@@ -26,9 +26,9 @@ public class StreamData {
     private Date endTime;
 
     public StreamData(CommonUtils commonUtils) {
-        twitchApi = commonUtils.getTwitchApi();
-        streamStatsDb = commonUtils.getDbManager().getStreamStatsDb();
-        watchTimeDb = commonUtils.getDbManager().getWatchTimeDb();
+        twitchApi = commonUtils.twitchApi();
+        streamStatsDb = commonUtils.dbManager().getStreamStatsDb();
+        watchTimeDb = commonUtils.dbManager().getWatchTimeDb();
 
         out.println("\n---------------------");
         out.println(twitchApi.getStreamerUser().getDisplayName() + " is now live.");

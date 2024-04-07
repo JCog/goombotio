@@ -21,7 +21,7 @@ public class AdCommandListener extends CommandBase {
 
     public AdCommandListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
-        twitchApi = commonUtils.getTwitchApi();
+        twitchApi = commonUtils.twitchApi();
     }
 
     @Override

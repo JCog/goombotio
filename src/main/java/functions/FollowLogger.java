@@ -32,13 +32,13 @@ public class FollowLogger {
     private Set<String> oldFollowerIdList;
 
     public FollowLogger(CommonUtils commonUtils, StreamTracker streamTracker) {
-        twitchApi = commonUtils.getTwitchApi();
-        watchTimeDb = commonUtils.getDbManager().getWatchTimeDb();
+        twitchApi = commonUtils.twitchApi();
+        watchTimeDb = commonUtils.dbManager().getWatchTimeDb();
         this.streamTracker = streamTracker;
         dateFormatCurrent = new SimpleDateFormat(DATE_FORMAT_CURRENT);
         dateFormatFollow = new SimpleDateFormat(DATE_FORMAT_FOLLOW);
         
-        init(commonUtils.getScheduler());
+        init(commonUtils.scheduler());
     }
 
     private void init(ScheduledExecutorService scheduler) {

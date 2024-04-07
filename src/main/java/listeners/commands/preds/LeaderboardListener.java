@@ -69,8 +69,8 @@ public class LeaderboardListener extends CommandBase {
 //                PATTERN_LEADERBOARD_ALL,
 //                PATTERN_POINTS_ALL
         );
-        dbManager = commonUtils.getDbManager();
-        twitchApi = commonUtils.getTwitchApi();
+        dbManager = commonUtils.dbManager();
+        twitchApi = commonUtils.twitchApi();
         updateLeaderboardType();
     }
 

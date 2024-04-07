@@ -34,7 +34,7 @@ public class PiantaSixPredsManager extends PredsManagerBase {
 
     public PiantaSixPredsManager(CommonUtils commonUtils) {
         super(commonUtils, START_MESSAGE, ANSWER_REGEX);
-        piantaSixLeaderboardDb = commonUtils.getDbManager().getPiantaSixLeaderboardDb();
+        piantaSixLeaderboardDb = commonUtils.dbManager().getPiantaSixLeaderboardDb();
     }
 
     //submit the correct answer, calculate points, end game

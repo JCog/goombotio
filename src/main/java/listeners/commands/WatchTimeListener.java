@@ -27,8 +27,8 @@ public class WatchTimeListener extends CommandBase {
 
     public WatchTimeListener(CommonUtils commonUtils, StreamTracker streamTracker) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
-        twitchApi = commonUtils.getTwitchApi();
-        watchTimeDb = commonUtils.getDbManager().getWatchTimeDb();
+        twitchApi = commonUtils.twitchApi();
+        watchTimeDb = commonUtils.dbManager().getWatchTimeDb();
         this.streamTracker = streamTracker;
     }
 

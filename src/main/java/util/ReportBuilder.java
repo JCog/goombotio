@@ -22,13 +22,13 @@ public class ReportBuilder {
         String filename = getReportFilename();
 
         String report = "REPORT\n\n" +
-                generateReportStats(streamData) +
-                "\n\n" +
-                generateReportAllViewers(commonUtils.getDbManager(), streamData) +
-                "\n\n" +
-                generateReportNewViewers(streamData) +
-                "\n\n" +
-                generateReportReturningViewers(streamData);
+                        generateReportStats(streamData) +
+                        "\n\n" +
+                        generateReportAllViewers(commonUtils.dbManager(), streamData) +
+                        "\n\n" +
+                        generateReportNewViewers(streamData) +
+                        "\n\n" +
+                        generateReportReturningViewers(streamData);
         boolean successful = FileWriter.writeToFile(REPORT_LOCATION, filename, report);
         if (successful) {
             out.printf("\nReport output to:\n%s%s\n\n", REPORT_LOCATION, filename);

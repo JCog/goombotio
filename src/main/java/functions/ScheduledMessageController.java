@@ -36,13 +36,13 @@ public class ScheduledMessageController implements TwitchEventListener {
     private String previousId = "";
     
     public ScheduledMessageController(CommonUtils commonUtils, MessageExpressionParser messageExpressionParser) {
-        twitchApi = commonUtils.getTwitchApi();
-        socialSchedulerDb = commonUtils.getDbManager().getSocialSchedulerDb();
+        twitchApi = commonUtils.twitchApi();
+        socialSchedulerDb = commonUtils.dbManager().getSocialSchedulerDb();
         commandParser = messageExpressionParser;
         activeChat = false;
         recentRaid = false;
         
-        initScheduledMessages(commonUtils.getScheduler());
+        initScheduledMessages(commonUtils.scheduler());
     }
     
     private void initScheduledMessages(ScheduledExecutorService scheduler) {
@@ -87,8 +87,8 @@ public class ScheduledMessageController implements TwitchEventListener {
         int totalWeight = 0;
         NavigableMap<Integer, ScheduledMessage> messageMap = new TreeMap<>();
         for (ScheduledMessage message : socialSchedulerDb.getAllMessages()) {
-            if (!message.getId().equals(previousId)) {
-                totalWeight += message.getWeight();
+            if (!message.id().equals(previousId)) {
+                totalWeight += message.weight();
                 messageMap.put(totalWeight, message);
             }
         }
@@ -96,7 +96,7 @@ public class ScheduledMessageController implements TwitchEventListener {
         int selection = random.nextInt(totalWeight);
         ScheduledMessage message = messageMap.higherEntry(selection).getValue();
         twitchApi.channelAnnouncement(commandParser.parseScheduledMessage(message));
-        previousId = message.getId();
+        previousId = message.id();
     }
     
     private void postAfterRaidMsg() {
@@ -107,7 +107,7 @@ public class ScheduledMessageController implements TwitchEventListener {
         }
         
         twitchApi.channelAnnouncement(commandParser.parseScheduledMessage(message));
-        previousId = message.getId();
+        previousId = message.id();
     }
     
     @Override

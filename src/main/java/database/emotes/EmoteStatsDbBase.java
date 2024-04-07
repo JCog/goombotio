@@ -14,7 +14,9 @@ public abstract class EmoteStatsDbBase extends GbCollection {
     private static final String USAGE_STATS_KEY = "usage_stats";
     private static final String COUNT_KEY = "count";
     private static final String USERS_KEY = "users";
-
+    
+    public record EmoteItem(String pattern, int count, int users) {}
+    
     public EmoteStatsDbBase(GbDatabase gbDatabase, String collectionName) {
         super(gbDatabase, collectionName);
     }
@@ -187,7 +189,7 @@ public abstract class EmoteStatsDbBase extends GbCollection {
 
         @Override
         public int compare(EmoteItem o1, EmoteItem o2) {
-            return o2.getCount() - o1.getCount();
+            return o2.count() - o1.count();
         }
     }
 
@@ -195,32 +197,7 @@ public abstract class EmoteStatsDbBase extends GbCollection {
 
         @Override
         public int compare(EmoteItem o1, EmoteItem o2) {
-            return o2.getUsers() - o1.getUsers();
-        }
-    }
-    
-    public static class EmoteItem {
-        private final String pattern;
-        private final int count;
-        private final int users;
-        
-        public EmoteItem(String pattern, int count, int users) {
-            this.pattern = pattern;
-            this.count = count;
-            this.users = users;
-        }
-        
-        
-        public String getPattern() {
-            return pattern;
-        }
-        
-        public int getCount() {
-            return count;
-        }
-        
-        public int getUsers() {
-            return users;
+            return o2.users() - o1.users();
         }
     }
     

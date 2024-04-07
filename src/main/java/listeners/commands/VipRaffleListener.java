@@ -32,9 +32,9 @@ public class VipRaffleListener extends CommandBase {
     
     public VipRaffleListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
-        twitchApi = commonUtils.getTwitchApi();
-        vipRaffleDb = commonUtils.getDbManager().getVipRaffleDb();
-        vipDb = commonUtils.getDbManager().getVipDb();
+        twitchApi = commonUtils.twitchApi();
+        vipRaffleDb = commonUtils.dbManager().getVipRaffleDb();
+        vipDb = commonUtils.dbManager().getVipDb();
     }
     
     @Override
@@ -47,8 +47,8 @@ public class VipRaffleListener extends CommandBase {
                 System.out.printf(
                         "%d. %s (%d)%n",
                         i + 1,
-                        vipRaffleItems.get(i).getDisplayName(),
-                        vipRaffleItems.get(i).getEntryCount()
+                        vipRaffleItems.get(i).displayName(),
+                        vipRaffleItems.get(i).entryCount()
                 );
             }
             
@@ -150,7 +150,7 @@ public class VipRaffleListener extends CommandBase {
             String userId = messageEvent.getMessageEvent().getUser().getId();
             String userDisplayName = TwitchEventListener.getDisplayName(messageEvent.getMessageEvent());
             VipRaffleItem userRaffleItem = vipRaffleDb.getVipRaffleItem(userId);
-            int userEntryCount = userRaffleItem == null ? 0 : userRaffleItem.getEntryCount();
+            int userEntryCount = userRaffleItem == null ? 0 : userRaffleItem.entryCount();
             
             twitchApi.channelMessage(String.format(
                     "@%s You have %d raffle entr%s for this month%s.",
@@ -169,7 +169,7 @@ public class VipRaffleListener extends CommandBase {
     
     private List<String> performRaffle(List<VipRaffleItem> raffleItems) throws HystrixRuntimeException {
         List<String> filteredIds = raffleItems.stream()
-                .map(VipRaffleItem::getTwitchId)
+                .map(VipRaffleItem::twitchId)
                 .collect(Collectors.toCollection(ArrayList::new));
         List<String> bannedUserIds = twitchApi.getBannedUsers(filteredIds).stream()
                 .map(BannedUser::getUserId)
@@ -189,7 +189,7 @@ public class VipRaffleListener extends CommandBase {
         
         double totalWeight = 0;
         for (VipRaffleItem item : raffleItems) {
-            totalWeight += item.getEntryCount();
+            totalWeight += item.entryCount();
         }
         
         while (winnerIds.size() < WINNER_COUNT && raffleItems.size() > 0) {
@@ -197,7 +197,7 @@ public class VipRaffleListener extends CommandBase {
             double indexCurrent = 0;
             VipRaffleItem winner = null;
             for (VipRaffleItem item : raffleItems) {
-                indexCurrent += item.getEntryCount();
+                indexCurrent += item.entryCount();
                 if (indexCurrent >= indexWinner) {
                     winner = item;
                     break;
@@ -208,21 +208,21 @@ public class VipRaffleListener extends CommandBase {
                 continue;
             }
             
-            totalWeight -= winner.getEntryCount();
+            totalWeight -= winner.entryCount();
             raffleItems.remove(winner);
     
             // skip if banned user, mod, or blacklisted
-            if (!filteredIds.contains(winner.getTwitchId())) {
+            if (!filteredIds.contains(winner.twitchId())) {
                 continue;
             }
             
             // skip users that don't follow the channel
-            InboundFollow channelFollower = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), winner.getTwitchId());
+            InboundFollow channelFollower = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), winner.twitchId());
             if (channelFollower == null) {
                 continue;
             }
             
-            winnerIds.add(winner.getTwitchId());
+            winnerIds.add(winner.twitchId());
         }
         
         return winnerIds;

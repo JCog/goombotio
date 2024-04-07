@@ -27,8 +27,8 @@ public class TattleListener extends CommandBase {
 
     public TattleListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_TATTLE, PATTERN_ADD);
-        tattleDb = commonUtils.getDbManager().getTattleDb();
-        twitchApi = commonUtils.getTwitchApi();
+        tattleDb = commonUtils.dbManager().getTattleDb();
+        twitchApi = commonUtils.twitchApi();
     }
 
     @Override
@@ -54,7 +54,7 @@ public class TattleListener extends CommandBase {
                 }
             
                 List<TattleItem> allTattles = tattleDb.getAllTattles();
-                List<User> users = twitchApi.getUserListByIds(allTattles.stream().map(TattleItem::getTwitchId).collect(Collectors.toList()));
+                List<User> users = twitchApi.getUserListByIds(allTattles.stream().map(TattleItem::twitchId).collect(Collectors.toList()));
                 List<User> userOptions = new ArrayList<>();
             
                 for (User tattleUser : users) {
@@ -70,7 +70,7 @@ public class TattleListener extends CommandBase {
             
                 int index = random.nextInt(userOptions.size());
                 TattleItem outputTattle = allTattles.stream()
-                        .filter(tattleItem -> userOptions.get(index).getId().equals(tattleItem.getTwitchId()))
+                        .filter(tattleItem -> userOptions.get(index).getId().equals(tattleItem.twitchId()))
                         .findAny()
                         .orElse(null);
                 if (outputTattle == null) {
@@ -112,11 +112,11 @@ public class TattleListener extends CommandBase {
     }
 
     private String tattleItemToString(TattleItem tattleItem) {
-        User user = twitchApi.getUserById(tattleItem.getTwitchId());
+        User user = twitchApi.getUserById(tattleItem.twitchId());
         if (user == null) {
-            return String.format("ERROR: unknown user ID \"%s\"", tattleItem.getTwitchId());
+            return String.format("ERROR: unknown user ID \"%s\"", tattleItem.twitchId());
         }
         String username = user.getDisplayName();
-        return String.format("%s: %s", username, tattleItem.getTattle());
+        return String.format("%s: %s", username, tattleItem.tattle());
     }
 }

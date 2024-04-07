@@ -50,7 +50,7 @@ public class BadgeShopPredsManager extends PredsManagerBase {
     
     public BadgeShopPredsManager(CommonUtils commonUtils) {
         super(commonUtils, START_MESSAGE, ANSWER_REGEX);
-        badgeShopLeaderboardDb = commonUtils.getDbManager().getBadgeShopLeaderboardDb();
+        badgeShopLeaderboardDb = commonUtils.dbManager().getBadgeShopLeaderboardDb();
     }
 
     /**
