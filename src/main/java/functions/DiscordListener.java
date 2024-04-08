@@ -3,8 +3,8 @@ package functions;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.annotation.Nonnull;
@@ -16,7 +16,7 @@ public class DiscordListener extends ListenerAdapter {
     private static final String LOGGING_CHANNEL = "server-logging";
     
     @Override
-    public void onButtonClick(@Nonnull ButtonClickEvent event) {
+    public void onButtonInteraction(@Nonnull ButtonInteractionEvent event) {
         switch (event.getComponentId()) {
             case "twitch" -> {
                 if (toggleTwitchRole(event.getGuild(), event.getMember())) {

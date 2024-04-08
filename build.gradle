@@ -3,24 +3,9 @@ plugins {
     id 'java'
 }
 
-allprojects {
-    repositories {
-        mavenCentral()
-        maven { url "https://oss.jfrog.org/artifactory/libs-release" }
-    }
-}
-
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 javadoc.options.encoding = 'UTF-8'
-
-repositories {
-    mavenCentral()
-    maven {
-        name 'm2-dv8tion'
-        url 'https://m2.dv8tion.net/releases'
-    }
-}
 
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
@@ -33,21 +18,13 @@ dependencies {
     implementation group: 'org.ini4j', name: 'ini4j', version: '0.5.4'
     implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
     implementation group: 'com.jcraft', name: 'jsch', version: '0.1.55'
-    implementation group: 'net.dv8tion', name: 'JDA', version: '4.3.0_310'
+    implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.22'
     implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.14.1'
     implementation group: 'com.fathzer', name: 'javaluator', version: '3.0.3'
     implementation group: 'org.jboss.resteasy', name: 'resteasy-client', version: '6.2.8.Final'
     implementation group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '6.2.8.Final'
     implementation group: 'commons-cli', name: 'commons-cli', version: '1.6.0'
-}
-
-jar {
-    manifest {
-        attributes(
-                'Main-Class': 'Main'
-        )
-    }
 }
 
 shadowJar {

@@ -2,12 +2,11 @@ package functions;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
+import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import util.StartupException;
-
-import javax.security.auth.login.LoginException;
 
 import static java.lang.System.out;
 
@@ -25,7 +24,7 @@ public class DiscordBotController {
                     .addEventListeners(listenerAdapter)
                     .build()
                     .awaitReady();
-        } catch (LoginException | InterruptedException e) {
+        } catch (InvalidTokenException | InterruptedException e) {
             throw new StartupException("unable to authenticate with discord");
         }
         out.println("success.");
@@ -69,6 +68,6 @@ public class DiscordBotController {
 
     public boolean hasRecentMessageContents(String channelName) {
         TextChannel channel = jda.getTextChannelsByName(channelName, true).get(0);
-        return channel.hasLatestMessage();
+        return !channel.getLatestMessageId().equals("0");
     }
 }
