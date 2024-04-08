@@ -24,7 +24,7 @@ public class WrListener extends CommandBase {
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
     private static final int COOLDOWN = 5;
-    private static final CooldownType COOLDOWN_TYPE = CooldownType.COMBINED;
+    private static final CooldownType COOLDOWN_TYPE = CooldownType.GLOBAL;
     private static final String PATTERN = "!wr";
     
     private static final String GAME_ID_BUG_FABLES = "511735";

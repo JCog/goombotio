@@ -2,12 +2,14 @@ package listeners.commands;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import listeners.TwitchEventListener;
+import org.jetbrains.annotations.NotNull;
 import util.TwitchUserLevel;
 import util.TwitchUserLevel.USER_LEVEL;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Function;
 
 public abstract class CommandBase implements TwitchEventListener {
     private static final Set<String> reservedCommands = new HashSet<>();
@@ -16,7 +18,6 @@ public abstract class CommandBase implements TwitchEventListener {
     PREFIX_COMMAND: command (first "word") matches exactly
     CONTENT_COMMAND: message contains pattern
     EXACT_MATCH_COMMAND: entire message matches pattern (case-sensitive)
-    GENERIC_COMMAND: message begins with '!'
      */
     protected enum CommandType {
         PREFIX_COMMAND,
@@ -26,7 +27,7 @@ public abstract class CommandBase implements TwitchEventListener {
     
     protected enum CooldownType {
         PER_USER,
-        COMBINED
+        GLOBAL
     }
     
     private final CommandType commandType;
@@ -39,11 +40,11 @@ public abstract class CommandBase implements TwitchEventListener {
     private Instant lastUsed;
 
     protected CommandBase(
-            CommandType commandType,
-            USER_LEVEL minUserLevel,
+            @NotNull CommandType commandType,
+            @NotNull USER_LEVEL minUserLevel,
             int cooldownLength,
-            CooldownType cooldownType,
-            String ... commandPatterns
+            @NotNull CooldownType cooldownType,
+            String... commandPatterns
     ) {
         this.commandType = commandType;
         this.minUserLevel = minUserLevel;
@@ -79,7 +80,7 @@ public abstract class CommandBase implements TwitchEventListener {
                     return;
                 }
             }
-            case COMBINED -> {
+            case GLOBAL -> {
                 if (ChronoUnit.SECONDS.between(lastUsed, Instant.now()) < cooldownLength) {
                     return;
                 }
@@ -88,34 +89,17 @@ public abstract class CommandBase implements TwitchEventListener {
         
         String content = messageEvent.getMessage().toLowerCase(Locale.ENGLISH).trim();
         String command = content.split("\\s", 2)[0];
-        
-        switch (commandType) {
-            case PREFIX_COMMAND -> {
-                for (String pattern : commandPatterns) {
-                    if (command.equals(pattern)) {
-                        performCommand(pattern, userLevel, messageEvent);
-                        resetCooldown(messageEvent.getUser().getId());
-                        break; // We don't want to fire twice for the same message
-                    }
-                }
-            }
-            case CONTENT_COMMAND -> {
-                for (String pattern : commandPatterns) {
-                    if (content.contains(pattern)) {
-                        performCommand(pattern, userLevel, messageEvent);
-                        resetCooldown(messageEvent.getUser().getId());
-                        break;
-                    }
-                }
-            }
-            case EXACT_MATCH_COMMAND -> {
-                for (String pattern : commandPatterns) {
-                    if (exactContent.equals(pattern)) {
-                        performCommand(pattern, userLevel, messageEvent);
-                        resetCooldown(messageEvent.getUser().getId());
-                        break;
-                    }
-                }
+        Function<String, Boolean> patternComparison = switch (commandType) {
+            case PREFIX_COMMAND -> command::equals;
+            case CONTENT_COMMAND -> content::contains;
+            case EXACT_MATCH_COMMAND -> exactContent::equals;
+        };
+    
+        for (String pattern : commandPatterns) {
+            if (patternComparison.apply(pattern)) {
+                performCommand(pattern, userLevel, messageEvent);
+                resetCooldown(messageEvent.getUser().getId());
+                break;
             }
         }
     }
@@ -123,7 +107,7 @@ public abstract class CommandBase implements TwitchEventListener {
     private void resetCooldown(String userId) {
         switch (cooldownType) {
             case PER_USER -> recentUsages.put(userId, lastUsed);
-            case COMBINED -> lastUsed = Instant.now();
+            case GLOBAL -> lastUsed = Instant.now();
         }
     }
     
