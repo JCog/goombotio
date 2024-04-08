@@ -1,3 +1,5 @@
+import util.StartupException;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -11,7 +13,15 @@ public class Main {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z").withZone(ZoneId.systemDefault());
         out.println(dtf.format(Instant.now()));
         out.println("Starting...");
-        MainBotController mainBotController = new MainBotController();
+        MainBotController mainBotController;
+        try {
+            mainBotController = new MainBotController();
+        } catch (StartupException e) {
+            out.println("\n" + e.getMessage());
+            out.println("Stopping...");
+            exit(1);
+            return;
+        }
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             out.print("Stopping... ");

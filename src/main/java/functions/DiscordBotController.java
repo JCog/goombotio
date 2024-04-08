@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import util.StartupException;
 
 import javax.security.auth.login.LoginException;
 
@@ -15,7 +16,7 @@ public class DiscordBotController {
     private static final String ILLEGAL_ARGUMENT_ERROR = "ERROR: provided text is null, empty, or longer than 2000 characters";
     private static final String UNSUPPORTED_OPERATION_ERROR = "ERROR: this is a private channel and both the currently logged in account and the target user are bots";
 
-    private JDA jda;
+    private final JDA jda;
 
     public DiscordBotController(String token, ListenerAdapter listenerAdapter) {
         try {
@@ -25,8 +26,7 @@ public class DiscordBotController {
                     .build()
                     .awaitReady();
         } catch (LoginException | InterruptedException e) {
-            out.println("failure:");
-            e.printStackTrace();
+            throw new StartupException("unable to authenticate with discord");
         }
         out.println("success.");
     }

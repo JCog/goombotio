@@ -62,7 +62,11 @@ public class TwitchApi {
                 .build();
         chatClient.joinChannel(streamerUsername);
         
-        streamerUser = getUserByUsername(streamerUsername);
+        try {
+            streamerUser = getUserByUsername(streamerUsername);
+        } catch (HystrixRuntimeException e) {
+            throw new StartupException("unable to authenticate with Twitch Helix API");
+        }
         botUser = getUserByUsername(botUsername);
         if (streamerUser == null) {
             out.println("Error retrieving streamer user");
