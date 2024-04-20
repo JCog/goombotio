@@ -36,19 +36,21 @@ public class RacetimeApi {
         return currentRaces.getCurrentRaces();
     }
     
-    public String getSpectateUrl(String username, String gameSlug) {
-        List<Race> currentRaces = getCurrentRaces(gameSlug);
-        for (Race race : currentRaces) {
-            RaceData raceData;
-            try {
-                raceData = raceDataProxy.getRaceData(race.getData_url());
-            } catch (ClientErrorException e) {
-                System.out.println("Error getting racetime race data:\n" + e.getMessage());
-                return null;
-            }
-            for (Entrant entrant : raceData.getEntrants()) {
-                if (entrant.getUser().getFullName().equals(username)) {
-                    return String.format("%s%s/spectate", BASE_URI, raceData.getUrl());
+    public String getSpectateUrl(String username, String ... gameSlugs) {
+        for (String game : gameSlugs) {
+            List<Race> currentRaces = getCurrentRaces(game);
+            for (Race race : currentRaces) {
+                RaceData raceData;
+                try {
+                    raceData = raceDataProxy.getRaceData(race.getData_url());
+                } catch (ClientErrorException e) {
+                    System.out.println("Error getting racetime race data:\n" + e.getMessage());
+                    return null;
+                }
+                for (Entrant entrant : raceData.getEntrants()) {
+                    if (entrant.getUser().getFullName().equals(username)) {
+                        return String.format("%s%s/spectate", BASE_URI, raceData.getUrl());
+                    }
                 }
             }
         }

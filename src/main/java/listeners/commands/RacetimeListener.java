@@ -14,8 +14,8 @@ public class RacetimeListener extends CommandBase {
     private static final int COOLDOWN = 2;
     private static final CooldownType COOLDOWN_TYPE = CooldownType.GLOBAL;
     private static final String PATTERN = "!multi";
-    private static final String GAME_SLUG = "pm64r";
     private static final String USERNAME = "JCog#3335";
+    private static final String[] GAME_SLUGS = {"pm64r", "pm64"};
     
     private final TwitchApi twitchApi;
     private final RacetimeApi racetimeApi;
@@ -28,7 +28,8 @@ public class RacetimeListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
-        String spectateUrl = racetimeApi.getSpectateUrl(USERNAME, GAME_SLUG);
+        // TODO: rework this to check the game currently being played
+        String spectateUrl = racetimeApi.getSpectateUrl(USERNAME, GAME_SLUGS);
         twitchApi.channelMessage(Objects.requireNonNullElse(
                 spectateUrl,
                 "There are currently no active races to spectate."
