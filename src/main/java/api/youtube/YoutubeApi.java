@@ -19,7 +19,7 @@ public class YoutubeApi {
         proxy = target.proxy(VideoInterface.class);
     }
     
-    public String getVideoDetails(String videoId, String apiKey) {
+    public String getVideoDetails(String videoId, String apiKey, boolean isShort) {
         Video video;
         try {
             video = proxy.getVideoById(videoId, apiKey, "snippet,statistics");
@@ -41,7 +41,8 @@ public class YoutubeApi {
         NumberFormat numberFormat = NumberFormat.getInstance();
         numberFormat.setGroupingUsed(true);
         return String.format(
-                "YouTube Video: %s • %s • %s view%s | %s",
+                "YouTube %s: %s • %s • %s view%s | %s",
+                isShort ? "Short" : "Video",
                 channelTitle,
                 title,
                 numberFormat.format(viewCount),

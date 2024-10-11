@@ -23,6 +23,7 @@ public class LinkListener implements TwitchEventListener {
     private static final Pattern clipPattern = Pattern.compile("(?:www\\.|clips\\.)?twitch\\.tv/(?:[a-zA-Z0-9_]+/clip/)?([a-zA-Z0-9-_]+)");
     private static final Pattern videoPattern = Pattern.compile("(?:www\\.)?twitch\\.tv/videos/([0-9]+)");
     private static final Pattern youtubePattern = Pattern.compile("(?:www\\.)?(?:youtube\\.com/watch\\?[a-zA-Z0-9_=&]*v=|youtu\\.be/)([a-zA-Z0-9_\\-]{1,11})");
+    private static final Pattern shortPattern = Pattern.compile("(?:www\\.)?youtube\\.com/shorts/([a-zA-Z0-9_\\-]{1,11})");
     private static final Pattern tweetPattern = Pattern.compile("(?:www\\.)?(?:twitter|x)\\.com/[a-zA-Z0-9_]+/status/([0-9]+)");
 
     private final TwitchApi twitchApi;
@@ -42,6 +43,7 @@ public class LinkListener implements TwitchEventListener {
         List<String> clipUrls = getMatches(messageEvent.getMessage(), clipPattern);
         List<String> videoUrls = getMatches(messageEvent.getMessage(), videoPattern);
         List<String> youtubeVideoIds = getMatches(messageEvent.getMessage(), youtubePattern);
+        List<String> shortIds = getMatches(messageEvent.getMessage(), shortPattern);
         List<String> tweetIds = getMatches(messageEvent.getMessage(), tweetPattern);
 
         for (String id : clipUrls) {
@@ -51,7 +53,10 @@ public class LinkListener implements TwitchEventListener {
             twitchApi.channelMessage(getVideoDetails(id));
         }
         for (String id : youtubeVideoIds) {
-            twitchApi.channelMessage(youtubeApi.getVideoDetails(id, youtubeApiKey));
+            twitchApi.channelMessage(youtubeApi.getVideoDetails(id, youtubeApiKey, false));
+        }
+        for (String id : shortIds) {
+            twitchApi.channelMessage(youtubeApi.getVideoDetails(id, youtubeApiKey, true));
         }
         for (String id : tweetIds) {
             twitchApi.channelMessage(getTweetDetails(id));
