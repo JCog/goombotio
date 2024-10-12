@@ -71,6 +71,7 @@ public class MainBotController {
         
         new FollowLogger(commonUtils, streamTracker);
         new SubPointUpdater(commonUtils, settings.getSubCountFormat());
+        new Heartbeat(commonUtils);
     }
 
     public synchronized void run(long startTime) {
