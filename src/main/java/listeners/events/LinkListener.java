@@ -1,5 +1,6 @@
 package listeners.events;
 
+import api.bluesky.BlueskyApi;
 import api.youtube.YoutubeApi;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Clip;
@@ -25,14 +26,17 @@ public class LinkListener implements TwitchEventListener {
     private static final Pattern youtubePattern = Pattern.compile("(?:www\\.)?(?:youtube\\.com/watch\\?[a-zA-Z0-9_=&]*v=|youtu\\.be/)([a-zA-Z0-9_\\-]{1,11})");
     private static final Pattern shortPattern = Pattern.compile("(?:www\\.)?youtube\\.com/shorts/([a-zA-Z0-9_\\-]{1,11})");
     private static final Pattern tweetPattern = Pattern.compile("(?:www\\.)?(?:twitter|x)\\.com/[a-zA-Z0-9_]+/status/([0-9]+)");
-
+    private static final Pattern blueskyPattern = Pattern.compile("(?:www\\.)?bsky\\.app/profile/([a-zA-Z0-9_.]+)/post/([a-z0-9]+)");
+    
     private final TwitchApi twitchApi;
     private final Twitter twitter;
+    private final BlueskyApi blueskyApi;
     private final YoutubeApi youtubeApi;
     private final String youtubeApiKey;
 
     public LinkListener(CommonUtils commonUtils, Twitter twitter, String youtubeApiKey) {
         twitchApi = commonUtils.twitchApi();
+        blueskyApi = commonUtils.apiManager().getBlueskyApi();
         youtubeApi = commonUtils.apiManager().getYoutubeApi();
         this.twitter = twitter;
         this.youtubeApiKey = youtubeApiKey;
@@ -45,6 +49,7 @@ public class LinkListener implements TwitchEventListener {
         List<String> youtubeVideoIds = getMatches(messageEvent.getMessage(), youtubePattern);
         List<String> shortIds = getMatches(messageEvent.getMessage(), shortPattern);
         List<String> tweetIds = getMatches(messageEvent.getMessage(), tweetPattern);
+        List<BlueskyMatch> bluskyMatches = getBlueskyMatches(messageEvent.getMessage(), blueskyPattern);
 
         for (String id : clipUrls) {
             twitchApi.channelMessage(getClipDetails(id));
@@ -61,6 +66,9 @@ public class LinkListener implements TwitchEventListener {
         for (String id : tweetIds) {
             twitchApi.channelMessage(getTweetDetails(id));
         }
+        for (BlueskyMatch match : bluskyMatches) {
+            twitchApi.channelMessage(blueskyApi.getPostDetails(match.handle, match.postId));
+        }
     }
 
     private List<String> getMatches(String message, Pattern pattern) {
@@ -68,6 +76,17 @@ public class LinkListener implements TwitchEventListener {
         Matcher matcher = pattern.matcher(message);
         while (matcher.find()) {
             output.add(matcher.group(1));
+        }
+        return output;
+    }
+    
+    private record BlueskyMatch(String handle, String postId) {}
+    
+    private List<BlueskyMatch> getBlueskyMatches(String message, Pattern pattern) {
+        List<BlueskyMatch> output = new ArrayList<>();
+        Matcher matcher = pattern.matcher(message);
+        while (matcher.find()) {
+            output.add(new BlueskyMatch(matcher.group(1), matcher.group(2)));
         }
         return output;
     }

@@ -1,5 +1,6 @@
 package api;
 
+import api.bluesky.BlueskyApi;
 import api.bttv.BttvApi;
 import api.ffz.FfzApi;
 import api.racetime.RacetimeApi;
@@ -14,6 +15,7 @@ public class ApiManager {
     private final BttvApi bttvApi;
     private final SevenTvApi sevenTvApi;
     
+    private final BlueskyApi blueskyApi;
     private final RacetimeApi racetimeApi;
     private final SrcApi srcApi;
     private final YoutubeApi youtubeApi;
@@ -24,6 +26,7 @@ public class ApiManager {
         bttvApi = new BttvApi(client);
         sevenTvApi = new SevenTvApi(client);
         
+        blueskyApi = new BlueskyApi(client);
         racetimeApi = new RacetimeApi(client);
         srcApi = new SrcApi(client);
         youtubeApi = new YoutubeApi(client);
@@ -39,6 +42,10 @@ public class ApiManager {
     
     public SevenTvApi getSevenTvApi() {
         return sevenTvApi;
+    }
+    
+    public BlueskyApi getBlueskyApi() {
+        return blueskyApi;
     }
     
     public RacetimeApi getRacetimeApi() {
