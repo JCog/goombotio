@@ -80,6 +80,7 @@ public class MainBotController {
         out.println("success.");
 
         out.printf("Goombotio is ready. (~%ds start time)%n%n", (System.currentTimeMillis() - startTime) / 1000);
+        twitchApi.channelMessage("Goombotio started.");
 
         //main loop
         try {
@@ -95,6 +96,7 @@ public class MainBotController {
     }
 
     public void closeAll() {
+        twitchApi.channelMessage("Goombotio shutting down...");
         streamTracker.stop();
         discordBotController.close();
         dbManager.closeDb();
