@@ -101,6 +101,7 @@ public class MainBotController {
         discordBotController.close();
         dbManager.closeDb();
         scheduler.shutdown();
+        twitchApi.close();
     }
 
     private void registerListeners() {

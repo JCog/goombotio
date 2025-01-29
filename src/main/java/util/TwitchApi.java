@@ -114,6 +114,11 @@ public class TwitchApi {
         out.println("success.");
     }
     
+    public void close() {
+        chatClient.close();
+        twitchClient.close();
+    }
+    
     public User getStreamerUser() {
         return streamerUser;
     }
