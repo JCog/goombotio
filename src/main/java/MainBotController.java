@@ -138,6 +138,7 @@ public class MainBotController {
                 new ChatLoggerListener(),
                 new CloudListener(commonUtils),
                 new EmoteListener(commonUtils),
+                new HypeTrainEventListener(commonUtils),
                 new LinkListener(commonUtils, twitter, youtubeApiKey),
                 new PyramidListener(commonUtils),
                 new RecentCheerListener(commonUtils),
