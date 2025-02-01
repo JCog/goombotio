@@ -14,6 +14,6 @@ public class HypeTrainEventListener implements TwitchEventListener {
     
     @Override
     public void onHypeTrainBegin(HypeTrainBeginEvent hypeTrainBeginEvent) {
-        twitchApi.channelAnnouncement("ScamTrain Scam train!! ScamTrain ");
+        twitchApi.channelAnnouncement("ScamTrain Scam train!! ScamTrain");
     }
 }
