@@ -37,6 +37,8 @@ public class VipRaffleListener extends CommandBase {
         vipDb = commonUtils.dbManager().getVipDb();
     }
     
+    private record UserRecord(String id, String username) {}
+    
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         if (userLevel == USER_LEVEL.BROADCASTER) {
@@ -100,6 +102,28 @@ public class VipRaffleListener extends CommandBase {
             oldWinnerIds.removeAll(repeatWinners);
             newWinnerIds.removeAll(repeatWinners);
             
+            // retrieve usernames for logging purposes
+            List<UserRecord> oldWinners = new ArrayList<>();
+            List<UserRecord> newWinners = new ArrayList<>();
+            try {
+                List<User> oldWinnerUsers = twitchApi.getUserListByIds(oldWinnerIds);
+                List<User> newWinnerUsers = twitchApi.getUserListByIds(newWinnerIds);
+                for (User user : oldWinnerUsers) {
+                    oldWinners.add(new UserRecord(user.getId(), user.getDisplayName()));
+                }
+                for (User user : newWinnerUsers) {
+                    newWinners.add(new UserRecord(user.getId(), user.getDisplayName()));
+                }
+            } catch (HystrixRuntimeException e) {
+                System.out.println("Twitch API error getting old/new winner usernames.");
+                for (String id : oldWinnerIds) {
+                    oldWinners.add(new UserRecord(id, null));
+                }
+                for (String id : newWinnerIds) {
+                    newWinners.add(new UserRecord(id, null));
+                }
+            }
+            
             List<String> currentVipIds;
             try {
                 currentVipIds = twitchApi.getChannelVips().stream()
@@ -112,37 +136,51 @@ public class VipRaffleListener extends CommandBase {
             
             // remove old VIPs
             boolean addRemoveError = false; // don't want to overload chat in case of multiple API errors
-            for (String oldId : oldWinnerIds) {
-                vipDb.editRaffleWinnerProp(oldId, false);
+            for (UserRecord oldWinner : oldWinners) {
+                vipDb.editRaffleWinnerProp(oldWinner.id(), false);
                 
-                if (!vipDb.hasVip(oldId) && currentVipIds.contains(oldId)) {
+                if (!vipDb.hasVip(oldWinner.id()) && currentVipIds.contains(oldWinner.id())) {
                     try {
-                        twitchApi.vipRemove(oldId);
-                        System.out.println("VIP removed from user " + oldId);
+                        twitchApi.vipRemove(oldWinner.id());
+                        System.out.printf(
+                                "VIP removed from %s (%s)%n",
+                                oldWinner.username() == null ? "?" : oldWinner.username(),
+                                oldWinner.id()
+                        );
                     } catch (HystrixRuntimeException e) {
                         if (!addRemoveError) {
                             twitchApi.channelMessage("Error(s) adding/remove VIPs. Please check logs.");
                             addRemoveError = true;
                         }
-                        System.out.println("Error removing VIP from user " + oldId);
+                        System.out.printf(
+                                "Error removing VIP from %s (%s)%n",
+                                oldWinner.username() == null ? "?" : oldWinner.username(),
+                                oldWinner.id()
+                        );
                     }
                 }
             }
             
             // add new VIPs
-            for (String newId : newWinnerIds) {
-                vipDb.editRaffleWinnerProp(newId, true);
+            for (UserRecord newWinner : newWinners) {
+                vipDb.editRaffleWinnerProp(newWinner.id(), true);
                 
-                if (!currentVipIds.contains(newId)) {
+                if (!currentVipIds.contains(newWinner.id())) {
                     try {
-                        twitchApi.vipAdd(newId);
-                        System.out.println("VIP added to user " + newId);
+                        twitchApi.vipAdd(newWinner.id());
+                        System.out.printf("VIP added to %s (%s)%n",
+                                newWinner.username() == null ? "?" : newWinner.username(),
+                                newWinner.id()
+                        );
                     } catch (HystrixRuntimeException e) {
                         if (!addRemoveError) {
                             twitchApi.channelMessage("Error(s) adding/remove VIPs. Please check logs.");
                             addRemoveError = true;
                         }
-                        System.out.println("Error adding VIP to user " + newId);
+                        System.out.printf("Error adding VIP to %s (%s)%n",
+                                newWinner.username() == null ? "?" : newWinner.username(),
+                                newWinner.id()
+                        );
                     }
                 }
             }
@@ -167,7 +205,7 @@ public class VipRaffleListener extends CommandBase {
         
     }
     
-    private List<String> performRaffle(List<VipRaffleItem> raffleItems) throws HystrixRuntimeException {
+    public List<String> performRaffle(List<VipRaffleItem> raffleItems) throws HystrixRuntimeException {
         List<String> filteredIds = raffleItems.stream()
                 .map(VipRaffleItem::twitchId)
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -192,7 +230,7 @@ public class VipRaffleListener extends CommandBase {
             totalWeight += item.entryCount();
         }
         
-        while (winnerIds.size() < WINNER_COUNT && raffleItems.size() > 0) {
+        while (winnerIds.size() < WINNER_COUNT && !raffleItems.isEmpty()) {
             double indexWinner = random.nextDouble() * totalWeight;
             double indexCurrent = 0;
             VipRaffleItem winner = null;
