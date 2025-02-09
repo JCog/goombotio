@@ -9,6 +9,7 @@ import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
+import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,20 +60,25 @@ public class YoutubeLinkListener extends CommandBase {
         }
         
         new Thread(() -> {
-            // start python script that outputs YouTube chat to file
-            Process proc;
-            try {
-                proc = Runtime.getRuntime().exec(SCRIPT_LOCATION + " " + link);
-            } catch (java.io.IOException e) {
-                twitchApi.channelMessage("ERROR: IOException attempting to run script");
-                return;
-            }
-            
-            try {
-                proc.waitFor();
-            } catch (InterruptedException e) {
-                twitchApi.channelMessage("ERROR: Script was interrupted");
-                return;
+            if (new File(filename).exists()) {
+                // if the file already exists, it has an existing script instance monitoring it and we can just tail it
+                System.out.println("Existing YouTube chat log detected, skipping chat script");
+            } else {
+                // start python script that outputs YouTube chat to file
+                Process proc;
+                try {
+                    proc = Runtime.getRuntime().exec(SCRIPT_LOCATION + " " + link);
+                } catch (java.io.IOException e) {
+                    twitchApi.channelMessage("ERROR: IOException attempting to run script");
+                    return;
+                }
+                
+                try {
+                    proc.waitFor();
+                } catch (InterruptedException e) {
+                    twitchApi.channelMessage("ERROR: Script was interrupted");
+                    return;
+                }
             }
             
             // tail and parse the file to mirror to Twitch whispers
@@ -84,6 +90,7 @@ public class YoutubeLinkListener extends CommandBase {
                     .setTailerListener(listener)
                     .setTailFromEnd(true)
                     .get();
+            twitchApi.channelMessage("Now monitoring " + matcher.group(1));
         }).start();
     }
     
