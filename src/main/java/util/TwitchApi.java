@@ -633,6 +633,10 @@ public class TwitchApi {
         return videoList.getVideos().get(0);
     }
     
+    public void sendWhisper(String toId, String message) throws HystrixRuntimeException {
+        twitchClient.getHelix().sendWhisper(botAuthToken, botUser.getId(), toId, message).execute();
+    }
+    
     public void vipAdd(String userId) throws HystrixRuntimeException {
         twitchClient.getHelix().addChannelVip(channelAuthToken, streamerUser.getId(), userId).execute();
     }

@@ -128,7 +128,7 @@ public class VipRaffleListener extends CommandBase {
             try {
                 currentVipIds = twitchApi.getChannelVips().stream()
                         .map(ChannelVip::getUserId)
-                        .collect(Collectors.toList());
+                        .toList();
             } catch (HystrixRuntimeException e) {
                 twitchApi.channelMessage("Twitch API error getting current VIPs. Unable to automatically update.");
                 return;
