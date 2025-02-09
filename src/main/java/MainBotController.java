@@ -128,6 +128,7 @@ public class MainBotController {
                 new VipRaffleListener(commonUtils),
                 new WatchTimeListener(commonUtils, streamTracker),
                 new WrListener(commonUtils),
+                new YoutubeLinkListener(commonUtils),
                 
                 // Channel Points
                 new DethroneListener(commonUtils),
