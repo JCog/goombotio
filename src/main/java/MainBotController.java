@@ -101,6 +101,12 @@ public class MainBotController {
         discordBotController.close();
         dbManager.closeDb();
         scheduler.shutdown();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return;
+        }
         twitchApi.close();
     }
 
