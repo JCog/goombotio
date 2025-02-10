@@ -21,6 +21,7 @@ public class YoutubeLinkListener extends CommandBase {
     private static final String PATTERN_YTLINK = "!ytlink";
     private static final String SCRIPT_LOCATION = "/home/ubuntu/goombotio/chat.sh";
     private static final String LOG_PATH = "/home/ubuntu/goombotio/yt_chat_logs/";
+    private static final String CHAT_FINISHED = "[INFO] Finished retrieving chat messages.";
     private static final Pattern PATTERN_CHAT = Pattern.compile(".* \\| (.*)");
     private static final Pattern PATTERN_ID = Pattern.compile("youtube.com/live/([a-zA-Z0-9_\\-]{1,11})");
     
@@ -30,6 +31,11 @@ public class YoutubeLinkListener extends CommandBase {
     private Tailer tailer;
     private String filename;
 
+    // runs a custom python script that retrieves YouTube chat and outputs it to a file, then tails that file and
+    // relays it through whispers to the streamer. pretty hacky, but options for YouTube chat are very limited. should
+    // maybe find a pure-Java solution at some point.
+    // https://github.com/xenova/chat-downloader
+    
     public YoutubeLinkListener(CommonUtils commonUtils) {
         super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_YTLINK);
         twitchApi = commonUtils.twitchApi();
@@ -94,7 +100,7 @@ public class YoutubeLinkListener extends CommandBase {
         }).start();
     }
     
-    private static class ChatRelay extends TailerListenerAdapter {
+    private class ChatRelay extends TailerListenerAdapter {
         private final TwitchApi twitchApi;
         public ChatRelay(TwitchApi twitchApi) {
             this.twitchApi = twitchApi;
@@ -102,11 +108,16 @@ public class YoutubeLinkListener extends CommandBase {
         
         @Override
         public void handle(String line) {
+            if (line.equals(CHAT_FINISHED)) {
+                tailer.close();
+                tailer = null;
+                System.out.println("Finished monitoring YouTube chat");
+            }
             Matcher matcher = PATTERN_CHAT.matcher(line);
             if (matcher.find()) {
                 twitchApi.sendWhisper(
                         twitchApi.getStreamerUser().getId(),
-                        "YT Chat - " + matcher.group(1)
+                        "YT | " + matcher.group(1)
                 );
             }
         }
