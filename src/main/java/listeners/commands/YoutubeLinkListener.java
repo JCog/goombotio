@@ -96,7 +96,7 @@ public class YoutubeLinkListener extends CommandBase {
                     .setTailerListener(listener)
                     .setTailFromEnd(true)
                     .get();
-            twitchApi.channelMessage("Now monitoring " + matcher.group(1));
+            twitchApi.sendWhisper(twitchApi.getStreamerUser().getId(), "Now monitoring " + matcher.group(1));
         }).start();
     }
     
@@ -117,8 +117,10 @@ public class YoutubeLinkListener extends CommandBase {
             if (matcher.find()) {
                 twitchApi.sendWhisper(
                         twitchApi.getStreamerUser().getId(),
-                        "YT | " + matcher.group(1)
+                        "[CHAT] " + matcher.group(1)
                 );
+            } else if (line.startsWith("[INFO]")) {
+                twitchApi.sendWhisper(twitchApi.getStreamerUser().getId(), line);
             }
         }
     }
