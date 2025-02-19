@@ -190,21 +190,23 @@ public class TwitchApi {
     }
     
     public void channelAnnouncement(String message, com.github.twitch4j.common.enums.AnnouncementColor color) {
-        String output = message.trim();
-        if (output.isEmpty()) {
-            return;
-        }
-        if (silentChat) {
-            out.println("SILENT_CHAT: /announce " + message);
-        } else {
-            twitchClient.getHelix().sendChatAnnouncement(
-                    botAuthToken,
-                    streamerUser.getId(),
-                    botUser.getId(),
-                    output,
-                    com.github.twitch4j.common.enums.AnnouncementColor.PRIMARY
-            ).execute();
-        }
+        channelMessage(message);
+        // TODO: actually use announcements once twitch decides to make them work on mobile
+//        String output = message.trim();
+//        if (output.isEmpty()) {
+//            return;
+//        }
+//        if (silentChat) {
+//            out.println("SILENT_CHAT: /announce " + message);
+//        } else {
+//            twitchClient.getHelix().sendChatAnnouncement(
+//                    botAuthToken,
+//                    streamerUser.getId(),
+//                    botUser.getId(),
+//                    output,
+//                    com.github.twitch4j.common.enums.AnnouncementColor.PRIMARY
+//            ).execute();
+//        }
     }
     
     private void sendMessage(String message) {
