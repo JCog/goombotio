@@ -119,7 +119,7 @@ public class YoutubeLinkListener extends CommandBase {
                         twitchApi.getStreamerUser().getId(),
                         "[CHAT] " + matcher.group(1)
                 );
-            } else if (line.startsWith("[INFO]")) {
+            } else if (line.startsWith("[INFO]") || line.startsWith("[ERROR]")) {
                 twitchApi.sendWhisper(twitchApi.getStreamerUser().getId(), line);
             }
         }
