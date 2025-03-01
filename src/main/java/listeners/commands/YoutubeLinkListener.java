@@ -115,10 +115,7 @@ public class YoutubeLinkListener extends CommandBase {
             }
             Matcher matcher = PATTERN_CHAT.matcher(line);
             if (matcher.find()) {
-                twitchApi.sendWhisper(
-                        twitchApi.getStreamerUser().getId(),
-                        "[CHAT] " + matcher.group(1)
-                );
+                twitchApi.channelMessage("YT " + matcher.group(1));
             } else if (line.startsWith("[INFO]") || line.startsWith("[ERROR]")) {
                 twitchApi.sendWhisper(twitchApi.getStreamerUser().getId(), line);
             }
