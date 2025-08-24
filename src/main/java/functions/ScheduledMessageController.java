@@ -87,7 +87,7 @@ public class ScheduledMessageController implements TwitchEventListener {
         int totalWeight = 0;
         NavigableMap<Integer, ScheduledMessage> messageMap = new TreeMap<>();
         for (ScheduledMessage message : socialSchedulerDb.getAllMessages()) {
-            if (!message.id().equals(previousId)) {
+            if (!message.id().equals(previousId) && message.weight() != 0) {
                 totalWeight += message.weight();
                 messageMap.put(totalWeight, message);
             }
