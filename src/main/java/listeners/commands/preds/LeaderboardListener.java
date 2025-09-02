@@ -5,7 +5,6 @@ import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.preds.PredsLeaderboardDbBase;
-import listeners.TwitchEventListener;
 import listeners.commands.CommandBase;
 import util.CommonUtils;
 import util.TwitchApi;
@@ -21,7 +20,6 @@ public class LeaderboardListener extends CommandBase {
     private static final CooldownType COOLDOWN_TYPE = CooldownType.PER_USER;
     private static final String PATTERN_LEADERBOARD = "!leaderboard";
     private static final String PATTERN_PREDS = "!preds";
-    private static final String PATTERN_POINTS = "!points";
     
     private static final String PREDS_MESSAGE_OOT =
             "Guess what the timer will say at the end of the Dampe race to win raffle entries for next month's VIP " +
@@ -62,10 +60,7 @@ public class LeaderboardListener extends CommandBase {
                 COOLDOWN,
                 COOLDOWN_TYPE,
                 PATTERN_LEADERBOARD,
-                PATTERN_PREDS,
-                PATTERN_POINTS
-//                PATTERN_LEADERBOARD_ALL,
-//                PATTERN_POINTS_ALL
+                PATTERN_PREDS
         );
         dbManager = commonUtils.dbManager();
         twitchApi = commonUtils.twitchApi();
@@ -79,25 +74,14 @@ public class LeaderboardListener extends CommandBase {
             twitchApi.channelMessage(PREDS_MESSAGE_DEFAULT);
             return;
         }
-        
-        String chatMessage = "";
-        String userId = messageEvent.getUser().getId();
-        String displayName = TwitchEventListener.getDisplayName(messageEvent.getMessageEvent());
 
-        switch (command) {
-            // TODO: figure out what to do with the preds leaderboard commands. they're kind of a mess right now.
-            case PATTERN_LEADERBOARD -> {
-                chatMessage = buildLeaderboardString();
-            }
-//            case PATTERN_POINTS:
-//                chatMessage = buildPointsString(userId, displayName);
-//                break;
-        
+        String chatMessage = switch (command) {
+            case PATTERN_LEADERBOARD -> buildLeaderboardString();
             case PATTERN_PREDS -> {
                 if (userLevel == USER_LEVEL.BROADCASTER) {
-                    break;
+                    yield "";
                 }
-                chatMessage = switch (getGameId()) {
+                yield switch (getGameId()) {
                     case GAME_ID_OOT -> PREDS_MESSAGE_OOT;
                     case GAME_ID_PAPER_MARIO -> PREDS_MESSAGE_PAPE;
                     case GAME_ID_SUNSHINE -> PREDS_MESSAGE_SMS;
@@ -105,7 +89,8 @@ public class LeaderboardListener extends CommandBase {
                     default -> PREDS_MESSAGE_DEFAULT;
                 };
             }
-        }
+            default -> "";
+        };
         twitchApi.channelMessage(chatMessage);
     }
 
@@ -132,16 +117,6 @@ public class LeaderboardListener extends CommandBase {
             return stream.getGameId();
         }
         return "";
-    }
-
-    private String buildMonthlyPointsString(String userId, String displayName) {
-        int points = leaderboard.getMonthlyPoints(userId);
-        return String.format("@%s you have %d point%s this month.", displayName, points, points == 1 ? "" : "s");
-    }
-
-    private String buildPointsString(String userId, String displayName) {
-        int points = leaderboard.getPoints(userId);
-        return String.format("@%s you have %d total point%s.", displayName, points, points == 1 ? "" : "s");
     }
 
     private String buildLeaderboardString() {
