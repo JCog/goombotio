@@ -124,39 +124,28 @@ public abstract class PredsLeaderboardDbBase extends GbCollection {
 
     //returns id's of top all-time scorers, up to the number of results specified by limit
     public List<String> getTopScorers(Integer limit) {
-        List<String> topScorers = new ArrayList<>();
-
-        MongoCursor<Document> result = findAll().sort(Sorts.descending(POINTS_KEY)).iterator();
-        while (result.hasNext() && (limit == null || topScorers.size() < limit)) {
-            Document next = result.next();
-            if (next.get(POINTS_KEY) == null) {
-                break;
-            } else {
-                topScorers.add(next.getString(ID_KEY));
-            }
-        }
-
-        return topScorers;
-    }
-
-    //returns id's of top all-time scorers
-    public List<String> getTopScorers() {
-        return getTopScorers(null);
+        return getTopInternal(limit, POINTS_KEY);
     }
 
     //returns id's of top winners
-    public List<String> getTopWinners() {
-        List<String> topScorers = new ArrayList<>();
+    public List<String> getTopWinners(Integer limit) {
+        return getTopInternal(limit, WINS_KEY);
+    }
+    
+    public List<String> getTopInternal(Integer limit, String key) {
+        List<String> top = new ArrayList<>();
 
-        for (Document next : findAll().sort(Sorts.descending(WINS_KEY))) {
-            if (next.get(WINS_KEY) == null) {
+        MongoCursor<Document> result = findAll().sort(Sorts.descending(key)).iterator();
+        while (result.hasNext() && (limit == null || top.size() < limit)) {
+            Document next = result.next();
+            if (next.get(key) == null) {
                 break;
             } else {
-                topScorers.add(next.getString(ID_KEY));
+                top.add(next.getString(ID_KEY));
             }
         }
 
-        return topScorers;
+        return top;
     }
 
     private String getMonthlyPointsKey() {

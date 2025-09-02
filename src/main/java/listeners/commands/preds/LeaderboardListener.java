@@ -22,8 +22,6 @@ public class LeaderboardListener extends CommandBase {
     private static final String PATTERN_LEADERBOARD = "!leaderboard";
     private static final String PATTERN_PREDS = "!preds";
     private static final String PATTERN_POINTS = "!points";
-//    private static final String PATTERN_LEADERBOARD_ALL = "!leaderboardall";
-//    private static final String PATTERN_POINTS_ALL = "!pointsall";
     
     private static final String PREDS_MESSAGE_OOT =
             "Guess what the timer will say at the end of the Dampe race to win raffle entries for next month's VIP " +
@@ -88,15 +86,9 @@ public class LeaderboardListener extends CommandBase {
 
         switch (command) {
             // TODO: figure out what to do with the preds leaderboard commands. they're kind of a mess right now.
-//            case PATTERN_LEADERBOARD:
-//                chatMessage = PredsManagerBase.buildMonthlyLeaderboardString(
-//                        leaderboard,
-//                        dbManager.getPermanentVipsDb(),
-//                        twitchApi,
-//                        streamerUser
-//                );
-//                break;
-//
+            case PATTERN_LEADERBOARD -> {
+                chatMessage = buildLeaderboardString();
+            }
 //            case PATTERN_POINTS:
 //                chatMessage = buildPointsString(userId, displayName);
 //                break;
@@ -152,31 +144,34 @@ public class LeaderboardListener extends CommandBase {
         return String.format("@%s you have %d total point%s.", displayName, points, points == 1 ? "" : "s");
     }
 
-    private String buildAllTimeLeaderboardString() {
-        List<String> topScorers = leaderboard.getTopScorers(5);
-        List<Integer> topPoints = new ArrayList<>();
+    private String buildLeaderboardString() {
+        // retrieve 5 extra winners in case of ties
+        List<String> topWinners = leaderboard.getTopWinners(10);
+        List<Integer> topWins = new ArrayList<>();
         List<String> topNames = new ArrayList<>();
-        for (String topScorer : topScorers) {
-            topPoints.add(leaderboard.getPoints(topScorer));
-            topNames.add(leaderboard.getUsername(topScorer));
+        for (String winner : topWinners) {
+            topWins.add(leaderboard.getWins(winner));
+            topNames.add(leaderboard.getUsername(winner));
         }
 
-        int prevPoints = -1;
+        int prevWins = -1;
         int prevRank = -1;
         List<String> leaderboardStrings = new ArrayList<>();
         for (int i = 0; i < topNames.size(); i++) {
-            if (topPoints.get(i) != prevPoints) {
+            // show duplicate rank if people are tied
+            if (topWins.get(i) != prevWins) {
                 prevRank = i + 1;
+                // show at least 5 names, but none past 5th place (can have 2 in 5th, 3 in 4th, etc.)
                 if (prevRank > 5) {
                     break;
                 }
             }
-            prevPoints = topPoints.get(i);
+            prevWins = topWins.get(i);
             String name = topNames.get(i);
 
-            leaderboardStrings.add(String.format("%d. %s - %d", prevRank, name, prevPoints));
+            leaderboardStrings.add(String.format("%d. %s - %d", prevRank, name, prevWins));
         }
 
-        return "All-Time Leaderboard: " + String.join(", ", leaderboardStrings);
+        return "!preds Leaderboard: " + String.join(", ", leaderboardStrings);
     }
 }
