@@ -69,19 +69,19 @@ public class LeaderboardListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
-        updateLeaderboardType();
+        String gameId = updateLeaderboardType();
         if (leaderboard == null) {
             twitchApi.channelMessage(PREDS_MESSAGE_DEFAULT);
             return;
         }
 
-        String chatMessage = switch (command) {
+        twitchApi.channelMessage(switch (command) {
             case PATTERN_LEADERBOARD -> buildLeaderboardString();
             case PATTERN_PREDS -> {
                 if (userLevel == USER_LEVEL.BROADCASTER) {
                     yield "";
                 }
-                yield switch (getGameId()) {
+                yield switch (gameId) {
                     case GAME_ID_OOT -> PREDS_MESSAGE_OOT;
                     case GAME_ID_PAPER_MARIO -> PREDS_MESSAGE_PAPE;
                     case GAME_ID_SUNSHINE -> PREDS_MESSAGE_SMS;
@@ -90,18 +90,19 @@ public class LeaderboardListener extends CommandBase {
                 };
             }
             default -> "";
-        };
-        twitchApi.channelMessage(chatMessage);
+        });
     }
 
-    private void updateLeaderboardType() {
-        switch (getGameId()) {
+    private String updateLeaderboardType() {
+        String gameId = getGameId();
+        switch (gameId) {
             case GAME_ID_OOT -> leaderboard = dbManager.getDampeRaceLeaderboardDb();
             case GAME_ID_PAPER_MARIO -> leaderboard = dbManager.getBadgeShopLeaderboardDb();
             case GAME_ID_SUNSHINE -> leaderboard = dbManager.getPiantaSixLeaderboardDb();
             case GAME_ID_SMRPG_SWITCH -> leaderboard = dbManager.getBoosterHillLeaderboardDb();
             default -> leaderboard = null;
         }
+        return gameId;
     }
 
     private String getGameId() {
