@@ -76,6 +76,7 @@ public class LeaderboardListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+        updateLeaderboardType();
         if (leaderboard == null) {
             twitchApi.channelMessage(PREDS_MESSAGE_DEFAULT);
             return;
@@ -85,8 +86,6 @@ public class LeaderboardListener extends CommandBase {
         String userId = messageEvent.getUser().getId();
         String displayName = TwitchEventListener.getDisplayName(messageEvent.getMessageEvent());
 
-        updateLeaderboardType();
-    
         switch (command) {
             // TODO: figure out what to do with the preds leaderboard commands. they're kind of a mess right now.
 //            case PATTERN_LEADERBOARD:
