@@ -244,7 +244,7 @@ public class MessageExpressionParser {
                 if (commandItem == null) {
                     return ERROR_NON_COMMAND;
                 }
-                if (userArgs.length != 0 && !userArgs[0].isEmpty()) {
+                if (userArgs.length != 0 && !userArgs[0].isEmpty() && !userArgs[0].equals("@")) {
                     String username = userArgs[0].startsWith("@") ? userArgs[0].substring(1) : userArgs[0];
                     User user;
                     try {
