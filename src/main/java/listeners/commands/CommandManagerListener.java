@@ -79,7 +79,7 @@ public class CommandManagerListener extends CommandBase {
                     twitchApi.channelMessage("ERROR: input should contain exactly two arguments");
                     return;
                 }
-                twitchApi.channelMessage(commandDb.addAlias(arguments[0], arguments[1]));
+                twitchApi.channelMessage(commandDb.addAlias(arguments[0].toLowerCase(), arguments[1].toLowerCase()));
                 return;
             }
             case PATTERN_DEL_ALIAS -> {
@@ -106,7 +106,7 @@ public class CommandManagerListener extends CommandBase {
             return;
         }
     
-        String commandId = parsed.getArgList().get(0);
+        String commandId = parsed.getArgList().get(0).toLowerCase();
         String message = null;
         Long cooldown = null;
         USER_LEVEL userLevel = null;
