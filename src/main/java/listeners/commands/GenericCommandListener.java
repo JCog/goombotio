@@ -33,9 +33,9 @@ public class GenericCommandListener implements TwitchEventListener {
 
     @Override
     public void onChannelMessage(ChannelMessageEvent messageEvent) {
-        String content = messageEvent.getMessage().toLowerCase(Locale.ENGLISH).trim();
+        String content = messageEvent.getMessage().trim();
         String[] split = content.split("\\s", 2);
-        String command = split[0];
+        String command = split[0].toLowerCase(Locale.ENGLISH);
         String userInput = split.length > 1 ? split[1] : "";
         
         // on the off chance there is a reserved command also in the DB, this will prevent the DB one from running
