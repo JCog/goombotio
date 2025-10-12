@@ -1,12 +1,18 @@
 package listeners.commands.quotes;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.common.events.domain.EventUser;
+import com.github.twitch4j.helix.domain.InboundFollow;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.misc.QuoteDb;
 import listeners.commands.CommandBase;
 import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Random;
 
@@ -29,7 +35,7 @@ public class QuoteListener extends CommandBase {
     private static final String ERROR_MISSING_ARGUMENTS = "Missing argument(s)";
     private static final String ERROR_NO_MATCHING_QUOTES = "No matching quotes";
     private static final String ERROR_BAD_INDEX_FORMAT = "Unable to parse quote \"%s\"";
-    private static final String ERROR_NOT_LIVE = "VIPs can only add quotes while the stream is live";
+    private static final String ERROR_NOT_LIVE = "Non-mods can only add quotes while the stream is live";
 
     private final TwitchApi twitchApi;
     private final QuoteDb quoteDb;
@@ -94,12 +100,27 @@ public class QuoteListener extends CommandBase {
                 }
             }
             case PATTERN_ADD_QUOTE -> {
+                // only allow users with at least VIP privileges or who have been following for 6+ months to add quotes
                 if (userLevel.value < USER_LEVEL.VIP.value) {
-                    break;
+                    EventUser user = messageEvent.getUser();
+                    InboundFollow follow;
+                    try {
+                        follow = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), user.getId());
+                    } catch (HystrixRuntimeException e) {
+                        twitchApi.channelMessage(String.format("Error retrieving follow age for %s", user.getName()));
+                        break;
+                    }
+
+                    LocalDate followDate = follow.getFollowedAt().atZone(ZoneId.systemDefault()).toLocalDate();
+                    Period period = Period.between(followDate, LocalDate.now());
+                    if (period.getMonths() <= 6) {
+                        break;
+                    }
                 }
-                //only allow VIPs to add quotes if the stream is live
+
+                //only allow non-mods to add quotes if the stream is live
                 if (
-                        userLevel.value == USER_LEVEL.VIP.value &&
+                        userLevel.value < USER_LEVEL.MOD.value &&
                         twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId()) == null
                 ) {
                     twitchApi.channelMessage(ERROR_NOT_LIVE);
@@ -109,6 +130,7 @@ public class QuoteListener extends CommandBase {
                     twitchApi.channelMessage(ERROR_MISSING_ARGUMENTS);
                     break;
                 }
+
                 QuoteItem quoteItem = quoteDb.addQuote(
                         content,
                         Long.parseLong(messageEvent.getUser().getId()),
