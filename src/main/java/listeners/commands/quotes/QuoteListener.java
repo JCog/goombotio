@@ -2,6 +2,7 @@ package listeners.commands.quotes;
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.common.events.domain.EventUser;
+import com.github.twitch4j.common.util.ChatReply;
 import com.github.twitch4j.helix.domain.InboundFollow;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.misc.QuoteDb;
@@ -66,6 +67,9 @@ public class QuoteListener extends CommandBase {
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         String[] messageSplit = messageEvent.getMessage().trim().split(" ", 2);
         String content = "";
+        if (messageEvent.getReplyInfo() != null) {
+            messageSplit = messageSplit[1].split("\\s", 2);
+        }
         if (messageSplit.length > 1) {
             content = messageSplit[1];
         }
@@ -126,16 +130,27 @@ public class QuoteListener extends CommandBase {
                     twitchApi.channelMessage(ERROR_NOT_LIVE);
                     break;
                 }
-                if (content.isEmpty()) {
-                    twitchApi.channelMessage(ERROR_MISSING_ARGUMENTS);
-                    break;
-                }
 
-                QuoteItem quoteItem = quoteDb.addQuote(
-                        content,
-                        Long.parseLong(messageEvent.getUser().getId()),
-                        true
-                );
+                QuoteItem quoteItem;
+                if (content.isEmpty()) {
+                    ChatReply reply = messageEvent.getReplyInfo();
+                    if (reply == null) {
+                        twitchApi.channelMessage(ERROR_MISSING_ARGUMENTS);
+                        break;
+                    } else {
+                        quoteItem = quoteDb.addQuote(
+                                String.format("\"%s\" ~%s", reply.getMessageBody(), reply.getDisplayName()),
+                                Long.parseLong(messageEvent.getUser().getId()),
+                                true
+                        );
+                    }
+                } else {
+                    quoteItem = quoteDb.addQuote(
+                            content,
+                            Long.parseLong(messageEvent.getUser().getId()),
+                            true
+                    );
+                }
                 quoteUndoEngine.storeUndoAction(ADD, quoteItem);
                 twitchApi.channelMessage(String.format("Successfully added quote #%d", quoteItem.index()));
             }

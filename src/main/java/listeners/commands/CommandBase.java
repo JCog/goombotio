@@ -88,6 +88,10 @@ public abstract class CommandBase implements TwitchEventListener {
         }
         
         String content = messageEvent.getMessage().toLowerCase(Locale.ENGLISH).trim();
+        // remove @ from beginning of replies that doesn't appear in the Twitch UI
+        if (messageEvent.getReplyInfo() != null) {
+            content = content.split("\\s", 2)[1];
+        }
         String command = content.split("\\s", 2)[0];
         Function<String, Boolean> patternComparison = switch (commandType) {
             case PREFIX_COMMAND -> command::equals;
