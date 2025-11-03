@@ -24,14 +24,15 @@ public class VipRaffleListener extends CommandBase {
     private static final int COOLDOWN = 5;
     private static final CooldownType COOLDOWN_TYPE = CooldownType.PER_USER;
     private static final int WINNER_COUNT = 5;
-    private static final String PATTERN = "!raffle";
-    
+    private static final String PATTERN_RAFFLE = "!raffle";
+    private static final String PATTERN_RAFFLE_TEST = "!raffletest";
+
     private final TwitchApi twitchApi;
     private final VipRaffleDb vipRaffleDb;
     private final VipDb vipDb;
     
     public VipRaffleListener(CommonUtils commonUtils) {
-        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
+        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN_RAFFLE, PATTERN_RAFFLE_TEST);
         twitchApi = commonUtils.twitchApi();
         vipRaffleDb = commonUtils.dbManager().getVipRaffleDb();
         vipDb = commonUtils.dbManager().getVipDb();
@@ -122,6 +123,11 @@ public class VipRaffleListener extends CommandBase {
                 for (String id : newWinnerIds) {
                     newWinners.add(new UserRecord(id, null));
                 }
+            }
+
+            if (command.equals(PATTERN_RAFFLE_TEST)) {
+                twitchApi.channelMessage("Test completed, VIPs not updated.");
+                return;
             }
             
             List<String> currentVipIds;
@@ -229,21 +235,31 @@ public class VipRaffleListener extends CommandBase {
         for (VipRaffleItem item : raffleItems) {
             totalWeight += item.entryCount();
         }
-        
+
+
+        int top_entries = -1;
         while (winnerIds.size() < WINNER_COUNT && !raffleItems.isEmpty()) {
-            double indexWinner = random.nextDouble() * totalWeight;
-            double indexCurrent = 0;
-            VipRaffleItem winner = null;
-            for (VipRaffleItem item : raffleItems) {
-                indexCurrent += item.entryCount();
-                if (indexCurrent >= indexWinner) {
-                    winner = item;
-                    break;
-                }
+            if (winnerIds.isEmpty()) {
+                top_entries = raffleItems.get(0).entryCount();
             }
-            if (winner == null) {
-                // should never happen
-                continue;
+            VipRaffleItem winner = null;
+            if (raffleItems.get(0).entryCount() == top_entries) {
+                // all users tied for first automatically win
+                winner = raffleItems.get(0);
+            } else {
+                double indexWinner = random.nextDouble() * totalWeight;
+                double indexCurrent = 0;
+                for (VipRaffleItem item : raffleItems) {
+                    indexCurrent += item.entryCount();
+                    if (indexCurrent >= indexWinner) {
+                        winner = item;
+                        break;
+                    }
+                }
+                if (winner == null) {
+                    // should never happen
+                    continue;
+                }
             }
             
             totalWeight -= winner.entryCount();
