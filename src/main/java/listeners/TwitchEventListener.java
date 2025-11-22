@@ -16,7 +16,7 @@ public interface TwitchEventListener {
         }
     }
     
-    record EmoteUsage(String emoteId, int usageCount) {}
+    record EmoteUsage(String emoteId, String pattern, int usageCount) {}
     
     static List<EmoteUsage> getEmoteUsageCounts(ChannelMessageEvent messageEvent) {
         Optional<String> emotesTag = messageEvent.getMessageEvent().getTagValue("emotes");
@@ -26,10 +26,17 @@ public interface TwitchEventListener {
     
         List<EmoteUsage> emoteUsages = new ArrayList<>();
         String[] emotes = emotesTag.get().split("/");
+        String message = messageEvent.getMessage();
         for (String emote : emotes) {
-            String id = emote.split(":", 2)[0];
-            int usages = emote.split(",").length;
-            emoteUsages.add(new EmoteUsage(id, usages));
+            String[] split = emote.split(":", 2);
+            String id = split[0];
+            String[] locations = split[1].split(",");
+            String[] range = locations[0].split("-");
+            int start = Integer.parseInt(range[0]);
+            int end = Integer.parseInt(range[1]) + 1;
+            String pattern = message.substring(start, end);
+            int usageCount = locations.length;
+            emoteUsages.add(new EmoteUsage(id, pattern, usageCount));
         }
         return emoteUsages;
     }

@@ -38,6 +38,10 @@ public abstract class EmoteStatsDbBase extends GbCollection {
             List<Document> usageStatsList = result.getList(USAGE_STATS_KEY, Document.class);
             Document currentMonthStats = getUsageStats(usageStatsList, monthKeyValue);
 
+            if (pattern != null && !result.getString(EMOTE_PATTERN_KEY).equals(pattern)) {
+                updateOne(emoteId, new Document(EMOTE_PATTERN_KEY, pattern));
+            }
+
             //if emote exists but hasn't been used this month
             if (currentMonthStats == null) {
                 Document usageStatsDocument = generateNewUsageStats(userId, monthKeyValue);

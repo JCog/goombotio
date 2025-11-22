@@ -44,7 +44,7 @@ public class EmoteListener implements TwitchEventListener {
         List<EmoteUsage> emoteUsages = TwitchEventListener.getEmoteUsageCounts(messageEvent);
         for (EmoteUsage emote : emoteUsages) {
             for (int i = 0; i < emote.usageCount(); i++) {
-                emoteStatsDb.addEmoteUsage(emote.emoteId(), null, userId);
+                emoteStatsDb.addEmoteUsage(emote.emoteId(), emote.pattern(), userId);
             }
         }
         
