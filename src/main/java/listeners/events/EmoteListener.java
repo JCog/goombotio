@@ -10,6 +10,7 @@ import util.CommonUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class EmoteListener implements TwitchEventListener {
     private final EmoteStatsDb emoteStatsDb;
@@ -28,9 +29,13 @@ public class EmoteListener implements TwitchEventListener {
         
         String username = commonUtils.twitchApi().getStreamerUser().getLogin();
         String userId = commonUtils.twitchApi().getStreamerUser().getId();
-        ffzEmotes = commonUtils.apiManager().getFfzApi().getEmotes(username);
-        sevenTvEmotes = commonUtils.apiManager().getSevenTvApi().getEmotes(userId);
-        bttvEmotes = commonUtils.apiManager().getBttvApi().getEmotes(userId);
+        ffzEmotes = getInverseMap(commonUtils.apiManager().getFfzApi().getEmotes(username));
+        sevenTvEmotes = getInverseMap(commonUtils.apiManager().getSevenTvApi().getEmotes(userId));
+        bttvEmotes = getInverseMap(commonUtils.apiManager().getBttvApi().getEmotes(userId));
+    }
+
+    private Map<String, String> getInverseMap(Map<String, String> map) {
+        return map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
     }
 
     @Override

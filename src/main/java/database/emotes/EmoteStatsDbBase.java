@@ -104,6 +104,12 @@ public abstract class EmoteStatsDbBase extends GbCollection {
         return 0;
     }
 
+    public List<EmoteItem> getTopMonthlyEmoteCounts(int year, int month) {
+        List<EmoteItem> topEmotes = getEmoteItems(getMonthKeyValue(), null);
+        topEmotes.sort(new SortEmotesDescendingByCount());
+        return topEmotes;
+    }
+
     public List<EmoteItem> getTopMonthlyEmoteCounts(String prefix) {
         List<EmoteItem> topEmotes = getEmoteItems(getMonthKeyValue(), prefix);
         topEmotes.sort(new SortEmotesDescendingByCount());
@@ -138,7 +144,7 @@ public abstract class EmoteStatsDbBase extends GbCollection {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
-        return String.format("%d-%d", year, month);
+        return getMonthKeyValue(year, month);
     }
 
     private String getMonthKeyValue(int year, int month) {
