@@ -1,6 +1,6 @@
 # Goombotio
 
-This is a Twitch bot for use in JCog's channel with the Goombotio account.
+This is a general-purpose bot for use with a personal Twitch channel.
 
 ## Commands
 
