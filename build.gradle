@@ -6,7 +6,7 @@ plugins {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'Main'
+                'Main-Class': 'dev.jcog.goombotio.Main'
         )
     }
 }
