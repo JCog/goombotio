@@ -86,7 +86,7 @@ public class MainBotController {
         try {
             new ConsoleCommandListener(twitchApi, discordBotController).run();
         } catch (NoSuchElementException nsee) {
-            log.error("No console detected. Process must be killed manually.");
+            log.warn("No console detected. Process must be killed manually.");
             try {
                 this.wait();
             } catch (InterruptedException e) {
