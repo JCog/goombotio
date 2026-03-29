@@ -1,0 +1,38 @@
+package dev.jcog.goombotio.listeners.commands;
+
+import dev.jcog.goombotio.api.racetime.RacetimeApi;
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import dev.jcog.goombotio.util.CommonUtils;
+import dev.jcog.goombotio.util.TwitchApi;
+import dev.jcog.goombotio.util.TwitchUserLevel.USER_LEVEL;
+
+import java.util.Objects;
+
+public class RacetimeListener extends CommandBase {
+    private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
+    private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
+    private static final int COOLDOWN = 2;
+    private static final CooldownType COOLDOWN_TYPE = CooldownType.GLOBAL;
+    private static final String PATTERN = "!multi";
+    private static final String USERNAME = "JCog#3335";
+    private static final String[] GAME_SLUGS = {"pm64r", "pm64"};
+    
+    private final TwitchApi twitchApi;
+    private final RacetimeApi racetimeApi;
+
+    public RacetimeListener(CommonUtils commonUtils) {
+        super(COMMAND_TYPE, MIN_USER_LEVEL, COOLDOWN, COOLDOWN_TYPE, PATTERN);
+        twitchApi = commonUtils.twitchApi();
+        racetimeApi = commonUtils.apiManager().getRacetimeApi();
+    }
+
+    @Override
+    protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
+        // TODO: rework this to check the game currently being played
+        String spectateUrl = racetimeApi.getSpectateUrl(USERNAME, GAME_SLUGS);
+        twitchApi.channelMessage(Objects.requireNonNullElse(
+                spectateUrl,
+                "There are currently no active races to spectate."
+        ));
+    }
+}
