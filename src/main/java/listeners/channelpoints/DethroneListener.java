@@ -9,6 +9,8 @@ import com.github.twitch4j.helix.domain.CustomReward;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.misc.VipDb;
 import listeners.TwitchEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.TwitchApi;
 
@@ -16,12 +18,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.lang.System.out;
-
 public class DethroneListener implements TwitchEventListener {
+    private static final Logger log = LoggerFactory.getLogger(DethroneListener.class);
     private static final String DETHRONE_REWARD_TITLE = "Dethrone";
     private static final String DETHRONE_REWARD_PROMPT = " currently sits on the throne. Redeem this to take their spot, earn VIP, and increase the cost for the next person!";
-    
+
     private final TwitchApi twitchApi;
     private final VipDb vipDb;
     
@@ -49,7 +50,7 @@ public class DethroneListener implements TwitchEventListener {
                     true
             ).get(0);
         } catch (HystrixRuntimeException e) {
-            out.println("Error retrieving Dethrone reward from API");
+            log.error("Error retrieving Dethrone reward from API: {}", e.getMessage());
             twitchApi.channelMessage("@JCog error retrieving reward. Please refund manually while shaking your fist at twitch.");
             return;
         }
@@ -67,7 +68,7 @@ public class DethroneListener implements TwitchEventListener {
             success = true;
         } catch (HystrixRuntimeException e) {
             success = false;
-            out.println("Error updating Dethrone reward. Refunding points.");
+            log.error("Error updating Dethrone reward. Refunding points: {}", e.getMessage());
             twitchApi.channelMessage("Error updating Dethrone reward. Refunding points.");
         }
         
@@ -102,7 +103,7 @@ public class DethroneListener implements TwitchEventListener {
         vipDb.editThroneProp(newUserId, true);
         if (oldUserId == null) {
             twitchApi.channelMessage("Error finding existing throne holder ID. Unable to remove VIP.");
-            out.println("Error finding existing throne holder ID. Unable to remove VIP.");
+            log.error("Error finding existing throne holder ID. Unable to remove VIP.");
         } else {
             vipDb.editThroneProp(oldUserId, false);
         }
@@ -111,10 +112,10 @@ public class DethroneListener implements TwitchEventListener {
         if (!vipIds.contains(newUserId)) {
             try {
                 twitchApi.vipAdd(newUserId);
-                System.out.println("VIP added to user " + newUserId);
+                log.info("VIP added to user {}", newUserId);
             } catch (HystrixRuntimeException e) {
                 twitchApi.channelMessage("API error adding new VIP");
-                out.printf("API error adding %s (%s) as VIP\n", newUsername, newUserId);
+                log.error("error adding {} ({}) as VIP: {}", newUsername, newUserId, e.getMessage());
             }
         }
         
@@ -122,10 +123,10 @@ public class DethroneListener implements TwitchEventListener {
         if (oldUserId != null && !vipDb.hasVip(oldUserId)) {
             try {
                 twitchApi.vipRemove(oldUserId);
-                System.out.println("VIP removed from user " + newUserId);
+                log.info("VIP removed from user {}", newUserId);
             } catch (HystrixRuntimeException e) {
                 twitchApi.channelMessage("API error removing old VIP");
-                out.printf("API error removing %s (%s) as VIP\n", oldUsername, oldUserId);
+                log.error("error removing {} ({}) as VIP: {}", oldUsername, oldUserId, e.getMessage());
             }
         }
     }

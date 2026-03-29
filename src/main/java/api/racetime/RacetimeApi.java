@@ -9,13 +9,16 @@ import api.racetime.racedata.RaceDataInterface;
 import jakarta.ws.rs.ClientErrorException;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RacetimeApi {
+    private static final Logger log = LoggerFactory.getLogger(RacetimeApi.class);
     private static final String BASE_URI = "https://racetime.gg";
-    
+
     private final GameDataInterface gameDataProxy;
     private final RaceDataInterface raceDataProxy;
     
@@ -30,7 +33,7 @@ public class RacetimeApi {
         try {
             currentRaces = gameDataProxy.getGameData(gameSlug);
         } catch (ClientErrorException e) {
-            System.out.println("Error getting current racetime races:\n" + e.getMessage());
+            log.error("Error getting current racetime races: {}", e.getMessage());
             return new ArrayList<>();
         }
         return currentRaces.getCurrentRaces();
@@ -44,7 +47,7 @@ public class RacetimeApi {
                 try {
                     raceData = raceDataProxy.getRaceData(race.getData_url());
                 } catch (ClientErrorException e) {
-                    System.out.println("Error getting racetime race data:\n" + e.getMessage());
+                    log.error("Error getting racetime race data: {}", e.getMessage());
                     return null;
                 }
                 for (Entrant entrant : raceData.getEntrants()) {

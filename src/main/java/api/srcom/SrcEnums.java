@@ -1,4 +1,4 @@
-package api.src;
+package api.srcom;
 
 public class SrcEnums {
     

@@ -5,15 +5,16 @@ import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import listeners.TwitchEventListener;
 import org.apache.commons.lang.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.FileWriter;
 import util.TwitchApi;
 
-import static java.lang.System.out;
-
 public class RecentCheerListener implements TwitchEventListener {
+    private static final Logger log = LoggerFactory.getLogger(RecentCheerListener.class);
     private static final String LOCAL_RECENT_CHEER_FILENAME = "recent_cheer.txt";
-    
+
     private final TwitchApi twitchApi;
     
     public RecentCheerListener(CommonUtils commonUtils) {
@@ -27,15 +28,11 @@ public class RecentCheerListener implements TwitchEventListener {
         try {
             user = twitchApi.getUserById(userId);
         } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
-            out.printf(
-                    "error retrieving data for bit user with id %s%n",
-                    userId
-            );
+            log.error("error retrieving data for bit user with id {}", userId);
             user = null;
         }
         if (user == null) {
-            out.println("error: bit user is null");
+            log.error("bit user is null");
             return;
         }
     

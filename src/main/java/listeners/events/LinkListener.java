@@ -8,6 +8,8 @@ import com.github.twitch4j.helix.domain.Game;
 import com.github.twitch4j.helix.domain.Video;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import listeners.TwitchEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.v1.Status;
@@ -21,13 +23,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LinkListener implements TwitchEventListener {
+    private static final Logger log = LoggerFactory.getLogger(LinkListener.class);
     private static final Pattern clipPattern = Pattern.compile("(?:www\\.|clips\\.)?twitch\\.tv/(?:[a-zA-Z0-9_]+/clip/)?([a-zA-Z0-9-_]+)");
     private static final Pattern videoPattern = Pattern.compile("(?:www\\.)?twitch\\.tv/videos/([0-9]+)");
     private static final Pattern youtubePattern = Pattern.compile("(?:www\\.)?(?:youtube\\.com/watch\\?[a-zA-Z0-9_=&]*v=|youtu\\.be/)([a-zA-Z0-9_\\-]{1,11})");
     private static final Pattern shortPattern = Pattern.compile("(?:www\\.)?youtube\\.com/shorts/([a-zA-Z0-9_\\-]{1,11})");
     private static final Pattern tweetPattern = Pattern.compile("(?:www\\.)?(?:twitter|x)\\.com/[a-zA-Z0-9_]+/status/([0-9]+)");
     private static final Pattern blueskyPattern = Pattern.compile("(?:www\\.)?bsky\\.app/profile/([a-zA-Z0-9_.]+)/post/([a-z0-9]+)");
-    
+
     private final TwitchApi twitchApi;
     private final Twitter twitter;
     private final BlueskyApi blueskyApi;
@@ -96,7 +99,7 @@ public class LinkListener implements TwitchEventListener {
         try {
             clip = twitchApi.getClipById(id);
         } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
+            log.error("Error retrieving clip data: {}", e.getMessage());
             return "Error retrieving clip data";
         }
         if (clip == null) {
@@ -113,7 +116,7 @@ public class LinkListener implements TwitchEventListener {
         try {
             game = twitchApi.getGameById(gameId);
         } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
+            log.error("Error retrieving game data: {}", e.getMessage());
             return "Error retrieving game data";
         }
         if (game == null) {
@@ -140,7 +143,7 @@ public class LinkListener implements TwitchEventListener {
         try {
             video = twitchApi.getVideoById(id);
         } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
+            log.error("Error retrieving video data: {}", e.getMessage());
             return "Error retrieving video data";
         }
         if (video == null) {
@@ -168,7 +171,7 @@ public class LinkListener implements TwitchEventListener {
         try {
             tweet = twitter.v1().tweets().showStatus(Long.parseLong(id));
         } catch (TwitterException e) {
-            System.out.println("Twitter Exception");
+            log.error("Twitter Exception: {}", e.getMessage());
             return "";
         }
 

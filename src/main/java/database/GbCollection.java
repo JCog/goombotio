@@ -8,13 +8,16 @@ import com.mongodb.client.model.Updates;
 import com.mongodb.lang.Nullable;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
 import static com.mongodb.client.model.Filters.*;
-import static java.lang.System.out;
 
 public abstract class GbCollection {
+    private static final Logger log = LoggerFactory.getLogger(GbCollection.class);
+
     protected static final String ID_KEY = "_id";
 
     protected final GbDatabase gbDatabase;
@@ -36,7 +39,7 @@ public abstract class GbCollection {
         if (writePermission) {
             collection.insertOne(document);
         } else {
-            out.printf("%s: attempted to insert %s\n", collection.getNamespace(), document);
+            log.info("{}: attempted to insert {}", collection.getNamespace(), document);
         }
     }
     
@@ -47,7 +50,7 @@ public abstract class GbCollection {
         if (writePermission) {
             collection.updateOne(eq(ID_KEY, id), new Document("$set", document));
         } else {
-            out.printf("%s: attempted to update %s with %s\n", collection.getNamespace(), id, document);
+            log.info("{}: attempted to update {} with {}", collection.getNamespace(), id, document);
         }
     }
     
@@ -60,8 +63,8 @@ public abstract class GbCollection {
             Bson update = Updates.set(fieldName, value);
             collection.updateOne(filter, update);
         } else {
-            out.printf(
-                    "%s: attempted to set id=\"%s\" fieldName=\"%s\" value=\"%s\"\n",
+            log.info(
+                    "{}: attempted to set id=\"{}\" fieldName=\"{}\" value=\"{}\"",
                     collection.getNamespace(),
                     id,
                     fieldName,
@@ -83,8 +86,8 @@ public abstract class GbCollection {
             update = Updates.push(arrayName, value);
             collection.updateOne(filter, update);
         } else {
-            out.printf(
-                    "%s: attempted to push id=\"%s\" arrayName=\"%s\" value=\"%s\"\n",
+            log.info(
+                    "{}: attempted to push id=\"{}\" arrayName=\"{}\" value=\"{}\"",
                     collection.getNamespace(),
                     id,
                     arrayName,
@@ -100,7 +103,7 @@ public abstract class GbCollection {
         if (writePermission) {
             collection.deleteOne(eq(ID_KEY, id));
         } else {
-            out.printf("%s: attempted to delete %s\n", collection.getNamespace(), id);
+            log.info("{}: attempted to delete {}", collection.getNamespace(), id);
         }
     }
     
@@ -111,8 +114,8 @@ public abstract class GbCollection {
         if (writePermission) {
             collection.updateOne(eq(ID_KEY, id), Updates.pull(arrayName, value));
         } else {
-            out.printf(
-                    "%s: attempted to pull id=\"%s\" arrayName=\"%s\" value=\"%s\"\n",
+            log.info(
+                    "{}: attempted to pull id=\"{}\" arrayName=\"{}\" value=\"{}\"",
                     collection.getNamespace(),
                     id,
                     arrayName,

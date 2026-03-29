@@ -6,6 +6,8 @@ import api.bttv.user.UserInterface;
 import jakarta.ws.rs.ClientErrorException;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,8 +15,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class BttvApi {
+    private static final Logger log = LoggerFactory.getLogger(BttvApi.class);
     private static final String BASE_URI = "https://api.betterttv.net/3/";
-    
+
     private final UserInterface proxy;
     
     public BttvApi(ResteasyClient client) {
@@ -27,7 +30,7 @@ public class BttvApi {
         try {
             user = proxy.getUserById(userId);
         } catch (ClientErrorException e) {
-            System.out.printf("\nError getting BTTV emotes:\n%s\n", e.getMessage());
+            log.error("Error getting BTTV emotes: {}", e.getMessage());
             return new HashMap<>();
         }
         List<Emote> emoticons = user.getEmotes();

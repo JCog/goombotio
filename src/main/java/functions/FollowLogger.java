@@ -4,6 +4,8 @@ import com.github.twitch4j.helix.domain.InboundFollow;
 import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.stats.WatchTimeDb;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.TwitchApi;
 
@@ -17,6 +19,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class FollowLogger {
+    private static final Logger log = LoggerFactory.getLogger(FollowLogger.class);
     private static final String FILENAME = "follows.log";
     private static final String DATE_FORMAT_CURRENT = "yyyy-MM-dd HH:mm:ss";
     private static final String DATE_FORMAT_FOLLOW = "yyyy-MM-dd";
@@ -49,8 +52,7 @@ public class FollowLogger {
                 try {
                     fw = new FileWriter(FILENAME, true);
                 } catch (IOException e) {
-                    System.out.printf("ERROR: IOException for filename \"%s\"%n", FILENAME);
-                    e.printStackTrace();
+                    log.error("IOException for filename \"{}\"", FILENAME);
                     return;
                 }
                 PrintWriter writer = new PrintWriter(new BufferedWriter(fw));
@@ -59,15 +61,12 @@ public class FollowLogger {
                 try {
                     updatedFollowerIds = fetchFollowerIds();
                 } catch (HystrixRuntimeException e) {
-                    System.out.printf(
-                            "Error retrieving updated follower list. Trying again in %d min.%n",
-                            INTERVAL
-                    );
+                    log.error("Error retrieving updated follower list. Trying again in {} min.", INTERVAL);
                     return;
                 }
                 if (oldFollowerIdList == null) {
                     oldFollowerIdList = updatedFollowerIds;
-                    System.out.println("Successfully retrieved initial follower list.");
+                    log.info("Successfully retrieved initial follower list.");
                     return;
                 }
                 List<String> newFollowers = getNewFollowers(updatedFollowerIds);
@@ -77,11 +76,7 @@ public class FollowLogger {
                     try {
                         newFollowerUser = twitchApi.getUserById(newFollowerId);
                     } catch (HystrixRuntimeException e) {
-                        e.printStackTrace();
-                        System.out.printf(
-                                "error retrieving data for new follower with id %s%n",
-                                newFollowerId
-                        );
+                        log.error("error retrieving data for new follower with id {}", newFollowerId);
                         newFollowerUser = null;
                     }
                     if (newFollowerUser != null) {
@@ -111,11 +106,7 @@ public class FollowLogger {
                     try {
                         unfollowerUser = twitchApi.getUserById(unfollowerId);
                     } catch (HystrixRuntimeException e) {
-                        e.printStackTrace();
-                        System.out.printf(
-                                "error retrieving data for unfollower with id %s%n",
-                                unfollowerId
-                        );
+                        log.error("error retrieving data for unfollower with id {}", unfollowerId);
                         unfollowerUser = null;
                     }
                     if (unfollowerUser != null) {

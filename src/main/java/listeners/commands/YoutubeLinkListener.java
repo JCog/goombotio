@@ -5,6 +5,8 @@ import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListener;
 import org.apache.commons.io.input.TailerListenerAdapter;
 import org.apache.commons.lang.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
@@ -14,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class YoutubeLinkListener extends CommandBase {
+    private static final Logger log = LoggerFactory.getLogger(YoutubeLinkListener.class);
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.BROADCASTER;
     private static final int COOLDOWN = 0;
@@ -24,7 +27,7 @@ public class YoutubeLinkListener extends CommandBase {
     private static final String CHAT_FINISHED = "[INFO] Finished retrieving chat messages.";
     private static final Pattern PATTERN_CHAT = Pattern.compile(".* \\| (.*)");
     private static final Pattern PATTERN_ID = Pattern.compile("youtube.com/live/([a-zA-Z0-9_\\-]{1,11})");
-    
+
     private final TailerListener listener;
     private final TwitchApi twitchApi;
     
@@ -68,7 +71,7 @@ public class YoutubeLinkListener extends CommandBase {
         new Thread(() -> {
             if (new File(filename).exists()) {
                 // if the file already exists, it has an existing script instance monitoring it and we can just tail it
-                System.out.println("Existing YouTube chat log detected, skipping chat script");
+                log.info("Existing YouTube chat log detected, skipping chat script");
             } else {
                 // start python script that outputs YouTube chat to file
                 Process proc;
@@ -111,7 +114,7 @@ public class YoutubeLinkListener extends CommandBase {
             if (line.equals(CHAT_FINISHED)) {
                 tailer.close();
                 tailer = null;
-                System.out.println("Finished monitoring YouTube chat");
+                log.info("Finished monitoring YouTube chat");
             }
             Matcher matcher = PATTERN_CHAT.matcher(line);
             if (matcher.find()) {

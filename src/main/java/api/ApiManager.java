@@ -5,7 +5,7 @@ import api.bttv.BttvApi;
 import api.ffz.FfzApi;
 import api.racetime.RacetimeApi;
 import api.seventv.SevenTvApi;
-import api.src.SrcApi;
+import api.srcom.SrcApi;
 import api.youtube.YoutubeApi;
 import jakarta.ws.rs.client.ClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;

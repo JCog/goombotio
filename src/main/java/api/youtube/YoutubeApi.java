@@ -6,12 +6,15 @@ import api.youtube.video.VideoInterface;
 import jakarta.ws.rs.ClientErrorException;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.NumberFormat;
 
 public class YoutubeApi {
+    private static final Logger log = LoggerFactory.getLogger(YoutubeApi.class);
     private static final String BASE_URI = "https://www.googleapis.com/youtube/v3/";
-    
+
     private final VideoInterface proxy;
     
     public YoutubeApi(ResteasyClient client) {
@@ -24,7 +27,7 @@ public class YoutubeApi {
         try {
             video = proxy.getVideoById(videoId, apiKey, "snippet,statistics");
         } catch (ClientErrorException e) {
-            System.out.println("Error getting YouTube video details:\n" + e.getMessage());
+            log.error("Error getting YouTube video details: {}", e.getMessage());
             return "";
         }
         

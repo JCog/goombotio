@@ -7,12 +7,15 @@ import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.InternalServerErrorException;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.NumberFormat;
 
 public class BlueskyApi {
+    private static final Logger log = LoggerFactory.getLogger(BlueskyApi.class);
     private static final String BASE_URI = "https://public.api.bsky.app/xrpc/";
-    
+
     private final PostThreadInterface postThreadProxy;
     
     public BlueskyApi(ResteasyClient client) {
@@ -26,7 +29,7 @@ public class BlueskyApi {
         try {
             thread = postThreadProxy.getPostThread(uri);
         } catch (ClientErrorException|InternalServerErrorException e) {
-            System.out.println("Error getting Bluesky post details:\n" + e.getMessage());
+            log.error("Error getting Bluesky post details: {}", e.getMessage());
             return "";
         }
         

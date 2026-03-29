@@ -2,24 +2,27 @@ package functions.preds;
 
 import com.github.twitch4j.helix.domain.Moderator;
 import database.preds.DampeRaceLeaderboardDb;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class DampeRacePredsManager extends PredsManagerBase {
+    private static final Logger log = LoggerFactory.getLogger(DampeRacePredsManager.class);
     private static final String START_MESSAGE =
             "Get your predictions in! Guess in chat what the timer will say at the end of the Dampe race. The closer " +
             "you are, the more entries you'll earn for a chance at winning the monthly VIP raffle! Type !preds to " +
             "learn more.";
     private static final String ANSWER_REGEX = "(^[0-5][0-9])|(^[1-9][0-5][0-9])";
-    
+
     private static final String DISCORD_CHANNEL = "dampe-race";
     private static final int REWARD_CORRECT = 15;
     private static final int REWARD_1_OFF = 5;
     private static final int REWARD_2_OFF = 2;
     private static final int REWARD_PARTICIPATION = 1;
-    
+
     private record TimeGuess(String displayName, int seconds) {}
     
     private final Map<String, TimeGuess> guesses = new HashMap<>();
@@ -62,9 +65,9 @@ public class DampeRacePredsManager extends PredsManagerBase {
             
             if (!modIds.contains(userId) && !vipDb.isPermanentVip(userId)) {
                 vipRaffleDb.incrementEntryCount(userId, displayName, newEntryCount);
-                System.out.printf("+%d entries %sto %s%n", newEntryCount, isWinner ? "and a win " : "", displayName);
+                log.info("+{} entries {}to {}", newEntryCount, isWinner ? "and a win " : "", displayName);
             } else if (isWinner) {
-                System.out.printf("No entries, but +1 win to %s%n", displayName);
+                log.info("No entries, but +1 win to {}", displayName);
             }
         }
     
@@ -110,9 +113,9 @@ public class DampeRacePredsManager extends PredsManagerBase {
         }
         
         if (guesses.containsKey(userId)) {
-            System.out.printf("Replacing %s's guess with %d seconds.%n", displayName, userGuess);
+            log.info("Replacing {}'s guess with {} seconds.", displayName, userGuess);
         } else {
-            System.out.printf("%s has guessed %d seconds.%n", displayName, userGuess);
+            log.info("{} has guessed {} seconds.", displayName, userGuess);
         }
         guesses.put(userId, new TimeGuess(displayName, userGuess));
     }

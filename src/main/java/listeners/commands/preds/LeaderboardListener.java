@@ -6,6 +6,8 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.preds.PredsLeaderboardDbBase;
 import listeners.commands.CommandBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
@@ -14,13 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LeaderboardListener extends CommandBase {
+    private static final Logger log = LoggerFactory.getLogger(LeaderboardListener.class);
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
     private static final int COOLDOWN = 2;
     private static final CooldownType COOLDOWN_TYPE = CooldownType.PER_USER;
     private static final String PATTERN_LEADERBOARD = "!leaderboard";
     private static final String PATTERN_PREDS = "!preds";
-    
+
     private static final String PREDS_MESSAGE_OOT =
             "Guess what the timer will say at the end of the Dampe race to win raffle entries for next month's VIP " +
             "raffle! Get 2 for being two seconds off, 5 for being one second off, or 15 for guessing correctly! " +
@@ -42,7 +45,7 @@ public class LeaderboardListener extends CommandBase {
             "always get at least one entry just for participating, so get guessing!";
     private static final String PREDS_MESSAGE_DEFAULT =
             "Either the stream isn't live or the current game does not have a preds leaderboard.";
-    
+
     private static final String GAME_ID_OOT = "11557";
     private static final String GAME_ID_PAPER_MARIO = "18231";
     private static final String GAME_ID_SUNSHINE = "6086";
@@ -110,8 +113,7 @@ public class LeaderboardListener extends CommandBase {
         try {
             stream = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId());
         } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
-            System.out.println("Error retrieving stream data");
+            log.error("Error retrieving stream data: {}", e.getMessage());
             return "";
         }
         if (stream != null) {

@@ -6,20 +6,18 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.StartupException;
 
-import static java.lang.System.out;
-
 public class DiscordBotController {
-    private static final String INSUFFICIENT_PERMISSION_ERROR = "ERROR: insufficient write privileges in this channel";
-    private static final String ILLEGAL_ARGUMENT_ERROR = "ERROR: provided text is null, empty, or longer than 2000 characters";
-    private static final String UNSUPPORTED_OPERATION_ERROR = "ERROR: this is a private channel and both the currently logged in account and the target user are bots";
+    private static final Logger log = LoggerFactory.getLogger(DiscordBotController.class);
 
     private final JDA jda;
 
     public DiscordBotController(String token, ListenerAdapter listenerAdapter) {
         try {
-            out.print("Establishing Discord connection... ");
+            log.info("Establishing Discord connection...");
             jda = JDABuilder.createDefault(token)
                     .addEventListeners(listenerAdapter)
                     .build()
@@ -27,7 +25,7 @@ public class DiscordBotController {
         } catch (InvalidTokenException | InterruptedException e) {
             throw new StartupException("unable to authenticate with discord");
         }
-        out.println("success.");
+        log.info("Discord connection established.");
     }
 
     public void close() {
@@ -39,18 +37,21 @@ public class DiscordBotController {
         try {
             channel = jda.getTextChannelsByName(channelName, true).get(0);
         } catch (IndexOutOfBoundsException e) {
-            out.printf("ERROR: discord channel \"#%s\" does not exist%n", channelName);
+            log.error("Discord channel \"#{}\" does not exist", channelName);
             return;
         }
 
         try {
             channel.sendMessage(message).queue();
         } catch (InsufficientPermissionException e) {
-            out.println(INSUFFICIENT_PERMISSION_ERROR);
+            log.error("insufficient write privileges to write in #{}", channelName);
         } catch (IllegalArgumentException e) {
-            out.println(ILLEGAL_ARGUMENT_ERROR);
+            log.error("provided text is null, empty, or longer than 2000 characters");
         } catch (UnsupportedOperationException e) {
-            out.println(UNSUPPORTED_OPERATION_ERROR);
+            log.error(
+                    "#{} is a private channel and both the currently logged in account and the target user are bots",
+                    channelName
+            );
         }
     }
 

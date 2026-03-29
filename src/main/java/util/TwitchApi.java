@@ -19,12 +19,14 @@ import com.github.twitch4j.helix.domain.*;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import listeners.TwitchEventListener;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static java.lang.System.out;
-
 public class TwitchApi {
+    private static final Logger log = LoggerFactory.getLogger(TwitchApi.class);
+
     private final String channelAuthToken;
     private final String botAuthToken;
     private final TwitchClient twitchClient;
@@ -42,7 +44,7 @@ public class TwitchApi {
             String botAuthToken,
             boolean silentChat
     ) {
-        out.printf("Establishing Twitch connection (channel=%s, chat=%s)... ", streamerUsername, botUsername);
+        log.info("Establishing Twitch connection (channel={}, chat={})...", streamerUsername, botUsername);
         this.channelAuthToken = channelAuthToken;
         this.botAuthToken = botAuthToken;
         this.silentChat = silentChat;
@@ -69,11 +71,11 @@ public class TwitchApi {
         }
         botUser = getUserByUsername(botUsername);
         if (streamerUser == null) {
-            out.println("Error retrieving streamer user");
+            log.error("Error retrieving streamer user");
             System.exit(1);
         }
         if (botUser == null) {
-            out.println("Error retrieving bot user");
+            log.error("Error retrieving bot user");
             System.exit(1);
         }
         
@@ -111,7 +113,7 @@ public class TwitchApi {
         eventSocket.register(SubscriptionTypes.CHANNEL_SUBSCRIPTION_GIFT.prepareSubscription(
                 b -> b.broadcasterUserId(streamerUser.getId()).build(), null
         ));
-        out.println("success.");
+        log.info("Twitch connection established");
     }
     
     public void close() {
@@ -174,7 +176,7 @@ public class TwitchApi {
         }
         String firstWord = output.split("\\s", 2)[0];
         if (firstWord.charAt(0) == '/' || firstWord.charAt(0) == '.') {
-            System.out.printf("Illegal command usage \"%s\"%n", firstWord);
+            log.error("Illegal command usage \"{}\"", firstWord);
         } else {
             sendMessage(output);
         }
@@ -211,7 +213,7 @@ public class TwitchApi {
     
     private void sendMessage(String message) {
         if (silentChat) {
-            System.out.println("SILENT_CHAT: " + message);
+            log.info("SILENT_CHAT: {}", message);
         } else {
             chatClient.sendMessage(streamerUser.getDisplayName(), message);
             ChatLogger.logMessage(botUser, message);
@@ -222,7 +224,7 @@ public class TwitchApi {
         try {
             twitchClient.getHelix().sendShoutout(botAuthToken, streamerUser.getId(), userId, botUser.getId()).execute();
         } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
+            log.error("Error attempting to shoutout user with id {}: {}", userId, e.getMessage());
         }
     }
     
@@ -691,7 +693,7 @@ public class TwitchApi {
     public void updateRedemptionStatus(String broadcasterId, String rewardId, Collection<String> redemptionIds, RedemptionStatus newStatus) throws HystrixRuntimeException {
         CustomRewardRedemptionList redemptionList = twitchClient.getHelix().updateRedemptionStatus(channelAuthToken, broadcasterId, rewardId, redemptionIds, newStatus).execute();
         for (CustomRewardRedemption redemption : redemptionList.getRedemptions()) {
-            out.printf("Custom reward redemption \"%s\" has been %s for %s%n",
+            log.info("Custom reward redemption \"{}\" has been {} for {}",
                     redemption.getReward().getTitle(),
                     newStatus == RedemptionStatus.FULFILLED ? "fulfilled" : "canceled",
                     redemption.getUserName()

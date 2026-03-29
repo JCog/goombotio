@@ -2,26 +2,29 @@ package functions.preds;
 
 import com.github.twitch4j.helix.domain.Moderator;
 import database.preds.BoosterHillLeaderboardDb;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class BoosterHillPredsManager extends PredsManagerBase {
+    private static final Logger log = LoggerFactory.getLogger(BoosterHillPredsManager.class);
     private static final String START_MESSAGE =
             "Get your predictions in! Guess in chat how many Flowers JCog will get during Booster Hill. The closer " +
             "you are, the more entries you'll earn for a chance at winning the monthly VIP raffle! Type !preds to " +
             "learn more.";
     private static final String ANSWER_REGEX = "(^[0-9]*)";
-    
+
     private static final String DISCORD_CHANNEL = "booster-hill";
     private static final int REWARD_CORRECT = 20;
     private static final int REWARD_1_OFF = 5;
     private static final int REWARD_2_OFF = 2;
     private static final int REWARD_PARTICIPATION = 1;
-    
+
     private record FlowersGuess(String displayName, int flowers) {}
-    
+
     private final Map<String, FlowersGuess> guesses = new HashMap<>();
     private final BoosterHillLeaderboardDb boosterHillLeaderboardDb;
     
@@ -62,9 +65,9 @@ public class BoosterHillPredsManager extends PredsManagerBase {
             
             if (!modIds.contains(userId) && !vipDb.isPermanentVip(userId)) {
                 vipRaffleDb.incrementEntryCount(userId, displayName, newEntryCount);
-                System.out.printf("+%d entries %sto %s%n", newEntryCount, isWinner ? "and a win " : "", displayName);
+                log.info("+{} entries {}to {}", newEntryCount, isWinner ? "and a win " : "", displayName);
             } else if (isWinner) {
-                System.out.printf("No entries, but +1 win to %s%n", displayName);
+                log.info("No entries, but +1 win to {}", displayName);
             }
         }
     
@@ -112,9 +115,9 @@ public class BoosterHillPredsManager extends PredsManagerBase {
         }
         
         if (guesses.containsKey(userId)) {
-            System.out.printf("Replacing %s's guess with %d flowers.%n", displayName, userGuess);
+            log.info("Replacing {}'s guess with {} flowers.", displayName, userGuess);
         } else {
-            System.out.printf("%s has guessed %d flowers.%n", displayName, userGuess);
+            log.info("{} has guessed {} flowers.", displayName, userGuess);
         }
         guesses.put(userId, new FlowersGuess(displayName, userGuess));
     }

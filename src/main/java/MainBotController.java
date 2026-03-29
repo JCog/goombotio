@@ -10,6 +10,8 @@ import listeners.commands.preds.PredsGuessListener;
 import listeners.commands.preds.PredsManagerListener;
 import listeners.commands.quotes.QuoteListener;
 import listeners.events.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import twitter4j.Twitter;
 import util.CommonUtils;
 import util.MessageExpressionParser;
@@ -20,9 +22,8 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static java.lang.System.out;
-
 public class MainBotController {
+    private static final Logger log = LoggerFactory.getLogger(MainBotController.class);
     private static final String DB_NAME = "goombotio";
     private static final int TIMER_THREAD_SIZE = 20;
 
@@ -37,11 +38,8 @@ public class MainBotController {
 
     public MainBotController() {
         Settings settings = new Settings();
-        out.printf(
-                "\nWrite permission: %s\nSilent Chat: %s\n\n",
-                settings.hasWritePermission() ? "TRUE" : "FALSE",
-                settings.isSilentMode() ? "TRUE" : "FALSE"
-        );
+        log.info("Write permission: {}", settings.hasWritePermission() ? "TRUE" : "FALSE");
+        log.info("Silent Chat: {}", settings.isSilentMode() ? "TRUE" : "FALSE");
         dbManager = new DbManager(
                 settings.getDbHost(),
                 settings.getDbPort(),
@@ -75,22 +73,22 @@ public class MainBotController {
     }
 
     public synchronized void run(long startTime) {
-        out.print("Initializing internal processes... ");
+        log.info("Initializing internal processes... ");
         registerListeners();
-        out.println("success.");
+        log.info("Internal processes complete.");
 
-        out.printf("Goombotio is ready. (~%ds start time)%n%n", (System.currentTimeMillis() - startTime) / 1000);
+        log.info("Goombotio is ready. (~{}s start time)", (System.currentTimeMillis() - startTime) / 1000);
         twitchApi.channelMessage("Goombotio started.");
 
         //main loop
         try {
             new ConsoleCommandListener(twitchApi, discordBotController).run();
         } catch (NoSuchElementException nsee) {
-            out.println("No console detected. Process must be killed manually.");
+            log.error("No console detected. Process must be killed manually.");
             try {
                 this.wait();
-            } catch (InterruptedException ie) {
-                ie.printStackTrace();
+            } catch (InterruptedException e) {
+                log.error(e.getMessage());
             }
         }
     }

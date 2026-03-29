@@ -4,20 +4,20 @@ import com.github.twitch4j.helix.domain.Moderator;
 import com.github.twitch4j.helix.domain.Subscription;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.preds.BadgeShopLeaderboardDb;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.lang.System.out;
-
 public class BadgeShopPredsManager extends PredsManagerBase {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(BadgeShopPredsManager.class);
     private static final String START_MESSAGE =
             "Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 BadSpin3 or SpoodlySpun " +
             "(or a message with 3 digits from 1 to 4) to guess the order the badges will show up in the badge shop! " +
             "If you get all three right and don't have a sub, you'll win one! Type !preds to learn more.";
     private static final String ANSWER_REGEX = "[1-4]{3}";
-    
+
     private static final String DISCORD_CHANNEL_WINS = "badge-shop-wins";
     private static final String DISCORD_CHANNEL_POINTS = "badge-shop-points";
     private static final int POINTS_3 = 20;
@@ -142,13 +142,7 @@ public class BadgeShopPredsManager extends PredsManagerBase {
                         stringToBadge(badgeGuess.get(1)),
                         stringToBadge(badgeGuess.get(2))
                 ));
-                System.out.printf(
-                        "%s has predicted %s %s %s%n",
-                        displayName,
-                        badgeGuess.get(0),
-                        badgeGuess.get(1),
-                        badgeGuess.get(2)
-                );
+                logGuess(displayName, badgeGuess.get(0), badgeGuess.get(1), badgeGuess.get(2));
             }
         } else if (split.length == 1 && split[0].matches("[1-4]{3}")) {
             //using numbers, e.g. "412"
@@ -166,14 +160,7 @@ public class BadgeShopPredsManager extends PredsManagerBase {
                 Badge badge3 = intToBadge(badgeGuess.get(2));
 
                 predictionList.put(userId, new PapePredsObject(displayName, badge1, badge2, badge3));
-
-                System.out.printf(
-                        "%s has predicted %s %s %s%n",
-                        displayName,
-                        badgeToString(badge1),
-                        badgeToString(badge2),
-                        badgeToString(badge3)
-                );
+                logGuess(displayName, badgeToString(badge1), badgeToString(badge2), badgeToString(badge3));
             }
         }
     }
@@ -209,25 +196,25 @@ public class BadgeShopPredsManager extends PredsManagerBase {
                 badgeShopLeaderboardDb.addWin(userId, displayName);
                 badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_3);
                 vipRaffleEntries = REWARD_3_CORRECT;
-                out.printf("%s guessed 3 correctly. Adding %d points and a win.%n", displayName, POINTS_3);
+                log.info("{} guessed 3 correctly. Adding {} points and a win.", displayName, POINTS_3);
             } else if ((leftGuess == leftAnswer && middleGuess == middleAnswer) ||
                     (leftGuess == leftAnswer && rightGuess == rightAnswer) ||
                     (middleGuess == middleAnswer && rightGuess == rightAnswer)) {
                 badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_2);
                 vipRaffleEntries = REWARD_2_CORRECT;
-                out.printf("%s guessed 2 correctly. Adding %d points.%n", displayName, POINTS_2);
+                log.info("{} guessed 2 correctly. Adding {} points.", displayName, POINTS_2);
             } else if (leftGuess == leftAnswer || middleGuess == middleAnswer || rightGuess == rightAnswer) {
                 badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_1);
                 vipRaffleEntries = REWARD_1_CORRECT;
-                out.printf("%s guessed 1 correctly. Adding %d point.%n", displayName, POINTS_1);
+                log.info("{} guessed 1 correctly. Adding {} point.", displayName, POINTS_1);
             } else if (answerSet.equals(guessSet)) {
                 badgeShopLeaderboardDb.addPoints(userId, displayName, POINTS_WRONG_ORDER);
                 vipRaffleEntries = REWARD_WRONG_ORDER;
-                out.printf("%s guessed 0 correctly, but got all 3 badges. Adding %d point.%n",
+                log.info("{} guessed 0 correctly, but got all 3 badges. Adding {} point.",
                         displayName, POINTS_WRONG_ORDER);
             } else {
                 vipRaffleEntries = REWARD_0_CORRECT;
-                out.printf("%s guessed 0 correctly.%n", displayName);
+                log.info("{} guessed 0 correctly.", displayName);
             }
     
             if (!modIds.contains(userId) && !vipDb.isPermanentVip(userId)) {
@@ -238,7 +225,7 @@ public class BadgeShopPredsManager extends PredsManagerBase {
     }
     
     private List<String> getUnsubbedWinners(List<String> winners) {
-        if (winners.size() == 0) {
+        if (winners.isEmpty()) {
             return new ArrayList<>();
         }
     
@@ -249,9 +236,9 @@ public class BadgeShopPredsManager extends PredsManagerBase {
                     .stream()
                     .map(Subscription::getUserLogin)
                     .map(String::toLowerCase)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (HystrixRuntimeException e) {
-            out.println("Unable to get sub status of winners.");
+            log.error("Unable to get sub status of winners: {}", e.getMessage());
             return unsubbedWinners;
         }
         
@@ -261,6 +248,10 @@ public class BadgeShopPredsManager extends PredsManagerBase {
             }
         }
         return unsubbedWinners;
+    }
+
+    private static void logGuess(String displayName, String guess1, String guess2, String guess3) {
+        log.info("{} has predicted {} {} {}", displayName, guess1, guess2, guess3);
     }
 
     private static String badgeToString(Badge badge) {

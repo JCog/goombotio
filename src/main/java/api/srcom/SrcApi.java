@@ -1,16 +1,18 @@
-package api.src;
+package api.srcom;
 
-import api.src.games.CategoryData;
-import api.src.games.GameData;
-import api.src.games.Games;
-import api.src.games.GamesInterface;
-import api.src.leaderboard.Leaderboard;
-import api.src.leaderboard.LeaderboardInterface;
-import api.src.leaderboard.Run;
-import api.src.leaderboard.VariablesInput;
+import api.srcom.games.CategoryData;
+import api.srcom.games.GameData;
+import api.srcom.games.Games;
+import api.srcom.games.GamesInterface;
+import api.srcom.leaderboard.Leaderboard;
+import api.srcom.leaderboard.LeaderboardInterface;
+import api.srcom.leaderboard.Run;
+import api.srcom.leaderboard.VariablesInput;
 import jakarta.ws.rs.ClientErrorException;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -19,8 +21,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class SrcApi {
+    private static final Logger log = LoggerFactory.getLogger(SrcApi.class);
     private static final String BASE_URI = "https://www.speedrun.com/api/v1/";
-    
+
     private final LeaderboardInterface leaderboardProxy;
     private final GamesInterface gamesProxy;
     
@@ -46,7 +49,7 @@ public class SrcApi {
                     new VariablesInput(variables)
             );
         } catch (ClientErrorException e) {
-            System.out.println("Error getting SRC category:\n" + e.getMessage());
+            log.error("Error getting SRC category: {}", e.getMessage());
             return "";
         }
         List<Run> runList = leaderboard.getLeaderboardData().getRunList();
@@ -67,7 +70,7 @@ public class SrcApi {
         try {
             games = gamesProxy.getGameByName(gameName, "categories");
         } catch (ClientErrorException e) {
-            System.out.println("Error getting SRC game:\n" + e.getMessage());
+            log.error("Error getting SRC game: {}", e.getMessage());
             return "";
         }
         if (games.getGameData().isEmpty() || games.getGameData().get(0).getCategories().getCategoryData().isEmpty()) {
@@ -95,7 +98,7 @@ public class SrcApi {
         try {
             leaderboard = leaderboardProxy.getWr(gameId, categoryId, 1, "players", null);
         } catch (ClientErrorException e) {
-            System.out.println("Error getting SRC category:\n" + e.getMessage());
+            log.error("Error getting SRC category: {}", e.getMessage());
             return "";
         }
         List<Run> runList = leaderboard.getLeaderboardData().getRunList();

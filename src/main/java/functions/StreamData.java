@@ -4,15 +4,17 @@ import com.github.twitch4j.helix.domain.User;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.stats.StreamStatsDb;
 import database.stats.WatchTimeDb;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.TwitchApi;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.System.out;
-
 public class StreamData {
+    private static final Logger log = LoggerFactory.getLogger(StreamData.class);
+
     private final Map<String,Integer> userIdMinutesMap = new HashMap<>();
     private final List<Integer> viewerCounts = new ArrayList<>();
     private final List<User> newViewers = new ArrayList<>();
@@ -30,9 +32,7 @@ public class StreamData {
         streamStatsDb = commonUtils.dbManager().getStreamStatsDb();
         watchTimeDb = commonUtils.dbManager().getWatchTimeDb();
 
-        out.println("\n---------------------");
-        out.println(twitchApi.getStreamerUser().getDisplayName() + " is now live.");
-        out.println("---------------------\n");
+        log.info("{} is now live.", twitchApi.getStreamerUser().getDisplayName());
         startTime = new Date();
     }
 
@@ -48,17 +48,14 @@ public class StreamData {
     }
 
     public void endStream() {
-        out.println("\n---------------------");
-        out.println(twitchApi.getStreamerUser().getDisplayName() + " has gone offline.");
-        out.println("---------------------\n");
+        log.info("{} has gone offline.", twitchApi.getStreamerUser().getDisplayName());
         endTime = new Date();
 
         List<User> userList;
         try {
             userList = twitchApi.getUserListByIds(userIdMinutesMap.keySet());
         } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
-            out.println("Error retrieving user data for stream, unable to save stream statistics");
+            log.error("Error retrieving user data for stream, unable to save stream statistics: {}", e.getMessage());
             return;
         }
         //make sure this function is run before updating the database
@@ -161,8 +158,7 @@ public class StreamData {
             try {
                 followCount = twitchApi.getChannelFollowersCount(user.getId());
             } catch (HystrixRuntimeException e) {
-                e.printStackTrace();
-                out.printf("Error retrieving follower count for %s%n", user.getDisplayName());
+                log.error("Error retrieving follower count for {}: {}", user.getDisplayName(), e.getMessage());
                 continue;
             }
             followerCounts.add(new AbstractMap.SimpleEntry<>(user, followCount));

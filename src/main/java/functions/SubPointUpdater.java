@@ -2,6 +2,8 @@ package functions;
 
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.apache.commons.lang.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.FileWriter;
 import util.TwitchApi;
@@ -10,13 +12,12 @@ import java.util.TimerTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.System.out;
-
 public class SubPointUpdater {
+    private static final Logger log = LoggerFactory.getLogger(SubPointUpdater.class);
     private static final String LOCAL_SUB_POINTS_FILENAME = "sub_points.txt";
     private static final String SUB_GOAL_COMMAND = "!subgoal";
     private static final int INTERVAL = 1; //minutes
-    
+
     private final TwitchApi twitchApi;
     private final String subCountFormat;
     
@@ -45,8 +46,7 @@ public class SubPointUpdater {
         try {
             subPoints = twitchApi.getSubPoints(twitchApi.getStreamerUser().getId());
         } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
-            out.println("Failed to get sub points. Will try again at next interval");
+            log.error("Failed to get sub points. Will try again at next interval: {}", e.getMessage());
         }
     }
     

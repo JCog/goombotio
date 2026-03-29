@@ -5,13 +5,14 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.DbManager;
 import database.stats.StreamStatsDb;
 import database.stats.WatchTimeDb;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.System.out;
-
 public class StreamStatsInterface {
+    private static final Logger log = LoggerFactory.getLogger(StreamStatsInterface.class);
     private final StreamStatsDb streamStatsDb;
     private final WatchTimeDb watchTimeDb;
     private final TwitchApi twitchApi;
@@ -36,7 +37,7 @@ public class StreamStatsInterface {
         for (Integer count : viewerCounts) {
             sum += count;
         }
-        if (viewerCounts.size() == 0) {
+        if (viewerCounts.isEmpty()) {
             return 0;
         }
         return sum / viewerCounts.size();
@@ -53,7 +54,7 @@ public class StreamStatsInterface {
         boolean isEven = viewersCounts.size() % 2 == 0;
         int middleIndex = viewersCounts.size() / 2;
 
-        if (viewersCounts.size() == 0) {
+        if (viewersCounts.isEmpty()) {
             return 0;
         } else if (isEven) {
             int first = viewersCounts.get(middleIndex - 1);
@@ -159,8 +160,7 @@ public class StreamStatsInterface {
         try {
             userList = twitchApi.getUserListByUsernames(streamStatsDb.getUserList());
         } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
-            out.println("Error retrieving user data for top followers");
+            log.error("Error retrieving user data for top followers");
             return null;
         }
 
@@ -170,8 +170,7 @@ public class StreamStatsInterface {
             try {
                 followCount = twitchApi.getChannelFollowersCount(user.getId());
             } catch (HystrixRuntimeException e) {
-                e.printStackTrace();
-                out.printf("Error retrieving follower count for %s%n", user.getDisplayName());
+                log.error("Error retrieving follower count for {}", user.getDisplayName());
                 continue;
             }
             followerCounts.add(new AbstractMap.SimpleEntry<>(name, followCount));

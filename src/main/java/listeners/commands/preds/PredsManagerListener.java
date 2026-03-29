@@ -5,20 +5,21 @@ import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import functions.preds.*;
 import listeners.commands.CommandBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
-import static java.lang.System.out;
-
 public class PredsManagerListener extends CommandBase {
+    private static final Logger log = LoggerFactory.getLogger(PredsManagerListener.class);
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.BROADCASTER;
     private static final int COOLDOWN = 0;
     private static final CooldownType COOLDOWN_TYPE = CooldownType.GLOBAL;
     private static final String PATTERN_PREDS = "!preds";
     private static final String PATTERN_PREDS_CANCEL = "!predscancel";
-    
+
     private static final String GAME_ID_OOT = "11557";
     private static final String GAME_ID_PAPER_MARIO = "18231";
     private static final String GAME_ID_SUNSHINE = "6086";
@@ -48,7 +49,7 @@ public class PredsManagerListener extends CommandBase {
                     try {
                         stream = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId());
                     } catch (HystrixRuntimeException e) {
-                        e.printStackTrace();
+                        log.error("Error retrieving current game: {}", e.getMessage());
                         twitchApi.channelMessage("Error retrieving current game");
                         return;
                     }
@@ -66,19 +67,19 @@ public class PredsManagerListener extends CommandBase {
                             return;
                         }
                     }
-                    out.println("Starting the prediction game...");
+                    log.info("Starting the prediction game...");
                     predsGuessListener.start(predsManager);
                     predsManager.startGame();
                 } else {
                     if (predsManager.isWaitingForAnswer()) {
                         String[] content = messageEvent.getMessage().split("\\s");
                         if (content.length > 1 && content[1].matches(predsManager.getAnswerRegex())) {
-                            out.println("Submitting predictions...");
+                            log.info("Submitting predictions...");
                             predsManager.submitPredictions(content[1]);
                             predsManager = null;
                         }
                     } else {
-                        out.println("Ending the prediction game...");
+                        log.info("Ending the prediction game...");
                         predsGuessListener.stop();
                         predsManager.waitForAnswer();
                     }

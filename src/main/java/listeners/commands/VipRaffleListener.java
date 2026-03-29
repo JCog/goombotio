@@ -6,6 +6,8 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.misc.VipDb;
 import database.misc.VipRaffleDb;
 import listeners.TwitchEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 import static database.misc.VipRaffleDb.VipRaffleItem;
 
 public class VipRaffleListener extends CommandBase {
+    private static final Logger log = LoggerFactory.getLogger(VipRaffleListener.class);
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
     private static final int COOLDOWN = 5;
@@ -47,8 +50,8 @@ public class VipRaffleListener extends CommandBase {
             
             List<VipRaffleItem> vipRaffleItems = new LinkedList<>(vipRaffleDb.getAllVipRaffleItemsPrevMonth());
             for (int i = 0; i < vipRaffleItems.size(); i++) {
-                System.out.printf(
-                        "%d. %s (%d)%n",
+                log.info(
+                        "{}. {} ({})",
                         i + 1,
                         vipRaffleItems.get(i).displayName(),
                         vipRaffleItems.get(i).entryCount()
@@ -116,7 +119,7 @@ public class VipRaffleListener extends CommandBase {
                     newWinners.add(new UserRecord(user.getId(), user.getDisplayName()));
                 }
             } catch (HystrixRuntimeException e) {
-                System.out.println("Twitch API error getting old/new winner usernames.");
+                log.error("Twitch API error getting old/new winner usernames: {}", e.getMessage());
                 for (String id : oldWinnerIds) {
                     oldWinners.add(new UserRecord(id, null));
                 }
@@ -148,8 +151,8 @@ public class VipRaffleListener extends CommandBase {
                 if (!vipDb.hasVip(oldWinner.id()) && currentVipIds.contains(oldWinner.id())) {
                     try {
                         twitchApi.vipRemove(oldWinner.id());
-                        System.out.printf(
-                                "VIP removed from %s (%s)%n",
+                        log.info(
+                                "VIP removed from {} ({})",
                                 oldWinner.username() == null ? "?" : oldWinner.username(),
                                 oldWinner.id()
                         );
@@ -158,8 +161,8 @@ public class VipRaffleListener extends CommandBase {
                             twitchApi.channelMessage("Error(s) adding/remove VIPs. Please check logs.");
                             addRemoveError = true;
                         }
-                        System.out.printf(
-                                "Error removing VIP from %s (%s)%n",
+                        log.error(
+                                "Error removing VIP from {} ({})",
                                 oldWinner.username() == null ? "?" : oldWinner.username(),
                                 oldWinner.id()
                         );
@@ -174,7 +177,7 @@ public class VipRaffleListener extends CommandBase {
                 if (!currentVipIds.contains(newWinner.id())) {
                     try {
                         twitchApi.vipAdd(newWinner.id());
-                        System.out.printf("VIP added to %s (%s)%n",
+                        log.info("VIP added to {} ({})",
                                 newWinner.username() == null ? "?" : newWinner.username(),
                                 newWinner.id()
                         );
@@ -183,7 +186,7 @@ public class VipRaffleListener extends CommandBase {
                             twitchApi.channelMessage("Error(s) adding/remove VIPs. Please check logs.");
                             addRemoveError = true;
                         }
-                        System.out.printf("Error adding VIP to %s (%s)%n",
+                        log.error("Error adding VIP to {} ({})",
                                 newWinner.username() == null ? "?" : newWinner.username(),
                                 newWinner.id()
                         );

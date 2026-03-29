@@ -2,11 +2,14 @@ package util;
 
 import org.ini4j.Wini;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 
 public class Settings {
+    private static final Logger log = LoggerFactory.getLogger(Settings.class);
     private static final String INI_FILENAME = "settings.ini";
 
     private static final String GENERAL_CAT_TAG = "general";
@@ -111,7 +114,7 @@ public class Settings {
         try {
             ini = new Wini(new File(INI_FILENAME));
         } catch (IOException e) {
-            System.out.println("IOException reading ini");
+            log.error("IOException reading ini at {}", INI_FILENAME);
             System.exit(1);
         }
         return ini;

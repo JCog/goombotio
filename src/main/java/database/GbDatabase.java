@@ -9,11 +9,14 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.StartupException;
 
 import java.util.Collections;
 
 public class GbDatabase {
+    private static final Logger log = LoggerFactory.getLogger(GbDatabase.class);
     private static final String DEFAULT_HOST = "localhost";
     private static final int DEFAULT_PORT = 27017;
     private final MongoClient mongoClient;
@@ -21,7 +24,7 @@ public class GbDatabase {
     private final boolean writePermission;
 
     public GbDatabase(String host, int port, String dbName, String user, String password, boolean writePermission) {
-        System.out.printf("Establishing database connection to %s at %s:%d... ", dbName, host, port);
+        log.info("Establishing database connection to {} at {}:{}... ", dbName, host, port);
         this.writePermission = writePermission;
         ServerAddress serverAddress = new ServerAddress(host, port);
         if (user == null || password == null) {
@@ -56,7 +59,7 @@ public class GbDatabase {
             throw new StartupException(String.format("database \"%s\" does not exist", dbName));
         }
         mongoDatabase = mongoClient.getDatabase(dbName);
-        System.out.println("success.");
+        log.info("Database connection established.");
     }
     
     public GbDatabase(String dbName, boolean writePermission) {

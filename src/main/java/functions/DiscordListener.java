@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import javax.annotation.Nonnull;
 
 public class DiscordListener extends ListenerAdapter {
-    
     private static final String TWITCH_ROLE_ID = "twitch-alert";
     private static final String YOUTUBE_ROLE_ID = "youtube-alert";
     private static final String LOGGING_CHANNEL = "server-logging";

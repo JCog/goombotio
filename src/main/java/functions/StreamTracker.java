@@ -4,6 +4,8 @@ import com.github.twitch4j.helix.domain.Chatter;
 import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.misc.StatsBlacklistDb;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.ReportBuilder;
 import util.TwitchApi;
@@ -16,6 +18,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class StreamTracker {
+    private static final Logger log = LoggerFactory.getLogger(StreamTracker.class);
     private static final int INTERVAL = 1; //minutes
 
     private final CommonUtils commonUtils;
@@ -42,16 +45,14 @@ public class StreamTracker {
                 try {
                     stream = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId());
                 } catch (HystrixRuntimeException e) {
-                    e.printStackTrace();
-                    System.out.println("Error retrieving stream for StreamTracker, skipping interval");
+                    log.error("Error retrieving stream for StreamTracker, skipping interval: {}", e.getMessage());
                     return;
                 }
                 List<Chatter> chatters;
                 try {
                     chatters = twitchApi.getChatters();
                 } catch (HystrixRuntimeException e) {
-                    e.printStackTrace();
-                    System.out.println("Error retrieving userlist for StreamTracker, skipping interval");
+                    log.error("Error retrieving userlist for StreamTracker, skipping interval: {}", e.getMessage());
                     return;
                 }
                 if (stream != null) {

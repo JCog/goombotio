@@ -1,4 +1,4 @@
-package api.src.leaderboard;
+package api.srcom.leaderboard;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;

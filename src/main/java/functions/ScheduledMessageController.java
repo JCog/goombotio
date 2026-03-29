@@ -6,6 +6,8 @@ import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.misc.SocialSchedulerDb;
 import listeners.TwitchEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.MessageExpressionParser;
 import util.TwitchApi;
@@ -24,7 +26,8 @@ import static database.misc.SocialSchedulerDb.ScheduledMessage;
 public class ScheduledMessageController implements TwitchEventListener {
     private static final long INTERVAL_LENGTH = 20; //minutes
     private static final String FOLLOW_MESSAGE_ID = "follow";
-    
+    private static final Logger log = LoggerFactory.getLogger(ScheduledMessageController.class);
+
     private final Random random = new Random();
 
     private final SocialSchedulerDb socialSchedulerDb;
@@ -65,8 +68,7 @@ public class ScheduledMessageController implements TwitchEventListener {
                 try {
                     stream = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId());
                 } catch (HystrixRuntimeException e) {
-                    e.printStackTrace();
-                    System.out.println("Error retrieving stream for SocialScheduler");
+                    log.error("Error retrieving stream: {}", e.getMessage());
                     stream = null;
                 }
                 if (stream == null) {
@@ -102,7 +104,7 @@ public class ScheduledMessageController implements TwitchEventListener {
     private void postAfterRaidMsg() {
         ScheduledMessage message = socialSchedulerDb.getMessage(FOLLOW_MESSAGE_ID);
         if (message == null) {
-            System.out.println("Error posting scheduled follow message after a raid");
+            log.error("Error posting scheduled follow message after a raid");
             return;
         }
         

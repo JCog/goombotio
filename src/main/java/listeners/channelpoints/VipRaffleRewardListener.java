@@ -9,6 +9,8 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import database.misc.VipDb;
 import database.misc.VipRaffleDb;
 import listeners.TwitchEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.TwitchApi;
 
@@ -21,14 +23,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static database.misc.VipRaffleDb.VipRaffleItem;
-import static java.lang.System.out;
 
 public class VipRaffleRewardListener implements TwitchEventListener {
+    private static final Logger log = LoggerFactory.getLogger(VipRaffleRewardListener.class);
     private static final String RAFFLE_REWARD_TITLE = "VIP Raffle Entry";
     private static final int ENTRY_COUNT = 1;
     private static final int COOLDOWN_PERIOD = 60; // seconds
     private static final int COOLDOWN_TRIGGER = 4;
-    
+
     private final TwitchApi twitchApi;
     private final VipDb vipDb;
     private final VipRaffleDb vipRaffleDb;
@@ -84,7 +86,7 @@ public class VipRaffleRewardListener implements TwitchEventListener {
                     ));
                 }
             } else {
-                out.printf("Error getting entry total for %s%n", displayName);
+                log.error("Error getting entry total for {}", displayName);
                 shouldFulfill = false;
             }
         }

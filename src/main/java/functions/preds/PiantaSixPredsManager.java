@@ -1,6 +1,8 @@
 package functions.preds;
 
 import database.preds.PiantaSixLeaderboardDb;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 
 import java.util.ArrayList;
@@ -11,12 +13,13 @@ import java.util.Map;
 import static java.lang.System.out;
 
 public class PiantaSixPredsManager extends PredsManagerBase {
+    private static final Logger log = LoggerFactory.getLogger(PiantaSixPredsManager.class);
     private static final String START_MESSAGE =
             "Get your predictions in! Guess what the timer will end at when JCog finishes Pianta 6. You get more " +
             "points the closer you are, plus a bonus if you're closest, and if you're closest and within half a " +
             "second, JCog will gift you a sub! Type !preds to learn more.";
     private static final String ANSWER_REGEX = "[0-9]{5}";
-    
+
     private static final String DISCORD_CHANNEL = "pianta-6";
     private static final int POINTS_CORRECT = 50;
     private static final int POINTS_1_SECOND = 15;
@@ -26,7 +29,7 @@ public class PiantaSixPredsManager extends PredsManagerBase {
     private static final int HUND_1_SECOND = 100;
     private static final int HUND_5_SECONDS = 5 * 100;
     private static final int HUND_10_SECONDS = 10 * 100;
-    
+
     private record TimeGuess(String displayName, int hundredths) {}
 
     private final Map<String,TimeGuess> predictionList = new HashMap<>();
@@ -55,7 +58,7 @@ public class PiantaSixPredsManager extends PredsManagerBase {
         switch (winners.size()) {
             case 0 -> {
                 List<TimeGuess> closestGuesses = getClosestGuesses(hundredths);
-                if (closestGuesses.size() == 0) {
+                if (closestGuesses.isEmpty()) {
                     message.append("Nobody guessed jcogRage");
                     break;
                 }
@@ -131,10 +134,10 @@ public class PiantaSixPredsManager extends PredsManagerBase {
         int minutes = Character.getNumericValue(guess.charAt(0));
         int seconds = Integer.parseInt(guess.substring(1, 3));
         int hundredths = Integer.parseInt(guess.substring(3, 5)) + (seconds * 100) + (minutes * 60 * 100);
-        System.out.printf("%s has predicted %d hundredths%n", displayName, hundredths);
+        log.info("{} has predicted {} hundredths", displayName, hundredths);
 
         if (predictionList.containsKey(userId)) {
-            out.printf("Replacing duplicate guess by %s%n", displayName);
+            log.info("Replacing duplicate guess by {}", displayName);
         }
         predictionList.put(userId, new TimeGuess(displayName, hundredths));
     }
@@ -172,18 +175,9 @@ public class PiantaSixPredsManager extends PredsManagerBase {
             if (secondsWithin == 0) {
                 winners.add(displayName);
                 piantaSixLeaderboardDb.addWin(userId, displayName);
-                out.printf(
-                        "%s guessed exactly correct. Adding %d points and a win.%n",
-                        displayName,
-                        POINTS_CORRECT
-                );
+                log.info("{} guessed exactly correct. Adding {} points and a win.", displayName, POINTS_CORRECT);
             } else {
-                out.printf(
-                        "%s was within %d seconds. Adding %d points%n",
-                        displayName,
-                        secondsWithin,
-                        pointsToAdd
-                );
+                log.info("{} was within {} seconds. Adding {} points", displayName, secondsWithin, pointsToAdd);
             }
         }
         return winners;
@@ -205,7 +199,7 @@ public class PiantaSixPredsManager extends PredsManagerBase {
             if (Math.abs(hundredths - answer) == minDifference) {
                 output.add(guess.getValue());
                 piantaSixLeaderboardDb.addPoints(userId, displayName, POINTS_CLOSEST);
-                out.printf("%s was the closest. Adding %d additional points%n", displayName, POINTS_CLOSEST);
+                log.info("{} was the closest. Adding {} additional points", displayName, POINTS_CLOSEST);
             }
         }
         return output;

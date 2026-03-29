@@ -1,4 +1,4 @@
-package api.src.games;
+package api.srcom.games;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

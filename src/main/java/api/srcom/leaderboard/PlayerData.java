@@ -1,14 +1,17 @@
-package api.src.leaderboard;
+package api.srcom.leaderboard;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Player {
+public class PlayerData {
     @JsonProperty("id")
     private String id;
     
-    public Player() {}
+    @JsonProperty("names")
+    private Names names;
+    
+    public PlayerData() {}
     
     public String getId() {
         return id;
@@ -16,5 +19,13 @@ public class Player {
     
     public void setId(String id) {
         this.id = id;
+    }
+    
+    public Names getNames() {
+        return names;
+    }
+    
+    public void setNames(Names names) {
+        this.names = names;
     }
 }

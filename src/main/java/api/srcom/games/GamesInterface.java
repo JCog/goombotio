@@ -1,4 +1,4 @@
-package api.src.games;
+package api.srcom.games;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

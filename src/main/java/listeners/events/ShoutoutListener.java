@@ -3,10 +3,14 @@ package listeners.events;
 import com.github.twitch4j.eventsub.events.ChannelRaidEvent;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import listeners.TwitchEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.TwitchApi;
 
 public class ShoutoutListener implements TwitchEventListener {
+    private static final Logger log = LoggerFactory.getLogger(ShoutoutListener.class);
+
     private final TwitchApi twitchApi;
 
     public ShoutoutListener(CommonUtils commonUtils) {
@@ -25,7 +29,7 @@ public class ShoutoutListener implements TwitchEventListener {
             streamerFollows = twitchApi.getFollowedChannel(streamerId, raiderId) != null;
             online = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId()) != null;
         } catch (HystrixRuntimeException e) {
-            System.out.printf("Error checking if streamer follows %s after raid.%n", raiderName);
+            log.error("Error checking if streamer follows {} after raid: {}", raiderName, e.getMessage());
             return;
         }
         if (streamerFollows && online) {

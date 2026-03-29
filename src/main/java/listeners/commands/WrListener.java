@@ -1,32 +1,35 @@
 package listeners.commands;
 
-import api.src.SrcApi;
-import api.src.SrcEnums;
+import api.srcom.SrcApi;
+import api.srcom.SrcEnums;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Stream;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.CommonUtils;
 import util.TwitchApi;
 import util.TwitchUserLevel.USER_LEVEL;
 
-import static api.src.SrcEnums.BugFablesCategory.*;
-import static api.src.SrcEnums.HmFomtCategory.HM_KAREN_GLITCHED;
-import static api.src.SrcEnums.HmFomtCategory.HM_KAREN_GLITCHLESS;
-import static api.src.SrcEnums.OotCategory.OOT_ANY_PERCENT;
-import static api.src.SrcEnums.OotCategory.OOT_GLITCHLESS_AMQ;
-import static api.src.SrcEnums.PapeCategory.*;
-import static api.src.SrcEnums.PapeMemesCategory.*;
-import static api.src.SrcEnums.SmrpgCategory.SMRPG_NORMAL_RTA_TURBO;
-import static api.src.SrcEnums.SmsCategory.*;
-import static api.src.SrcEnums.TtydCategory.*;
+import static api.srcom.SrcEnums.BugFablesCategory.*;
+import static api.srcom.SrcEnums.HmFomtCategory.HM_KAREN_GLITCHED;
+import static api.srcom.SrcEnums.HmFomtCategory.HM_KAREN_GLITCHLESS;
+import static api.srcom.SrcEnums.OotCategory.OOT_ANY_PERCENT;
+import static api.srcom.SrcEnums.OotCategory.OOT_GLITCHLESS_AMQ;
+import static api.srcom.SrcEnums.PapeCategory.*;
+import static api.srcom.SrcEnums.PapeMemesCategory.*;
+import static api.srcom.SrcEnums.SmrpgCategory.SMRPG_NORMAL_RTA_TURBO;
+import static api.srcom.SrcEnums.SmsCategory.*;
+import static api.srcom.SrcEnums.TtydCategory.*;
 
 public class WrListener extends CommandBase {
+    private static final Logger log = LoggerFactory.getLogger(WrListener.class);
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
     private static final int COOLDOWN = 5;
     private static final CooldownType COOLDOWN_TYPE = CooldownType.GLOBAL;
     private static final String PATTERN = "!wr";
-    
+
     private static final String GAME_ID_BUG_FABLES = "511735";
     private static final String GAME_ID_HM_FOMT = "14599";
     private static final String GAME_ID_OOT = "11557";
@@ -50,7 +53,7 @@ public class WrListener extends CommandBase {
         try {
             stream = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId());
         } catch (HystrixRuntimeException e) {
-            e.printStackTrace();
+            log.error("Error retrieving stream data: {}", e.getMessage());
             twitchApi.channelMessage("Error retrieving stream data");
             return;
         }
