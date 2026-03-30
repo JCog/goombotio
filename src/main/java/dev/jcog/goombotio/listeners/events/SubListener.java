@@ -58,6 +58,10 @@ public class SubListener implements TwitchEventListener {
     
     @Override
     public void onSubGift(ChannelSubscriptionGiftEvent subGiftEvent) {
+        if (subGiftEvent.getUserId().equals(twitchApi.getStreamerUser().getId())) {
+            return;
+        }
+
         String username = subGiftEvent.getUserName();
         int count = subGiftEvent.getTotal();
         String tier = getSubType(subGiftEvent.getTier());
