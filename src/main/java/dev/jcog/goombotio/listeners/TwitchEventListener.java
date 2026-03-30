@@ -52,7 +52,7 @@ public interface TwitchEventListener {
     default void onSubscribe(SubscriptionEvent subEvent) {} // doesn't include resubs
     default void onResubscribe(ChannelSubscriptionMessageEvent resubEvent) {}
     default void onSubGift(ChannelSubscriptionGiftEvent subGiftEvent) {}
-    default void onHypeTrainBegin(HypeTrainBeginEvent hypeTrainBeginEvent) {}
+    default void onHypeTrainBegin(HypeTrainBeginV2Event hypeTrainBeginEvent) {}
     
     ////////////////// Chat //////////////////
     default void onAnnouncement(ModAnnouncementEvent announcementEvent) {}

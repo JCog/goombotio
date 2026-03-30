@@ -142,8 +142,8 @@ public class TwitchApi {
 //        eventSubEvents.onEvent(ChannelSubscribeEvent.class, eventListener::onSubscribe);
 //        eventSubEvents.onEvent(ChannelSubscriptionMessageEvent.class, eventListener::onResubscribe);
         eventSubEvents.onEvent(ChannelSubscriptionGiftEvent.class, eventListener::onSubGift);
-        eventSubEvents.onEvent(HypeTrainBeginEvent.class, eventListener::onHypeTrainBegin);
-        
+        eventSubEvents.onEvent(HypeTrainBeginV2Event.class, eventListener::onHypeTrainBegin);
+
         EventManager chatEvents = chatClient.getEventManager();
         chatEvents.onEvent(ModAnnouncementEvent.class, eventListener::onAnnouncement);
         chatEvents.onEvent(ChannelMessageActionEvent.class, eventListener::onChannelMessageAction);

@@ -1,6 +1,6 @@
 package dev.jcog.goombotio.listeners.events;
 
-import com.github.twitch4j.eventsub.events.HypeTrainBeginEvent;
+import com.github.twitch4j.eventsub.events.HypeTrainBeginV2Event;
 import dev.jcog.goombotio.listeners.TwitchEventListener;
 import dev.jcog.goombotio.util.CommonUtils;
 import dev.jcog.goombotio.util.TwitchApi;
@@ -13,7 +13,7 @@ public class HypeTrainEventListener implements TwitchEventListener {
     }
     
     @Override
-    public void onHypeTrainBegin(HypeTrainBeginEvent hypeTrainBeginEvent) {
+    public void onHypeTrainBegin(HypeTrainBeginV2Event hypeTrainBeginEvent) {
         twitchApi.channelAnnouncement("ScamTrain Scam train!! ScamTrain");
     }
 }
