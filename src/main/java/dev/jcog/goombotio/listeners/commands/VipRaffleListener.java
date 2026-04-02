@@ -5,6 +5,7 @@ import com.github.twitch4j.helix.domain.*;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import dev.jcog.goombotio.database.misc.VipDb;
 import dev.jcog.goombotio.database.misc.VipRaffleDb;
+import dev.jcog.goombotio.database.preds.PredsLeaderboardDbBase;
 import dev.jcog.goombotio.listeners.TwitchEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +13,7 @@ import dev.jcog.goombotio.util.CommonUtils;
 import dev.jcog.goombotio.util.TwitchApi;
 import dev.jcog.goombotio.util.TwitchUserLevel.USER_LEVEL;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static dev.jcog.goombotio.database.misc.VipRaffleDb.VipRaffleItem;
@@ -46,17 +44,67 @@ public class VipRaffleListener extends CommandBase {
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
         if (userLevel == USER_LEVEL.BROADCASTER) {
-            twitchApi.channelMessage("Performing VIP raffle...");
-            
-            List<VipRaffleItem> vipRaffleItems = new LinkedList<>(vipRaffleDb.getAllVipRaffleItemsPrevMonth());
+            List<VipRaffleItem> vipRaffleItems;
+            String[] content = messageEvent.getMessage().split("\\s", 2);
+            if (content.length > 1) {
+                Integer monthCount;
+                try {
+                    monthCount = Integer.parseInt(content[1]);
+                } catch (NumberFormatException e) {
+                    monthCount = null;
+                }
+                if (monthCount == null || monthCount < 1) {
+                    twitchApi.channelMessage(String.format("Invalid month count \"%s\", stopping raffle.", content[1]));
+                    return;
+                }
+                twitchApi.channelMessage(String.format("Performing VIP raffle for previous %d months...", monthCount));
+
+                Map<String, VipRaffleItem> raffleMap = new HashMap<>();
+                Calendar calendar = Calendar.getInstance();
+                int year = calendar.get(Calendar.YEAR);
+                int month = calendar.get(Calendar.MONTH);
+                do {
+                    monthCount--;
+
+                    month--;
+                    if (month < 0) {
+                        month = Calendar.DECEMBER;
+                        year--;
+                    }
+
+                    List<VipRaffleItem> items = vipRaffleDb.getAllVipRaffleItems(year, month);
+                    for (VipRaffleItem item : items) {
+                        VipRaffleItem prevItem = raffleMap.putIfAbsent(item.twitchId(), item);
+                        if (prevItem != null) {
+                            raffleMap.put(
+                                    item.twitchId(),
+                                    new VipRaffleItem(
+                                            item.twitchId(),
+                                            item.displayName(),
+                                            item.entryCount() + prevItem.entryCount()
+                                    )
+                            );
+                        }
+                    }
+                } while (monthCount > 0);
+
+                vipRaffleItems = new LinkedList<>(raffleMap.values());
+                vipRaffleItems.sort(null);
+            } else {
+                twitchApi.channelMessage("Performing VIP raffle...");
+                vipRaffleItems = new LinkedList<>(vipRaffleDb.getAllVipRaffleItemsPrevMonth());
+            }
+            StringBuilder sb = new StringBuilder("Entry list:\n");
             for (int i = 0; i < vipRaffleItems.size(); i++) {
-                log.info(
-                        "{}. {} ({})",
+                sb.append(String.format(
+                        " %d. %s (%d)\n",
                         i + 1,
                         vipRaffleItems.get(i).displayName(),
                         vipRaffleItems.get(i).entryCount()
-                );
+                ));
             }
+            sb.setLength(sb.length() - 1);
+            log.info(sb.toString());
             
             List<String> newWinnerIds;
             List<User> winners;
@@ -64,10 +112,12 @@ public class VipRaffleListener extends CommandBase {
                 newWinnerIds = performRaffle(vipRaffleItems);
                 winners = twitchApi.getUserListByIds(newWinnerIds); // usernames may have changed
             } catch (HystrixRuntimeException e) {
+                log.error(e.getMessage());
                 twitchApi.channelMessage("Twitch API error, please try again.");
                 return;
             }
-            
+
+            log.info("New winners: {}", winners.stream().map(User::getDisplayName).collect(Collectors.joining(", ")));
             if (winners.isEmpty()) {
                 twitchApi.channelMessage("There are no raffle entries, so nobody wins.");
             } else if (winners.size() == 1) {
@@ -97,26 +147,31 @@ public class VipRaffleListener extends CommandBase {
             
             // don't touch repeat winners
             List<String> oldWinnerIds = vipDb.getAllRaffleWinnerUserIds();
-            List<String> repeatWinners = new ArrayList<>();
+            List<String> repeatWinnerIds = new ArrayList<>();
             for (String userId : newWinnerIds) {
                 if (oldWinnerIds.contains(userId)) {
-                    repeatWinners.add(userId);
+                    repeatWinnerIds.add(userId);
                 }
             }
-            oldWinnerIds.removeAll(repeatWinners);
-            newWinnerIds.removeAll(repeatWinners);
+            oldWinnerIds.removeAll(repeatWinnerIds);
+            newWinnerIds.removeAll(repeatWinnerIds);
             
             // retrieve usernames for logging purposes
             List<UserRecord> oldWinners = new ArrayList<>();
             List<UserRecord> newWinners = new ArrayList<>();
+            List<UserRecord> repeatWinners = new ArrayList<>();
             try {
                 List<User> oldWinnerUsers = twitchApi.getUserListByIds(oldWinnerIds);
                 List<User> newWinnerUsers = twitchApi.getUserListByIds(newWinnerIds);
+                List<User> repeatWinnerUsers = twitchApi.getUserListByIds(repeatWinnerIds);
                 for (User user : oldWinnerUsers) {
                     oldWinners.add(new UserRecord(user.getId(), user.getDisplayName()));
                 }
                 for (User user : newWinnerUsers) {
                     newWinners.add(new UserRecord(user.getId(), user.getDisplayName()));
+                }
+                for (User user : repeatWinnerUsers) {
+                    repeatWinners.add(new UserRecord(user.getId(), user.getDisplayName()));
                 }
             } catch (HystrixRuntimeException e) {
                 log.error("Twitch API error getting old/new winner usernames: {}", e.getMessage());
@@ -127,6 +182,12 @@ public class VipRaffleListener extends CommandBase {
                     newWinners.add(new UserRecord(id, null));
                 }
             }
+            log.info("Old winners: {}", oldWinners.stream()
+                    .map(UserRecord::username)
+                    .collect(Collectors.joining(", ")));
+            log.info("Repeat winners: {}", repeatWinners.stream()
+                    .map(UserRecord::username)
+                    .collect(Collectors.joining(", ")));
 
             if (command.equals(PATTERN_RAFFLE_TEST)) {
                 twitchApi.channelMessage("Test completed, VIPs not updated.");
@@ -139,6 +200,7 @@ public class VipRaffleListener extends CommandBase {
                         .map(ChannelVip::getUserId)
                         .toList();
             } catch (HystrixRuntimeException e) {
+                log.error(e.getMessage());
                 twitchApi.channelMessage("Twitch API error getting current VIPs. Unable to automatically update.");
                 return;
             }
@@ -177,7 +239,8 @@ public class VipRaffleListener extends CommandBase {
                 if (!currentVipIds.contains(newWinner.id())) {
                     try {
                         twitchApi.vipAdd(newWinner.id());
-                        log.info("VIP added to {} ({})",
+                        log.info(
+                                "VIP added to {} ({})",
                                 newWinner.username() == null ? "?" : newWinner.username(),
                                 newWinner.id()
                         );
@@ -186,7 +249,8 @@ public class VipRaffleListener extends CommandBase {
                             twitchApi.channelMessage("Error(s) adding/remove VIPs. Please check logs.");
                             addRemoveError = true;
                         }
-                        log.error("Error adding VIP to {} ({})",
+                        log.error(
+                                "Error adding VIP to {} ({})",
                                 newWinner.username() == null ? "?" : newWinner.username(),
                                 newWinner.id()
                         );

@@ -10,6 +10,8 @@ import dev.jcog.goombotio.listeners.commands.CommandBase;
 import dev.jcog.goombotio.util.CommonUtils;
 import dev.jcog.goombotio.util.TwitchApi;
 import dev.jcog.goombotio.util.TwitchUserLevel.USER_LEVEL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -21,6 +23,7 @@ import static dev.jcog.goombotio.database.misc.QuoteDb.QuoteItem;
 import static dev.jcog.goombotio.listeners.commands.quotes.QuoteUndoEngine.Action.*;
 
 public class QuoteListener extends CommandBase {
+    private static final Logger log = LoggerFactory.getLogger(QuoteListener.class);
     private static final CommandType COMMAND_TYPE = CommandType.PREFIX_COMMAND;
     private static final USER_LEVEL MIN_USER_LEVEL = USER_LEVEL.DEFAULT;
     private static final int COOLDOWN = 5;
@@ -32,7 +35,7 @@ public class QuoteListener extends CommandBase {
     private static final String PATTERN_LATEST_QUOTE = "!latestquote";
     private static final String PATTERN_UNDO_QUOTE = "!undoquote";
     private static final String PATTERN_REDO_QUOTE = "!redoquote";
-    
+
     private static final String ERROR_MISSING_ARGUMENTS = "Missing argument(s)";
     private static final String ERROR_NO_MATCHING_QUOTES = "No matching quotes";
     private static final String ERROR_BAD_INDEX_FORMAT = "Unable to parse quote \"%s\"";
@@ -111,6 +114,7 @@ public class QuoteListener extends CommandBase {
                     try {
                         follow = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), user.getId());
                     } catch (HystrixRuntimeException e) {
+                        log.error(e.getMessage());
                         twitchApi.channelMessage(String.format("Error retrieving follow age for %s", user.getName()));
                         break;
                     }

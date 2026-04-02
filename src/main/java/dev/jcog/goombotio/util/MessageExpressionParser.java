@@ -11,6 +11,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.RoundingMode;
@@ -24,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import static dev.jcog.goombotio.database.misc.CommandDb.CommandItem;
 
 public class MessageExpressionParser {
+    private static final Logger log = LoggerFactory.getLogger(MessageExpressionParser.class);
     private static final int EVAL_LIMIT = 10;
 
     private static final String ERROR = "ERROR";
@@ -250,6 +253,7 @@ public class MessageExpressionParser {
                     try {
                         user = twitchApi.getUserByUsername(username);
                     } catch (HystrixRuntimeException e) {
+                        log.error(e.getMessage());
                         user = null;
                     }
                     return user == null ? username : user.getDisplayName();
@@ -262,6 +266,7 @@ public class MessageExpressionParser {
                 try {
                     stream = twitchApi.getStreamByUserId(twitchApi.getStreamerUser().getId());
                 } catch (HystrixRuntimeException e) {
+                    log.error(e.getMessage());
                     return "error retrieving stream data";
                 }
                 if (stream == null) {
@@ -320,6 +325,7 @@ public class MessageExpressionParser {
         try {
             user = twitchApi.getUserByUsername(userName);
         } catch (HystrixRuntimeException e) {
+            log.error(e.getMessage());
             return String.format("Error retrieving user data for @%s", userName);
         }
         if (user == null) {
@@ -329,6 +335,7 @@ public class MessageExpressionParser {
         try {
             follow = twitchApi.getChannelFollower(twitchApi.getStreamerUser().getId(), user.getId());
         } catch (HystrixRuntimeException e) {
+            log.error(e.getMessage());
             return String.format("Error retrieving follow age for %s", userName);
         }
 

@@ -16,7 +16,12 @@ public class VipRaffleDb extends GbCollection {
     
     private static final String NAME_KEY = "display_name";
     
-    public record VipRaffleItem(String twitchId, String displayName, int entryCount) {}
+    public record VipRaffleItem(String twitchId, String displayName, int entryCount) implements Comparable<VipRaffleItem> {
+        @Override
+        public int compareTo(VipRaffleItem item) {
+            return item.entryCount - entryCount;
+        }
+    }
     
     public VipRaffleDb(GbDatabase gbDatabase) {
         super(gbDatabase, COLLECTION_NAME);
@@ -66,7 +71,7 @@ public class VipRaffleDb extends GbCollection {
         
         return getAllVipRaffleItems(year, month);
     }
-    
+
     public List<VipRaffleItem> getAllVipRaffleItems(int year, int month) {
         String monthlyEntriesKey = getMonthlyEntriesKey(year, month);
         FindIterable<Document> documents = findAll().sort(Sorts.descending(monthlyEntriesKey));

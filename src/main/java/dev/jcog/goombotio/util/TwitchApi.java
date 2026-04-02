@@ -241,6 +241,7 @@ public class TwitchApi {
         try {
             return twitchClient.getHelix().getAdSchedule(channelAuthToken, streamerUser.getId()).execute().getData();
         } catch (HystrixRuntimeException e) {
+            log.error(e.getMessage());
             return new ArrayList<>();
         }
     }

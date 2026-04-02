@@ -103,6 +103,7 @@ public class VipRaffleRewardListener implements TwitchEventListener {
                     shouldFulfill ? RedemptionStatus.FULFILLED : RedemptionStatus.CANCELED
             );
         } catch (HystrixRuntimeException e) {
+            log.error(e.getMessage());
             twitchApi.channelMessage(
                     String.format(
                             "@JCog error %s Raffle reward. Please do so manually while shaking your fist at twitch.",

@@ -87,6 +87,7 @@ public class DethroneListener implements TwitchEventListener {
                     success ? RedemptionStatus.FULFILLED : RedemptionStatus.CANCELED
             );
         } catch (HystrixRuntimeException e) {
+            log.error(e.getMessage());
             twitchApi.channelMessage(String.format("@JCog error %s Dethrone reward. Please do so manually while shaking your fist at twitch.", success ? "fulfilling" : "refunding"));
         }
         
@@ -101,6 +102,7 @@ public class DethroneListener implements TwitchEventListener {
         try {
             vipIds = twitchApi.getChannelVips().stream().map(ChannelVip::getUserId).collect(Collectors.toList());
         } catch (HystrixRuntimeException e) {
+            log.error(e.getMessage());
             twitchApi.channelMessage("API error getting current VIPs");
             return;
         }
