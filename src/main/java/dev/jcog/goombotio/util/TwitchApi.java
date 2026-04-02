@@ -11,6 +11,7 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageActionEvent;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.chat.events.channel.ModAnnouncementEvent;
 import com.github.twitch4j.chat.events.channel.SubscriptionEvent;
+import com.github.twitch4j.common.enums.AnnouncementColor;
 import com.github.twitch4j.eventsub.domain.RedemptionStatus;
 import com.github.twitch4j.eventsub.events.*;
 import com.github.twitch4j.eventsub.socket.IEventSubSocket;
@@ -18,6 +19,7 @@ import com.github.twitch4j.eventsub.subscriptions.SubscriptionTypes;
 import com.github.twitch4j.helix.domain.*;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import dev.jcog.goombotio.listeners.TwitchEventListener;
+import dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,28 +130,33 @@ public class TwitchApi {
     public User getBotUser() {
         return botUser;
     }
-    
-    public void registerEventListener(TwitchEventListener eventListener) {
-        IEventManager eventSubEvents = twitchClient.getEventSocket().getEventManager();
-        eventSubEvents.onEvent(ChannelAdBreakBeginEvent.class, eventListener::onAdBegin);
-        eventSubEvents.onEvent(ChannelRaidEvent.class, eventListener::onRaid);
-        eventSubEvents.onEvent(StreamOnlineEvent.class, eventListener::onGoLive);
-        eventSubEvents.onEvent(StreamOfflineEvent.class, eventListener::onGoOffline);
-        eventSubEvents.onEvent(ChannelUpdateV2Event.class, eventListener::onChannelUpdate);
-        eventSubEvents.onEvent(CustomRewardRedemptionAddEvent.class, eventListener::onChannelPointsRedemption);
-        eventSubEvents.onEvent(ChannelCheerEvent.class, eventListener::onCheer);
-        // redo sub events with EventSub if Twitch ever decides to make them work in a sensible way
-//        eventSubEvents.onEvent(ChannelSubscribeEvent.class, eventListener::onSubscribe);
-//        eventSubEvents.onEvent(ChannelSubscriptionMessageEvent.class, eventListener::onResubscribe);
-        eventSubEvents.onEvent(ChannelSubscriptionGiftEvent.class, eventListener::onSubGift);
-        eventSubEvents.onEvent(HypeTrainBeginV2Event.class, eventListener::onHypeTrainBegin);
 
-        EventManager chatEvents = chatClient.getEventManager();
-        chatEvents.onEvent(ModAnnouncementEvent.class, eventListener::onAnnouncement);
-        chatEvents.onEvent(ChannelMessageActionEvent.class, eventListener::onChannelMessageAction);
-        chatEvents.onEvent(ChannelMessageEvent.class, eventListener::onChannelMessage);
-        // remove when switching back to EventSub
-        chatEvents.onEvent(SubscriptionEvent.class, eventListener::onSubscribe);
+    public void registerEventListener(TwitchEventListener eventListener) {
+        IEventManager iem = twitchClient.getEventSocket().getEventManager();
+        EventManager chatEM = chatClient.getEventManager();
+        for (EVENT_TYPE eventType : eventListener.getEventTypes()) {
+            switch (eventType) {
+                case AD_BEGIN -> iem.onEvent(ChannelAdBreakBeginEvent.class, eventListener::onAdBegin);
+                case RAID -> iem.onEvent(ChannelRaidEvent.class, eventListener::onRaid);
+                case GO_LIVE -> iem.onEvent(StreamOnlineEvent.class, eventListener::onGoLive);
+                case GO_OFFLINE -> iem.onEvent(StreamOfflineEvent.class, eventListener::onGoOffline);
+                case CHANNEL_UPDATE -> iem.onEvent(ChannelUpdateV2Event.class, eventListener::onChannelUpdate);
+                case CHANNEL_POINTS_REDEMPTION ->
+                        iem.onEvent(CustomRewardRedemptionAddEvent.class, eventListener::onChannelPointsRedemption);
+                case CHEER -> iem.onEvent(ChannelCheerEvent.class, eventListener::onCheer);
+                // redo sub events with EventSub if Twitch ever decides to make them work in a sensible way
+//                case SUBSCRIBE -> iem.onEvent(ChannelSubscribeEvent.class, eventListener::onSubscribe);
+//                case RESUBSCRIBE -> iem.onEvent(ChannelSubscriptionMessageEvent.class, eventListener::onResubscribe);
+                case SUB_GIFT -> iem.onEvent(ChannelSubscriptionGiftEvent.class, eventListener::onSubGift);
+                case HYPE_TRAIN_BEGIN -> iem.onEvent(HypeTrainBeginV2Event.class, eventListener::onHypeTrainBegin);
+
+                case ANNOUNCEMENT -> chatEM.onEvent(ModAnnouncementEvent.class, eventListener::onAnnouncement);
+                case CHANNEL_MESSAGE_ACTION ->
+                        chatEM.onEvent(ChannelMessageActionEvent.class, eventListener::onChannelMessageAction);
+                case CHANNEL_MESSAGE -> chatEM.onEvent(ChannelMessageEvent.class, eventListener::onChannelMessage);
+                case SUBSCRIBE -> chatEM.onEvent(SubscriptionEvent.class, eventListener::onSubscribe);
+            }
+        }
     }
     
     public void toggleSlientChat() {
@@ -188,10 +195,10 @@ public class TwitchApi {
      * @param message message to send
      */
     public void channelAnnouncement(String message) {
-        channelAnnouncement(message, com.github.twitch4j.common.enums.AnnouncementColor.PRIMARY);
+        channelAnnouncement(message, AnnouncementColor.PRIMARY);
     }
     
-    public void channelAnnouncement(String message, com.github.twitch4j.common.enums.AnnouncementColor color) {
+    public void channelAnnouncement(String message, AnnouncementColor color) {
         channelMessage(message);
         // TODO: actually use announcements once twitch decides to make them work on mobile
 //        String output = message.trim();

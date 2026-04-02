@@ -6,7 +6,10 @@ import dev.jcog.goombotio.listeners.TwitchEventListener;
 import dev.jcog.goombotio.util.CommonUtils;
 import dev.jcog.goombotio.util.TwitchApi;
 
+import java.util.List;
 import java.util.Objects;
+
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.*;
 
 public class CloudListener implements TwitchEventListener {
     private static final String MESSAGE = "hi cloud";
@@ -22,13 +25,18 @@ public class CloudListener implements TwitchEventListener {
     }
 
     @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(CHANNEL_MESSAGE, GO_LIVE);
+    }
+
+    @Override
     public void onChannelMessage(ChannelMessageEvent messageEvent) {
         if (Objects.equals(messageEvent.getUser().getId(), CLOUD_ID) && !saidHi) {
             twitchApi.channelMessage(MESSAGE);
             saidHi = true;
         }
     }
-    
+
     @Override
     public void onGoLive(StreamOnlineEvent goLiveEvent) {
         saidHi = false;

@@ -11,6 +11,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.CHANNEL_MESSAGE;
+
 public abstract class CommandBase implements TwitchEventListener {
     private static final Set<String> reservedCommands = new HashSet<>();
 
@@ -58,6 +60,11 @@ public abstract class CommandBase implements TwitchEventListener {
     
     public static Set<String> getReservedCommands() {
         return reservedCommands;
+    }
+
+    @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(CHANNEL_MESSAGE);
     }
 
     @Override

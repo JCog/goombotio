@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.CHANNEL_MESSAGE;
+
 public class LinkListener implements TwitchEventListener {
     private static final Logger log = LoggerFactory.getLogger(LinkListener.class);
     private static final Pattern clipPattern = Pattern.compile("(?:www\\.|clips\\.)?twitch\\.tv/(?:[a-zA-Z0-9_]+/clip/)?([a-zA-Z0-9-_]+)");
@@ -43,6 +45,11 @@ public class LinkListener implements TwitchEventListener {
         youtubeApi = commonUtils.apiManager().getYoutubeApi();
         this.twitter = twitter;
         this.youtubeApiKey = youtubeApiKey;
+    }
+
+    @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(CHANNEL_MESSAGE);
     }
 
     @Override

@@ -7,6 +7,9 @@ import dev.jcog.goombotio.util.CommonUtils;
 import dev.jcog.goombotio.util.TwitchApi;
 
 import java.util.Arrays;
+import java.util.List;
+
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.CHEER;
 
 public class BitWarCheerListener implements TwitchEventListener {
     private static final String[] SAVE_KEYWORDS = new String[]{"save", "love"};
@@ -22,7 +25,12 @@ public class BitWarCheerListener implements TwitchEventListener {
         twitchApi = commonUtils.twitchApi();
         bitWarDb = commonUtils.dbManager().getBitWarDb();
     }
-    
+
+    @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(CHEER);
+    }
+
     @Override
     public void onCheer(ChannelCheerEvent bitsEvent) {
         String messageText = bitsEvent.getMessage().toLowerCase();

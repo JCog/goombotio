@@ -14,14 +14,13 @@ import dev.jcog.goombotio.util.TwitchApi;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.NavigableMap;
-import java.util.Random;
-import java.util.TimerTask;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static dev.jcog.goombotio.database.misc.SocialSchedulerDb.ScheduledMessage;
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.CHANNEL_MESSAGE;
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.RAID;
 
 public class ScheduledMessageController implements TwitchEventListener {
     private static final long INTERVAL_LENGTH = 20; //minutes
@@ -111,7 +110,12 @@ public class ScheduledMessageController implements TwitchEventListener {
         twitchApi.channelAnnouncement(commandParser.parseScheduledMessage(message));
         previousId = message.id();
     }
-    
+
+    @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(RAID, CHANNEL_MESSAGE);
+    }
+
     @Override
     public void onRaid(ChannelRaidEvent raidEvent) {
         if (raidEvent.getViewers() > 1) {

@@ -77,7 +77,7 @@ public class MainBotController {
     public synchronized void run(long startTime) {
         log.info("Initializing internal processes... ");
         registerListeners();
-        log.info("Internal processes complete.");
+        log.info("Internal processes initialized.");
 
         log.info("Goombotio is ready. (~{}s start time)", (System.currentTimeMillis() - startTime) / 1000);
         twitchApi.channelMessage("Goombotio started.");

@@ -16,13 +16,11 @@ import dev.jcog.goombotio.util.TwitchApi;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static dev.jcog.goombotio.database.misc.VipRaffleDb.VipRaffleItem;
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.CHANNEL_POINTS_REDEMPTION;
 
 public class VipRaffleRewardListener implements TwitchEventListener {
     private static final Logger log = LoggerFactory.getLogger(VipRaffleRewardListener.class);
@@ -43,7 +41,12 @@ public class VipRaffleRewardListener implements TwitchEventListener {
         vipDb = commonUtils.dbManager().getVipDb();
         vipRaffleDb = commonUtils.dbManager().getVipRaffleDb();
     }
-    
+
+    @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(CHANNEL_POINTS_REDEMPTION);
+    }
+
     @Override
     public void onChannelPointsRedemption(CustomRewardRedemptionAddEvent event) {
         Reward channelPointsReward = event.getReward();

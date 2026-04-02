@@ -12,10 +12,12 @@ import dev.jcog.goombotio.util.TwitchUserLevel.USER_LEVEL;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 import static dev.jcog.goombotio.database.misc.CommandDb.CommandItem;
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.CHANNEL_MESSAGE;
 
 public class GenericCommandListener implements TwitchEventListener {
     private final CommandDb commandDb;
@@ -29,6 +31,11 @@ public class GenericCommandListener implements TwitchEventListener {
         twitchApi = commonUtils.twitchApi();
         commandDb = commonUtils.dbManager().getCommandDb();
         commandInstants = new HashMap<>();
+    }
+
+    @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(CHANNEL_MESSAGE);
     }
 
     @Override

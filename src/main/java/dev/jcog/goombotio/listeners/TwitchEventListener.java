@@ -2,12 +2,32 @@ package dev.jcog.goombotio.listeners;
 
 import com.github.twitch4j.chat.events.channel.*;
 import com.github.twitch4j.eventsub.events.*;
+import dev.jcog.goombotio.util.TwitchApi;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public interface TwitchEventListener {
+    enum EVENT_TYPE {
+        AD_BEGIN,
+        RAID,
+        GO_LIVE,
+        GO_OFFLINE,
+        CHANNEL_UPDATE,
+        CHANNEL_POINTS_REDEMPTION,
+        CHEER,
+        //        SUBSCRIBE,
+        RESUBSCRIBE,
+        SUB_GIFT,
+        HYPE_TRAIN_BEGIN,
+
+        ANNOUNCEMENT,
+        CHANNEL_MESSAGE_ACTION,
+        CHANNEL_MESSAGE,
+        SUBSCRIBE,
+    }
+
     static String getDisplayName(IRCMessageEvent messageEvent) {
         if (messageEvent.getUserDisplayName().isPresent()) {
             return messageEvent.getUserDisplayName().get();
@@ -40,6 +60,8 @@ public interface TwitchEventListener {
         }
         return emoteUsages;
     }
+
+    List<EVENT_TYPE> getEventTypes();
     
     ////////////////// EventSub //////////////////
     default void onAdBegin(ChannelAdBreakBeginEvent adEvent) {}

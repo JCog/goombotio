@@ -8,6 +8,10 @@ import org.slf4j.LoggerFactory;
 import dev.jcog.goombotio.util.CommonUtils;
 import dev.jcog.goombotio.util.TwitchApi;
 
+import java.util.List;
+
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.RAID;
+
 public class ShoutoutListener implements TwitchEventListener {
     private static final Logger log = LoggerFactory.getLogger(ShoutoutListener.class);
 
@@ -16,7 +20,12 @@ public class ShoutoutListener implements TwitchEventListener {
     public ShoutoutListener(CommonUtils commonUtils) {
         twitchApi = commonUtils.twitchApi();
     }
-    
+
+    @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(RAID);
+    }
+
     @Override
     public void onRaid(ChannelRaidEvent raidEvent) {
         String streamerId = raidEvent.getToBroadcasterUserId();

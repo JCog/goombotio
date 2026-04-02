@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.CHANNEL_POINTS_REDEMPTION;
+
 public class DethroneListener implements TwitchEventListener {
     private static final Logger log = LoggerFactory.getLogger(DethroneListener.class);
     private static final String DETHRONE_REWARD_TITLE = "Dethrone";
@@ -30,7 +32,12 @@ public class DethroneListener implements TwitchEventListener {
         twitchApi = commonUtils.twitchApi();
         vipDb = commonUtils.dbManager().getVipDb();
     }
-    
+
+    @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(CHANNEL_POINTS_REDEMPTION);
+    }
+
     @Override
     public void onChannelPointsRedemption(CustomRewardRedemptionAddEvent event) {
         Reward channelPointsReward = event.getReward();

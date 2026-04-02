@@ -4,6 +4,8 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import dev.jcog.goombotio.functions.preds.PredsManagerBase;
 import dev.jcog.goombotio.listeners.TwitchEventListener;
 
+import java.util.List;
+
 public class PredsGuessListener implements TwitchEventListener {
     protected PredsManagerBase manager;
     protected boolean enabled;
@@ -20,6 +22,11 @@ public class PredsGuessListener implements TwitchEventListener {
     public void stop() {
         manager = null;
         enabled = false;
+    }
+
+    @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(EVENT_TYPE.CHANNEL_MESSAGE);
     }
 
     @Override

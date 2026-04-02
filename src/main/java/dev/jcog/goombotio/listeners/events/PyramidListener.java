@@ -6,7 +6,10 @@ import dev.jcog.goombotio.listeners.TwitchEventListener;
 import dev.jcog.goombotio.util.CommonUtils;
 import dev.jcog.goombotio.util.TwitchApi;
 
+import java.util.List;
 import java.util.Objects;
+
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.CHANNEL_MESSAGE;
 
 public class PyramidListener implements TwitchEventListener {
     private enum STATE {
@@ -30,6 +33,11 @@ public class PyramidListener implements TwitchEventListener {
     public PyramidListener(CommonUtils commonUtils) {
         twitchApi = commonUtils.twitchApi();
         resetState();
+    }
+
+    @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(CHANNEL_MESSAGE);
     }
 
     @Override

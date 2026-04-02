@@ -10,6 +10,10 @@ import dev.jcog.goombotio.util.CommonUtils;
 import dev.jcog.goombotio.util.FileWriter;
 import dev.jcog.goombotio.util.TwitchApi;
 
+import java.util.List;
+
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.*;
+
 public class SubListener implements TwitchEventListener {
     
     private static final String LOCAL_RECENT_SUB_FILENAME = "recent_sub.txt";
@@ -19,7 +23,12 @@ public class SubListener implements TwitchEventListener {
     public SubListener(CommonUtils commonUtils) {
         twitchApi = commonUtils.twitchApi();
     }
-    
+
+    @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(SUBSCRIBE, RESUBSCRIBE, SUB_GIFT);
+    }
+
     @Override
     public void onSubscribe(SubscriptionEvent subEvent) {
         if (subEvent.getGifted()) {

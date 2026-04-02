@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.CHANNEL_MESSAGE;
+
 public class EmoteListener implements TwitchEventListener {
     private final EmoteStatsDb emoteStatsDb;
     private final FfzEmoteStatsDb ffzEmoteStatsDb;
@@ -36,6 +38,11 @@ public class EmoteListener implements TwitchEventListener {
 
     private Map<String, String> getInverseMap(Map<String, String> map) {
         return map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+    }
+
+    @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(CHANNEL_MESSAGE);
     }
 
     @Override

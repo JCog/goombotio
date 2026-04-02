@@ -11,6 +11,10 @@ import dev.jcog.goombotio.util.CommonUtils;
 import dev.jcog.goombotio.util.FileWriter;
 import dev.jcog.goombotio.util.TwitchApi;
 
+import java.util.List;
+
+import static dev.jcog.goombotio.listeners.TwitchEventListener.EVENT_TYPE.CHEER;
+
 public class RecentCheerListener implements TwitchEventListener {
     private static final Logger log = LoggerFactory.getLogger(RecentCheerListener.class);
     private static final String LOCAL_RECENT_CHEER_FILENAME = "recent_cheer.txt";
@@ -20,7 +24,12 @@ public class RecentCheerListener implements TwitchEventListener {
     public RecentCheerListener(CommonUtils commonUtils) {
         twitchApi = commonUtils.twitchApi();
     }
-    
+
+    @Override
+    public List<EVENT_TYPE> getEventTypes() {
+        return List.of(CHEER);
+    }
+
     @Override
     public void onCheer(ChannelCheerEvent cheerEvent) {
         String userId = cheerEvent.getUserId();
