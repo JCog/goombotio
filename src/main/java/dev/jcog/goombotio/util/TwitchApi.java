@@ -99,10 +99,16 @@ public class TwitchApi {
         eventSocket.register(SubscriptionTypes.CHANNEL_UPDATE_V2.prepareSubscription(
                 b -> b.broadcasterUserId(streamerUser.getId()).build(), null
         ));
+        eventSocket.register(SubscriptionTypes.CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD.prepareSubscription(
+                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
+        ));
         eventSocket.register(SubscriptionTypes.CHANNEL_CHEER.prepareSubscription(
                 b -> b.broadcasterUserId(streamerUser.getId()).build(), null
         ));
-        eventSocket.register(SubscriptionTypes.CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD.prepareSubscription(
+        eventSocket.register(SubscriptionTypes.CHANNEL_SUBSCRIPTION_GIFT.prepareSubscription(
+                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
+        ));
+        eventSocket.register(SubscriptionTypes.HYPE_TRAIN_BEGIN_V2.prepareSubscription(
                 b -> b.broadcasterUserId(streamerUser.getId()).build(), null
         ));
         // readd for EventSub
@@ -112,9 +118,6 @@ public class TwitchApi {
 //        eventSocket.register(SubscriptionTypes.CHANNEL_SUBSCRIPTION_MESSAGE.prepareSubscription(
 //                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
 //        ));
-        eventSocket.register(SubscriptionTypes.CHANNEL_SUBSCRIPTION_GIFT.prepareSubscription(
-                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
-        ));
         log.info("Twitch connection established");
     }
     
