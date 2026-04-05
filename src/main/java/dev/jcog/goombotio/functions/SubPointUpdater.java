@@ -19,16 +19,12 @@ public class SubPointUpdater {
     private static final int INTERVAL = 1; //minutes
 
     private final TwitchApi twitchApi;
-    private final String subCountFormat;
     
     private int subPoints;
     
-    public SubPointUpdater(CommonUtils commonUtils, String subCountFormat) {
+    public SubPointUpdater(CommonUtils commonUtils) {
         twitchApi = commonUtils.twitchApi();
-        this.subCountFormat = subCountFormat;
-        
         subPoints = 0;
-        
         init(commonUtils.scheduler());
     }
     
@@ -54,7 +50,7 @@ public class SubPointUpdater {
         FileWriter.writeToFile(
                 getOutputLocation(),
                 LOCAL_SUB_POINTS_FILENAME,
-                String.format(subCountFormat, subPoints)
+                Integer.toString(subPoints)
         );
     }
     

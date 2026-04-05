@@ -70,7 +70,7 @@ public class MainBotController {
         streamTracker = new StreamTracker(commonUtils);
         
         new FollowLogger(commonUtils, streamTracker);
-        new SubPointUpdater(commonUtils, settings.getSubCountFormat());
+        new SubPointUpdater(commonUtils);
         new Heartbeat(commonUtils);
     }
 
