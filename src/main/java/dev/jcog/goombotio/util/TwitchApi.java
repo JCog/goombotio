@@ -111,6 +111,9 @@ public class TwitchApi {
         eventSocket.register(SubscriptionTypes.HYPE_TRAIN_BEGIN_V2.prepareSubscription(
                 b -> b.broadcasterUserId(streamerUser.getId()).build(), null
         ));
+        eventSocket.register(SubscriptionTypes.CHANNEL_SUSPICIOUS_USER_MESSAGE.prepareSubscription(
+                b -> b.broadcasterUserId(streamerUser.getId()).moderatorUserId(streamerUser.getId()).build(), null
+        ));
         // readd for EventSub
 //        eventSocket.register(SubscriptionTypes.CHANNEL_SUBSCRIBE.prepareSubscription(
 //                b -> b.broadcasterUserId(streamerUser.getId()).build(), null
@@ -152,6 +155,8 @@ public class TwitchApi {
 //                case RESUBSCRIBE -> iem.onEvent(ChannelSubscriptionMessageEvent.class, eventListener::onResubscribe);
                 case SUB_GIFT -> iem.onEvent(ChannelSubscriptionGiftEvent.class, eventListener::onSubGift);
                 case HYPE_TRAIN_BEGIN -> iem.onEvent(HypeTrainBeginV2Event.class, eventListener::onHypeTrainBegin);
+                case SUSPICIOUS_USER_MESSAGE ->
+                        iem.onEvent(SuspiciousUserMessageEvent.class, eventListener::onSuspiciousUserMessage);
 
                 case ANNOUNCEMENT -> chatEM.onEvent(ModAnnouncementEvent.class, eventListener::onAnnouncement);
                 case CHANNEL_MESSAGE_ACTION ->

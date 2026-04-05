@@ -2,7 +2,6 @@ package dev.jcog.goombotio.listeners;
 
 import com.github.twitch4j.chat.events.channel.*;
 import com.github.twitch4j.eventsub.events.*;
-import dev.jcog.goombotio.util.TwitchApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +20,7 @@ public interface TwitchEventListener {
         RESUBSCRIBE,
         SUB_GIFT,
         HYPE_TRAIN_BEGIN,
+        SUSPICIOUS_USER_MESSAGE,
 
         ANNOUNCEMENT,
         CHANNEL_MESSAGE_ACTION,
@@ -75,6 +75,7 @@ public interface TwitchEventListener {
     default void onResubscribe(ChannelSubscriptionMessageEvent resubEvent) {}
     default void onSubGift(ChannelSubscriptionGiftEvent subGiftEvent) {}
     default void onHypeTrainBegin(HypeTrainBeginV2Event hypeTrainBeginEvent) {}
+    default void onSuspiciousUserMessage(SuspiciousUserMessageEvent suspiciousUserMessageEvent) {}
     
     ////////////////// Chat //////////////////
     default void onAnnouncement(ModAnnouncementEvent announcementEvent) {}
