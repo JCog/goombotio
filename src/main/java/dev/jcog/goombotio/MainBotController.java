@@ -39,34 +39,33 @@ public class MainBotController {
     private final StreamTracker streamTracker;
 
     public MainBotController() {
-        Settings settings = new Settings();
-        log.info("Write permission: {}", settings.hasWritePermission() ? "TRUE" : "FALSE");
-        log.info("Silent Chat: {}", settings.isSilentMode() ? "TRUE" : "FALSE");
+        log.info("Write permission: {}", Settings.WRITE_PERMISSION);
+        log.info("Silent Chat: {}", Settings.SILENT_MODE);
         dbManager = new DbManager(
-                settings.getDbHost(),
-                settings.getDbPort(),
+                Settings.DB_HOST,
+                Settings.DB_PORT,
                 DB_NAME,
-                settings.getDbUser(),
-                settings.getDbPassword(),
-                settings.hasWritePermission()
+                Settings.DB_USER,
+                Settings.DB_PW,
+                Settings.WRITE_PERMISSION
         );
         twitchApi = new TwitchApi(
-                settings.getTwitchStream(),
-                settings.getTwitchUsername(),
-                settings.getTwitchChannelAuthToken(),
-                settings.getTwitchChannelClientId(),
-                settings.getTwitchBotAuthToken(),
-                settings.isSilentMode()
+                Settings.TWITCH_STREAM,
+                Settings.TWITCH_USER,
+                Settings.TWITCH_CHANNEL_AUTH_TOKEN,
+                Settings.TWITCH_CHANNEL_CLIENT_ID,
+                Settings.TWITCH_BOT_AUTH_TOKEN,
+                Settings.SILENT_MODE
         );
-        discordBotController = new DiscordBotController(settings.getDiscordToken(), new DiscordListener());
+        discordBotController = new DiscordBotController(Settings.DISCORD_TOKEN, new DiscordListener());
         scheduler = Executors.newScheduledThreadPool(TIMER_THREAD_SIZE);
         commonUtils = new CommonUtils(twitchApi, dbManager, discordBotController, new ApiManager(), scheduler);
         
         twitter = Twitter.newBuilder()
-                .oAuthConsumer(settings.getTwitterConsumerKey(), settings.getTwitterConsumerSecret())
-                .oAuthAccessToken(settings.getTwitterAccessToken(), settings.getTwitterAccessTokenSecret())
+                .oAuthConsumer(Settings.TWITTER_CONSUMER_KEY, Settings.TWITTER_CONSUMER_SECRET)
+                .oAuthAccessToken(Settings.TWITTER_ACCESS_TOKEN, Settings.TWITTER_ACCESS_TOKEN_SECRET)
                 .build();
-        youtubeApiKey = settings.getYoutubeApiKey();
+        youtubeApiKey = Settings.YT_API_KEY;
         streamTracker = new StreamTracker(commonUtils);
         
         new FollowLogger(commonUtils, streamTracker);
