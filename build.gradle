@@ -16,22 +16,22 @@ compileTestJava.options.encoding = 'UTF-8'
 javadoc.options.encoding = 'UTF-8'
 
 dependencies {
-    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.32'
-    implementation group: 'org.mongodb', name: 'mongodb-driver-sync', version: '5.0.1'
-    implementation group: 'com.squareup.retrofit2', name: 'retrofit', version: '2.9.0'
-    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10'
-    implementation group: 'com.github.twitch4j', name: 'twitch4j', version: '1.26.0'
-    implementation group: 'org.twitter4j', name: 'twitter4j-core', version: '4.1.2'
-    implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
-    implementation group: 'com.jcraft', name: 'jsch', version: '0.1.55'
-    implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.22'
-    implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.14.1'
-    implementation group: 'com.fathzer', name: 'javaluator', version: '3.0.3'
-    implementation group: 'org.jboss.resteasy', name: 'resteasy-client', version: '6.2.8.Final'
-    implementation group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '6.2.8.Final'
-    implementation group: 'commons-cli', name: 'commons-cli', version: '1.6.0'
+    testImplementation "junit:junit:4.13.2"
+    implementation "ch.qos.logback:logback-classic:1.5.32"
+    implementation "org.mongodb:mongodb-driver-sync:5.0.1"
+    implementation "com.squareup.retrofit2:retrofit:2.9.0"
+    implementation "com.google.code.gson:gson:2.10"
+    implementation "com.github.twitch4j:twitch4j:1.26.0"
+    implementation "org.twitter4j:twitter4j-core:4.1.2"
+    implementation "com.googlecode.json-simple:json-simple:1.1.1"
+    implementation "com.jcraft:jsch:0.1.55"
+    implementation "net.dv8tion:JDA:5.0.0-beta.22"
+    implementation "com.google.guava:guava:31.1-jre"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1"
+    implementation "com.fathzer:javaluator:3.0.3"
+    implementation "org.jboss.resteasy:resteasy-client:6.2.8.Final"
+    implementation "org.jboss.resteasy:resteasy-jackson2-provider:6.2.8.Final"
+    implementation "commons-cli:commons-cli:1.6.0"
 }
 
 shadowJar {
