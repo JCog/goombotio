@@ -148,9 +148,9 @@ public class MainBotController {
                 new HypeTrainEventListener(commonUtils),
                 new LinkListener(commonUtils, twitter, youtubeApiKey),
                 new PyramidListener(commonUtils),
+                new RaidListener(commonUtils),
                 new RecentCheerListener(commonUtils),
                 new ScheduledMessageController(commonUtils, messageExpressionParser),
-                new ShoutoutListener(commonUtils),
                 new SubListener(commonUtils),
         };
         for (TwitchEventListener listener : listeners) {

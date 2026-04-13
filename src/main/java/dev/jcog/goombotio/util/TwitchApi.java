@@ -245,13 +245,24 @@ public class TwitchApi {
     
     //////////////////////////////////////////////////////////////////////////
     
-    public List<AdSchedule> getAdSchedule() {
-        try {
-            return twitchClient.getHelix().getAdSchedule(channelAuthToken, streamerUser.getId()).execute().getData();
-        } catch (HystrixRuntimeException e) {
-            log.error(e.getMessage());
-            return new ArrayList<>();
+    public AdSchedule getAdSchedule() throws HystrixRuntimeException {
+        List<AdSchedule> adSchedules = twitchClient.getHelix().getAdSchedule(channelAuthToken, streamerUser.getId())
+                .execute().getData();
+        if (adSchedules.isEmpty()) {
+            return null;
         }
+        return adSchedules.get(0);
+
+    }
+
+    public boolean snoozeNextAd() {
+        try {
+            twitchClient.getHelix().snoozeNextAd(channelAuthToken, streamerUser.getId()).execute();
+        } catch (HystrixRuntimeException e) {
+            log.error("Error attempting to snooze next ad: {}", e.getMessage());
+            return false;
+        }
+        return true;
     }
     
     public BannedUser getBannedUser(String userId) throws HystrixRuntimeException {
