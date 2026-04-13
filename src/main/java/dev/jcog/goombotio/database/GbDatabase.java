@@ -17,6 +17,7 @@ import java.util.Collections;
 
 public class GbDatabase {
     private static final Logger log = LoggerFactory.getLogger(GbDatabase.class);
+    private static final String ADMIN_DB = "admin";
     private static final String DEFAULT_HOST = "localhost";
     private static final int DEFAULT_PORT = 27017;
     private final MongoClient mongoClient;
@@ -35,7 +36,7 @@ public class GbDatabase {
         } else {
             MongoCredential credential = MongoCredential.createCredential(
                     user,
-                    dbName,
+                    ADMIN_DB,
                     password.toCharArray()
             );
             mongoClient = MongoClients.create(MongoClientSettings.builder()
