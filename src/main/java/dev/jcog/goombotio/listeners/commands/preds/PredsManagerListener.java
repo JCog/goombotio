@@ -63,7 +63,7 @@ public class PredsManagerListener extends CommandBase {
                         case GAME_ID_SUNSHINE -> predsManager = new PiantaSixPredsManager(commonUtils);
                         case GAME_ID_SMRPG_SWITCH -> predsManager = new BoosterHillPredsManager(commonUtils);
                         default -> {
-                            twitchApi.channelMessage("The current game is not compatible with preds.");
+                            log.warn("The current game is not compatible with preds.");
                             return;
                         }
                     }
