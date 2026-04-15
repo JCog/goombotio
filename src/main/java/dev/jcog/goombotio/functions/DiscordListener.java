@@ -1,5 +1,6 @@
 package dev.jcog.goombotio.functions;
 
+import jakarta.validation.constraints.NotNull;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -7,15 +8,13 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import javax.annotation.Nonnull;
-
 public class DiscordListener extends ListenerAdapter {
     private static final String TWITCH_ROLE_ID = "twitch-alert";
     private static final String YOUTUBE_ROLE_ID = "youtube-alert";
     private static final String LOGGING_CHANNEL = "server-logging";
     
     @Override
-    public void onButtonInteraction(@Nonnull ButtonInteractionEvent event) {
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         switch (event.getComponentId()) {
             case "twitch" -> {
                 if (toggleTwitchRole(event.getGuild(), event.getMember())) {
@@ -38,7 +37,7 @@ public class DiscordListener extends ListenerAdapter {
         }
     }
     
-    private void log(Guild server, String message, @Nonnull Object... args) {
+    private void log(Guild server, String message, @NotNull Object... args) {
         TextChannel channel = server.getTextChannelsByName(LOGGING_CHANNEL, true).get(0);
         channel.sendMessageFormat(message, args).queue();
     }
