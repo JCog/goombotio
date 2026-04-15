@@ -1,20 +1,31 @@
 package dev.jcog.goombotio.util;
 
+import java.util.Map;
+
 public class Settings {
-    public static final Boolean SILENT_MODE = System.getenv("SILENT_MODE").equalsIgnoreCase("true");
-    public static final Boolean WRITE_PERMISSION = System.getenv("WRITE_PERMISSION").equalsIgnoreCase("true");
-    public static final String DB_HOST = System.getenv("DB_HOST");
-    public static final Integer DB_PORT = Integer.valueOf(System.getenv("DB_PORT"));
-    public static final String DB_USER = System.getenv("DB_USER");
-    public static final String DB_PW = System.getenv("DB_PW");
-    public static final String TWITCH_CLIENT_ID = System.getenv("TWITCH_CLIENT_ID");
-    public static final String TWITCH_CLIENT_SECRET = System.getenv("TWITCH_CLIENT_SECRET");
-    public static final String TWITCH_STREAM = System.getenv("TWITCH_STREAM");
-    public static final String TWITCH_USER = System.getenv("TWITCH_USER");
-    public static final String DISCORD_TOKEN = System.getenv("DISCORD_TOKEN");
-    public static final String YT_API_KEY = System.getenv("YT_API_KEY");
-    public static final String TWITTER_CONSUMER_KEY = System.getenv("TWITTER_CONSUMER_KEY");
-    public static final String TWITTER_CONSUMER_SECRET = System.getenv("TWITTER_CONSUMER_SECRET");
-    public static final String TWITTER_ACCESS_TOKEN = System.getenv("TWITTER_ACCESS_TOKEN");
-    public static final String TWITTER_ACCESS_TOKEN_SECRET = System.getenv("TWITTER_ACCESS_TOKEN_SECRET");
+    private static final Map<String, String> ENV = System.getenv();
+
+    public static final Boolean SILENT_MODE = ENV.containsKey("SILENT_MODE") &&
+            ENV.get("SILENT_MODE").equalsIgnoreCase("true"); // default false
+    public static final Boolean WRITE_PERMISSION = !ENV.containsKey("WRITE_PERMISSION") ||
+            ENV.get("WRITE_PERMISSION").equalsIgnoreCase("true"); // default true
+
+    public static final String DB_HOST = ENV.get("DB_HOST");
+    public static final Integer DB_PORT = Integer.valueOf(ENV.get("DB_PORT"));
+    public static final String DB_USER = ENV.get("DB_USER");
+    public static final String DB_PW = ENV.get("DB_PW");
+
+    public static final String TWITCH_CLIENT_ID = ENV.get("TWITCH_CLIENT_ID");
+    public static final String TWITCH_CLIENT_SECRET = ENV.get("TWITCH_CLIENT_SECRET");
+    public static final String TWITCH_STREAM = ENV.get("TWITCH_STREAM");
+    public static final String TWITCH_USER = ENV.get("TWITCH_USER");
+
+    public static final String DISCORD_TOKEN = ENV.get("DISCORD_TOKEN");
+
+    public static final String YT_API_KEY = ENV.get("YT_API_KEY");
+
+    public static final String TWITTER_CONSUMER_KEY = ENV.get("TWITTER_CONSUMER_KEY");
+    public static final String TWITTER_CONSUMER_SECRET = ENV.get("TWITTER_CONSUMER_SECRET");
+    public static final String TWITTER_ACCESS_TOKEN = ENV.get("TWITTER_ACCESS_TOKEN");
+    public static final String TWITTER_ACCESS_TOKEN_SECRET = ENV.get("TWITTER_ACCESS_TOKEN_SECRET");
 }

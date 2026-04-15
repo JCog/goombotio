@@ -180,7 +180,7 @@ public class TwitchApi {
             } catch (RuntimeException e) {
                 log.error(e.getMessage());
             }
-        }, 0, Duration.ofHours(1).getSeconds(), TimeUnit.SECONDS);
+        }, 0, 1, TimeUnit.HOURS);
 
         return credential;
     }
@@ -268,23 +268,22 @@ public class TwitchApi {
     }
     
     public void channelAnnouncement(String message, AnnouncementColor color) {
-        channelMessage(message);
-        // TODO: actually use announcements once twitch decides to make them work on mobile
-//        String output = message.trim();
-//        if (output.isEmpty()) {
-//            return;
-//        }
-//        if (silentChat) {
-//            out.println("SILENT_CHAT: /announce " + message);
-//        } else {
-//            twitchClient.getHelix().sendChatAnnouncement(
-//                    botAuthItem.authToken,
-//                    streamerUser.getId(),
-//                    botUser.getId(),
-//                    output,
-//                    com.github.twitch4j.common.enums.AnnouncementColor.PRIMARY
-//            ).execute();
-//        }
+        String output = message.trim();
+        if (output.isEmpty()) {
+            return;
+        }
+
+        if (silentChat) {
+            log.info("SILENT_CHAT: /announce {}", message);
+        } else {
+            twitchClient.getHelix().sendChatAnnouncement(
+                    botAuth.authToken,
+                    streamerUser.getId(),
+                    botUser.getId(),
+                    output,
+                    AnnouncementColor.PRIMARY
+            ).execute();
+        }
     }
     
     private void sendMessage(String message) {
@@ -307,8 +306,8 @@ public class TwitchApi {
     //////////////////////////////////////////////////////////////////////////
     
     public AdSchedule getAdSchedule() throws HystrixRuntimeException {
-        List<AdSchedule> adSchedules = twitchClient.getHelix().getAdSchedule(streamerAuth.authToken, streamerUser.getId())
-                .execute().getData();
+        List<AdSchedule> adSchedules = twitchClient.getHelix()
+                .getAdSchedule(streamerAuth.authToken, streamerUser.getId()).execute().getData();
         if (adSchedules.isEmpty()) {
             return null;
         }
@@ -739,25 +738,44 @@ public class TwitchApi {
     
     ///////////////////////////// Channel Points /////////////////////////////
     
-    public CustomReward createCustomReward(String broadcasterId, CustomReward customReward) throws  HystrixRuntimeException {
-        CustomRewardList customRewardList = twitchClient.getHelix().createCustomReward(streamerAuth.authToken, broadcasterId, customReward).execute();
+    public CustomReward createCustomReward(
+            String broadcasterId,
+            CustomReward customReward
+    ) throws HystrixRuntimeException {
+        CustomRewardList customRewardList = twitchClient.getHelix()
+                .createCustomReward(streamerAuth.authToken, broadcasterId, customReward).execute();
         return customRewardList.getRewards().get(0);
     }
     
     public void deleteCustomReward(String broadcasterId, String rewardId) throws HystrixRuntimeException {
         twitchClient.getHelix().deleteCustomReward(streamerAuth.authToken, broadcasterId, rewardId).execute();
     }
-    
-    public List<CustomReward> getCustomRewards(String broadcasterId, Collection<String> rewardIds, Boolean onlyManageableRewards) throws HystrixRuntimeException {
-        return twitchClient.getHelix().getCustomRewards(streamerAuth.authToken, broadcasterId, rewardIds, onlyManageableRewards).execute().getRewards();
+
+    public List<CustomReward> getCustomRewards(
+            String broadcasterId,
+            Collection<String> rewardIds,
+            Boolean onlyManageableRewards
+    ) throws HystrixRuntimeException {
+        return twitchClient.getHelix()
+                .getCustomRewards(streamerAuth.authToken, broadcasterId, rewardIds, onlyManageableRewards).execute()
+                .getRewards();
     }
-    
-    public CustomReward updateCustomReward(String broadcasterId, String rewardId, CustomReward updatedReward) throws  HystrixRuntimeException {
-        CustomRewardList customRewardList = twitchClient.getHelix().updateCustomReward(streamerAuth.authToken, broadcasterId, rewardId, updatedReward).execute();
+
+    public CustomReward updateCustomReward(
+            String broadcasterId,
+            String rewardId,
+            CustomReward updatedReward
+    ) throws  HystrixRuntimeException {
+        CustomRewardList customRewardList = twitchClient.getHelix()
+                .updateCustomReward(streamerAuth.authToken, broadcasterId, rewardId, updatedReward).execute();
         return customRewardList.getRewards().get(0);
     }
-    
-    public List<CustomRewardRedemption> getCustomRewardRedemptions(String broadcasterId, String rewardId, Collection<String> redemptionIds) throws HystrixRuntimeException {
+
+    public List<CustomRewardRedemption> getCustomRewardRedemptions(
+            String broadcasterId,
+            String rewardId,
+            Collection<String> redemptionIds
+    ) throws HystrixRuntimeException {
         String cursor = null;
         List<CustomRewardRedemption> redemptionsOutput = new ArrayList<>();
     
@@ -778,8 +796,19 @@ public class TwitchApi {
         return redemptionsOutput;
     }
     
-    public void updateRedemptionStatus(String broadcasterId, String rewardId, Collection<String> redemptionIds, RedemptionStatus newStatus) throws HystrixRuntimeException {
-        CustomRewardRedemptionList redemptionList = twitchClient.getHelix().updateRedemptionStatus(streamerAuth.authToken, broadcasterId, rewardId, redemptionIds, newStatus).execute();
+    public void updateRedemptionStatus(
+            String broadcasterId,
+            String rewardId,
+            Collection<String> redemptionIds,
+            RedemptionStatus newStatus
+    ) throws HystrixRuntimeException {
+        CustomRewardRedemptionList redemptionList = twitchClient.getHelix().updateRedemptionStatus(
+                streamerAuth.authToken,
+                broadcasterId,
+                rewardId,
+                redemptionIds,
+                newStatus
+        ).execute();
         for (CustomRewardRedemption redemption : redemptionList.getRedemptions()) {
             log.info("Custom reward redemption \"{}\" has been {} for {}",
                     redemption.getReward().getTitle(),
