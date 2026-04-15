@@ -49,16 +49,17 @@ public class MainBotController {
                 Settings.DB_PW,
                 Settings.WRITE_PERMISSION
         );
+        scheduler = Executors.newScheduledThreadPool(TIMER_THREAD_SIZE);
         twitchApi = new TwitchApi(
                 Settings.TWITCH_STREAM,
                 Settings.TWITCH_USER,
-                Settings.TWITCH_CHANNEL_AUTH_TOKEN,
-                Settings.TWITCH_CHANNEL_CLIENT_ID,
-                Settings.TWITCH_BOT_AUTH_TOKEN,
-                Settings.SILENT_MODE
+                Settings.TWITCH_CLIENT_ID,
+                Settings.TWITCH_CLIENT_SECRET,
+                Settings.SILENT_MODE,
+                dbManager.getAuthDb(),
+                scheduler
         );
         discordBotController = new DiscordBotController(Settings.DISCORD_TOKEN, new DiscordListener());
-        scheduler = Executors.newScheduledThreadPool(TIMER_THREAD_SIZE);
         commonUtils = new CommonUtils(twitchApi, dbManager, discordBotController, new ApiManager(), scheduler);
         
         twitter = Twitter.newBuilder()

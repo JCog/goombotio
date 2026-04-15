@@ -22,6 +22,7 @@ public class DbManager {
     private final SevenTvEmoteStatsDb sevenTvEmoteStatsDb;
 
     // misc DBs
+    private final AuthDb authDb;
     private final BitWarDb bitWarDb;
     private final CommandDb commandDb;
     private final VipDb vipDb;
@@ -54,6 +55,7 @@ public class DbManager {
         sevenTvEmoteStatsDb = new SevenTvEmoteStatsDb(gbDatabase);
         bttvEmoteStatsDb = new BttvEmoteStatsDb(gbDatabase);
 
+        authDb = new AuthDb(gbDatabase);
         bitWarDb = new BitWarDb(gbDatabase);
         commandDb = new CommandDb(gbDatabase);
         quoteDb = new QuoteDb(gbDatabase);
@@ -91,6 +93,10 @@ public class DbManager {
     
     public BttvEmoteStatsDb getBttvEmoteStatsDb() {
         return bttvEmoteStatsDb;
+    }
+
+    public AuthDb getAuthDb() {
+        return  authDb;
     }
 
     public BitWarDb getBitWarDb() {
