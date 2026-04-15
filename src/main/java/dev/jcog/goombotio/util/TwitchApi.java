@@ -102,12 +102,10 @@ public class TwitchApi {
         }
         botUser = getUserByUsername(botUsername);
         if (streamerUser == null) {
-            log.error("Error retrieving streamer user");
-            System.exit(1);
+            throw new StartupException("unable to retrieve streamer user");
         }
         if (botUser == null) {
-            log.error("Error retrieving bot user");
-            System.exit(1);
+            throw new StartupException("unable to retrieve bot user");
         }
         
         // EventSub registrations
@@ -228,7 +226,7 @@ public class TwitchApi {
         }
     }
     
-    public void toggleSlientChat() {
+    public void toggleSilentChat() {
         if (silentChat) {
             silentChat = false;
             channelMessage("Goombotio has been unmuted.");
@@ -281,7 +279,7 @@ public class TwitchApi {
                     streamerUser.getId(),
                     botUser.getId(),
                     output,
-                    AnnouncementColor.PRIMARY
+                    color
             ).execute();
         }
     }

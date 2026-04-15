@@ -21,6 +21,6 @@ public class MuteCommandListener extends CommandBase {
 
     @Override
     protected void performCommand(String command, USER_LEVEL userLevel, ChannelMessageEvent messageEvent) {
-        twitchApi.toggleSlientChat();
+        twitchApi.toggleSilentChat();
     }
 }
