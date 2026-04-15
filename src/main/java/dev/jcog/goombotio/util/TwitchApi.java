@@ -167,12 +167,7 @@ public class TwitchApi {
                         authItem.authToken = credential.getAccessToken();
                         authItem.refreshToken = credential.getRefreshToken();
                         authDb.setAuthToken(authItem);
-                        log.info(
-                                "\"{}\" token refreshed (auth = {}, refresh = {})",
-                                authItem.id,
-                                authItem.authToken,
-                                authItem.refreshToken
-                        );
+                        log.info("\"{}\" token refreshed", authItem.id);
                     });
                 });
             } catch (RuntimeException e) {
