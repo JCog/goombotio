@@ -5,6 +5,8 @@ import java.util.Map;
 public class Settings {
     private static final Map<String, String> ENV = System.getenv();
 
+    public static final Boolean DEV_ENV = ENV.containsKey("DEV_ENV") &&
+            ENV.get("DEV_ENV").equalsIgnoreCase("true"); // default false
     public static final Boolean SILENT_MODE = ENV.containsKey("SILENT_MODE") &&
             ENV.get("SILENT_MODE").equalsIgnoreCase("true"); // default false
     public static final Boolean WRITE_PERMISSION = !ENV.containsKey("WRITE_PERMISSION") ||

@@ -39,8 +39,9 @@ public class MainBotController {
     private final StreamTracker streamTracker;
 
     public MainBotController() {
+        log.info("Dev environment: {}", Settings.DEV_ENV);
         log.info("Write permission: {}", Settings.WRITE_PERMISSION);
-        log.info("Silent Chat: {}", Settings.SILENT_MODE);
+        log.info("Silent mode: {}", Settings.SILENT_MODE);
         dbManager = new DbManager(
                 Settings.DB_HOST,
                 Settings.DB_PORT,
