@@ -13,7 +13,7 @@ public class Settings {
             ENV.get("WRITE_PERMISSION").equalsIgnoreCase("true"); // default true
 
     public static final String DB_HOST = ENV.get("DB_HOST");
-    public static final Integer DB_PORT = Integer.valueOf(ENV.get("DB_PORT"));
+    public static final Integer DB_PORT = getEnvInt("DB_PORT");
     public static final String DB_USER = ENV.get("DB_USER");
     public static final String DB_PW = ENV.get("DB_PW");
 
@@ -30,4 +30,12 @@ public class Settings {
     public static final String TWITTER_CONSUMER_SECRET = ENV.get("TWITTER_CONSUMER_SECRET");
     public static final String TWITTER_ACCESS_TOKEN = ENV.get("TWITTER_ACCESS_TOKEN");
     public static final String TWITTER_ACCESS_TOKEN_SECRET = ENV.get("TWITTER_ACCESS_TOKEN_SECRET");
+
+    private static Integer getEnvInt(String key) {
+        try {
+            return Integer.valueOf(ENV.get(key));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }

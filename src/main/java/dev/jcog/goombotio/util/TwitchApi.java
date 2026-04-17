@@ -155,7 +155,7 @@ public class TwitchApi {
         OAuth2Credential credential = new OAuth2Credential("twitch", authItem.authToken);
         credential.setRefreshToken(authItem.refreshToken);
 
-        if (Settings.DEV_ENV) {
+        if (Settings.DEV_ENV || scheduler == null) {
             return credential;
         }
 

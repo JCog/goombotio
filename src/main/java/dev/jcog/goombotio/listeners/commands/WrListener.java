@@ -101,7 +101,7 @@ public class WrListener extends CommandBase {
                 if (streamTitle.contains("any% (no peach warp)") || streamTitle.contains("any% (no pw)")) {
                     category = PAPE_ANY_PERCENT_NO_PW;
                 } else if (streamTitle.contains("any%") && (streamTitle.contains("no ace") || streamTitle.contains("acephobic"))) {
-                    category = PAPE_ANY_PERCENT;
+                    category = PAPE_ANY_PERCENT_NO_ACE;
                 } else if (streamTitle.contains("any% no rng") || streamTitle.contains("any% (no rng)")) {
                     category = PAPE_ANY_NO_RNG;
                 } else if (streamTitle.contains("all cards") && !streamTitle.contains("reverse")) {
