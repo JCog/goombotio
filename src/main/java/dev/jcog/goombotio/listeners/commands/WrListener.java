@@ -108,6 +108,8 @@ public class WrListener extends CommandBase {
                     category = PAPE_ALL_CARDS;
                 } else if (streamTitle.contains("all bosses")) {
                     category = PAPE_ALL_BOSSES;
+                } else if (streamTitle.contains("glitchless 101%") || streamTitle.contains("glundo")) {
+                    category = PAPE_GLITCHLESS_101;
                 } else if (streamTitle.contains("glitchless")) {
                     category = PAPE_GLITCHLESS;
                 } else if (streamTitle.contains("100%")) {
