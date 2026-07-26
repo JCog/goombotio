@@ -1,6 +1,8 @@
 package dev.jcog.goombotio.util;
 
+import com.github.twitch4j.helix.domain.OutboundFollow;
 import com.github.twitch4j.helix.domain.User;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import dev.jcog.goombotio.database.DbManager;
 import dev.jcog.goombotio.database.stats.WatchTimeDb;
 import dev.jcog.goombotio.functions.StreamData;
@@ -20,15 +22,29 @@ public class ReportBuilder {
         log.info("Building report...");
 
         String filename = getReportFilename();
+        TwitchApi twitchApi = commonUtils.twitchApi();
+        final List<String> followIds = new ArrayList<>();
+        try {
+            followIds.addAll(
+                    twitchApi.getFollowedChannels(twitchApi.getStreamerUser().getId()).stream()
+                            .map(OutboundFollow::getBroadcasterId)
+                            .toList());
+        } catch (HystrixRuntimeException e) {
+            log.error(e.getMessage());
+        }
+        List<User> followedViewers = streamData.getAllViewers().stream().filter(user -> followIds.contains(user.getId())).toList();
 
-        String report = "REPORT\n\n" +
-                        generateReportStats(streamData) +
-                        "\n\n" +
-                        generateReportAllViewers(commonUtils.dbManager(), streamData) +
-                        "\n\n" +
-                        generateReportNewViewers(streamData) +
-                        "\n\n" +
-                        generateReportReturningViewers(streamData);
+        String report =
+                "REPORT\n\n" +
+                generateReportStats(streamData) +
+                "\n\n" +
+                generateReportAllViewers(commonUtils.dbManager(), streamData) +
+                "\n\n" +
+                generateReportViewers(streamData, followedViewers, "Followed") +
+                "\n\n" +
+                generateReportViewers(streamData, streamData.getNewViewers(), "New") +
+                "\n\n" +
+                generateReportViewers(streamData, streamData.getReturningViewers(), "Returning");
         boolean successful = FileWriter.writeToFile(REPORT_LOCATION, filename, report);
         if (successful) {
             log.info("Report output to:{}{}", REPORT_LOCATION, filename);
@@ -38,7 +54,6 @@ public class ReportBuilder {
     }
 
     private static String generateReportStats(StreamData streamData) {
-        log.info("Generating general stats...");
         StringBuilder streamStatsReport = new StringBuilder();
 
         int streamLength = streamData.getStreamLength();
@@ -51,13 +66,11 @@ public class ReportBuilder {
         streamStatsReport.append(String.format("Average Viewer Count: %d\n", averageViewers));
         streamStatsReport.append(String.format("Median Viewer Count:  %d\n", medianViewers));
         streamStatsReport.append(String.format("Max Viewer Count:     %d\n", maxViewers));
-        
-        log.info("General stats generated.");
+
         return streamStatsReport.toString();
     }
 
     private static String generateReportAllViewers(DbManager dbManager, StreamData streamData) {
-        log.info("Generating All Viewer stats...");
         WatchTimeDb watchTimeDb = dbManager.getWatchTimeDb();
         StringBuilder allViewersReport = new StringBuilder();
 
@@ -141,7 +154,6 @@ public class ReportBuilder {
         allViewersReport.append(String.format("Average Viewer Age:  %d days\n", averageAge));
         allViewersReport.append(String.format("Weighted Viewer Age: %d days\n", weightedAge));
 
-        log.info("All Viewer Stats generated.");
         return allViewersReport.toString();
     }
 
@@ -176,96 +188,48 @@ public class ReportBuilder {
         return output.toString();
     }
 
-    private static String generateReportNewViewers(StreamData streamData) {
-        log.info("Generating New Viewer stats...");
-        StringBuilder newViewersReport = new StringBuilder();
-    
-        List<Map.Entry<User,Integer>> orderedNewViewerMinutesMap = streamData.getOrderedWatchtimeList(
-                streamData.getNewViewers()
-        );
-        int newWatchTime = 0;
+    private static String generateReportViewers(
+            StreamData streamData,
+            List<User> userList,
+            String viewerType
+    ) {
+        StringBuilder report = new StringBuilder();
 
-        newViewersReport.append("------ New Viewers ------\n");
-
-        int maxNameLength = 0;
-        int maxMinutes = 0;
-        for (Map.Entry<User,Integer> newViewerMinutesEntry : orderedNewViewerMinutesMap) {
-            maxNameLength = Math.max(maxNameLength, newViewerMinutesEntry.getKey().getDisplayName().length());
-            maxMinutes = Math.max(maxMinutes, newViewerMinutesEntry.getValue());
-        }
-        for (Map.Entry<User,Integer> newViewerMinutesEntry : orderedNewViewerMinutesMap) {
-            String username = newViewerMinutesEntry.getKey().getDisplayName();
-            int minutes = newViewerMinutesEntry.getValue();
-            
-            newWatchTime += minutes;
-            newViewersReport.append(buildPaddedViewerMinutesString(
-                    username,
-                    minutes,
-                    maxNameLength,
-                    maxMinutes
-            ));
-        }
-        newViewersReport.append("\n");
-
-        int averageNewMinutes = 0;
-        if (!orderedNewViewerMinutesMap.isEmpty()) {
-            averageNewMinutes = newWatchTime / orderedNewViewerMinutesMap.size();
-        }
-
-        int averageWatchPercent = (int) ((float) averageNewMinutes / streamData.getStreamLength() * 100);
-
-        newViewersReport.append(String.format("Total New Viewers: %d viewers\n", orderedNewViewerMinutesMap.size()));
-        newViewersReport.append(String.format("Average Watchtime: %d minutes\n", averageNewMinutes));
-        newViewersReport.append(String.format("Average Watch%%:    %d%%\n", averageWatchPercent));
-
-        log.info("New Viewer stats generated.");
-        return newViewersReport.toString();
-    }
-
-    private static String generateReportReturningViewers(StreamData streamData) {
-        log.info("Generating Returning Viewer stats... ");
-        StringBuilder returningViewersReport = new StringBuilder();
-    
-        List<Map.Entry<User,Integer>> orderedReturningViewerMinutesMap = streamData.getOrderedWatchtimeList(
-                streamData.getReturningViewers()
-        );
+        List<Map.Entry<User,Integer>> orderedViewerMinutesMap = streamData.getOrderedWatchtimeList(userList);
         int returningWatchTime = 0;
-        returningViewersReport.append("------ Returning Viewers ------\n");
+        report.append(String.format("------ %s Viewers ------%n", viewerType));
 
         int maxNameLength = 0;
         int maxMinutes = 0;
-        for (Map.Entry<User,Integer> returningViewerMinutesEntry : orderedReturningViewerMinutesMap) {
+        for (Map.Entry<User,Integer> returningViewerMinutesEntry : orderedViewerMinutesMap) {
             maxNameLength = Math.max(maxNameLength, returningViewerMinutesEntry.getKey().getDisplayName().length());
             maxMinutes = Math.max(maxMinutes, returningViewerMinutesEntry.getValue());
         }
-        for (Map.Entry<User,Integer> returningViewerMinutesEntry : orderedReturningViewerMinutesMap) {
+        for (Map.Entry<User,Integer> returningViewerMinutesEntry : orderedViewerMinutesMap) {
             String username = returningViewerMinutesEntry.getKey().getDisplayName();
             int minutes = returningViewerMinutesEntry.getValue();
-            
+
             returningWatchTime += minutes;
-            returningViewersReport.append(buildPaddedViewerMinutesString(
-                    username,
-                    minutes,
-                    maxNameLength,
-                    maxMinutes
-            ));
+            report.append(buildPaddedViewerMinutesString(username, minutes, maxNameLength, maxMinutes));
         }
-        returningViewersReport.append("\n");
+        report.append("\n");
 
         int averageReturningMinutes = 0;
-        if (!orderedReturningViewerMinutesMap.isEmpty()) {
-            averageReturningMinutes = returningWatchTime / orderedReturningViewerMinutesMap.size();
+        if (!orderedViewerMinutesMap.isEmpty()) {
+            averageReturningMinutes = returningWatchTime / orderedViewerMinutesMap.size();
         }
 
         int averageWatchPercent = (int) ((float) averageReturningMinutes / streamData.getStreamLength() * 100);
 
-        returningViewersReport.append(String.format("Total Returning Viewers: %d viewers\n",
-                                                    orderedReturningViewerMinutesMap.size()));
-        returningViewersReport.append(String.format("Average Watchtime:       %d minutes\n", averageReturningMinutes));
-        returningViewersReport.append(String.format("Average Watch%%:          %d%%\n", averageWatchPercent));
+        report.append(String.format("Total %s Viewers: %d viewers\n", viewerType, orderedViewerMinutesMap.size()));
+        report.append("Average Watchtime:");
+        report.append(" ".repeat(Math.max(0, viewerType.length() - 2)));
+        report.append(String.format("%d minutes\n", averageReturningMinutes));
+        report.append("Average Watch%%:");
+        report.append(" ".repeat(Math.max(0, viewerType.length() - 5)));
+        report.append(String.format("%d%%\n", averageWatchPercent));
 
-        log.info("Returning Viewer stats generated.");
-        return returningViewersReport.toString();
+        return report.toString();
     }
 
     private static String buildPaddedViewerMinutesString(String username, int minutes, int maxNameLength, int maxMinutes) {

@@ -17,6 +17,7 @@ public class StreamData {
 
     private final Map<String,Integer> userIdMinutesMap = new HashMap<>();
     private final List<Integer> viewerCounts = new ArrayList<>();
+    private final List<User> allViewers = new ArrayList<>();
     private final List<User> newViewers = new ArrayList<>();
     private final List<User> returningViewers = new ArrayList<>();
 
@@ -51,18 +52,18 @@ public class StreamData {
         log.info("{} has gone offline.", twitchApi.getStreamerUser().getDisplayName());
         endTime = new Date();
 
-        List<User> userList;
+        allViewers.clear();
         try {
-            userList = twitchApi.getUserListByIds(userIdMinutesMap.keySet());
+            allViewers.addAll(twitchApi.getUserListByIds(userIdMinutesMap.keySet()));
         } catch (HystrixRuntimeException e) {
             log.error("Error retrieving user data for stream, unable to save stream statistics: {}", e.getMessage());
             return;
         }
         //make sure this function is run before updating the database
-        separateNewReturningViewers(userList);
-        streamStatsDb.addStream(watchTimeDb, startTime, endTime, viewerCounts, userIdMinutesMap, userList);
+        separateNewReturningViewers(allViewers);
+        streamStatsDb.addStream(watchTimeDb, startTime, endTime, viewerCounts, userIdMinutesMap, allViewers);
 
-        for (User user : userList) {
+        for (User user : allViewers) {
             int minutes = userIdMinutesMap.get(user.getId());
             watchTimeDb.addMinutes(user.getId(), user.getLogin(), minutes);
         }
@@ -75,7 +76,7 @@ public class StreamData {
         for (Integer count : viewerCounts) {
             sum += count;
         }
-        if (viewerCounts.size() == 0) {
+        if (viewerCounts.isEmpty()) {
             return 0;
         }
         return sum / viewerCounts.size();
@@ -87,7 +88,7 @@ public class StreamData {
         boolean isEven = viewersCounts.size() % 2 == 0;
         int middleIndex = viewersCounts.size() / 2;
 
-        if (viewersCounts.size() == 0) {
+        if (viewersCounts.isEmpty()) {
             return 0;
         } else if (isEven) {
             int first = viewersCounts.get(middleIndex - 1);
@@ -104,6 +105,10 @@ public class StreamData {
             max = Math.max(max, count);
         }
         return max;
+    }
+
+    public List<User> getAllViewers() {
+        return allViewers;
     }
 
     public List<User> getNewViewers() {
