@@ -97,14 +97,36 @@ public class MessageExpressionParser {
         String output = message;
         int depth = 0;
         int index = 0;
+        char prevChar = ' ';
+        List<Integer> ignoredChars = new ArrayList<>();
         for (int i = 0; i < message.length(); i++) {
-            if (message.charAt(i) == '$' && i != message.length() - 1 && message.charAt(i + 1) == '(') {
-                expressionStarts.push(i);
-                depth++;
-            } else if (message.charAt(i) == ')' && !expressionStarts.isEmpty()) {
+            if (message.charAt(i) == '(') {
+                if (prevChar == '$') {
+                    expressionStarts.push(i - 1);
+                    depth++;
+                } else {
+                    // makes it so non-expression parentheses don't break everything
+                    // e.g. eval needing parentheses for a math equation
+                    // may be better in the future to support escaping characters
+                    int subDepth = 1;
+                    for (int j = i + 1; j < message.length(); j++) {
+                        if (message.charAt(j) == '(') {
+                            subDepth++;
+                        } else if (message.charAt(j) == ')') {
+                            subDepth--;
+                        }
+
+                        if (subDepth == 0) {
+                            ignoredChars.add(j);
+                            break;
+                        }
+                    }
+                }
+            } else if (message.charAt(i) == ')' && !expressionStarts.isEmpty() && !ignoredChars.contains(i)) {
                 expressionRanges.add(new Range(expressionStarts.pop(), i + 1));
                 expressionQueue.offer(new RangeIndex(depth, index++));
             }
+            prevChar = message.charAt(i);
         }
         while (!expressionQueue.isEmpty()) {
             Range range = expressionRanges.get(expressionQueue.poll().index());
