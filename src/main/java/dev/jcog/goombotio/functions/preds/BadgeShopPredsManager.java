@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 public class BadgeShopPredsManager extends PredsManagerBase {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(BadgeShopPredsManager.class);
     private static final String START_MESSAGE =
-            "Get your predictions in! Send a message with three of either BadSpin1 BadSpin2 BadSpin3 or SpoodlySpun " +
-            "(or a message with 3 digits from 1 to 4) to guess the order the badges will show up in the badge shop! " +
-            "If you get all three right and don't have a sub, you'll win one! Type !preds to learn more.";
+            "Get your predictions in! Send a message with three unique digits between 1 and 4 to guess the order the " +
+            "badges will show up in the badge shop! If you get all three right and don't have a sub, you'll win one! " +
+            "Type !preds to learn more.";
     private static final String ANSWER_REGEX = "[1-4]{3}";
 
     private static final String DISCORD_CHANNEL_WINS = "badge-shop-wins";
